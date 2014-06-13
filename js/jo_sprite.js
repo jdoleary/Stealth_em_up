@@ -3,10 +3,11 @@ function jo_sprite(pixiSprite){
     //utility variables, these do not affect the actual sprite, but are used for camera and such, see prepare_for_draw()
     this.x = 0;
     this.y = 0;
-    this.rad = 0;
+    this.rad = 0;//radians (rotation)
     this.target = {x: this.x, y:this.y};//the target that this sprite moves twords
     this.speed = 0.5;
     this.alive = true;
+    this.radius = 14;
     
     this.sprite = pixiSprite;
     //center the image:
@@ -59,13 +60,13 @@ function jo_sprite(pixiSprite){
     };
     this.getCircleInfoForUtilityLib = function(){
         return {'center': {x:this.x,y:this.y}, 'radius':unit_radius};
-    }
+    };
     this.angleBetweenSprites = function(otherSprite){
         var deltax = otherSprite.x - this.x;
         var deltay = otherSprite.y - this.y;
         //return -Math.atan2(deltay,deltax)*180/3.14159 //in degrees
         return -Math.atan2(deltay,deltax); // in radians
-    }
+    };
     this.angleBetweenSprites_relativeToThis = function(otherSprite){
         //this function uses the "this" sprite's current rotation as the origin axis for the angle
         var deltax = otherSprite.x - this.x;
@@ -75,6 +76,60 @@ function jo_sprite(pixiSprite){
         if(result > Math.PI)result -= Math.PI*2;
         if(result < -Math.PI)result += Math.PI*2;
         return result;
+    };
+    //This function will test collision between sprite and coord and 
+    //move the sprite accordingly so that it is no longer colliding
+    this.collide = function(coord){
+        var opp = this.y - coord.y;
+        var adj = this.x - coord.x;
+        var C = Math.sqrt(opp*opp+adj*adj);
+        if ( C >= this.radius)return;
+        
+        var L = this.radius;
+        var Ang = Math.atan2(opp,adj);
+        
+        
+        var x2 = coord.x + (Math.cos(Ang) * L)
+        var y2 = coord.y + (Math.sin(Ang) * L)
+        
+        //set sprite to new coordinates
+        this.x = x2;
+        this.y = y2;
+    };
+    this.collide_with_wall_sides = function(wall){
+        //check for top/bottom side collision
+        //if between left and right side
+        if(this.x < wall.v2.x && this.x > wall.v8.x){
+            //if colliding with top or bottom wall
+            if(this.y + this.radius > wall.v2.y && this.y - this.radius < wall.v4.y){
+                //determine which way to push
+                var how_far_in_v2 = this.y - wall.v2.y;
+                var how_far_in_v4 = wall.v4.y - this.y;
+                if(how_far_in_v2 < how_far_in_v4){
+                    this.y = wall.v2.y-this.radius;
+                }else{
+                    this.y = wall.v4.y+this.radius;
+                }
+                
+            }
+        }
+        
+        //check for left/right side collision
+        //if between top and bottom side
+        if(this.y < wall.v4.y && this.y > wall.v2.y){
+            //if colliding with left or right wall
+            if(this.x + this.radius > wall.v8.x && this.x - this.radius < wall.v2.x){
+                //determine which way to push
+                var how_far_in_v8 = this.x - wall.v8.x;
+                var how_far_in_v2 = wall.v2.x - this.x;
+                if(how_far_in_v8 < how_far_in_v2){
+                    this.x = wall.v8.x-this.radius;
+                }else{
+                    this.x = wall.v2.x+this.radius;
+                }
+                
+            }
+        }
     }
 
 }

@@ -28,6 +28,7 @@
 	<script src="js/jo_sprite.js"></script>
 	<script src="js/jo_cam.js"></script>
 	<script src="js/jo_utility.js"></script>
+	<script src="js/jo_wall.js"></script>
     <script>
     var window_properties = {width: 620, height: 400};
     var mouse, hero_aim;
@@ -59,6 +60,12 @@
     var img_blue = PIXI.Texture.fromImage("blue.png");
     var img_skull = PIXI.Texture.fromImage("skull.png");
     
+    //walls
+    var walls = [];
+    var wall = new jo_wall({x:50,y:50},{x:100,y:50},{x:100,y:100},{x:50,y:100});
+    walls.push(wall);
+    wall = new jo_wall({x:0,y:50},{x:50,y:50},{x:50,y:75},{x:0,y:75});
+    walls.push(wall);
 
     
     //make sprites
@@ -71,7 +78,7 @@
     guards.push(new jo_sprite(new PIXI.Sprite(img_orange)));
     //randomize guards positions
     for(var i = 0; i < guards.length; i++){
-            guards[i].x = i*100;
+            guards[i].x = i*100+200;
             guards[i].y = i*100;
         
     }
@@ -99,44 +106,52 @@
             hero.target.x = hero.x - 100;
         }else hero.target.x = hero.x;
      
+        //Debug walls:
+        for(var i = 0; i < walls.length; i++){
+            walls[i].draw();
+        }
         
-        
-        
+        //////////////////////
         //update all sprites:
+        //////////////////////
+        
         origin_marker.prepare_for_draw();
         
-        //////////////////////////////////////////////////
-        //////////////////////////////////////////////////
-        //examples of using debug shapes
+        //  HERO
         hero_aim = new Ray(hero.x,hero.y,mouse.x,mouse.y);
         hero_line.draw_Ray(hero_aim);
-        //hero_cir.draw_obj(0,0,50);
-        
         hero.move_to_target();
+        //check collisions:
+        for(var i = 0; i < walls.length; i++){
+            hero.collide(walls[i].v2);
+            hero.collide(walls[i].v4);
+            hero.collide(walls[i].v6);
+            hero.collide(walls[i].v8);
+            hero.collide_with_wall_sides(walls[i])
+        }
         hero.prepare_for_draw();
+        
         if(hero_drag_target)hero.sprite.rotation += Math.PI;//reverse the hero's rotation because he is dragging something.
         
+        //  GUARDS
         for(var i = 0; i < guards.length; i++){
-            hero_cir.draw_obj(guards[i].x,guards[i].y,200);
             if(guards[i].alive){
-                if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) < 200){
-                    //if the guards is close enough to the hero to see him, agro
+            
+                    //Guards agro hero?
                     var visionConeAngleForHero = guards[i].angleBetweenSprites_relativeToThis(hero);
                     countingText.setText("Ang: " + visionConeAngleForHero);
                     if(visionConeAngleForHero <= 1.22 && visionConeAngleForHero >= -1.22){
                         //if the hero is within the guard's vision cone (1.22 rad ~== 70 degrees)
                         guards[i].target = hero;
-                        
                     }else guards[i].target = guards[i];
-                    
-                }else guards[i].target = guards[i];
+                   
                 guards[i].move_to_target();
             }
             guards[i].prepare_for_draw();
         }
 
         
-        //move hero's drag target:
+        //move sprite/item which the hero is dragging.
         if(hero_drag_target){
             hero_drag_target.target = hero;//the drag target is "following" the hero.
             hero_drag_target.move_to_target();
