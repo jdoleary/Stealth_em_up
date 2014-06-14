@@ -29,7 +29,11 @@
 	<script src="js/jo_cam.js"></script>
 	<script src="js/jo_utility.js"></script>
 	<script src="js/jo_wall.js"></script>
+	<script src="js/jo_grid.js"></script>
     <script>
+    //////////////////////////
+    ///////////INIT///////////
+    //////////////////////////
     var window_properties = {width: 620, height: 400};
     var mouse, hero_aim;
     var keys = {w: false, a: false, s: false, d: false, space:false};
@@ -44,6 +48,10 @@
 	requestAnimFrame(animate);
     
     
+    //grid/map
+    var grid = new jo_grid(map1);
+    
+    //camera/debug
     var camera = new jo_cam(window_properties);
     var hero_line = new debug_line();
     var test_cone = new debug_line();
@@ -60,16 +68,12 @@
     var img_blue = PIXI.Texture.fromImage("blue.png");
     var img_skull = PIXI.Texture.fromImage("skull.png");
     
-    //walls
-    var walls = [];
-    var wall = new jo_wall({x:50,y:50},{x:100,y:50},{x:100,y:100},{x:50,y:100});
-    walls.push(wall);
-    wall = new jo_wall({x:0,y:50},{x:50,y:50},{x:50,y:75},{x:0,y:75});
-    walls.push(wall);
 
     
     //make sprites
     var hero = new jo_sprite(new PIXI.Sprite(img_blue));
+    hero.x = 96;
+    hero.y = 96;
     hero.speed = 2;
     var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
     var guards = [];
@@ -78,14 +82,15 @@
     guards.push(new jo_sprite(new PIXI.Sprite(img_orange)));
     //randomize guards positions
     for(var i = 0; i < guards.length; i++){
-            guards[i].x = i*100+200;
-            guards[i].y = i*100;
+            guards[i].x = 96+i*100+200;
+            guards[i].y = 96+i*100;
         
     }
     
-
-    
 	var origin_marker = new jo_sprite(PIXI.Sprite.fromImage("origin.png"));
+    //////////////////////////
+    ////////END INIT//////////
+    //////////////////////////
     
     function gameloop(){
         
@@ -106,10 +111,7 @@
             hero.target.x = hero.x - 100;
         }else hero.target.x = hero.x;
      
-        //Debug walls:
-        for(var i = 0; i < walls.length; i++){
-            walls[i].draw();
-        }
+     
         
         //////////////////////
         //update all sprites:
@@ -121,13 +123,19 @@
         hero_aim = new Ray(hero.x,hero.y,mouse.x,mouse.y);
         hero_line.draw_Ray(hero_aim);
         hero.move_to_target();
-        //check collisions:
-        for(var i = 0; i < walls.length; i++){
-            hero.collide(walls[i].v2);
-            hero.collide(walls[i].v4);
-            hero.collide(walls[i].v6);
-            hero.collide(walls[i].v8);
-            hero.collide_with_wall_sides(walls[i])
+        //check collisions and prepare to draw walls:
+        for(var i = 0; i < grid.cells.length; i++){
+            if(grid.cells[i].solid){
+                hero.collide(grid.cells[i].v2);
+                hero.collide(grid.cells[i].v4);
+                hero.collide(grid.cells[i].v6);
+                hero.collide(grid.cells[i].v8);
+                hero.collide_with_wall_sides(grid.cells[i]);
+            }
+            
+            //draw:
+            //grid.cells[i].draw();//debug
+            grid.cells[i].prepare_for_draw();
         }
         hero.prepare_for_draw();
         
