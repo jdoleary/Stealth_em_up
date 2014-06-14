@@ -126,10 +126,10 @@
         //check collisions and prepare to draw walls:
         for(var i = 0; i < grid.cells.length; i++){
             if(grid.cells[i].solid){
-                //hero.collide(grid.cells[i].v2);
-                //hero.collide(grid.cells[i].v4);
+                hero.collide(grid.cells[i].v2);
+                hero.collide(grid.cells[i].v4);
                 hero.collide(grid.cells[i].v6);
-                //hero.collide(grid.cells[i].v8);
+                hero.collide(grid.cells[i].v8);
                 hero.collide_with_wall_sides(grid.cells[i]);
             }
             
