@@ -4,10 +4,12 @@ function jo_sprite(pixiSprite){
     this.x = 0;
     this.y = 0;
     this.rad = 0;//radians (rotation)
-    this.target = {x: this.x, y:this.y};//the target that this sprite moves twords
-    this.speed = 0.5;
+    this.target = {x: null, y:null};//the target that this sprite moves twords
+    this.speed = 3;
     this.alive = true;
     this.radius = 14;
+    
+    this.path = [];//path applies to AI following a path;
     
     this.sprite = pixiSprite;
     //center the image:
@@ -38,13 +40,14 @@ function jo_sprite(pixiSprite){
     this.move_to_target = function(){
         //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
         //the movement of this.x and this.y (a,b) are found with the formulas: A/C = a/c and B/C = b/c
+        if(this.target.x == null || this.target.y == null )return;//no target
         var a,b;
         var c = this.speed;
         var A = this.target.x-this.x;
         var B = this.target.y-this.y;
         var C = Math.sqrt(A*A+B*B);
         if(C<this.stop_distance){        
-            return; // the object is close enough that it need not move
+            return true; // the object is close enough that it need not move
         }
         a = c*A/C;
         b = c*B/C;

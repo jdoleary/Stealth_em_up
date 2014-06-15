@@ -6,3 +6,17 @@ Commit 2:
 Grid
 Grid Images
 bug at pixel 320 320 colliding
+
+6/14/14
+Added a break statement which fixed a bug where hero would slow down too much if he tried
+to drag a dead body when more than one dead body was around.
+Changed click listener to on mouse down for more responsive shooting
+
+major: PATHFINDING
+minor: made screen bigger
+increase sprite speed
+new map for pathing
+commented out guard agro to test path finding
+guards now move only when they have a path
+when hero shoots gun, path is created from guards to hero and they go to where they 
+heard the shot.

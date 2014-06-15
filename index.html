@@ -30,11 +30,12 @@
 	<script src="js/jo_utility.js"></script>
 	<script src="js/jo_wall.js"></script>
 	<script src="js/jo_grid.js"></script>
+	<script src="js/astar.js"></script>
     <script>
     //////////////////////////
     ///////////INIT///////////
     //////////////////////////
-    var window_properties = {width: 620, height: 400};
+    var window_properties = {width: 620*2, height: 400*2};
     var mouse, hero_aim;
     var keys = {w: false, a: false, s: false, d: false, space:false};
 	// create an new instance of a pixi stage
@@ -74,18 +75,19 @@
     var hero = new jo_sprite(new PIXI.Sprite(img_blue));
     hero.x = 96;
     hero.y = 96;
-    hero.speed = 2;
+    hero.speed = 4;
     var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
     var guards = [];
     guards.push(new jo_sprite(new PIXI.Sprite(img_orange)));
     guards.push(new jo_sprite(new PIXI.Sprite(img_orange)));
     guards.push(new jo_sprite(new PIXI.Sprite(img_orange)));
-    //randomize guards positions
-    for(var i = 0; i < guards.length; i++){
-            guards[i].x = 96+i*100+200;
-            guards[i].y = 96+i*100;
-        
-    }
+    guards[0].x = 288;
+    guards[0].y = 96;
+    guards[1].x = 480;
+    guards[1].y = 96;
+    guards[2].x = 608;
+    guards[2].y = 96;
+
     
 	var origin_marker = new jo_sprite(PIXI.Sprite.fromImage("origin.png"));
     //////////////////////////
@@ -146,14 +148,25 @@
             if(guards[i].alive){
             
                     //Guards agro hero?
-                    var visionConeAngleForHero = guards[i].angleBetweenSprites_relativeToThis(hero);
+                    /*var visionConeAngleForHero = guards[i].angleBetweenSprites_relativeToThis(hero);
                     countingText.setText("Ang: " + visionConeAngleForHero);
                     if(visionConeAngleForHero <= 1.22 && visionConeAngleForHero >= -1.22){
                         //if the hero is within the guard's vision cone (1.22 rad ~== 70 degrees)
                         guards[i].target = hero;
-                    }else guards[i].target = guards[i];
-                   
-                guards[i].move_to_target();
+                    }else guards[i].target = guards[i];*/
+                //if guard has a path
+                if(guards[i].path.length > 0){
+                    //if guard does not have a target:
+                    if(guards[i].target.x == null || guards[i].target.y == null){
+                        guards[i].target = guards[i].path.shift();//get the first element.
+                    }
+                    
+                }
+                //call move to target, if target is reached, it will return true and set target to null
+                if(guards[i].move_to_target()){
+                    guards[i].target.x = null;
+                    guards[i].target.y = null;
+                }
             }
             guards[i].prepare_for_draw();
         }
@@ -209,6 +222,7 @@
                         hero_drag_target = guards[i];
                         hero_drag_target.speed = hero.speed;
                         hero_drag_target.stop_distance = unit_radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                        break;
 
                     }
                         
@@ -228,7 +242,8 @@
         
     };
     var test;
-    window.onclick = function(e){
+    onmousedown = function(e){
+        shoot_gun();
         mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
         
         //what happens on mouse click:
@@ -246,6 +261,17 @@
     
     }
     
+    function shoot_gun(){
+        //makes a sound and draws all guards:
+        for(var i = 0; i < guards.length; i++){
+            var hero_index = grid.getIndexFromCoords_2d(hero.x,hero.y);
+            console.log('hero', hero_index);
+            var guard_index = grid.getIndexFromCoords_2d(guards[i].x,guards[i].y);
+            console.log('guard', guard_index);
+            var path = grid.getPath(guard_index,hero_index);
+            guards[i].path = path;
+        }
+    }
     
 
 	</script>
