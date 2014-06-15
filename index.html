@@ -68,6 +68,7 @@
     var img_orange = PIXI.Texture.fromImage("orange2.png");
     var img_blue = PIXI.Texture.fromImage("blue.png");
     var img_skull = PIXI.Texture.fromImage("skull.png");
+    var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
     
 
     
@@ -147,13 +148,18 @@
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive){
             
-                    //Guards agro hero?
-                    /*var visionConeAngleForHero = guards[i].angleBetweenSprites_relativeToThis(hero);
-                    countingText.setText("Ang: " + visionConeAngleForHero);
-                    if(visionConeAngleForHero <= 1.22 && visionConeAngleForHero >= -1.22){
-                        //if the hero is within the guard's vision cone (1.22 rad ~== 70 degrees)
-                        guards[i].target = hero;
-                    }else guards[i].target = guards[i];*/
+                //Guards agro hero?
+                var visionConeAngleForHero = guards[i].angleBetweenSprites_relativeToThis(hero);
+                countingText.setText("Ang: " + visionConeAngleForHero);
+                if(visionConeAngleForHero <= 1.22 && visionConeAngleForHero >= -1.22){
+                    //if the hero is within the guard's vision cone (1.22 rad ~== 70 degrees)
+                    //then guards will turn red, face hero, and stop moving
+                    //the hero then only has a few seconds before guard calls backup
+                    guards[i].sprite.setTexture(img_guard_alert);
+                    guards[i].path = [];//empty path
+                    guards[i].target = {x:hero.x,y:hero.y};
+                    guards[i].moving = false;//guards stop in their tracks when they see hero.
+                }
                 //if guard has a path
                 if(guards[i].path.length > 0){
                     //if guard does not have a target:
@@ -253,7 +259,7 @@
         for(var i = 0; i < guards.length; i++){
             if(circle_ray_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim)){
                 guards[i].sprite.setTexture(img_skull);
-                guards[i].alive = false;
+                guards[i].kill();
             
             }
         
@@ -265,9 +271,7 @@
         //makes a sound and draws all guards:
         for(var i = 0; i < guards.length; i++){
             var hero_index = grid.getIndexFromCoords_2d(hero.x,hero.y);
-            console.log('hero', hero_index);
             var guard_index = grid.getIndexFromCoords_2d(guards[i].x,guards[i].y);
-            console.log('guard', guard_index);
             var path = grid.getPath(guard_index,hero_index);
             guards[i].path = path;
         }

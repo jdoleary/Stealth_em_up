@@ -20,3 +20,10 @@ commented out guard agro to test path finding
 guards now move only when they have a path
 when hero shoots gun, path is created from guards to hero and they go to where they 
 heard the shot.
+
+//
+fixed a weird issue when walking into a guard who notices you sets hero back to 0,0.  This must have something to do with javascript.
+  I called guards[i].target = hero; rather than guards[i].target = {x: hero.x, y: hero.y}; I think target became a pointer for hero and then
+   target.x and .y got set to null or 0 or something.
+Guards rotate to follow hero with sight.
+Sprites rotate to face target.

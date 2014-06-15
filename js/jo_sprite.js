@@ -6,6 +6,7 @@ function jo_sprite(pixiSprite){
     this.rad = 0;//radians (rotation)
     this.target = {x: null, y:null};//the target that this sprite moves twords
     this.speed = 3;
+    this.moving = true;
     this.alive = true;
     this.radius = 14;
     
@@ -18,8 +19,14 @@ function jo_sprite(pixiSprite){
     
     
 	stage.addChild(this.sprite);
-    
-    this.move = function(targx,targy){
+    this.kill = function(){
+        this.alive = false;
+        //enable moving so they can be dragged
+        this.moving = true;
+        this.path = [];
+        this.target = {x: null, y:null};
+    }
+    /*this.move = function(targx,targy){
         //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
         //the movement of this.x and this.y (a,b) are found with the formulas: A/C = a/c and B/C = b/c
         var a,b;
@@ -35,7 +42,7 @@ function jo_sprite(pixiSprite){
         this.x += a;
         this.y += b;
         this.rad = Math.atan2(b,a);
-    };
+    };*/
     this.stop_distance = 1.5; //Distance to stop from target.
     this.move_to_target = function(){
         //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
@@ -51,9 +58,23 @@ function jo_sprite(pixiSprite){
         }
         a = c*A/C;
         b = c*B/C;
-        this.x += a;
-        this.y += b;
-        this.rad = Math.atan2(b,a);
+        console.log('a',a);
+        console.log('b',b);
+        if(this.moving){
+            //only move the sprite if they are set to moving, for example when guards see hero they will stop in their tracks
+            this.x += a;
+            this.y += b;
+        }
+        var newRad = Math.atan2(b,a);
+        var diff = newRad - this.rad;
+        if(diff <= 0.1)this.rad = newRad;
+        else if(diff > Math.PI)this.rad -= 0.1;
+        else if(diff < -Math.PI)this.rad += 0.1;
+        else if(diff < 0)this.rad -= 0.1;
+        else if(diff > 0)this.rad += 0.1;
+        if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
+        if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
+        
     };
     this.prepare_for_draw = function(){
         var draw_coords = camera.relativePoint(this);
@@ -133,6 +154,6 @@ function jo_sprite(pixiSprite){
                 
             }
         }
-    }
+    };
 
 }
