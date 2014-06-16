@@ -77,13 +77,17 @@
     var img_blue = PIXI.Texture.fromImage("blue.png");
     var img_skull = PIXI.Texture.fromImage("skull.png");
     var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
-    var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
     var img_origin = PIXI.Texture.fromImage("origin.png");
+var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
     
+    
+    //ray debug:
+    var ray_debug = new jo_sprite(new PIXI.Sprite(img_origin_blue));
 
     
     //make sprites
     var hero = new jo_sprite(new PIXI.Sprite(img_blue));
+    var hero_end_aim_coord;
     hero.x = 96;
     hero.y = 96;
     hero.speed = 4;
@@ -102,14 +106,6 @@
     
 	var origin_marker = new jo_sprite(new PIXI.Sprite(img_origin));
     
-    //raycast debug:
-    var ray_debug_h = [];
-    var ray_debug_v = [];
-    for(var i = 0; i < 10; i++){
-        ray_debug_h.push(new jo_sprite(new PIXI.Sprite(img_origin)));
-        ray_debug_v.push(new jo_sprite(new PIXI.Sprite(img_origin)));
-    }
-    //end raycast debug
     
     
     //////////////////////////
@@ -122,6 +118,9 @@
         mouse_rel = stage.getMousePosition();//gets relative mouse position
         mouse = camera.objectivePoint(mouse_rel);
         //countingText.setText("Mouse: " + Math.round(mouse.x) + " " + Math.round(mouse.y));
+        
+        //get raycast for hero aim:
+        hero_end_aim_coord = getRaycastPoint(hero.x,hero.y,mouse.x,mouse.y);
         
         //update hero directions based on keys:
         if(keys.w){
@@ -206,46 +205,7 @@
             //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
         }
         
-        //draw debug raycast:
-        var hero_aim_angle = findAngleBetweenPoints({x:hero.x,y:hero.y},{x:mouse.x,y:mouse.y});
-        var rayh = raycast_horiz({x:hero.x,y:hero.y},hero_aim_angle);
-        for(var i = 0; i < 10; i++){
-            var nextPoint_h = nextPointAlongRay(rayh,i);
-            ray_debug_h[i].sprite.visible = true;
-            ray_debug_h[i].x = nextPoint_h.x;
-            ray_debug_h[i].y = nextPoint_h.y;
-            ray_debug_h[i].prepare_for_draw();
-            
-            if(grid.isWallSolid_coords(ray_debug_h[i].x,ray_debug_h[i].y)){
-                ray_debug_h[i].sprite.setTexture(img_origin_blue);
-                for(var j = i + 1; j < 10; j++){
-                    ray_debug_h[j].sprite.visible = false;
-                }
-                break; // [i] is the end of the raycast
-            }
-            else ray_debug_h[i].sprite.setTexture(img_origin);
-     
-        }
-        var rayv = raycast_virt({x:hero.x,y:hero.y},hero_aim_angle);
-        for(var i = 0; i < 10; i++){
-            var nextPoint_v = nextPointAlongRay(rayv,i);
-            ray_debug_v[i].sprite.visible = true;
-            ray_debug_v[i].x = nextPoint_v.x;
-            ray_debug_v[i].y = nextPoint_v.y;
-            ray_debug_v[i].prepare_for_draw();
-            
-            if(grid.isWallSolid_coords(ray_debug_v[i].x,ray_debug_v[i].y)){
-                ray_debug_v[i].sprite.setTexture(img_origin_blue);
-                for(var j = i + 1; j < 10; j++){
-                    ray_debug_v[j].sprite.visible = false;
-                }
-                break; // [i] is the end of the raycast
-            }
-            else ray_debug_v[i].sprite.setTexture(img_origin);
-     
-        }
         
-        //end draw debug raycast
         
         //set camera on hero
         camera.x = hero.x;

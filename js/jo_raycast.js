@@ -1,6 +1,11 @@
 //http://www.permadi.com/tutorial/raycast/rayc7.html
+
+var ray_debug;
+
+
 function raycast_horiz(point,angle){
-    //returns the points where the line intersects with the horizontal lines
+//returns the first point along the ray where the line intersects with the horizontal lines of the coordinate plane
+//nextPointAlongRay is then used along with Xa and Ya to find the next point along the ray.
     /*
     (Ax,Ay) are the coordinates of the first intersection between the ray and the horizontal line.
     Xa and Ya are the difference between Ax,Ay and the next point.  So for example the next point is
@@ -24,17 +29,16 @@ function raycast_horiz(point,angle){
     var Ax = point.x + (Ay - point.y) / Math.tan(angle);
     return {x:Ax,y:Ay,dx:Xa,dy:Ya};
 }
-var test;
 function nextPointAlongRay(firstPointAlongRay,index){
     //the index'th point
-    test = firstPointAlongRay;
     var nextX = firstPointAlongRay.x+firstPointAlongRay.dx*index;
     var nextY = firstPointAlongRay.y+firstPointAlongRay.dy*index;
     return {x:nextX,y:nextY};
 }
 
 function raycast_virt(point,angle){
-//returns the points where the line intersects with the vertical lines
+//returns the first point along the ray where the line intersects with the vertical lines of the coordinate plane
+//nextPointAlongRay is then used along with Xa and Ya to find the next point along the ray.
     if(angle > Math.PI || angle < -Math.PI){
         console.log("Error, angle must be between 180 and -180 degrees");
         return;
@@ -55,4 +59,62 @@ function raycast_virt(point,angle){
     
     return {x:Bx,y:By,dx:Xa,dy:Ya};
 
+}
+function getRaycastPoint(startx,starty,endx,endy){
+//sets the point at which the hero's aim runs into a solid wall
+        var ray_angle = findAngleBetweenPoints({x:startx,y:starty},{x:endx,y:endy});
+        //get the first point on the horizontal lines
+        var rayh = raycast_horiz({x:startx,y:starty},ray_angle);
+        var ray_h_closest;
+        
+        //find the closest point that touches a wall
+        for(var i = 0; i < 10; i++){
+            var nextPoint_h = nextPointAlongRay(rayh,i);
+            
+            if(grid.isWallSolid_coords(nextPoint_h.x,nextPoint_h.y)){
+                ray_h_closest = nextPoint_h;
+                break; // [i] is the end of the raycast
+            }
+     
+        }
+        //get the first point on the vertical lines
+        var rayv = raycast_virt({x:startx,y:starty},ray_angle);
+        var ray_v_closest;
+        
+        
+        //find the closest point that touches a wall
+        for(var i = 0; i < 10; i++){
+            var nextPoint_v = nextPointAlongRay(rayv,i);
+            
+            if(grid.isWallSolid_coords(nextPoint_v.x,nextPoint_v.y)){
+                ray_v_closest = nextPoint_v;
+                break; // [i] is the end of the raycast
+            }
+     
+        }
+        
+        //find closest out of the two closest points:
+        var ray_closest;
+        //if one of the rays doesn't exist
+        if(!ray_h_closest && ray_v_closest){
+            ray_closest = ray_v_closest;
+            
+        }else if(!ray_v_closest && ray_h_closest){
+            ray_closest = ray_h_closest;
+            
+        }else if (ray_h_closest && ray_v_closest){
+            //if both rays contain a close point touching a wall, pick the closest.
+            var h_dist = get_distance(startx,starty,ray_h_closest.x,ray_h_closest.y);
+            var v_dist = get_distance(startx,starty,ray_v_closest.x,ray_v_closest.y);
+            if(h_dist < v_dist){
+                ray_closest = ray_h_closest;
+            }else{
+                ray_closest = ray_v_closest;
+            }
+        }
+        ray_debug.x = ray_closest.x;
+        ray_debug.y = ray_closest.y;
+        ray_debug.prepare_for_draw();
+        return {x:ray_closest.x,y:ray_closest.y};
+        
 }
