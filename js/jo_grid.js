@@ -27,9 +27,11 @@ function jo_grid(map){
         return {x_index: x_index, y_index: y_index};
     };
     
-    this.getIndexFromGrid = function(row, col){
+    this.getCellFromIndex = function(row, col){
         //gets 1d index from 2d index
-        return this.cells[width * row + col];
+        //NOTE: I had to reverse col and row, usually the formula is width * row + col, but
+        //because of the way that the 2d array works I had to reverse it.
+        return this.cells[this.width * col + row];
     };
     
     this.getIndexFromCoords_2d = function(x,y){
@@ -37,6 +39,23 @@ function jo_grid(map){
         var indexX = Math.floor(x/this.cell_size);
         var indexY = Math.floor(y/this.cell_size);
         return {x: indexX, y: indexY};
+    }
+    
+    this.isWallSolid_coords = function(x,y){
+        //returns true if the wall that the (x,y) coords are within is solid:
+        
+        //return if coords are outside of map bounds:
+        if(x < 0 || y < 0)return false;//do not accept negative values;
+        if(x > this.cell_size*this.width || y > this.cell_size*this.height)return false;//coord out of bounds
+        var grid_index = this.getIndexFromCoords_2d(x,y);
+        var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
+        
+        if(cell && cell.solid){
+            //cell.image_sprite.setTexture(img_tile_green);Turns cell green for debug so I can see which cell the coords are in.
+            return true;
+        }
+        else return false;
+        
     }
     
     this.getWallCoords = function(wall_type,x_index,y_index){
@@ -82,6 +101,7 @@ function jo_grid(map){
             break;
         };
     }
+    delete this.map_data;
     
     /////////////////////////////
     ////////////A STAR///////////
