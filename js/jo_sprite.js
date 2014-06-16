@@ -58,8 +58,6 @@ function jo_sprite(pixiSprite){
         }
         a = c*A/C;
         b = c*B/C;
-        console.log('a',a);
-        console.log('b',b);
         if(this.moving){
             //only move the sprite if they are set to moving, for example when guards see hero they will stop in their tracks
             this.x += a;

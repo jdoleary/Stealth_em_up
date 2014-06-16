@@ -35,3 +35,10 @@ function Ray(x1,y1,x2,y2){
 function get_distance(x1,y1,x2,y2){
     return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 }
+
+function findAngleBetweenPoints(start,end){
+    var opp = end.y - start.y;
+    var adj = end.x - start.x;
+    var ang = Math.atan2(opp,adj);
+    return ang; //In radians
+}

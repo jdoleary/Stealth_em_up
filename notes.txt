@@ -22,8 +22,13 @@ when hero shoots gun, path is created from guards to hero and they go to where t
 heard the shot.
 
 //
-fixed a weird issue when walking into a guard who notices you sets hero back to 0,0.  This must have something to do with javascript.
+guards can become alerted, and stop moving when they see you.
+bug: fixed a weird issue when walking into a guard who notices you sets hero back to 0,0.  This must have something to do with javascript.
   I called guards[i].target = hero; rather than guards[i].target = {x: hero.x, y: hero.y}; I think target became a pointer for hero and then
    target.x and .y got set to null or 0 or something.
 Guards rotate to follow hero with sight.
 Sprites rotate to face target.
+
+6/16/14
+Added Mr. Doob's Stats.js
+Added raycasting, currently debug dots are on

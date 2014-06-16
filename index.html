@@ -31,10 +31,18 @@
 	<script src="js/jo_wall.js"></script>
 	<script src="js/jo_grid.js"></script>
 	<script src="js/astar.js"></script>
+	<script src="js/Stats.js"></script>
+	<script src="js/jo_raycast.js"></script>
     <script>
+    
+    //Mr Doob's Stats.js:
+    var stats = new Stats();
+    
     //////////////////////////
     ///////////INIT///////////
     //////////////////////////
+    
+    
     var window_properties = {width: 620*2, height: 400*2};
     var mouse, hero_aim;
     var keys = {w: false, a: false, s: false, d: false, space:false};
@@ -60,7 +68,7 @@
     // create a text object that will be updated..
     var countingText = new PIXI.Text("Mouse Pos:", { font: "20px Arial", fill: "#000000", align: "center", stroke: "#FFFFFF", strokeThickness: 2 });
     countingText.position.x = 0;
-    countingText.position.y = 0;
+    countingText.position.y = 750;
     countingText.anchor.x = 0;
     stage.addChild(countingText);
 
@@ -91,6 +99,17 @@
 
     
 	var origin_marker = new jo_sprite(PIXI.Sprite.fromImage("origin.png"));
+    
+    //raycast debug:
+    var ray_debug_h = [];
+    var ray_debug_v = [];
+    for(var i = 0; i < 10; i++){
+        ray_debug_h.push(new jo_sprite(PIXI.Sprite.fromImage("origin.png")));
+        ray_debug_v.push(new jo_sprite(PIXI.Sprite.fromImage("origin.png")));
+    }
+    //end raycast debug
+    
+    
     //////////////////////////
     ////////END INIT//////////
     //////////////////////////
@@ -185,6 +204,24 @@
             //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
         }
         
+        //draw debug raycast:
+        var hero_aim_angle = findAngleBetweenPoints({x:hero.x,y:hero.y},{x:mouse.x,y:mouse.y});
+        var rayh = raycast_horiz({x:hero.x,y:hero.y},hero_aim_angle);
+        var rayv = raycast_virt({x:hero.x,y:hero.y},hero_aim_angle);
+        for(var i = 0; i < 10; i++){
+            var nextPoint_h = nextPointAlongRay(rayh,i);
+            var nextPoint_v = nextPointAlongRay(rayv,i);
+            ray_debug_h[i].x = nextPoint_h.x;
+            ray_debug_h[i].y = nextPoint_h.y;
+            ray_debug_h[i].prepare_for_draw();
+            
+            ray_debug_v[i].x = nextPoint_v.x;
+            ray_debug_v[i].y = nextPoint_v.y;
+            ray_debug_v[i].prepare_for_draw();
+        
+        }
+        //end draw debug raycast
+        
         //set camera on hero
         camera.x = hero.x;
         camera.y = hero.y;
@@ -194,11 +231,16 @@
     }
 
 	function animate() {
+        stats.begin();//Mr Doob's Stats.js
+        
         gameloop();
 	    // render the stage
 	    renderer.render(stage);
 
 	    requestAnimFrame(animate);	
+        
+        
+        stats.end();//Mr Doob's Stats.js
         
     
         
@@ -276,6 +318,11 @@
             guards[i].path = path;
         }
     }
+    //Mr. Doob's Stats.js
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    document.body.appendChild( stats.domElement );
     
 
 	</script>
