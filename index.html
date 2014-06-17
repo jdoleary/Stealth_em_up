@@ -211,10 +211,33 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         }
         
         
-        
-        //set camera on hero
-        camera.x = hero.x;
-        camera.y = hero.y;
+        //loose camera
+        camera.x = hero.x + (mouse.x - hero.x)/3;
+        camera.y = hero.y + (mouse.y - hero.y)/3;
+        /*The below commented block is for smooth camera
+        //press space to look around
+        if(keys['space']){
+            //camera floats between hero and mouse
+            //smooth camera
+            camera.following = true;
+            camera.target = {x: hero.x + (mouse.x - hero.x)/2, y: hero.y + (mouse.y - hero.y)/2};
+        }else{
+            //set camera target to hero
+            if(camera.following){
+                //return to hero
+                camera.target = hero;
+            }else{
+                //stick to hero
+                camera.x = hero.x; 
+                camera.y = hero.y;
+            }
+        }
+        //if the camera is set to following, move it to target, otherwise, don't because it is sticking to target.
+        if(camera.following && camera.move_to_target()){
+            if(camera.target == hero){
+                camera.following = false;//when camera reaches it's target, turn off following so it can just stick.
+            }
+        }*/
         
         
 
