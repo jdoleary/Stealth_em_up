@@ -1,7 +1,8 @@
-function circle_ray_intersect(circle,ray){
+function circle_linesetment_intersect(circle,linestart,lineend){
     //http://stackoverflow.com/questions/1073336/circle-line-collision-detection
-    var E = ray.start;
-    var L = ray.end;
+    //linestart and lineend in form {x: #, y: #}
+    var E = linestart;
+    var L = lineend;
     var C = circle.center;
     var r = circle.radius;
     
@@ -12,8 +13,43 @@ function circle_ray_intersect(circle,ray){
     var b = 2*dot([f.x,f.y],[d.x,d.y]);
     var c = dot([f.x,f.y],[f.x,f.y]) - r*r;
     var discriminant = b*b-4*a*c;
-    if (discriminant < 0) return false;
-    else return true;
+    if (discriminant < 0){
+        //no intersection
+        return false;
+    }
+    else{
+        discriminant = Math.sqrt(discriminant);
+        var t1 = (-b - discriminant)/(2*a);
+        var t2 = (-b + discriminant)/(2*a);
+        
+        
+        // 3x HIT cases:
+        //          -o->             --|-->  |            |  --|->
+        // Impale(t1 hit,t2 hit), Poke(t1 hit,t2>1), ExitWound(t1<0, t2 hit), 
+
+        // 3x MISS cases:
+        //       ->  o                     o ->              | -> |
+        // FallShort (t1>1,t2>1), Past (t1<0,t2<0), CompletelyInside(t1<0, t2>1)
+
+        if( t1 >= 0 && t1 <= 1 )
+        {
+        // t1 is the intersection, and it's closer than t2
+        // (since t1 uses -b - discriminant)
+        // Impale, Poke
+        return true;
+        }
+
+        // here t1 didn't intersect so we are either started
+        // inside the sphere or completely past it
+        if( t2 >= 0 && t2 <= 1 )
+        {
+        // ExitWound
+        return true;
+        }
+
+        // no intn: FallShort, Past, CompletelyInside
+        return false;
+    }
     
     
     function dot(a,b) {

@@ -70,6 +70,7 @@
     countingText.position.x = 0;
     countingText.position.y = 750;
     countingText.anchor.x = 0;
+    //countingText.setText("Ang: " + visionConeAngleForHero);
     stage.addChild(countingText);
 
     //images:
@@ -143,7 +144,7 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         origin_marker.prepare_for_draw();
         
         //  HERO
-        hero_aim = new Ray(hero.x,hero.y,mouse.x,mouse.y);
+        hero_aim = new Ray(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
         hero_line.draw_Ray(hero_aim);
         hero.move_to_target();
         //check collisions and prepare to draw walls:
@@ -170,15 +171,19 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
             
                 //Guards agro hero?
                 var visionConeAngleForHero = guards[i].angleBetweenSprites_relativeToThis(hero);
-                countingText.setText("Ang: " + visionConeAngleForHero);
                 if(visionConeAngleForHero <= 1.22 && visionConeAngleForHero >= -1.22){
                     //if the hero is within the guard's vision cone (1.22 rad ~== 70 degrees)
                     //then guards will turn red, face hero, and stop moving
                     //the hero then only has a few seconds before guard calls backup
-                    guards[i].sprite.setTexture(img_guard_alert);
-                    guards[i].path = [];//empty path
-                    guards[i].target = {x:hero.x,y:hero.y};
-                    guards[i].moving = false;//guards stop in their tracks when they see hero.
+                    
+                    //but only if there are no walls between them:
+                    var raycast = getRaycastPoint(guards[i].x,guards[i].y,hero.x,hero.y);
+                    if(get_distance(guards[i].x,guards[i].y,raycast.x,raycast.y)>=get_distance(guards[i].x,guards[i].y,hero.x,hero.y)){
+                        guards[i].sprite.setTexture(img_guard_alert);
+                        guards[i].path = [];//empty path
+                        guards[i].target = {x:hero.x,y:hero.y};
+                        guards[i].moving = false;//guards stop in their tracks when they see hero.
+                    }
                 }
                 //if guard has a path
                 if(guards[i].path.length > 0){
@@ -274,7 +279,6 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         if(code == 32){keys['space'] = false;}
         
     };
-    var test;
     onmousedown = function(e){
         shoot_gun();
         mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
@@ -284,7 +288,7 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         
         //check if hero aim intersects guard:
         for(var i = 0; i < guards.length; i++){
-            if(circle_ray_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim)){
+            if(circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
                 guards[i].sprite.setTexture(img_skull);
                 guards[i].kill();
             
