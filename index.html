@@ -35,13 +35,17 @@
 	<script src="js/jo_raycast.js"></script>
     <script>
     
+    
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    /*
+Window Setup
+    */
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    
     //Mr Doob's Stats.js:
     var stats = new Stats();
-    
-    //////////////////////////
-    ///////////INIT///////////
-    //////////////////////////
-    
     
     var window_properties = {width: 620*2, height: 400*2};
     var mouse, hero_aim;
@@ -55,7 +59,14 @@
 	// add the renderer view element to the DOM
 	document.body.appendChild(renderer.view);
 	requestAnimFrame(animate);
-    
+
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    /*
+Map / Game Object Setup
+    */
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////    
     
     //grid/map
     var grid = new jo_grid(map1);
@@ -79,7 +90,7 @@
     var img_skull = PIXI.Texture.fromImage("skull.png");
     var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
     var img_origin = PIXI.Texture.fromImage("origin.png");
-var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
+    var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
     
     
     //ray debug:
@@ -109,16 +120,28 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
     
     
     
-    //////////////////////////
-    ////////END INIT//////////
-    //////////////////////////
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    /*
+Game Loop
+    */
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
     
     function gameloop(){
         
-        //update mouse
+        
+        //////////////////////
+        //update Mouse
+        //////////////////////
         mouse_rel = stage.getMousePosition();//gets relative mouse position
         mouse = camera.objectivePoint(mouse_rel);
         //countingText.setText("Mouse: " + Math.round(mouse.x) + " " + Math.round(mouse.y));
+        
+        
+        //////////////////////
+        //Hero Movement and Aim
+        //////////////////////
         
         //get raycast for hero aim:
         hero_end_aim_coord = getRaycastPoint(hero.x,hero.y,mouse.x,mouse.y);
@@ -143,7 +166,11 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         
         origin_marker.prepare_for_draw();
         
-        //  HERO
+        
+        //////////////////////
+        //update Hero
+        //////////////////////
+        
         hero_aim = new Ray(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
         hero_line.draw_Ray(hero_aim);
         hero.move_to_target();
@@ -165,7 +192,11 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         
         if(hero_drag_target)hero.sprite.rotation += Math.PI;//reverse the hero's rotation because he is dragging something.
         
-        //  GUARDS
+        
+        //////////////////////
+        //update Guards
+        //////////////////////
+        
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive){
             
@@ -203,6 +234,10 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         }
 
         
+        //////////////////////
+        //Drag Target
+        //////////////////////
+        
         //move sprite/item which the hero is dragging.
         if(hero_drag_target){
             hero_drag_target.target = hero;//the drag target is "following" the hero.
@@ -210,6 +245,10 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
             //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
         }
         
+        
+        //////////////////////
+        //Camera
+        //////////////////////
         
         //loose camera
         camera.x = hero.x + (mouse.x - hero.x)/3;
@@ -259,6 +298,13 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         
 	}
     
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    /*
+Key Handlers
+    */
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     window.onkeydown = function(e){
         var code = e.keyCode ? e.keyCode : e.which;
@@ -320,6 +366,14 @@ var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
         }
     
     }
+    
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    /*
+Other
+    */
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
     
     function shoot_gun(){
         //makes a sound and draws all guards:
