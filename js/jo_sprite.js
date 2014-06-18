@@ -9,44 +9,17 @@ function jo_sprite(pixiSprite){
     this.alive = true;
     this.radius = 14;
     
-    //for hero only:
-    this.masked = false;
-    
-    //for guards only
-    this.alarmed = false;
-    this.path = [];//path applies to AI following a path;
-    
     this.sprite = pixiSprite;
     //center the image:
     this.sprite.anchor.x = 0.5;
     this.sprite.anchor.y = 0.5;
-    
-    
 	stage.addChild(this.sprite);
+    
     this.kill = function(){
         this.alive = false;
-        //enable moving so they can be dragged
-        this.moving = true;
-        this.path = [];
         this.target = {x: null, y:null};
     }
-    /*this.move = function(targx,targy){
-        //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
-        //the movement of this.x and this.y (a,b) are found with the formulas: A/C = a/c and B/C = b/c
-        var a,b;
-        var c = this.speed;
-        var A = targx-this.x;
-        var B = targy-this.y;
-        var C = Math.sqrt(A*A+B*B);
-        if(C<this.stop_distance){        
-            return; // the object is close enough that it need not move
-        }
-        a = c*A/C;
-        b = c*B/C;
-        this.x += a;
-        this.y += b;
-        this.rad = Math.atan2(b,a);
-    };*/
+
     this.stop_distance = 1.5; //Distance to stop from target.
     this.move_to_target = function(){
         //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
@@ -79,18 +52,6 @@ function jo_sprite(pixiSprite){
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         
     };
-    this.getRandomPatrolPath = function(){
-        //if the sprite is able to move
-        if(this.moving){
-            //find new patrol path:
-            var newCellToPatrolTo = grid.getRandomNonSolidCellIndex();
-            var newCellInfo = grid.getInfoFromIndex(newCellToPatrolTo);
-            var newCellIndex = {x: newCellInfo.x_index, y: newCellInfo.y_index};
-            var currentIndex = grid.getIndexFromCoords_2d(this.x,this.y);
-            this.path = grid.getPath(currentIndex,newCellIndex);
-        }
-    
-    };
     this.doesSpriteSeeSprite = function(otherSprite){
         //Check if this sprite sees otherSprite
         var visionConeAngleForotherSprite = this.angleBetweenSprites_relativeToThis(otherSprite);
@@ -106,15 +67,6 @@ function jo_sprite(pixiSprite){
             }else return false;
         }else return false;
     
-    };
-    this.becomeAlarmed = function(objectOfAlarm){
-        //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-        this.sprite.setTexture(img_guard_alert);
-        this.path = [];//empty path
-        this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
-        this.moving = false;//this sprite stop in their tracks when they see otherSprite.
-        this.alarmed = true;
-        
     };
     this.prepare_for_draw = function(){
         var draw_coords = camera.relativePoint(this);
