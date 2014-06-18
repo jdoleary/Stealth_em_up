@@ -24,9 +24,12 @@ function debug_line(){
         var draw_coords1 = camera.relativePoint({x:ray.start.x,y:ray.start.y});
         var draw_coords2 = camera.relativePoint({x:ray.end.x,y:ray.end.y});
         this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
-        this.graphics.lineStyle(2, 0x0000ff, 1);
+        this.graphics.lineStyle(2, 0xff0000, 1);
 		this.graphics.moveTo(draw_coords1.x, draw_coords1.y);
 		this.graphics.lineTo(draw_coords2.x, draw_coords2.y);
+    }
+    this.clear = function(){
+        this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
     }
 }
 

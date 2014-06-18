@@ -10,6 +10,11 @@ function jo_sprite(pixiSprite){
     this.alive = true;
     this.radius = 14;
     
+    //for hero only:
+    this.masked = false;
+    
+    //for guards only
+    this.alarmed = false;
     this.path = [];//path applies to AI following a path;
     
     this.sprite = pixiSprite;
@@ -85,6 +90,31 @@ function jo_sprite(pixiSprite){
             this.path = grid.getPath(currentIndex,newCellIndex);
         }
     
+    }
+    this.doesSpriteSeeSprite = function(otherSprite){
+        //Check if this sprite sees otherSprite
+        var visionConeAngleForotherSprite = this.angleBetweenSprites_relativeToThis(otherSprite);
+        if(visionConeAngleForotherSprite <= 1.22 && visionConeAngleForotherSprite >= -1.22){
+            //if the otherSprite is within the guard's vision cone (1.22 rad ~== 70 degrees)
+            //then this sprite will turn red, face otherSprite, and stop moving
+            //the otherSprite then only has a few seconds before guard calls backup
+            
+            //but only if there are no walls between them:
+            var raycast = getRaycastPoint(this.x,this.y,otherSprite.x,otherSprite.y);
+            if(get_distance(this.x,this.y,raycast.x,raycast.y)>=get_distance(this.x,this.y,otherSprite.x,otherSprite.y)){
+                return true;
+            }else return false;
+        }else return false;
+    
+    }
+    this.becomeAlarmed = function(objectOfAlarm){
+        //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
+        this.sprite.setTexture(img_guard_alert);
+        this.path = [];//empty path
+        this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
+        this.moving = false;//this sprite stop in their tracks when they see otherSprite.
+        this.alarmed = true;
+        
     }
     this.prepare_for_draw = function(){
         var draw_coords = camera.relativePoint(this);

@@ -49,7 +49,7 @@ Window Setup
     
     var window_properties = {width: 620*2, height: 400*2};
     var mouse, hero_aim;
-    var keys = {w: false, a: false, s: false, d: false, space:false};
+    var keys = {w: false, a: false, s: false, d: false, shift: false, space:false};
 	// create an new instance of a pixi stage
 	// the second parameter is interactivity...
 	var interactive = true;
@@ -87,6 +87,7 @@ Map / Game Object Setup
     //images:
     var img_orange = PIXI.Texture.fromImage("orange2.png");
     var img_blue = PIXI.Texture.fromImage("blue.png");
+    var img_masked = PIXI.Texture.fromImage("masked.png");
     var img_skull = PIXI.Texture.fromImage("skull.png");
     var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
     var img_origin = PIXI.Texture.fromImage("origin.png");
@@ -114,6 +115,8 @@ Map / Game Object Setup
     guards[1].y = 96;
     guards[2].x = 608;
     guards[2].y = 96;
+    
+    var alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
 
     
 	var origin_marker = new jo_sprite(new PIXI.Sprite(img_origin));
@@ -172,7 +175,7 @@ Game Loop
         //////////////////////
         
         hero_aim = new Ray(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
-        hero_line.draw_Ray(hero_aim);
+        if(hero.masked)hero_line.draw_Ray(hero_aim);//only draw aim line when hero is masked (which means gun is out).
         hero.move_to_target();
         //check collisions and prepare to draw walls:
         for(var i = 0; i < grid.cells.length; i++){
@@ -200,21 +203,23 @@ Game Loop
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive){
             
-                //Check if guards see hero
-                var visionConeAngleForHero = guards[i].angleBetweenSprites_relativeToThis(hero);
-                if(visionConeAngleForHero <= 1.22 && visionConeAngleForHero >= -1.22){
-                    //if the hero is within the guard's vision cone (1.22 rad ~== 70 degrees)
-                    //then guards will turn red, face hero, and stop moving
-                    //the hero then only has a few seconds before guard calls backup
-                    
-                    //but only if there are no walls between them:
-                    var raycast = getRaycastPoint(guards[i].x,guards[i].y,hero.x,hero.y);
-                    if(get_distance(guards[i].x,guards[i].y,raycast.x,raycast.y)>=get_distance(guards[i].x,guards[i].y,hero.x,hero.y)){
-                        guards[i].sprite.setTexture(img_guard_alert);
-                        guards[i].path = [];//empty path
-                        guards[i].target = {x:hero.x,y:hero.y};
-                        guards[i].moving = false;//guards stop in their tracks when they see hero.
+                //if guard is already alarmed, how long until he alerts the others:
+                if(guards[i].alarmed){
+                    //set all other guards to alarm if they are alive
+                    for(var z = 0; z < guards.length; z++){
+                        if(guards[z].alive)guards[z].sprite.setTexture(img_guard_alert);
                     }
+                }
+                
+                //check if guard sees alarming objects:
+                for(var j = 0; j < alarmingObjects.length; j++){
+                    if(guards[i].doesSpriteSeeSprite(alarmingObjects[j])){
+                        guards[i].becomeAlarmed(alarmingObjects[j]);
+                    }
+                }
+                //check if guard sees hero:
+                if(guards[i].doesSpriteSeeSprite(hero)){
+                    if(hero.masked)guards[i].becomeAlarmed(hero);
                 }
                 //if guard has a path
                 if(guards[i].path.length > 0){
@@ -311,11 +316,24 @@ Key Handlers
 
     window.onkeydown = function(e){
         var code = e.keyCode ? e.keyCode : e.which;
+        console.log('code',code);
         //keyinfo[code] = String.fromCharCode(code);
         if(code == 87){keys['w'] = true;}
         if(code == 65){keys['a'] = true;}
         if(code == 83){keys['s'] = true;}
         if(code == 68){keys['d'] = true;}
+        if(code == 16){
+            keys['shift'] = true;
+            hero.masked = !hero.masked;//toggle mask
+            //change image to reflect that hero is wearing mask
+            if(hero.masked){
+                hero.sprite.setTexture(img_masked);
+            }
+            else{
+                hero_line.clear();//clear red aim line
+                hero.sprite.setTexture(img_blue);
+            }
+        }
         if(code == 32){
             keys['space'] = true;
             if(hero_drag_target){
@@ -348,24 +366,29 @@ Key Handlers
         if(code == 65){keys['a'] = false;}
         if(code == 83){keys['s'] = false;}
         if(code == 68){keys['d'] = false;}
+        if(code == 16){keys['shift'] = false;}
         if(code == 32){keys['space'] = false;}
         
     };
     onmousedown = function(e){
-        shoot_gun();
-        mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
-        
-        //what happens on mouse click:
-        
-        
-        //check if hero aim intersects guard:
-        for(var i = 0; i < guards.length; i++){
-            if(circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
-                guards[i].sprite.setTexture(img_skull);
-                guards[i].kill();
+        //you can only shoot if hero is masked
+        if(hero.masked){
+            //shoot_gun();//make noise which draws guards
+            mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
             
-            }
-        
+            //what happens on mouse click:
+            
+            
+            //check if hero aim intersects guard:
+            for(var i = 0; i < guards.length; i++){
+                if(circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
+                    guards[i].sprite.setTexture(img_skull);
+                    guards[i].kill();
+                    alarmingObjects.push(guards[i]);//add body to alarming objects so if it is see they will sound alarm
+                
+                }
+            
+        }
         }
     
     }

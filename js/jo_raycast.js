@@ -119,7 +119,7 @@ function getRaycastPoint(startx,starty,endx,endy){
         }
         ray_debug.x = ray_closest.x;
         ray_debug.y = ray_closest.y;
-        ray_debug.prepare_for_draw();
+        //ray_debug.prepare_for_draw();
         return {x:ray_closest.x,y:ray_closest.y};
         
 }
