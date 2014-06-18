@@ -34,6 +34,8 @@
 	<script src="js/Stats.js"></script>
 	<script src="js/jo_raycast.js"></script>
 	<script src="js/jo_security_camera.js"></script>
+	<script src="js/sprite_hero.js"></script>
+	<script src="js/sprite_guard.js"></script>
     <script>
     
     
@@ -102,16 +104,16 @@ Map / Game Object Setup
 
     
     //make sprites
-    var hero = new jo_sprite(new PIXI.Sprite(img_blue));
+    var hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue));
     var hero_end_aim_coord;
     hero.x = 96;
     hero.y = 96;
     hero.speed = 4;
     var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
     var guards = [];
-    guards.push(new jo_sprite(new PIXI.Sprite(img_orange)));
-    guards.push(new jo_sprite(new PIXI.Sprite(img_orange)));
-    guards.push(new jo_sprite(new PIXI.Sprite(img_orange)));
+    guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+    guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+    guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
     guards[0].x = 288;
     guards[0].y = 96;
     guards[1].x = 480;
@@ -121,7 +123,7 @@ Map / Game Object Setup
     
     //security camera
     var security_cameras = [];
-    security_cameras.push(new jo_security_camera(new PIXI.Sprite(img_security_camera),65,65,Math.PI/2,0));
+    security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),65,65,Math.PI/2,0));
     
     var alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
 

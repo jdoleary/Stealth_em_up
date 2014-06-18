@@ -1,17 +1,9 @@
-function jo_security_camera(pixiSprite,x,y,maxswivel,minswivel){
-    //utility variables, these do not affect the actual sprite, but are used for camera and such, see prepare_for_draw()
+function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
+function jo_security_camera(x,y,maxswivel,minswivel){
     this.x = x;
     this.y = y;
-    this.rad = 0;//radians (rotation)
-    this.target = {x: null, y:null};//the target that this sprite moves twords
-    this.alive = true;
     this.radius = 14;
     this.alarmed = false;
-    this.sprite = pixiSprite;
-    //center the image:
-    this.sprite.anchor.x = 0.5;
-    this.sprite.anchor.y = 0.5;
-	stage.addChild(this.sprite);
     
     //camera specific stuff:
     this.max = maxswivel;//-Math.PI/2;//max swivel
@@ -55,22 +47,7 @@ function jo_security_camera(pixiSprite,x,y,maxswivel,minswivel){
         this.alive = false;
         this.target = {x: null, y:null};
     };
-    this.doesSpriteSeeSprite = function(otherSprite){
-        //Check if this sprite sees otherSprite
-        var visionConeAngleForotherSprite = this.angleBetweenSprites_relativeToThis(otherSprite);
-        if(visionConeAngleForotherSprite <= 1.22 && visionConeAngleForotherSprite >= -1.22){
-            //if the otherSprite is within the guard's vision cone (1.22 rad ~== 70 degrees)
-            //then this sprite will turn red, face otherSprite, and stop moving
-            //the otherSprite then only has a few seconds before guard calls backup
-            
-            //but only if there are no walls between them:
-            var raycast = getRaycastPoint(this.x,this.y,otherSprite.x,otherSprite.y);
-            if(get_distance(this.x,this.y,raycast.x,raycast.y)>=get_distance(this.x,this.y,otherSprite.x,otherSprite.y)){
-                return true;
-            }else return false;
-        }else return false;
-    
-    };
+
     this.becomeAlarmed = function(objectOfAlarm){
         //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
         this.sprite.setTexture(img_security_camera_alerted);
@@ -78,29 +55,8 @@ function jo_security_camera(pixiSprite,x,y,maxswivel,minswivel){
         this.alarmed = true;
         
     };
-    this.prepare_for_draw = function(){
-        var draw_coords = camera.relativePoint(this);
-        this.sprite.position.x = draw_coords.x;
-        this.sprite.position.y = draw_coords.y;
-        this.sprite.rotation = this.rad;
-    };
-    this.getCircleInfoForUtilityLib = function(){
-        return {'center': {x:this.x,y:this.y}, 'radius':this.radius};
-    };
-    this.angleBetweenSprites = function(otherSprite){
-        var deltax = otherSprite.x - this.x;
-        var deltay = otherSprite.y - this.y;
-        //return -Math.atan2(deltay,deltax)*180/3.14159 //in degrees
-        return -Math.atan2(deltay,deltax); // in radians
-    };
-    this.angleBetweenSprites_relativeToThis = function(otherSprite){
-        //this function uses the "this" sprite's current rotation as the origin axis for the angle
-        var deltax = otherSprite.x - this.x;
-        var deltay = otherSprite.y - this.y;
-        //return -Math.atan2(deltay,deltax)*180/3.14159 //in degrees
-        var result = this.sprite.rotation-Math.atan2(deltay,deltax); // in radians
-        if(result > Math.PI)result -= Math.PI*2;
-        if(result < -Math.PI)result += Math.PI*2;
-        return result;
-    };
+
+}
+    jo_security_camera.prototype = new jo_sprite(pixiSprite);
+    return new jo_security_camera(x,y,maxswivel,minswivel);
 }

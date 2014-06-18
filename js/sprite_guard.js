@@ -1,4 +1,4 @@
-function sprite_hero_wrapper(pixiSprite){
+function sprite_guard_wrapper(pixiSprite){
     function sprite_hero(){
         this.alarmed = false;
         this.path = [];//path applies to AI following a path;
