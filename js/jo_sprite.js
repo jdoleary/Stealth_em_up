@@ -68,9 +68,10 @@ function jo_sprite(pixiSprite){
             this.x += a;
             this.y += b;
         }
+        //rotate to face direction of movement
         var newRad = Math.atan2(b,a);
         var diff = newRad - this.rad;
-        if(diff <= 0.1)this.rad = newRad;
+        if(Math.abs(diff) <= 0.1)this.rad = newRad;
         else if(diff > Math.PI)this.rad -= 0.1;
         else if(diff < -Math.PI)this.rad += 0.1;
         else if(diff < 0)this.rad -= 0.1;
