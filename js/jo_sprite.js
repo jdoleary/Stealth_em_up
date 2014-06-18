@@ -1,4 +1,3 @@
-var unit_radius = 15;
 function jo_sprite(pixiSprite){
     //utility variables, these do not affect the actual sprite, but are used for camera and such, see prepare_for_draw()
     this.x = 0;
@@ -91,7 +90,7 @@ function jo_sprite(pixiSprite){
             this.path = grid.getPath(currentIndex,newCellIndex);
         }
     
-    }
+    };
     this.doesSpriteSeeSprite = function(otherSprite){
         //Check if this sprite sees otherSprite
         var visionConeAngleForotherSprite = this.angleBetweenSprites_relativeToThis(otherSprite);
@@ -107,7 +106,7 @@ function jo_sprite(pixiSprite){
             }else return false;
         }else return false;
     
-    }
+    };
     this.becomeAlarmed = function(objectOfAlarm){
         //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
         this.sprite.setTexture(img_guard_alert);
@@ -116,7 +115,7 @@ function jo_sprite(pixiSprite){
         this.moving = false;//this sprite stop in their tracks when they see otherSprite.
         this.alarmed = true;
         
-    }
+    };
     this.prepare_for_draw = function(){
         var draw_coords = camera.relativePoint(this);
         this.sprite.position.x = draw_coords.x;
@@ -124,7 +123,7 @@ function jo_sprite(pixiSprite){
         this.sprite.rotation = this.rad;
     };
     this.getCircleInfoForUtilityLib = function(){
-        return {'center': {x:this.x,y:this.y}, 'radius':unit_radius};
+        return {'center': {x:this.x,y:this.y}, 'radius':this.radius};
     };
     this.angleBetweenSprites = function(otherSprite){
         var deltax = otherSprite.x - this.x;

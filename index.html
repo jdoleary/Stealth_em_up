@@ -33,6 +33,7 @@
 	<script src="js/astar.js"></script>
 	<script src="js/Stats.js"></script>
 	<script src="js/jo_raycast.js"></script>
+	<script src="js/jo_security_camera.js"></script>
     <script>
     
     
@@ -92,6 +93,8 @@ Map / Game Object Setup
     var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
     var img_origin = PIXI.Texture.fromImage("origin.png");
     var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
+    var img_security_camera = PIXI.Texture.fromImage("camera.png");
+    var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
     
     
     //ray debug:
@@ -116,6 +119,10 @@ Map / Game Object Setup
     guards[2].x = 608;
     guards[2].y = 96;
     
+    //security camera
+    var security_cameras = [];
+    security_cameras.push(new jo_security_camera(new PIXI.Sprite(img_security_camera),65,65,Math.PI/2,0));
+    
     var alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
 
     
@@ -139,7 +146,7 @@ Game Loop
         //////////////////////
         mouse_rel = stage.getMousePosition();//gets relative mouse position
         mouse = camera.objectivePoint(mouse_rel);
-        //countingText.setText("Mouse: " + Math.round(mouse.x) + " " + Math.round(mouse.y));
+        countingText.setText("Mouse: " + Math.round(mouse.x) + " " + Math.round(mouse.y));
         
         
         //////////////////////
@@ -240,6 +247,26 @@ Game Loop
             }
             guards[i].prepare_for_draw();
         }
+        
+        //////////////////////
+        //Security Cameras
+        //////////////////////
+        for(var i = 0; i < security_cameras.length; i++){
+            if(security_cameras[i].alive){
+                security_cameras[i].swivel();
+                //check if security_cameras[i] sees alarming objects:
+                for(var j = 0; j < alarmingObjects.length; j++){
+                    if(security_cameras[i].doesSpriteSeeSprite(alarmingObjects[j])){
+                        security_cameras[i].becomeAlarmed(alarmingObjects[j]);
+                    }
+                }
+                //check if guard sees hero:
+                if(security_cameras[i].doesSpriteSeeSprite(hero)){
+                    if(hero.masked)security_cameras[i].becomeAlarmed(hero);
+                }
+            }
+            security_cameras[i].prepare_for_draw();
+        }
 
         
         //////////////////////
@@ -316,7 +343,6 @@ Key Handlers
 
     window.onkeydown = function(e){
         var code = e.keyCode ? e.keyCode : e.which;
-        console.log('code',code);
         //keyinfo[code] = String.fromCharCode(code);
         if(code == 87){keys['w'] = true;}
         if(code == 65){keys['a'] = true;}
@@ -344,12 +370,12 @@ Key Handlers
             }else{
                 //check if any dead guards are close enough to be dragged.
                 for(var i = 0; i < guards.length; i++){
-                    if(!guards[i].alive && get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= unit_radius*2){
+                    if(!guards[i].alive && get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*2){
                         //slow down hero speed because he just started dragging something.
                         hero.speed = hero.speed/2;
                         hero_drag_target = guards[i];
                         hero_drag_target.speed = hero.speed;
-                        hero_drag_target.stop_distance = unit_radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                        hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                         break;
 
                     }
@@ -388,7 +414,17 @@ Key Handlers
                 
                 }
             
-        }
+            }
+            //check if hero aim intersects camera:
+            for(var i = 0; i < security_cameras.length; i++){
+                if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
+                    security_cameras[i].sprite.setTexture(img_skull);
+                    security_cameras[i].kill();
+                    alarmingObjects.push(security_cameras[i]);//add body to alarming objects so if it is see they will sound alarm
+                
+                }
+            
+            }
         }
     
     }
