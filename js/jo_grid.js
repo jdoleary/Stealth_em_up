@@ -62,6 +62,8 @@ function jo_grid(map){
         //returns the objective coordinates of a wall based on its type and index.
         //this should work even for non-square walls.
         
+        //the type simply specifies where the position of the vertices will be, it does not correlate, necessarily, with the image in that cell.
+        
         var startx = x_index*this.cell_size;
         var starty = y_index*this.cell_size;
         switch(wall_type){
@@ -76,6 +78,20 @@ function jo_grid(map){
         }
     
     };
+    //used for random patrol paths:
+    this.getRandomNonSolidCellIndex = function(){
+    
+        var cell;
+        var randomCellIndex;
+        do{
+            //random number between                           max           and  min
+            randomCellIndex = Math.floor(Math.random() * this.cells.length) + 0;
+            cell = this.cells[randomCellIndex];
+        
+        }while(cell.solid);
+        return randomCellIndex;
+    
+    }
     
     //create map:
     for(var i = 0; i < this.map_data.length; i++){

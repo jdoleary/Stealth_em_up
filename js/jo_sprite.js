@@ -74,6 +74,18 @@ function jo_sprite(pixiSprite){
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         
     };
+    this.getRandomPatrolPath = function(){
+        //if the sprite is able to move
+        if(this.moving){
+            //find new patrol path:
+            var newCellToPatrolTo = grid.getRandomNonSolidCellIndex();
+            var newCellInfo = grid.getInfoFromIndex(newCellToPatrolTo);
+            var newCellIndex = {x: newCellInfo.x_index, y: newCellInfo.y_index};
+            var currentIndex = grid.getIndexFromCoords_2d(this.x,this.y);
+            this.path = grid.getPath(currentIndex,newCellIndex);
+        }
+    
+    }
     this.prepare_for_draw = function(){
         var draw_coords = camera.relativePoint(this);
         this.sprite.position.x = draw_coords.x;

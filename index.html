@@ -200,7 +200,7 @@ Game Loop
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive){
             
-                //Guards agro hero?
+                //Check if guards see hero
                 var visionConeAngleForHero = guards[i].angleBetweenSprites_relativeToThis(hero);
                 if(visionConeAngleForHero <= 1.22 && visionConeAngleForHero >= -1.22){
                     //if the hero is within the guard's vision cone (1.22 rad ~== 70 degrees)
@@ -223,6 +223,9 @@ Game Loop
                         guards[i].target = guards[i].path.shift();//get the first element.
                     }
                     
+                }else{
+                    //if guard does not have a path:
+                    guards[i].getRandomPatrolPath();
                 }
                 //call move to target, if target is reached, it will return true and set target to null
                 if(guards[i].move_to_target()){
