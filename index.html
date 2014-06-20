@@ -97,6 +97,8 @@ Map / Game Object Setup
     var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
     var img_security_camera = PIXI.Texture.fromImage("camera.png");
     var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
+    var img_computer = PIXI.Texture.fromImage("computer.png");
+    var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
     
     
     //ray debug:
@@ -120,6 +122,10 @@ Map / Game Object Setup
     guards[1].y = 96;
     guards[2].x = 608;
     guards[2].y = 96;
+    
+    var computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
+    computer_for_security_cameras.x = 800;
+    computer_for_security_cameras.y = 544;
     
     //security camera
     var security_cameras = [];
@@ -254,7 +260,8 @@ Game Loop
         //Security Cameras
         //////////////////////
         for(var i = 0; i < security_cameras.length; i++){
-            if(security_cameras[i].alive){
+            
+            if(!cameras_disabled && security_cameras[i].alive){
                 security_cameras[i].swivel();
                 //check if security_cameras[i] sees alarming objects:
                 for(var j = 0; j < alarmingObjects.length; j++){
@@ -269,6 +276,8 @@ Game Loop
             }
             security_cameras[i].prepare_for_draw();
         }
+        
+        computer_for_security_cameras.prepare_for_draw();
 
         
         //////////////////////
@@ -384,6 +393,11 @@ Key Handlers
                         
                     
                 }
+            }
+            //check if hero is close enough to the security camera computer to disable cameras:
+            if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*2){
+                cameras_disabled = true;
+                computer_for_security_cameras.sprite.setTexture(img_computer_off);
             }
         }
         

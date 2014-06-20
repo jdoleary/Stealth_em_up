@@ -1,10 +1,10 @@
+var cameras_disabled = false;
 function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
 function jo_security_camera(x,y,maxswivel,minswivel){
     this.x = x;
     this.y = y;
     this.radius = 14;
     this.alarmed = false;
-    
     //camera specific stuff:
     this.max = maxswivel;//-Math.PI/2;//max swivel
     this.min = minswivel;//Math.PI/2;//max swivel
