@@ -1,13 +1,20 @@
+var map_diamond_store = {
+    "data":[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 1, 1, 2, 1, 4, 1, 4, 1, 1, 1, 1, 1, 1, 4, 1, 4, 1, 1, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 4, 4, 1, 4, 4, 4, 1, 4, 4, 4, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 4, 3, 1, 4, 4, 4, 1, 4, 4, 4, 1, 2, 1, 1, 2, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 2, 1, 1, 2, 3, 2, 3, 3, 2, 2, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 2, 1, 1, 2, 3, 2, 3, 3, 2, 2, 2, 1, 1, 2, 1, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 2, 1, 1, 2, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 2, 2, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 3, 3, 3, 4, 4, 4, 4, 2, 2, 1, 1, 2, 1, 1, 2, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "height":20,
+    "width":20
+    };
 var map1 = {
-         "data":[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-         "height":20,
-         "width":20
+        "data":[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        "height":20,
+        "width":20
         };
 
 var img_tile_black = PIXI.Texture.fromImage("tile_black.png");
 var img_tile_white = PIXI.Texture.fromImage("tile_white.png");
-var img_tile_green = PIXI.Texture.fromImage("tile_green.png");
+var img_tile_brown = PIXI.Texture.fromImage("tile_brown.png");
 var img_tile_red = PIXI.Texture.fromImage("tile_red.png");
+
+var tile_container = new PIXI.SpriteBatch();//for efficiency!
 
 function jo_grid(map){
     //2d array:
@@ -40,7 +47,23 @@ function jo_grid(map){
         var indexY = Math.floor(y/this.cell_size);
         return {x: indexX, y: indexY};
     }
-    
+    this.isWallSightBlocking_coords = function(x,y){
+        //used for ray casting
+        //returns true if the wall that the (x,y) coords are within blocks vision:
+        
+        //return if coords are outside of map bounds:
+        if(x < 0 || y < 0)return false;//do not accept negative values;
+        if(x > this.cell_size*this.width || y > this.cell_size*this.height)return false;//coord out of bounds
+        var grid_index = this.getIndexFromCoords_2d(x,y);
+        var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
+        
+        if(cell && cell.blocks_vision){
+            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            return true;
+        }
+        else return false;
+        
+    }
     this.isWallSolid_coords = function(x,y){
         //returns true if the wall that the (x,y) coords are within is solid:
         
@@ -51,13 +74,28 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.solid){
-            //cell.image_sprite.setTexture(img_tile_green);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;
         
     }
-    
+    this.isTileRestricted_coords = function(x,y){
+        //returns true if the wall that the (x,y) coords are within is restricted:
+        
+        //return if coords are outside of map bounds:
+        if(x < 0 || y < 0)return false;//do not accept negative values;
+        if(x > this.cell_size*this.width || y > this.cell_size*this.height)return false;//coord out of bounds
+        var grid_index = this.getIndexFromCoords_2d(x,y);
+        var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
+        
+        if(cell && cell.restricted){
+            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            return true;
+        }
+        else return false;
+        
+    }
     this.getWallCoords = function(wall_type,x_index,y_index){
         //returns the objective coordinates of a wall based on its type and index.
         //this should work even for non-square walls.
@@ -101,19 +139,23 @@ function jo_grid(map){
         var y_index = info.y_index;
         switch(tile_type) {
         case 1:
-            this.cells.push(new jo_wall(img_tile_black,true,this.getWallCoords('square',x_index,y_index)));
+            //black
+            this.cells.push(new jo_wall(img_tile_black,true,true,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 2:
-            this.cells.push(new jo_wall(img_tile_white,false,this.getWallCoords('square',x_index,y_index)));
+            //white
+            this.cells.push(new jo_wall(img_tile_white,false,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 3:
-            this.cells.push(new jo_wall(img_tile_green,false,this.getWallCoords('square',x_index,y_index)));
+            //green
+            this.cells.push(new jo_wall(img_tile_brown,true,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 4:
-            this.cells.push(new jo_wall(img_tile_red,false,this.getWallCoords('square',x_index,y_index)));
+            //red
+            this.cells.push(new jo_wall(img_tile_red,false,false,true,this.getWallCoords('square',x_index,y_index)));
             break;
         default:
-            this.cells.push(new jo_wall(img_tile_white,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(img_tile_white,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         };
     }

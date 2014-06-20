@@ -71,7 +71,7 @@ function getRaycastPoint(startx,starty,endx,endy){
         for(var i = 0; i < 20; i++){
             var nextPoint_h = nextPointAlongRay(rayh,i);
             
-            if(grid.isWallSolid_coords(nextPoint_h.x,nextPoint_h.y)){
+            if(grid.isWallSightBlocking_coords(nextPoint_h.x,nextPoint_h.y)){
                 ray_h_closest = nextPoint_h;
                 break; // [i] is the end of the raycast
             }
@@ -86,7 +86,7 @@ function getRaycastPoint(startx,starty,endx,endy){
         for(var i = 0; i < 20; i++){
             var nextPoint_v = nextPointAlongRay(rayv,i);
             
-            if(grid.isWallSolid_coords(nextPoint_v.x,nextPoint_v.y)){
+            if(grid.isWallSightBlocking_coords(nextPoint_v.x,nextPoint_v.y)){
                 ray_v_closest = nextPoint_v;
                 break; // [i] is the end of the raycast
             }

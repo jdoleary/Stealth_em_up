@@ -1,10 +1,7 @@
 function sprite_guard_wrapper(pixiSprite){
-    function sprite_hero(){
-        this.radio_for_help = false;
+    function sprite_guard(){
         this.path = [];//path applies to AI following a path;
-        this.reaction_time = 3000; //in milis
-        this.time_since_alarmed;//this is used to measure how long it takes guard to respond to threat
-        
+        this.alarmed = false;
 
         this.kill = function(){
             this.sprite.setTexture(img_skull);
@@ -31,13 +28,21 @@ function sprite_guard_wrapper(pixiSprite){
         };
         
         this.becomeAlarmed = function(objectOfAlarm){
-            //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-            this.sprite.setTexture(img_guard_alert);
-            this.path = [];//empty path
-            this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
-            this.moving = false;//this sprite stop in their tracks when they see otherSprite.
-            this.radio_for_help = true;
-            this.time_since_alarmed = new Date().getTime();
+            if(!this.alarmed){
+                this.alarmed = true;
+                //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
+                this.sprite.setTexture(img_guard_alert);
+                this.path = [];//empty path
+                this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
+                this.moving = false;//this sprite stop in their tracks when they see otherSprite.
+                
+                //in 3 seconds, if this guard is still alive, alert the others.
+                setTimeout(function(){
+                    if(this.alive){
+                        alert_all_guards();
+                    };
+                }.bind(this), 2000);
+            }
             
         };
         
@@ -45,11 +50,12 @@ function sprite_guard_wrapper(pixiSprite){
             //when a guard is told of an alarming event.
             this.sprite.setTexture(img_guard_alert)
             this.speed = 3;//speed up when alarmed.
+            this.alarmed = true;
         
         };
         
         
     }
-    sprite_hero.prototype = new jo_sprite(pixiSprite);
-    return new sprite_hero();
+    sprite_guard.prototype = new jo_sprite(pixiSprite);
+    return new sprite_guard();
 }

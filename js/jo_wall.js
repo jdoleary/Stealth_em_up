@@ -1,5 +1,5 @@
 //also referred to as "cell"
-function jo_wall(image,solid,vertices){
+function jo_wall(image,solid,blocks_vision,restricted,vertices){
     /*
     To be able to build walls dynamically they will be made of points
     Grid cells around the cell that the wall is in will only check against 
@@ -13,6 +13,8 @@ function jo_wall(image,solid,vertices){
     //yes, v8 is index 0 because I normally think of corner order in 8246 based on
     //the above illustration
     this.solid = solid;//if true, hero cannot walk through the wall
+    this.blocks_vision = blocks_vision;//enemies cannot see / shoot through wall which blocks vision
+    this.restricted = restricted; //the hero will cause alert if he is seen on a restricted tile even unmasked.
     
     this.v8 = vertices[0];
     this.v2 = vertices[1];
@@ -27,11 +29,11 @@ function jo_wall(image,solid,vertices){
     this.image_sprite = new PIXI.Sprite(image);
     this.x = this.v8.x;
     this.y = this.v8.y;
-    stage.addChild(this.image_sprite);
+    tile_container.addChild(this.image_sprite);
     
     
     this.graphics = new PIXI.Graphics();
-    stage.addChild(this.graphics);
+    //stage.addChild(this.graphics);
     this.draw = function(){
         //draw wall with debug lines
         var v2_ob = camera.relativePoint(this.v2);

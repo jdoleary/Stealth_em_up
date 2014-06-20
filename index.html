@@ -72,7 +72,8 @@ Map / Game Object Setup
     ////////////////////////////////////////////////////////////    
     
     //grid/map
-    var grid = new jo_grid(map1);
+    var grid = new jo_grid(map_diamond_store);
+    stage.addChild(tile_container);
     
     //camera/debug
     var camera = new jo_cam(window_properties);
@@ -108,8 +109,8 @@ Map / Game Object Setup
     //make sprites
     var hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue));
     var hero_end_aim_coord;
-    hero.x = 96;
-    hero.y = 96;
+    hero.x = 1182;
+    hero.y = 615;
     hero.speed = 4;
     var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
     var guards = [];
@@ -124,12 +125,12 @@ Map / Game Object Setup
     guards[2].y = 96;
     
     var computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
-    computer_for_security_cameras.x = 800;
-    computer_for_security_cameras.y = 544;
+    computer_for_security_cameras.x = 480;
+    computer_for_security_cameras.y = 1056;
     
     //security camera
     var security_cameras = [];
-    security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),65,65,Math.PI/2,0));
+    security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,129,Math.PI/2,0));
     
     var alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
 
@@ -217,20 +218,6 @@ Game Loop
         
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive){
-            
-                //if guard is radioing for help, how long until guard alerts the others:
-                if(guards[i].radio_for_help){
-                    //it takes guard (.reaction_time) to radio for help
-                    if(guards[i].time_since_alarmed < new Date().getTime() - guards[i].reaction_time){
-                        
-                        for(var z = 0; z < guards.length; z++){
-                            //alert the other living guards
-                            if(guards[z].alive)guards[z].hearAlarm();
-                        }
-                        guards[i].radio_for_help = false; //radio for help has been radioed.
-                    }
-                }
-                
                 //check if guard sees alarming objects:
                 for(var j = 0; j < alarmingObjects.length; j++){
                     if(guards[i].doesSpriteSeeSprite(alarmingObjects[j])){
@@ -239,7 +226,14 @@ Game Loop
                 }
                 //check if guard sees hero:
                 if(guards[i].doesSpriteSeeSprite(hero)){
-                    if(hero.masked)guards[i].becomeAlarmed(hero);
+                    if(hero.masked){
+                        //alarm if hero is seen masked
+                        guards[i].becomeAlarmed(hero);
+                    }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
+                        //alarm if hero is seen on restricted tiles
+                        guards[i].becomeAlarmed(hero);
+                    }
+                    
                 }
                 //if guard has a path
                 if(guards[i].path.length > 0){
@@ -276,7 +270,11 @@ Game Loop
                 }
                 //check if security_camera sees hero:
                 if(security_cameras[i].doesSpriteSeeSprite(hero)){
+                    //alarm if hero is seen masked
                     if(hero.masked)security_cameras[i].becomeAlarmed(hero);
+                }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
+                    //alarm if hero is seen on restricted tiles
+                    security_cameras[i].becomeAlarmed(hero);
                 }
             }
             security_cameras[i].prepare_for_draw();
@@ -421,7 +419,7 @@ Key Handlers
                 }
             }
             //check if hero is close enough to the security camera computer to disable cameras:
-            if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*2){
+            if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
                 cameras_disabled = true;
                 computer_for_security_cameras.sprite.setTexture(img_computer_off);
             }
@@ -441,7 +439,7 @@ Key Handlers
     onmousedown = function(e){
         //you can only shoot if hero is masked
         if(hero.masked){
-            shoot_gun();//make noise which draws guards
+            //shoot_gun();//make noise which draws guards
             mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
             
             //what happens on mouse click:
@@ -473,7 +471,12 @@ Other
     */
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
-    
+    function alert_all_guards(){
+        for(var z = 0; z < guards.length; z++){
+            //alert the other living guards
+            if(guards[z].alive)guards[z].hearAlarm();
+        }
+    }
     function shoot_gun(){
         //makes a sound and draws all guards:
         for(var i = 0; i < guards.length; i++){
