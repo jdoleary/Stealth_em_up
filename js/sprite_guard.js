@@ -1,7 +1,9 @@
 function sprite_guard_wrapper(pixiSprite){
     function sprite_hero(){
-        this.alarmed = false;
+        this.radio_for_help = false;
         this.path = [];//path applies to AI following a path;
+        this.reaction_time = 3000; //in milis
+        this.time_since_alarmed;//this is used to measure how long it takes guard to respond to threat
         
 
         this.kill = function(){
@@ -31,8 +33,16 @@ function sprite_guard_wrapper(pixiSprite){
             this.path = [];//empty path
             this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
             this.moving = false;//this sprite stop in their tracks when they see otherSprite.
-            this.alarmed = true;
+            this.radio_for_help = true;
+            this.time_since_alarmed = new Date().getTime();
             
+        };
+        
+        this.hearAlarm = function(){
+            //when a guard is told of an alarming event.
+            this.sprite.setTexture(img_guard_alert)
+            this.speed = 3;//speed up when alarmed.
+        
         };
         
         

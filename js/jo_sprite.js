@@ -4,7 +4,7 @@ function jo_sprite(pixiSprite){
     this.y = 0;
     this.rad = 0;//radians (rotation)
     this.target = {x: null, y:null};//the target that this sprite moves twords
-    this.speed = 3;
+    this.speed = 1.5;
     this.moving = true;
     this.alive = true;
     this.radius = 14;

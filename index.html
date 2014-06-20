@@ -218,11 +218,17 @@ Game Loop
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive){
             
-                //if guard is already alarmed, how long until he alerts the others:
-                if(guards[i].alarmed){
-                    //set all other guards to alarm if they are alive
-                    for(var z = 0; z < guards.length; z++){
-                        if(guards[z].alive)guards[z].sprite.setTexture(img_guard_alert);
+                //if guard is radioing for help, how long until guard alerts the others:
+                if(guards[i].radio_for_help){
+                    //it takes guard (.reaction_time) to radio for help
+                    console.log('alarm: ',guards[i].time_since_alarmed ,',', new Date().getTime() - guards[i].reaction_time);
+                    if(guards[i].time_since_alarmed < new Date().getTime() - guards[i].reaction_time){
+                        
+                        for(var z = 0; z < guards.length; z++){
+                            //alert the other living guards
+                            if(guards[z].alive)guards[z].hearAlarm();
+                        }
+                        guards[i].radio_for_help = false; //radio for help has been radioed.
                     }
                 }
                 
