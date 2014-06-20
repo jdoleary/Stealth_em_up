@@ -221,7 +221,6 @@ Game Loop
                 //if guard is radioing for help, how long until guard alerts the others:
                 if(guards[i].radio_for_help){
                     //it takes guard (.reaction_time) to radio for help
-                    console.log('alarm: ',guards[i].time_since_alarmed ,',', new Date().getTime() - guards[i].reaction_time);
                     if(guards[i].time_since_alarmed < new Date().getTime() - guards[i].reaction_time){
                         
                         for(var z = 0; z < guards.length; z++){
@@ -275,7 +274,7 @@ Game Loop
                         security_cameras[i].becomeAlarmed(alarmingObjects[j]);
                     }
                 }
-                //check if guard sees hero:
+                //check if security_camera sees hero:
                 if(security_cameras[i].doesSpriteSeeSprite(hero)){
                     if(hero.masked)security_cameras[i].becomeAlarmed(hero);
                 }
@@ -293,7 +292,7 @@ Game Loop
         //move sprite/item which the hero is dragging.
         if(hero_drag_target){
             hero_drag_target.target = hero;//the drag target is "following" the hero.
-            hero_drag_target.move_to_target();
+            hero_drag_target.get_dragged();
             //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
         }
         
@@ -387,15 +386,36 @@ Key Handlers
             }else{
                 //check if any dead guards are close enough to be dragged.
                 for(var i = 0; i < guards.length; i++){
-                    if(!guards[i].alive && get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*2){
-                        //slow down hero speed because he just started dragging something.
-                        hero.speed = hero.speed/2;
-                        hero_drag_target = guards[i];
-                        hero_drag_target.speed = hero.speed;
-                        hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                        break;
+                    if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*2.5){
+                        if(!guards[i].alive){
+                            //hero is dragging a dead body
+                            
+                            //slow down hero speed because he just started dragging something.
+                            hero.speed = hero.speed/2;
+                            hero_drag_target = guards[i];
+                            hero_drag_target.speed = hero.speed;
+                            hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                            break;
+                        }else if(hero.masked){
+                            //hero is choking out a live guard:
+                            
+                            //I'm going to use a trick here: make the guard dead so he can be dragged but replace his image back to a person until he chokes out, then back to a body
+                            guards[i].kill();
+                            guards[i].sprite.setTexture(img_orange);
+                            
+                            //slow down hero speed because he just started dragging something.
+                            hero.speed = hero.speed/2;
+                            hero_drag_target = guards[i];
+                            hero_drag_target.speed = hero.speed;
+                            hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                            setTimeout(function(){
+                                guards[i].sprite.setTexture(img_skull);
+                            }, 3000);
+                            break;
+                        }
 
                     }
+                    
                         
                     
                 }
@@ -421,7 +441,7 @@ Key Handlers
     onmousedown = function(e){
         //you can only shoot if hero is masked
         if(hero.masked){
-            //shoot_gun();//make noise which draws guards
+            shoot_gun();//make noise which draws guards
             mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
             
             //what happens on mouse click:
@@ -430,20 +450,15 @@ Key Handlers
             //check if hero aim intersects guard:
             for(var i = 0; i < guards.length; i++){
                 if(circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
-                    guards[i].sprite.setTexture(img_skull);
                     guards[i].kill();
-                    alarmingObjects.push(guards[i]);//add body to alarming objects so if it is see they will sound alarm
-                
+
                 }
             
             }
             //check if hero aim intersects camera:
             for(var i = 0; i < security_cameras.length; i++){
                 if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
-                    security_cameras[i].sprite.setTexture(img_skull);
                     security_cameras[i].kill();
-                    alarmingObjects.push(security_cameras[i]);//add body to alarming objects so if it is see they will sound alarm
-                
                 }
             
             }
@@ -462,6 +477,7 @@ Other
     function shoot_gun(){
         //makes a sound and draws all guards:
         for(var i = 0; i < guards.length; i++){
+            guards[i].hearAlarm();
             var hero_index = grid.getIndexFromCoords_2d(hero.x,hero.y);
             var guard_index = grid.getIndexFromCoords_2d(guards[i].x,guards[i].y);
             var path = grid.getPath(guard_index,hero_index);

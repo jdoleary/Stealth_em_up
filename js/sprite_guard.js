@@ -7,11 +7,14 @@ function sprite_guard_wrapper(pixiSprite){
         
 
         this.kill = function(){
+            this.sprite.setTexture(img_skull);
             this.alive = false;
             //enable moving so they can be dragged
             this.moving = true;
             this.path = [];
-            this.target = {x: null, y:null};
+            this.target = {x: null, y:null};                    
+            alarmingObjects.push(this);//add body to alarming objects so if it is see they will sound alarm
+                
         }
         
         this.getRandomPatrolPath = function(){

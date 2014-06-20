@@ -44,8 +44,11 @@ function jo_security_camera(x,y,maxswivel,minswivel){
         }
     }
     this.kill = function(){
+        this.sprite.setTexture(img_skull);
         this.alive = false;
         this.target = {x: null, y:null};
+        alarmingObjects.push(this);//add body to alarming objects so if it is see they will sound alarm
+                
     };
 
     this.becomeAlarmed = function(objectOfAlarm){

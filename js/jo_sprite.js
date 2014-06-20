@@ -52,6 +52,43 @@ function jo_sprite(pixiSprite){
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         
     };
+    
+    this.get_dragged = function(){
+        //get_dragged is the same as move_to_target except with extra rotation code
+    
+        //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
+        //the movement of this.x and this.y (a,b) are found with the formulas: A/C = a/c and B/C = b/c
+        if(this.target.x == null || this.target.y == null )return;//no target
+        var a,b;
+        var c = this.speed;
+        var A = this.target.x-this.x;
+        var B = this.target.y-this.y;
+        var C = Math.sqrt(A*A+B*B);
+        if(C<this.stop_distance){        
+            return true; // the object is close enough that it need not move
+        }
+        a = c*A/C;
+        b = c*B/C;
+        if(this.moving){
+            //only move the sprite if they are set to moving, for example when guards see hero they will stop in their tracks
+            this.x += a;
+            this.y += b;
+        }
+        //rotate to face direction of movement
+        var newRad = Math.atan2(b,a) + Math.PI;
+        if(newRad < Math.PI)newRad += Math.PI*2; //keep it between -PI and PI
+        if(newRad > Math.PI)newRad -= Math.PI*2; //keep it between -PI and PI
+        
+        var diff = newRad - this.rad;
+        if(Math.abs(diff) <= 0.1)this.rad = newRad;
+        else if(diff > Math.PI)this.rad -= 0.1;
+        else if(diff < -Math.PI)this.rad += 0.1;
+        else if(diff < 0)this.rad -= 0.1;
+        else if(diff > 0)this.rad += 0.1;
+        if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
+        if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
+    }
+    
     this.doesSpriteSeeSprite = function(otherSprite){
         //Check if this sprite sees otherSprite
         var visionConeAngleForotherSprite = this.angleBetweenSprites_relativeToThis(otherSprite);
