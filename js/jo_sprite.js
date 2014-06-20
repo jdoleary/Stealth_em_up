@@ -8,6 +8,7 @@ function jo_sprite(pixiSprite){
     this.moving = true;
     this.alive = true;
     this.radius = 14;
+    this.carry = null;//object hero is carrying (loot)
     
     this.sprite = pixiSprite;
     //center the image:

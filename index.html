@@ -100,6 +100,9 @@ Map / Game Object Setup
     var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
     var img_computer = PIXI.Texture.fromImage("computer.png");
     var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
+    var img_money = PIXI.Texture.fromImage("money.png");
+    var img_getawaycar = PIXI.Texture.fromImage("van.png");
+    var img_hero_with_money = PIXI.Texture.fromImage("blue_with_money.png");
     
     
     //ray debug:
@@ -131,11 +134,36 @@ Map / Game Object Setup
     //security camera
     var security_cameras = [];
     security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,129,Math.PI/2,0));
+    security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,1153,Math.PI,0));
     
     var alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
 
     
 	var origin_marker = new jo_sprite(new PIXI.Sprite(img_origin));
+    
+    //Loot and Getaway car:
+	var getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
+    getawaycar.sprite.anchor.y = 0.25;
+    getawaycar.x = 1184;
+    getawaycar.y = 384;
+    getawaycar.rad = -Math.PI/2;
+    var loot = [];
+	var money = new jo_sprite(new PIXI.Sprite(img_money));
+    money.x = 480;
+    money.y = 288;
+    loot.push(money);
+    money = new jo_sprite(new PIXI.Sprite(img_money));
+    money.x = 540;
+    money.y = 224;
+    loot.push(money);
+    money = new jo_sprite(new PIXI.Sprite(img_money));
+    money.x = 672;
+    money.y = 288;
+    loot.push(money);
+    money = new jo_sprite(new PIXI.Sprite(img_money));
+    money.x = 928;
+    money.y = 288;
+    loot.push(money);
     
     
     
@@ -271,16 +299,27 @@ Game Loop
                 //check if security_camera sees hero:
                 if(security_cameras[i].doesSpriteSeeSprite(hero)){
                     //alarm if hero is seen masked
-                    if(hero.masked)security_cameras[i].becomeAlarmed(hero);
-                }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
-                    //alarm if hero is seen on restricted tiles
-                    security_cameras[i].becomeAlarmed(hero);
+                    if(hero.masked){
+                        security_cameras[i].becomeAlarmed(hero);
+                    }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
+                        //alarm if hero is seen on restricted tiles
+                        security_cameras[i].becomeAlarmed(hero);
+                    }
                 }
             }
             security_cameras[i].prepare_for_draw();
         }
         
         computer_for_security_cameras.prepare_for_draw();
+        
+        
+        //////////////////////
+        //Getaway Car and Loot
+        //////////////////////
+        getawaycar.prepare_for_draw();
+        for(var i = 0; i < loot.length; i++){
+            loot[i].prepare_for_draw();
+        }
 
         
         //////////////////////
@@ -364,14 +403,17 @@ Key Handlers
         if(code == 68){keys['d'] = true;}
         if(code == 16){
             keys['shift'] = true;
-            hero.masked = !hero.masked;//toggle mask
-            //change image to reflect that hero is wearing mask
-            if(hero.masked){
-                hero.sprite.setTexture(img_masked);
-            }
-            else{
-                hero_line.clear();//clear red aim line
-                hero.sprite.setTexture(img_blue);
+            if(!hero.carry){
+                //hero cannot remove mask while carrying loot
+                hero.masked = !hero.masked;//toggle mask
+                //change image to reflect that hero is wearing mask
+                if(hero.masked){
+                    hero.sprite.setTexture(img_masked);
+                }
+                else{
+                    hero_line.clear();//clear red aim line
+                    hero.sprite.setTexture(img_blue);
+                }
             }
         }
         if(code == 32){
@@ -393,9 +435,9 @@ Key Handlers
                             hero_drag_target = guards[i];
                             hero_drag_target.speed = hero.speed;
                             hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                            break;
-                        }else if(hero.masked){
-                            //hero is choking out a live guard:
+                            return;
+                        }else if(hero.masked && !guards[i].alarmed){
+                            //hero is choking out a live guard who is not already alarmed:
                             
                             //I'm going to use a trick here: make the guard dead so he can be dragged but replace his image back to a person until he chokes out, then back to a body
                             guards[i].kill();
@@ -407,9 +449,9 @@ Key Handlers
                             hero_drag_target.speed = hero.speed;
                             hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                             setTimeout(function(){
-                                guards[i].sprite.setTexture(img_skull);
-                            }, 3000);
-                            break;
+                                this.sprite.setTexture(img_skull);
+                            }.bind(guards[i]), 3000);
+                            return;
                         }
 
                     }
@@ -417,12 +459,35 @@ Key Handlers
                         
                     
                 }
+                //note: dragging guards takes precedence over all the following actions.
+                
+                //check if hero is close enough to the security camera computer to disable cameras:
+                if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
+                    cameras_disabled = true;
+                    computer_for_security_cameras.sprite.setTexture(img_computer_off);
+                }
+                if(hero.masked){
+                    //hero must be masked to interact with loot
+                    if(!hero.carry){
+                        //check if hero is close enough to the loot to pick it up
+                        for(var i = 0; i < loot.length; i++){
+                            if(get_distance(hero.x,hero.y,loot[i].x,loot[i] .y) <= hero.radius*2){
+                                hero.carry = loot[i];
+                                loot[i].sprite.visible = false;
+                                hero.sprite.setTexture(img_hero_with_money);
+                            }
+                        }
+                    }else{
+                        //hero is already carring loot, drop it
+                        hero.carry.sprite.visible = true;
+                        hero.carry.x = hero.x;
+                        hero.carry.y = hero.y;
+                        hero.carry = null;
+                        hero.sprite.setTexture(img_masked);
+                    }
+                }
             }
-            //check if hero is close enough to the security camera computer to disable cameras:
-            if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
-                cameras_disabled = true;
-                computer_for_security_cameras.sprite.setTexture(img_computer_off);
-            }
+            
         }
         
     };
