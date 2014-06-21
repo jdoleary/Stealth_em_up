@@ -36,6 +36,7 @@
 	<script src="js/jo_security_camera.js"></script>
 	<script src="js/sprite_hero.js"></script>
 	<script src="js/sprite_guard.js"></script>
+	<script src="js/sprite_civ.js"></script>
     <script>
     
     
@@ -80,14 +81,7 @@ Map / Game Object Setup
     var hero_line = new debug_line();
     var test_cone = new debug_line();
     var hero_cir = new debug_circle();
-    
-    //UI text.  Use newMessage() to add a message.
-    var message = new PIXI.Text("", { font: "20px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 4 });
-    message.position.x = 0;
-    message.position.y = window_properties.height;
-    message.anchor.y = 1;
-    var messageText = [];
-    stage.addChild(message);
+
 
     //images:
     var img_orange = PIXI.Texture.fromImage("orange2.png");
@@ -102,6 +96,7 @@ Map / Game Object Setup
     var img_money = PIXI.Texture.fromImage("money.png");
     var img_getawaycar = PIXI.Texture.fromImage("van.png");
     var img_hero_with_money = PIXI.Texture.fromImage("blue_with_money.png");
+    var img_civilian = PIXI.Texture.fromImage("civ.png");
     
     
 
@@ -123,6 +118,11 @@ Map / Game Object Setup
     guards[1].y = 96;
     guards[2].x = 608;
     guards[2].y = 500;
+    var civs = [];
+    for(var i = 0; i < 12; i++){
+        civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
+    }
+    
     
     var computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
     computer_for_security_cameras.x = 480;
@@ -160,7 +160,14 @@ Map / Game Object Setup
     money.y = 288;
     loot.push(money);
     
-  
+      
+    //UI text.  Use newMessage() to add a message.
+    var message = new PIXI.Text("", { font: "20px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 4 });
+    message.position.x = 0;
+    message.position.y = window_properties.height;
+    message.anchor.y = 1;
+    var messageText = [];
+    stage.addChild(message);
     
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
@@ -232,6 +239,57 @@ Game Loop
         
         if(hero_drag_target)hero.sprite.rotation += Math.PI;//reverse the hero's rotation because he is dragging something.
         
+        //////////////////////
+        //update Civs
+        //////////////////////
+        for(var i = 0; i < civs.length; i++){
+            if(civs[i].alive){
+                //if guard are not already alarmed
+                if(!civs[i].alarmed  && !civs[i].being_choked_out){
+                    //check if civs sees alarming objects:
+                    for(var j = 0; j < alarmingObjects.length; j++){
+                        if(civs[i].doesSpriteSeeSprite(alarmingObjects[j])){
+                            newMessage('A civs has seen something alarming!');
+                            civs[i].becomeAlarmed(alarmingObjects[j]);
+                        }
+                    }
+                    //check if civs sees hero:
+                    if(civs[i].doesSpriteSeeSprite(hero)){
+                        if(hero.masked){
+                            newMessage('A civs has seen you wearing a mask!');
+                            //alarm if hero is seen masked
+                            civs[i].becomeAlarmed(hero);
+                        }
+                        //civs are not alarmed by seeing hero in a restricted area
+                        
+                    }
+                }
+                //if civs has a path
+                if(civs[i].path.length > 0){
+                    //if civs does not have a target:
+                    if(civs[i].target.x == null || civs[i].target.y == null){
+                        civs[i].target = civs[i].path.shift();//get the first element.
+                    }
+                    
+                }else{
+                    //if civs does not have a path:
+                    if(!civs[i].waiting){
+                        civs[i].waiting = true;
+                        var how_long_to_wait = Math.floor(Math.random() * 7000) + 1000;
+                        setTimeout(function(){
+                            this.waiting = false;
+                            this.getRandomPatrolPath();//get new path after waiting
+                        }.bind(civs[i]),how_long_to_wait);
+                    }
+                }
+                //call move to target, if target is reached, it will return true and set target to null
+                if(civs[i].move_to_target()){
+                    civs[i].target.x = null;
+                    civs[i].target.y = null;
+                }
+            }
+            civs[i].prepare_for_draw();
+        }
         
         //////////////////////
         //update Guards
@@ -282,6 +340,8 @@ Game Loop
             guards[i].prepare_for_draw();
         }
         
+        
+        
         //////////////////////
         //Security Cameras
         //////////////////////
@@ -291,7 +351,7 @@ Game Loop
                 security_cameras[i].swivel();
                 
                 
-                //if guards are not already alarmed
+                //if security_cameras are not already alarmed
                 if(!security_cameras[i].alarmed){
                     //check if security_cameras[i] sees alarming objects:
                     for(var j = 0; j < alarmingObjects.length; j++){
@@ -475,6 +535,26 @@ Key Handlers
                     computer_for_security_cameras.sprite.setTexture(img_computer_off);
                 }
                 if(hero.masked){
+                    //hero must be masked to lockpick:
+                    if(!grid.a_door_is_being_unlocked){
+                        for(var i = 0; i < grid.doors.length; i++){
+                            if(grid.doors[i].solid && get_distance(hero.x,hero.y,grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2) <= hero.radius*5){
+                                //if door isn't solid, then it is already unlocked.
+                                newMessage('It will take a moment to unlock the door...');
+                                grid.a_door_is_being_unlocked = true;
+                                setTimeout(function(){
+                                    if(grid.a_door_is_being_unlocked){
+                                        //door is unlocked
+                                        newMessage('The door is unlocked');
+                                        this.solid = false;
+                                        this.blocks_vision = false;
+                                        this.image_sprite.setTexture(img_tile_red);
+                                    }
+                                }.bind(grid.doors[i]),5000);
+                                return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
+                            }
+                        }
+                    }
                     //hero must be masked to interact with loot
                     if(!hero.carry){
                         //check if hero is close enough to the loot to pick it up
@@ -486,32 +566,17 @@ Key Handlers
                                 newMessage("You've got the money!  Get it to the escape vehicle!");
                             }
                         }
-                    }else{
-                        //hero is already carring loot, drop it
+                        
+                    //hero is already carring loot, drop it
+                    }else if(!grid.a_door_is_being_unlocked){
+                        //Note on if statement: unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                         hero.carry.sprite.visible = true;
                         hero.carry.x = hero.x;
                         hero.carry.y = hero.y;
                         hero.carry = null;
                         hero.sprite.setTexture(img_masked);
                     }
-                    //hero must be masked to lockpick:
-                    if(!grid.a_door_is_being_unlocked){
-                        for(var i = 0; i < grid.doors.length; i++){
-                            if(get_distance(hero.x,hero.y,grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2) <= hero.radius*5){
-                                newMessage('It will take a moment to unlock the door...');
-                                grid.a_door_is_being_unlocked = true;
-                                setTimeout(function(){
-                                    if(grid.a_door_is_being_unlocked){
-                                        //door is unlocked
-                                        newMessage('The door is unlocked');
-                                        this.solid = false;
-                                        this.image_sprite.setTexture(img_tile_red);
-                                    }
-                                }.bind(grid.doors[i]),5000);
-
-                            }
-                        }
-                    }
+                    
                     
                 }
             }
@@ -555,9 +620,18 @@ Key Handlers
             
             //check if hero aim intersects guard:
             for(var i = 0; i < guards.length; i++){
-                if(circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
+                if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
                     guards[i].kill();
                     if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
+
+                }
+            
+            }
+            //check if hero aim intersects civs:
+            for(var i = 0; i < civs.length; i++){
+                if(civs[i].alive && circle_linesetment_intersect(civs[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
+                    civs[i].kill();
+                    if(civs[i].alarmed)newMessage("You dispatch the civilian before he can get the word out!");
 
                 }
             

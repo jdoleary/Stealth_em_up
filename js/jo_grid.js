@@ -135,6 +135,19 @@ function jo_grid(map){
         return randomCellIndex;
     
     }
+    this.getRandomNonSolid_NonRestricted_CellIndex = function(){
+        //for civilian wander
+        var cell;
+        var randomCellIndex;
+        do{
+            //random number between                           max           and  min
+            randomCellIndex = Math.floor(Math.random() * this.cells.length) + 0;
+            cell = this.cells[randomCellIndex];
+        
+        }while(cell.solid || cell.restricted);
+        return randomCellIndex;
+    
+    }
     
     //create map:
     for(var i = 0; i < this.map_data.length; i++){
@@ -183,7 +196,8 @@ function jo_grid(map){
         var slice = this.cells.slice(i*this.width,i*this.width+this.width);
         for(var j = 0; j < slice.length; j++){
             //convert tile codes into 0 for wall and 1 for floor:
-            if(slice[j].solid){
+            if(slice[j].solid && !slice[j].door){
+                //Note: doors can be walked through by guards
                 slice[j] = 0;
             }else{
                 slice[j] = 1;

@@ -1,9 +1,14 @@
-function sprite_guard_wrapper(pixiSprite){
-    function sprite_guard(){
+function sprite_civ_wrapper(pixiSprite){
+    function sprite_civ(){
         this.path = [];//path applies to AI following a path;
         this.alarmed = false;
         this.being_choked_out = false;
-
+        var startCellIndex = grid.getRandomNonSolid_NonRestricted_CellIndex();
+        this.x = grid.cells[startCellIndex].x + grid.cell_size/2;
+        this.y = grid.cells[startCellIndex].y + grid.cell_size/2;
+        this.waiting = false;
+        
+        
         this.kill = function(){
             this.sprite.setTexture(img_skull);
             this.alive = false;
@@ -21,7 +26,7 @@ function sprite_guard_wrapper(pixiSprite){
             //if the sprite is able to move
             if(this.moving){
                 //find new patrol path:
-                var newCellToPatrolTo = grid.getRandomNonSolidCellIndex();
+                var newCellToPatrolTo = grid.getRandomNonSolid_NonRestricted_CellIndex();
                 var newCellInfo = grid.getInfoFromIndex(newCellToPatrolTo);
                 var newCellIndex = {x: newCellInfo.x_index, y: newCellInfo.y_index};
                 var currentIndex = grid.getIndexFromCoords_2d(this.x,this.y);
@@ -42,24 +47,20 @@ function sprite_guard_wrapper(pixiSprite){
                 //in 3 seconds, if this guard is still alive, alert the others.
                 setTimeout(function(){
                     if(this.alive){
-                        newMessage('All the other guards are on alert!');
+                        newMessage('A civilian cries out, alerting the guards!');
                         alert_all_guards();
                     };
-                }.bind(this), 2000);
+                }.bind(this), 5000);
             }
             
         };
         
-        this.hearAlarm = function(){
-            //when a guard is told of an alarming event.
-            this.sprite.setTexture(img_guard_alert)
-            this.speed = 3;//speed up when alarmed.
-            this.alarmed = true;
-        
-        };
+
         
         
     }
-    sprite_guard.prototype = new jo_sprite(pixiSprite);
-    return new sprite_guard();
+    pixiSprite.tint = Math.random() * 0x00FFFF;
+    console.log(pixiSprite.tint);
+    sprite_civ.prototype = new jo_sprite(pixiSprite);
+    return new sprite_civ();
 }
