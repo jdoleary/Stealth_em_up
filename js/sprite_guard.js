@@ -39,6 +39,7 @@ function sprite_guard_wrapper(pixiSprite){
                 //in 3 seconds, if this guard is still alive, alert the others.
                 setTimeout(function(){
                     if(this.alive){
+                        newMessage('All the other guards are on alert!');
                         alert_all_guards();
                     };
                 }.bind(this), 2000);

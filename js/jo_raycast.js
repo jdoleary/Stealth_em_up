@@ -1,6 +1,6 @@
 //http://www.permadi.com/tutorial/raycast/rayc7.html
 
-var ray_debug;
+//var ray_debug;
 
 
 function raycast_horiz(point,angle){
@@ -117,8 +117,8 @@ function getRaycastPoint(startx,starty,endx,endy){
             //it returns the end point of the linesegment passed in, having detected no walls.
             ray_closest = {x: endx, y: endy};
         }
-        ray_debug.x = ray_closest.x;
-        ray_debug.y = ray_closest.y;
+        //ray_debug.x = ray_closest.x;
+        //ray_debug.y = ray_closest.y;
         //ray_debug.prepare_for_draw();
         return {x:ray_closest.x,y:ray_closest.y};
         

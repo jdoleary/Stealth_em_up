@@ -80,13 +80,14 @@ Map / Game Object Setup
     var hero_line = new debug_line();
     var test_cone = new debug_line();
     var hero_cir = new debug_circle();
-    // create a text object that will be updated..
-    var countingText = new PIXI.Text("Mouse Pos:", { font: "20px Arial", fill: "#000000", align: "center", stroke: "#FFFFFF", strokeThickness: 2 });
-    countingText.position.x = 0;
-    countingText.position.y = 750;
-    countingText.anchor.x = 0;
-    //countingText.setText("Ang: " + visionConeAngleForHero);
-    stage.addChild(countingText);
+    
+    //UI text.  Use newMessage() to add a message.
+    var message = new PIXI.Text("", { font: "20px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 4 });
+    message.position.x = 0;
+    message.position.y = window_properties.height;
+    message.anchor.y = 1;
+    var messageText = [];
+    stage.addChild(message);
 
     //images:
     var img_orange = PIXI.Texture.fromImage("orange2.png");
@@ -94,8 +95,6 @@ Map / Game Object Setup
     var img_masked = PIXI.Texture.fromImage("masked.png");
     var img_skull = PIXI.Texture.fromImage("skull.png");
     var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
-    var img_origin = PIXI.Texture.fromImage("origin.png");
-    var img_origin_blue = PIXI.Texture.fromImage("origin_blue.png");
     var img_security_camera = PIXI.Texture.fromImage("camera.png");
     var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
     var img_computer = PIXI.Texture.fromImage("computer.png");
@@ -105,8 +104,6 @@ Map / Game Object Setup
     var img_hero_with_money = PIXI.Texture.fromImage("blue_with_money.png");
     
     
-    //ray debug:
-    var ray_debug = new jo_sprite(new PIXI.Sprite(img_origin_blue));
 
     
     //make sprites
@@ -139,8 +136,6 @@ Map / Game Object Setup
     var alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
 
     
-	var origin_marker = new jo_sprite(new PIXI.Sprite(img_origin));
-    
     //Loot and Getaway car:
 	var getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
     getawaycar.sprite.anchor.y = 0.25;
@@ -165,7 +160,7 @@ Map / Game Object Setup
     money.y = 288;
     loot.push(money);
     
-    
+  
     
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
@@ -183,7 +178,6 @@ Game Loop
         //////////////////////
         mouse_rel = stage.getMousePosition();//gets relative mouse position
         mouse = camera.objectivePoint(mouse_rel);
-        countingText.setText("Mouse: " + Math.round(mouse.x) + " " + Math.round(mouse.y));
         
         
         //////////////////////
@@ -211,7 +205,6 @@ Game Loop
         //update all sprites:
         //////////////////////
         
-        origin_marker.prepare_for_draw();
         
         
         //////////////////////
@@ -246,22 +239,28 @@ Game Loop
         
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive){
-                //check if guard sees alarming objects:
-                for(var j = 0; j < alarmingObjects.length; j++){
-                    if(guards[i].doesSpriteSeeSprite(alarmingObjects[j])){
-                        guards[i].becomeAlarmed(alarmingObjects[j]);
+                //if guard are not already alarmed
+                if(!guards[i].alarmed){
+                    //check if guard sees alarming objects:
+                    for(var j = 0; j < alarmingObjects.length; j++){
+                        if(guards[i].doesSpriteSeeSprite(alarmingObjects[j])){
+                            newMessage('A guard has seen something alarming!');
+                            guards[i].becomeAlarmed(alarmingObjects[j]);
+                        }
                     }
-                }
-                //check if guard sees hero:
-                if(guards[i].doesSpriteSeeSprite(hero)){
-                    if(hero.masked){
-                        //alarm if hero is seen masked
-                        guards[i].becomeAlarmed(hero);
-                    }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
-                        //alarm if hero is seen on restricted tiles
-                        guards[i].becomeAlarmed(hero);
+                    //check if guard sees hero:
+                    if(guards[i].doesSpriteSeeSprite(hero)){
+                        if(hero.masked){
+                            newMessage('A guard has seen you wearing a mask!');
+                            //alarm if hero is seen masked
+                            guards[i].becomeAlarmed(hero);
+                        }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
+                            newMessage('A guard has seen you in a restricted area!');
+                            //alarm if hero is seen on restricted tiles
+                            guards[i].becomeAlarmed(hero);
+                        }
+                        
                     }
-                    
                 }
                 //if guard has a path
                 if(guards[i].path.length > 0){
@@ -290,20 +289,28 @@ Game Loop
             
             if(!cameras_disabled && security_cameras[i].alive){
                 security_cameras[i].swivel();
-                //check if security_cameras[i] sees alarming objects:
-                for(var j = 0; j < alarmingObjects.length; j++){
-                    if(security_cameras[i].doesSpriteSeeSprite(alarmingObjects[j])){
-                        security_cameras[i].becomeAlarmed(alarmingObjects[j]);
+                
+                
+                //if guards are not already alarmed
+                if(!security_cameras[i].alarmed){
+                    //check if security_cameras[i] sees alarming objects:
+                    for(var j = 0; j < alarmingObjects.length; j++){
+                        if(security_cameras[i].doesSpriteSeeSprite(alarmingObjects[j])){
+                            newMessage('A security camera has seen something alarming!');
+                            security_cameras[i].becomeAlarmed(alarmingObjects[j]);
+                        }
                     }
-                }
-                //check if security_camera sees hero:
-                if(security_cameras[i].doesSpriteSeeSprite(hero)){
-                    //alarm if hero is seen masked
-                    if(hero.masked){
-                        security_cameras[i].becomeAlarmed(hero);
-                    }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
-                        //alarm if hero is seen on restricted tiles
-                        security_cameras[i].becomeAlarmed(hero);
+                    //check if security_camera sees hero:
+                    if(security_cameras[i].doesSpriteSeeSprite(hero)){
+                        //alarm if hero is seen masked
+                        if(hero.masked){
+                            newMessage('A security camera has seen you wearing a mask!');
+                            security_cameras[i].becomeAlarmed(hero);
+                        }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
+                            //alarm if hero is seen on restricted tiles
+                            newMessage('A security camera has seen you in a restricted area!');
+                            security_cameras[i].becomeAlarmed(hero);
+                        }
                     }
                 }
             }
@@ -464,6 +471,7 @@ Key Handlers
                 //check if hero is close enough to the security camera computer to disable cameras:
                 if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
                     cameras_disabled = true;
+                    newMessage('All security cameras have been disabled!');
                     computer_for_security_cameras.sprite.setTexture(img_computer_off);
                 }
                 if(hero.masked){
@@ -475,6 +483,7 @@ Key Handlers
                                 hero.carry = loot[i];
                                 loot[i].sprite.visible = false;
                                 hero.sprite.setTexture(img_hero_with_money);
+                                newMessage("You've got the money!  Get it to the escape vehicle!");
                             }
                         }
                     }else{
@@ -536,6 +545,21 @@ Other
     */
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
+    function newMessage(mess){
+        messageText.push(mess);
+        setTimeout(function(){
+            messageText.shift();
+            updateMessage();
+        },7000);
+        updateMessage();
+    }
+    function updateMessage(){
+        var textForMessage = "";
+        for(var i = 0; i < messageText.length; i++){
+            textForMessage += messageText[i] + "\n";
+        }
+        message.setText(textForMessage);
+    };
     function alert_all_guards(){
         for(var z = 0; z < guards.length; z++){
             //alert the other living guards
