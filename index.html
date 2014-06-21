@@ -122,7 +122,7 @@ Map / Game Object Setup
     guards[1].x = 480;
     guards[1].y = 96;
     guards[2].x = 608;
-    guards[2].y = 96;
+    guards[2].y = 500;
     
     var computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
     computer_for_security_cameras.x = 480;
@@ -240,7 +240,7 @@ Game Loop
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive){
                 //if guard are not already alarmed
-                if(!guards[i].alarmed){
+                if(!guards[i].alarmed  && !guards[i].being_choked_out){
                     //check if guard sees alarming objects:
                     for(var j = 0; j < alarmingObjects.length; j++){
                         if(guards[i].doesSpriteSeeSprite(alarmingObjects[j])){
@@ -335,7 +335,7 @@ Game Loop
         
         //move sprite/item which the hero is dragging.
         if(hero_drag_target){
-            hero_drag_target.target = hero;//the drag target is "following" the hero.
+            hero_drag_target.target = {x: hero.x , y: hero.y};//the drag target is "following" the hero.
             hero_drag_target.get_dragged();
             //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
         }
@@ -425,12 +425,7 @@ Key Handlers
         }
         if(code == 32){
             keys['space'] = true;
-            if(hero_drag_target){
-                //drag is a toggle action so release current drag target.
-                hero_drag_target = null;
-                //bring hero speed back to normal
-                hero.speed = hero.speed*2;
-            }else{
+            if(!hero_drag_target){
                 //check if any dead guards are close enough to be dragged.
                 for(var i = 0; i < guards.length; i++){
                     if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*2.5){
@@ -445,18 +440,23 @@ Key Handlers
                             return;
                         }else if(hero.masked && !guards[i].alarmed){
                             //hero is choking out a live guard who is not already alarmed:
+                            newMessage('You are choking out a guard!');
                             
-                            //I'm going to use a trick here: make the guard dead so he can be dragged but replace his image back to a person until he chokes out, then back to a body
-                            guards[i].kill();
-                            guards[i].sprite.setTexture(img_orange);
-                            
+                            guards[i].moving = true;
+                            guards[i].path = [];
+                            guards[i].target = {x: null, y:null}; 
+                            guards[i].being_choked_out = true;
                             //slow down hero speed because he just started dragging something.
                             hero.speed = hero.speed/2;
                             hero_drag_target = guards[i];
                             hero_drag_target.speed = hero.speed;
                             hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                             setTimeout(function(){
-                                this.sprite.setTexture(img_skull);
+                                //check that the guard is still being choked out, if not, he's not dead so don't kill() him
+                                if(hero_drag_target == this){
+                                    newMessage('The guard is dispached!');
+                                    this.kill();
+                                }
                             }.bind(guards[i]), 3000);
                             return;
                         }
@@ -494,6 +494,25 @@ Key Handlers
                         hero.carry = null;
                         hero.sprite.setTexture(img_masked);
                     }
+                    //hero must be masked to lockpick:
+                    if(!grid.a_door_is_being_unlocked){
+                        for(var i = 0; i < grid.doors.length; i++){
+                            if(get_distance(hero.x,hero.y,grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2) <= hero.radius*5){
+                                newMessage('It will take a moment to unlock the door...');
+                                grid.a_door_is_being_unlocked = true;
+                                setTimeout(function(){
+                                    if(grid.a_door_is_being_unlocked){
+                                        //door is unlocked
+                                        newMessage('The door is unlocked');
+                                        this.solid = false;
+                                        this.image_sprite.setTexture(img_tile_red);
+                                    }
+                                }.bind(grid.doors[i]),5000);
+
+                            }
+                        }
+                    }
+                    
                 }
             }
             
@@ -507,7 +526,22 @@ Key Handlers
         if(code == 83){keys['s'] = false;}
         if(code == 68){keys['d'] = false;}
         if(code == 16){keys['shift'] = false;}
-        if(code == 32){keys['space'] = false;}
+        if(code == 32){
+            keys['space'] = false;
+            //if hero was dragging something, drop it.
+            if(hero_drag_target){
+                if(hero_drag_target.alive){
+                    //if hero cancels the drag and his target is still alive, target becomes alarmed
+                    newMessage('You release the guard early!');
+                    hero_drag_target.becomeAlarmed(hero);
+                }
+                //drag is a toggle action so release current drag target.
+                hero_drag_target = null;
+                //bring hero speed back to normal
+                hero.speed = hero.speed*2;
+            }
+            grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
+        }
         
     };
     onmousedown = function(e){
@@ -523,6 +557,7 @@ Key Handlers
             for(var i = 0; i < guards.length; i++){
                 if(circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
                     guards[i].kill();
+                    if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
 
                 }
             
@@ -546,6 +581,7 @@ Other
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     function newMessage(mess){
+        console.log(mess);
         messageText.push(mess);
         setTimeout(function(){
             messageText.shift();

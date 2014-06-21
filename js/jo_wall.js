@@ -15,6 +15,7 @@ function jo_wall(image,solid,blocks_vision,restricted,vertices){
     this.solid = solid;//if true, hero cannot walk through the wall
     this.blocks_vision = blocks_vision;//enemies cannot see / shoot through wall which blocks vision
     this.restricted = restricted; //the hero will cause alert if he is seen on a restricted tile even unmasked.
+    this.door = false;
     
     this.v8 = vertices[0];
     this.v2 = vertices[1];

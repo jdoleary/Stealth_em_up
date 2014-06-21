@@ -1,5 +1,5 @@
 var map_diamond_store = {
-    "data":[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 1, 1, 2, 1, 4, 1, 4, 1, 1, 1, 1, 1, 1, 4, 1, 4, 1, 1, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 4, 4, 1, 4, 4, 4, 1, 4, 4, 4, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 4, 3, 1, 4, 4, 4, 1, 4, 4, 4, 1, 2, 1, 1, 2, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 2, 1, 1, 2, 3, 2, 3, 3, 2, 2, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 2, 1, 1, 2, 3, 2, 3, 3, 2, 2, 2, 1, 1, 2, 1, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 2, 1, 1, 2, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 2, 2, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 3, 3, 3, 4, 4, 4, 4, 2, 2, 1, 1, 2, 1, 1, 2, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "data":[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 1, 1, 2, 1, 4, 1, 4, 1, 1, 1, 1, 1, 1, 4, 1, 4, 1, 1, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 4, 4, 1, 4, 4, 4, 1, 4, 4, 4, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 4, 3, 1, 4, 4, 4, 1, 4, 4, 4, 1, 2, 1, 1, 2, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 2, 1, 1, 2, 3, 2, 3, 3, 2, 2, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 2, 1, 1, 2, 3, 2, 3, 3, 2, 2, 2, 1, 1, 2, 1, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 2, 3, 3, 2, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 1, 2, 1, 1, 2, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 2, 2, 1, 2, 1, 1, 2, 1, 4, 1, 4, 4, 3, 3, 3, 4, 4, 4, 5, 2, 2, 1, 1, 2, 1, 1, 2, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     "height":20,
     "width":20
     };
@@ -13,8 +13,10 @@ var img_tile_black = PIXI.Texture.fromImage("tile_black.png");
 var img_tile_white = PIXI.Texture.fromImage("tile_white.png");
 var img_tile_brown = PIXI.Texture.fromImage("tile_brown.png");
 var img_tile_red = PIXI.Texture.fromImage("tile_red.png");
+var img_tile_purple = PIXI.Texture.fromImage("tile_door.png");
 
 var tile_container = new PIXI.SpriteBatch();//for efficiency!
+
 
 function jo_grid(map){
     //2d array:
@@ -26,6 +28,9 @@ function jo_grid(map){
     this.map_data = map.data;
     
     this.cells = [];
+    
+    this.doors = [];//list of doors allows for lockpicking
+    this.a_door_is_being_unlocked = false;
     
     this.getInfoFromIndex = function(index){
         //gets the 2d index from the 1d index
@@ -153,6 +158,13 @@ function jo_grid(map){
         case 4:
             //red
             this.cells.push(new jo_wall(img_tile_red,false,false,true,this.getWallCoords('square',x_index,y_index)));
+            break;
+        case 5:
+            //purple (door)
+            var door = new jo_wall(img_tile_purple,true,true,true,this.getWallCoords('square',x_index,y_index));
+            door.door = true;
+            this.cells.push(door);
+            this.doors.push(door);
             break;
         default:
             this.cells.push(new jo_wall(img_tile_white,false,false,this.getWallCoords('square',x_index,y_index)));
