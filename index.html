@@ -119,9 +119,10 @@ Map / Game Object Setup
     guards[2].x = 608;
     guards[2].y = 500;
     var civs = [];
+    /*
     for(var i = 0; i < 12; i++){
         civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
-    }
+    }*/
     
     
     var computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
@@ -184,7 +185,7 @@ Game Loop
         //update Mouse
         //////////////////////
         mouse_rel = stage.getMousePosition();//gets relative mouse position
-        mouse = camera.objectivePoint(mouse_rel);
+        if(mouse_rel.x != -10000)mouse = camera.objectivePoint(mouse_rel);//only set mouse position if the mouse is on the stage
         
         
         //////////////////////

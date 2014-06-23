@@ -53,9 +53,20 @@ function jo_security_camera(x,y,maxswivel,minswivel){
 
     this.becomeAlarmed = function(objectOfAlarm){
         //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-        this.sprite.setTexture(img_security_camera_alerted);
-        this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
-        this.alarmed = true;
+        if(!this.alarmed){
+                this.alarmed = true;
+                //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
+                this.sprite.setTexture(img_security_camera_alerted);
+                this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
+                
+                //in 3 seconds, if this guard is still alive, alert the others.
+                setTimeout(function(){
+                    if(this.alive){
+                        newMessage('All the other guards are on alert!');
+                        alert_all_guards();
+                    };
+                }.bind(this), 2000);
+            }
         
     };
 
