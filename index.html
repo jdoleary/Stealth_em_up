@@ -226,13 +226,13 @@ Game Loop
         hero.move_to_target();
         //check collisions and prepare to draw walls:
         for(var i = 0; i < grid.cells.length; i++){
-            /*if(grid.cells[i].solid){
+            if(grid.cells[i].solid){
                 hero.collide(grid.cells[i].v2);
                 hero.collide(grid.cells[i].v4);
                 hero.collide(grid.cells[i].v6);
                 hero.collide(grid.cells[i].v8);
                 hero.collide_with_wall_sides(grid.cells[i]);
-            }*/
+            }
             
             //draw:
             //grid.cells[i].draw();//debug
@@ -402,9 +402,8 @@ Game Loop
             hero_drag_target.target = {x: hero.x , y: hero.y};//the drag target is "following" the hero.
             hero_drag_target.get_dragged();
             
-            hero_drag_target.blood_trail.thing.x = hero_drag_target.x;
-            hero_drag_target.blood_trail.thing.y = hero_drag_target.y;
-            hero_drag_target.blood_trail.thing.rotation = hero_drag_target.rad;
+            hero_drag_target.blood_trail.thing.x = hero_drag_target.x-hero_drag_target.blood_trail.death_coords.x;
+            hero_drag_target.blood_trail.thing.y = hero_drag_target.y-hero_drag_target.blood_trail.death_coords.y;
             hero_drag_target.blood_trail.snap();
             //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
         }
@@ -631,6 +630,10 @@ Key Handlers
                 if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
                     guards[i].kill();
                     guards[i].blood_trail = new jo_blood_trail(guards[i].x,guards[i].y);
+                    //make sure the dead body sprite is on top of the blood trail:
+                    stage.removeChild(guards[i].sprite);
+                    stage.addChild(guards[i].sprite);
+                    
                     if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
 
                 }
