@@ -37,6 +37,7 @@
 	<script src="js/sprite_hero.js"></script>
 	<script src="js/sprite_guard.js"></script>
 	<script src="js/sprite_civ.js"></script>
+	<script src="js/jo_blood_trail.js"></script>
     <script>
     
     
@@ -170,6 +171,7 @@ Map / Game Object Setup
     var messageText = [];
     stage.addChild(message);
     
+    
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     /*
@@ -224,13 +226,13 @@ Game Loop
         hero.move_to_target();
         //check collisions and prepare to draw walls:
         for(var i = 0; i < grid.cells.length; i++){
-            if(grid.cells[i].solid){
+            /*if(grid.cells[i].solid){
                 hero.collide(grid.cells[i].v2);
                 hero.collide(grid.cells[i].v4);
                 hero.collide(grid.cells[i].v6);
                 hero.collide(grid.cells[i].v8);
                 hero.collide_with_wall_sides(grid.cells[i]);
-            }
+            }*/
             
             //draw:
             //grid.cells[i].draw();//debug
@@ -339,6 +341,7 @@ Game Loop
                 }
             }
             guards[i].prepare_for_draw();
+            if(guards[i].blood_trail)guards[i].blood_trail.prepare_for_draw();
         }
         
         
@@ -398,9 +401,13 @@ Game Loop
         if(hero_drag_target){
             hero_drag_target.target = {x: hero.x , y: hero.y};//the drag target is "following" the hero.
             hero_drag_target.get_dragged();
+            
+            hero_drag_target.blood_trail.thing.x = hero_drag_target.x;
+            hero_drag_target.blood_trail.thing.y = hero_drag_target.y;
+            hero_drag_target.blood_trail.thing.rotation = hero_drag_target.rad;
+            hero_drag_target.blood_trail.snap();
             //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
         }
-        
         
         //////////////////////
         //Camera
@@ -623,6 +630,7 @@ Key Handlers
             for(var i = 0; i < guards.length; i++){
                 if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
                     guards[i].kill();
+                    guards[i].blood_trail = new jo_blood_trail(guards[i].x,guards[i].y);
                     if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
 
                 }

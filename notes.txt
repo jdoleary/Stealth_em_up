@@ -49,3 +49,6 @@ Couldn't get the following to work:
         painting.setTexture(snapshot);
     }
     //end test blood trail
+    
+6/23/14
+Blood trail may cause serious frame rate drops

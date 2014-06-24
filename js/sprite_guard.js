@@ -3,6 +3,7 @@ function sprite_guard_wrapper(pixiSprite){
         this.path = [];//path applies to AI following a path;
         this.alarmed = false;
         this.being_choked_out = false;
+        this.blood_trail;
 
         this.kill = function(){
             this.sprite.setTexture(img_skull);
