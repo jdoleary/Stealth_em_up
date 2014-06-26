@@ -5,7 +5,8 @@ Task Log:
 
 
   Priority:
-  
+
+(m)Fix blood trails - use cacheAsBitmap (like bunny mark) and only generate texture when the trail is done being drawn.  Don't forget to clean up afterwards.
 (e)Fix "choke out" - broken now that blood trails have been implemented.
 
 
