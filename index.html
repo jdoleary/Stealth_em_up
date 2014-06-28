@@ -121,7 +121,7 @@ Map / Game Object Setup
     guards[2].y = 500;
     var civs = [];
     /*
-    for(var i = 0; i < 12; i++){
+    for(var i = 0; i < 8; i++){
         civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
     }*/
     
@@ -401,10 +401,12 @@ Game Loop
         if(hero_drag_target){
             hero_drag_target.target = {x: hero.x , y: hero.y};//the drag target is "following" the hero.
             hero_drag_target.get_dragged();
-            
-            hero_drag_target.blood_trail.thing.x = hero_drag_target.x-hero_drag_target.blood_trail.death_coords.x;
-            hero_drag_target.blood_trail.thing.y = hero_drag_target.y-hero_drag_target.blood_trail.death_coords.y;
-            hero_drag_target.blood_trail.snap();
+            //leaves blood trail behind as you drag.
+            if(hero_drag_target.blood_trail){
+                hero_drag_target.blood_trail.thing.x = hero_drag_target.x-hero_drag_target.blood_trail.death_coords.x;
+                hero_drag_target.blood_trail.thing.y = hero_drag_target.y-hero_drag_target.blood_trail.death_coords.y;
+                hero_drag_target.blood_trail.snap();
+            }
             //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
         }
         
