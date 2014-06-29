@@ -26,6 +26,7 @@ Task Log:
 * Loose Focus Markers (highlight the side of the screen red, where the mouse left off)
 
 ## Brad Recommends:
+Tutorial Levels (Really work on doing it right, don't just make one for the sake of it)
 !quick sound byte
 ammo
 Blood over hero bug.
