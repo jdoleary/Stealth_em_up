@@ -1,15 +1,6 @@
 Stealth_em_up
 =============
 
-Task Log:
-
-
-## Priority:
-
-* (m)Fix blood trails - use SpriteBatch (like bunny mark) and only generate texture when the trail is done being drawn.  Don't forget to clean up afterwards.
-* (e)Know difference between cacheAsBitmap and SpriteBatch.
-* (e)Fix "choke out" - broken now that blood trails have been implemented.
-
 
 ## Next:
   
@@ -51,3 +42,9 @@ Task Log:
 * guards have health bars and don't die in one shot
 * time clock
 * blood splatter (on desks and flood)
+
+## Notes:
+* SpriteBatch is a super charged display object container
+* Setting the CacheAsBitmap flag makes a display object's content (children) be rentered to a texture, and then that texture is drawn.  With CacheAsBitmap on, children's rotation (for example) is excluded.
+
+* Drag code is updated in CodePractice repo.
