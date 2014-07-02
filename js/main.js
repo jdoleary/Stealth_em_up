@@ -26,6 +26,10 @@ var renderer = PIXI.autoDetectRenderer(window_properties.width, window_propertie
 document.body.appendChild(renderer.view);
 requestAnimFrame(animate);
 
+//zoom:
+var zoom = 1;
+var zoom_magnitude = 0.03;
+
 //display object containers that hold the layers of everything.
 var display_tiles = new PIXI.DisplayObjectContainer();
 var display_blood = new PIXI.DisplayObjectContainer();
@@ -414,6 +418,22 @@ function gameloop(){
         }
     }*/
     
+    //////////////////////
+    //Zoom / Scale
+    //////////////////////
+    //this code allows the zoom / scale to change smoothly based on the mouse wheel input
+    if(stage_child.scale.x < zoom - 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
+        stage_child.scale.x += zoom_magnitude;
+        stage_child.scale.y += zoom_magnitude;
+        stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
+        stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
+    }else if(stage_child.scale.x > zoom + 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
+        stage_child.scale.x -= zoom_magnitude;
+        stage_child.scale.y -= zoom_magnitude;
+        stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
+        stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
+    
+    }
     
 
 }
@@ -606,14 +626,8 @@ function mouseWheelHandler(e){
     // cross-browser wheel delta
 	var e = window.event || e; // old IE support
 	var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-    //console.log("uncomment lines in mouseWheelHandler to enable zoom; Mouse wheel: " + delta);
-    console.log(stage);
-    console.log(stage_child);
-    //ToDo: I could make this smoother by having it approach the target number:
-    stage_child.scale.x += delta * 0.25;
-    stage_child.scale.y += delta * 0.25;
-    stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
-    stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
+
+    zoom += delta * 0.1;
 }
 onmousedown = function(e){
     //you can only shoot if hero is masked
