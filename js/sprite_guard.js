@@ -32,13 +32,28 @@ function sprite_guard_wrapper(pixiSprite){
         
         };
         
+        this.pathToCoords = function(x,y){
+            //finds a path to patrol
+        
+            //if the sprite is able to move
+            if(this.moving){
+                //find new patrol path:
+                var newCellToPatrolTo = grid.getIndexFromCoords_2d(x,y);
+                newCellToPatrolTo = grid.get1DIndexFrom2DIndex(newCellToPatrolTo.x,newCellToPatrolTo.y);
+                var newCellInfo = grid.getInfoFromIndex(newCellToPatrolTo);
+                var newCellIndex = {x: newCellInfo.x_index, y: newCellInfo.y_index};
+                var currentIndex = grid.getIndexFromCoords_2d(this.x,this.y);
+                this.path = grid.getPath(currentIndex,newCellIndex);
+            }
+        
+        };
+        
         this.becomeAlarmed = function(objectOfAlarm){
             if(!this.alarmed){
                 this.alarmed = true;
                 //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
                 this.sprite.setTexture(img_guard_alert);
                 this.path = [];//empty path
-                this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
                 this.moving = false;//this sprite stop in their tracks when they see otherSprite.
                 
                 //in 3 seconds, if this guard is still alive, alert the others.

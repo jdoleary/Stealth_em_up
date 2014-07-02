@@ -46,6 +46,10 @@ function jo_grid(map){
         return this.cells[this.width * col + row];
     };
     
+    this.get1DIndexFrom2DIndex = function(row, col){
+        return this.width * col + row;
+    };
+    
     this.getIndexFromCoords_2d = function(x,y){
         //returns the index of the cell that coords are within
         var indexX = Math.floor(x/this.cell_size);

@@ -11,8 +11,13 @@ Window Setup
 //Mr Doob's Stats.js:
 var stats = new Stats();
 
+
+//make sure that width value is the same in index.html's style
 var window_properties = {width: 620*2, height: 400*2};
-var mouse, hero_aim;
+//make sure that width value is the same in index.html's style
+
+
+var mouse;
 var keys = {w: false, a: false, s: false, d: false, shift: false, space:false};
 // create an new instance of a pixi stage
 // the second parameter is interactivity...
@@ -24,11 +29,19 @@ stage.addChild(stage_child);
 var renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height);
 // add the renderer view element to the DOM
 document.body.appendChild(renderer.view);
+
 requestAnimFrame(animate);
 
 //zoom:
 var zoom = 1;
 var zoom_magnitude = 0.03;
+
+//look sensitivity: This affects how far the camera stretches when the player moves the mouse around;
+//1.5: very far, all the way to the mouse
+//2: a lot
+//3: not much
+var look_sensitivity = 2.5;
+
 
 //display object containers that hold the layers of everything.
 var display_tiles = new PIXI.DisplayObjectContainer();
@@ -52,7 +65,6 @@ display_tiles.addChild(tile_container);
 
 //camera/debug
 var camera = new jo_cam(window_properties);
-var hero_line = new debug_line();
 var test_cone = new debug_line();
 var hero_cir = new debug_circle();
 
@@ -144,8 +156,6 @@ message.anchor.y = 1;
 var messageText = [];
 stage.addChild(message);
 
-//gunshot line
-var show_gunshot = false;
 
 
 ////////////////////////////////////////////////////////////
@@ -197,8 +207,8 @@ function gameloop(){
     //update Hero
     //////////////////////
     
-    hero_aim = new Ray(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
-    if(hero.masked && show_gunshot)hero_line.draw_Ray(hero_aim);//only draw aim line when hero is masked (which means gun is out).
+    hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
+    if(hero.masked)hero.draw_gun_shot(hero.aim);//only draw aim line when hero is masked (which means gun is out).
     hero.move_to_target();
     //check collisions and prepare to draw walls:
     for(var i = 0; i < grid.cells.length; i++){
@@ -276,6 +286,16 @@ function gameloop(){
     
     for(var i = 0; i < guards.length; i++){
         if(guards[i].alive){
+                //shooting
+            //guards aim can be off by up to 50 pixels:
+            var aim_x_offset = Math.floor(Math.random() * 50);
+            var aim_y_offset = Math.floor(Math.random() * 50);
+            //only set aim if they are able to shoot again, don't reset aim every loop
+            if(guards[i].can_shoot)guards[i].aim.set(guards[i].x,guards[i].y,hero.x+aim_x_offset,hero.y+aim_y_offset);
+            //draw the guards gun shot
+            guards[i].draw_gun_shot(guards[i].aim);
+            
+            
             //if guard are not already alarmed
             if(!guards[i].alarmed  && !guards[i].being_choked_out){
                 //check if guard sees alarming objects:
@@ -297,6 +317,22 @@ function gameloop(){
                         guards[i].becomeAlarmed(hero);
                     }
                     
+                }
+            }else{
+                //guard is alarmed:
+                if(guards[i].doesSpriteSeeSprite(hero)){
+                    if(hero.masked){
+                        //reset target
+                        guards[i].moving = false;
+                        guards[i].rotate_to(hero.x,hero.y);
+                        if(guards[i].can_shoot){
+                            play_sound(sound_gun_shot);
+                            guards[i].shoot();//toggles on the visiblity of .draw_gun_shot's line
+                        }
+                    }
+                }else{
+                    guards[i].moving = true;
+                    guards[i].pathToCoords(hero.x,hero.y);
                 }
             }
             //if guard has a path
@@ -391,8 +427,8 @@ function gameloop(){
     //////////////////////
     
     //loose camera
-    camera.x = hero.x + (mouse.x - hero.x)/3;
-    camera.y = hero.y + (mouse.y - hero.y)/3;
+    camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
+    camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
     /*The below commented block is for smooth camera
     //press space to look around
     if(keys['space']){
@@ -479,7 +515,6 @@ window.onkeydown = function(e){
                 hero.sprite.setTexture(img_masked);
             }
             else{
-                hero_line.clear();//clear red aim line
                 hero.sprite.setTexture(img_blue);
             }
         }
@@ -634,12 +669,8 @@ onmousedown = function(e){
     if(hero.masked){
         //gun_shot sound:
         play_sound(sound_gun_shot);
-        //show gunshot:
-        show_gunshot = true;
-        setTimeout(function(){
-            hero_line.graphics.clear();
-            show_gunshot = false;//turn off gunshot after .5 seconds
-        },50);
+        //toggles on the visiblity of .draw_gun_shot's line
+        hero.shoot();
         //shoot_gun();//make noise (not real sound, but noise for guards) which draws guards
         mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
         
@@ -648,7 +679,7 @@ onmousedown = function(e){
         
         //check if hero aim intersects guard:
         for(var i = 0; i < guards.length; i++){
-            if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
+            if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
                 guards[i].kill();
                 guards[i].blood_trail = new jo_blood_trail(guards[i].x,guards[i].y);
                 //make sure the dead body sprite is on top of the blood trail:
@@ -662,7 +693,7 @@ onmousedown = function(e){
         }
         //check if hero aim intersects civs:
         for(var i = 0; i < civs.length; i++){
-            if(civs[i].alive && circle_linesetment_intersect(civs[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
+            if(civs[i].alive && circle_linesetment_intersect(civs[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
                 civs[i].kill();
                 if(civs[i].alarmed)newMessage("You dispatch the civilian before he can get the word out!");
 
@@ -671,7 +702,7 @@ onmousedown = function(e){
         }
         //check if hero aim intersects camera:
         for(var i = 0; i < security_cameras.length; i++){
-            if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),hero_aim.start,hero_aim.end)){
+            if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
                 security_cameras[i].kill();
             }
         

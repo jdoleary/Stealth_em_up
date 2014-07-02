@@ -66,6 +66,12 @@ function circle_linesetment_intersect(circle,linestart,lineend){
 function Ray(x1,y1,x2,y2){
     this.start = {x:x1,y:y1};
     this.end = {x:x2,y:y2};
+    this.set = function(x1,y1,x2,y2){
+        this.start.x = x1;
+        this.start.y = y1;
+        this.end.x = x2;
+        this.end.y = y2;
+    };
 }
 
 function get_distance(x1,y1,x2,y2){
