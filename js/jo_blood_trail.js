@@ -38,7 +38,7 @@ function jo_blood_trail(centerx,centery){
 
 
     //Use the texture to create a `painting` sprite
-    this.painting = new jo_sprite(new PIXI.Sprite(rectangleTexture));
+    this.painting = new jo_sprite(new PIXI.Sprite(rectangleTexture),display_blood);//add to the display_blood layer
     this.painting.x = centerx;
     this.painting.y = centery;
     this.painting.sprite.alpha = 0;//this gets rid of the black rectangle

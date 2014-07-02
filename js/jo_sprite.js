@@ -1,4 +1,4 @@
-function jo_sprite(pixiSprite){
+function jo_sprite(pixiSprite, parent){
     //utility variables, these do not affect the actual sprite, but are used for camera and such, see prepare_for_draw()
     this.x = 0;
     this.y = 0;
@@ -14,9 +14,11 @@ function jo_sprite(pixiSprite){
     //center the image:
     this.sprite.anchor.x = 0.5;
     this.sprite.anchor.y = 0.5;
-	stage.addChild(this.sprite);
+    if(parent)parent.addChild(this.sprite);
+	else display_actors.addChild(this.sprite);
     
     this.kill = function(){
+        play_sound(sound_unit_die);
         this.alive = false;
         this.target = {x: null, y:null};
     }

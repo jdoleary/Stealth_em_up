@@ -34,7 +34,7 @@ function jo_wall(image,solid,blocks_vision,restricted,vertices){
     
     
     this.graphics = new PIXI.Graphics();
-    //stage.addChild(this.graphics);
+    //stage_child.addChild(this.graphics);
     this.draw = function(){
         //draw wall with debug lines
         var v2_ob = camera.relativePoint(this.v2);

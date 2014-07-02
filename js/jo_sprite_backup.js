@@ -22,7 +22,7 @@ function jo_sprite(pixiSprite){
     this.sprite.anchor.y = 0.5;
     
     
-	stage.addChild(this.sprite);
+	display_actors.addChild(this.sprite);
     this.kill = function(){
         this.alive = false;
         //enable moving so they can be dragged

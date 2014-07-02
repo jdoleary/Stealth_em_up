@@ -4,13 +4,8 @@ Stealth_em_up
 
 ## Next:
   
-* Make Civs avoid restricted areas.
-* quick sound byte  
-* Blood over hero bug  (put everything on layers (background, then blood, then units)
-* progress bar for unlocking doors
 * Different Weapons (Pistol, Silenced Pistol[done], Taser, Melee[done])
 * icon for changing weapons
-* zooming (add everything to display object and scale it).
 
 * (e)Guard Backup
 * (m)Guard attack when on alert
@@ -19,6 +14,7 @@ Stealth_em_up
 * crouch and hide behind desks
 * drive car
 * pause
+* Make Civs avoid restricted areas.
 
 
   

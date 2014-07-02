@@ -2,7 +2,7 @@
 function debug_line(){
     //a new debug line should be created for each line that you want to draw
     this.graphics = new PIXI.Graphics();
-    stage.addChild(this.graphics);
+    display_blood.addChild(this.graphics);
     this.draw = function(x1,y1,x2,y2){
         //draw on the screen relative (where upper left corner is 0,0)
         this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
@@ -37,7 +37,7 @@ function debug_circle(){
     //a new debug circle should be created for each circle that you want to draw
     this.graphics = new PIXI.Graphics();
     this.graphics.lineStyle(0);
-    stage.addChild(this.graphics);
+    stage_child.addChild(this.graphics);
     this.color = 0xFFFF0B;
     this.draw = function(x,y,size){
         this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
