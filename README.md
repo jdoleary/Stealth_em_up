@@ -4,14 +4,13 @@ Stealth_em_up
 
 ## Next:
   
-* Different Weapons (Pistol, Silenced Pistol[done], Taser, Melee[done])
-* icon for changing weapons
-
+* Improved map design (use tile editor with multiple layers)
+* multiple buildings
 * (e)Guard Backup
-* (m)Guard attack when on alert
 * (e)Hero Health
 * (e)Make loot drop work with score
 * crouch and hide behind desks
+* Make money drop work
 * drive car
 * pause
 * Make Civs avoid restricted areas.
@@ -23,10 +22,11 @@ Stealth_em_up
 * Loose Focus Markers (highlight the side of the screen red, where the mouse left off)
 
 ## Brad Recommends:
+* icon for changing weapons
+* Different Weapons (Pistol, Silenced Pistol[done], Taser, Melee[done])
 * Tutorial Levels (Really work on doing it right, don't just make one for the sake of it)
 * ammo
 * Turn off laser sight
-* multiple buildings
 * cop cars driving by
 * health bar
 * randomize daytime and nighttime
