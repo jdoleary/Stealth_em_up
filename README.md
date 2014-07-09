@@ -34,8 +34,6 @@ Stealth_em_up
 * (h) lights (shoot out lights)
 * blood pool when guard is 
 * place to dispose bodies (dumpster)
-* multiple ways to dispose of a body (burn for 15 seconds)
-* guards have health bars and don't die in one shot
 * time clock
 * blood splatter (on desks and flood)
 
