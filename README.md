@@ -4,16 +4,20 @@ Stealth_em_up
 
 ## Next:
   
+* Disable blooth path
 * Improved map design (use tile editor with multiple layers)
 * multiple buildings
-* (e)Guard Backup
 * (e)Hero Health
 * (e)Make loot drop work with score
+* Less loot
 * crouch and hide behind desks
 * Make money drop work
+* (e)Guard Backup
 * drive car
 * pause
-* Make Civs avoid restricted areas.
+* Make Civs avoid restricted areas and wait longer.
+* Make guards wait.
+* Intimidate
 
 
   
