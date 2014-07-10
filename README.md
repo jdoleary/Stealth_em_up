@@ -37,8 +37,11 @@ Stealth_em_up
 * time clock
 * blood splatter (on desks and flood)
 
+## Optimize:
+* Anything that doesn't need to have its objective x and y calculated independently should be a part of a parent sprite.  Then the sprite's xy is calculated and all the children aren't.
+
 ## Notes:
 * SpriteBatch is a super charged display object container
-* Setting the CacheAsBitmap flag makes a display object's content (children) be rentered to a texture, and then that texture is drawn.  With CacheAsBitmap on, children's rotation (for example) is excluded.
+* Setting the CacheAsBitmap flag makes a display object's content (children) be rendered to a texture, and then that texture is drawn.  With CacheAsBitmap on, children's rotation (for example) is excluded.
 
 * Drag code is updated in CodePractice repo.
