@@ -18,7 +18,8 @@ Stealth_em_up
 * Make Civs avoid restricted areas and wait longer.
 * Make guards wait.
 * Intimidate
-
+* Option to allow 'easy space' meaning you only have to press space once for an action to occur (not hold it) for unlocking and strangling
+* Make droping money a different button than picking it up.
 
   
 ## Eventually:
