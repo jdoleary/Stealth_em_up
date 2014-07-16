@@ -87,65 +87,65 @@ var img_civilian = PIXI.Texture.fromImage("civ.png");
 
 
 
-//make sprites
-var hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue));
-var hero_end_aim_coord;
-hero.x = 1182;
-hero.y = 615;
-hero.speed = 4;
-var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
-var guards = [];
-guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-guards[0].x = 288;
-guards[0].y = 96;
-guards[1].x = 480;
-guards[1].y = 96;
-guards[2].x = 608;
-guards[2].y = 500;
-var civs = [];
-/*
-for(var i = 0; i < 8; i++){
-    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
-}*/
+			//make sprites
+			var hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue));
+			var hero_end_aim_coord;
+			hero.x = 1182;
+			hero.y = 615;
+			hero.speed = 4;
+			var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
+			var guards = [];
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards[0].x = 288;
+			guards[0].y = 96;
+			guards[1].x = 480;
+			guards[1].y = 96;
+			guards[2].x = 608;
+			guards[2].y = 500;
+			var civs = [];
+			/*
+			for(var i = 0; i < 8; i++){
+			    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
+			}*/
 
-
-var computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
-computer_for_security_cameras.x = 480;
-computer_for_security_cameras.y = 1056;
-
-//security camera
-var security_cameras = [];
-security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,129,Math.PI/2,0));
-security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,1153,Math.PI,0));
+			
+			var computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
+			computer_for_security_cameras.x = 480;
+			computer_for_security_cameras.y = 1056;
+			
+			//security camera
+			var security_cameras = [];
+			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,129,Math.PI/2,0));
+			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,1153,Math.PI,0));
 
 var alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
 
 
-//Loot and Getaway car:
-var getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
-getawaycar.sprite.anchor.y = 0.25;
-getawaycar.x = 1184;
-getawaycar.y = 384;
-getawaycar.rad = -Math.PI/2;
-var loot = [];
-var money = new jo_sprite(new PIXI.Sprite(img_money));
-money.x = 480;
-money.y = 288;
-loot.push(money);
-money = new jo_sprite(new PIXI.Sprite(img_money));
-money.x = 540;
-money.y = 224;
-loot.push(money);
-money = new jo_sprite(new PIXI.Sprite(img_money));
-money.x = 672;
-money.y = 288;
-loot.push(money);
-money = new jo_sprite(new PIXI.Sprite(img_money));
-money.x = 928;
-money.y = 288;
-loot.push(money);
+			//Loot and Getaway car:
+			var getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
+			getawaycar.sprite.anchor.y = 0.25;
+			getawaycar.x = 1184;
+			getawaycar.y = 384;
+			getawaycar.rad = -Math.PI/2;
+			var loot = [];
+			var money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = 480;
+			money.y = 288;
+			loot.push(money);
+			money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = 540;
+			money.y = 224;
+			loot.push(money);
+			money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = 672;
+			money.y = 288;
+			loot.push(money);
+			money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = 928;
+			money.y = 288;
+			loot.push(money);
 
   
 //UI text.  Use newMessage() to add a message.
