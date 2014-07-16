@@ -4,6 +4,9 @@ Stealth_em_up
 
 ## Next:
   
+* Keep buttons from rapid firing actions (like space and shift)
+* Option to allow 'easy space' meaning you only have to press space once for an action to occur (not hold it) for unlocking and strangling
+* Make droping money a different button than picking it up.
 * Disable blooth path
 * Improved map design (use tile editor with multiple layers)
 * multiple buildings
@@ -18,8 +21,6 @@ Stealth_em_up
 * Make Civs avoid restricted areas and wait longer.
 * Make guards wait.
 * Intimidate
-* Option to allow 'easy space' meaning you only have to press space once for an action to occur (not hold it) for unlocking and strangling
-* Make droping money a different button than picking it up.
 
   
 ## Eventually:
@@ -50,3 +51,4 @@ Stealth_em_up
 * Setting the CacheAsBitmap flag makes a display object's content (children) be rendered to a texture, and then that texture is drawn.  With CacheAsBitmap on, children's rotation (for example) is excluded.
 
 * Drag code is updated in CodePractice repo.
+* You can use different gameLoops for different game states.
