@@ -3,11 +3,15 @@ Stealth_em_up
 
 
 ## Next:
-  
+
+* Function for "fully press and release key" so that mask doesn't flash on and off
+* Map Maker improvements
+* Sprint
+* Disable blooth path
+* 
 * Keep buttons from rapid firing actions (like space and shift)
 * Option to allow 'easy space' meaning you only have to press space once for an action to occur (not hold it) for unlocking and strangling
 * Make droping money a different button than picking it up.
-* Disable blooth path
 * Improved map design (use tile editor with multiple layers)
 * multiple buildings
 * (e)Hero Health
