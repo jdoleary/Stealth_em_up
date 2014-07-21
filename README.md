@@ -8,7 +8,7 @@ Stealth_em_up
 * Map Maker improvements
 * Sprint
 * Disable blooth path
-* 
+* Blood spray when shot (alarming object)
 * Keep buttons from rapid firing actions (like space and shift)
 * Option to allow 'easy space' meaning you only have to press space once for an action to occur (not hold it) for unlocking and strangling
 * Make droping money a different button than picking it up.
