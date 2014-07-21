@@ -7,7 +7,11 @@ Stealth_em_up
 * Function for "fully press and release key" so that mask doesn't flash on and off
 * Map Maker improvements
 * Sprint
-* Disable blooth path
+* Disable blood path
+* Make Civs avoid restricted areas and wait longer.
+* Make guards wait.
+* Intimidate
+
 * Blood spray when shot (alarming object)
 * Keep buttons from rapid firing actions (like space and shift)
 * Option to allow 'easy space' meaning you only have to press space once for an action to occur (not hold it) for unlocking and strangling
@@ -22,10 +26,6 @@ Stealth_em_up
 * (e)Guard Backup
 * drive car
 * pause
-* Make Civs avoid restricted areas and wait longer.
-* Make guards wait.
-* Intimidate
-
   
 ## Eventually:
 * Zombie mode (infection spreads)
