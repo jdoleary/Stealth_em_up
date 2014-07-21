@@ -28,6 +28,7 @@ Stealth_em_up
 
   
 ## Eventually:
+* Zombie mode (infection spreads)
 * Fix the load bug where it only loads a portion of the map.
 * Loose Focus Markers (highlight the side of the screen red, where the mouse left off)
 
