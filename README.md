@@ -50,6 +50,7 @@ Stealth_em_up
 
 ## Optimize:
 * Anything that doesn't need to have its objective x and y calculated independently should be a part of a parent sprite.  Then the sprite's xy is calculated and all the children aren't.
+* Pixi v1.6 added drawPath. Use for blood trails? (http://www.html5gamedevs.com/topic/7782-pixijs-v16-is-%E2%80%98in-da-house%E2%80%99/)
 
 ## Notes:
 * SpriteBatch is a super charged display object container
