@@ -51,6 +51,7 @@ stage_child.addChild(display_tiles);
 stage_child.addChild(display_blood);
 stage_child.addChild(display_actors);
 
+
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 /*
@@ -83,9 +84,16 @@ var img_money = PIXI.Texture.fromImage("money.png");
 var img_getawaycar = PIXI.Texture.fromImage("van.png");
 var img_hero_with_money = PIXI.Texture.fromImage("blue_with_money.png");
 var img_civilian = PIXI.Texture.fromImage("civ.png");
+var img_origin = PIXI.Texture.fromImage("origin.png");
 
 
 
+//blood_drawer:
+var blood_holder = new PIXI.Sprite(img_origin);
+var graphics_blood = new PIXI.Graphics();
+graphics_blood.lineStyle(15, 0xb51d1d, 1);
+blood_holder.addChild(graphics_blood);
+display_blood.addChild(blood_holder);
 
 			//make sprites
 			var hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue));
@@ -201,6 +209,9 @@ function gameloop(){
     //update all sprites:
     //////////////////////
     
+    //reset graphics_blood:
+    graphics_blood.clear();
+    graphics_blood.lineStyle(15, 0xb51d1d, 1);
     
     
     //////////////////////
@@ -353,8 +364,15 @@ function gameloop(){
             }
         }
         guards[i].prepare_for_draw();
-        if(guards[i].blood_trail)guards[i].blood_trail.prepare_for_draw();
+        
+        //draw blood trails.
+        if(guards[i].blood_trail){
+            graphics_blood.drawPath(guards[i].blood_trail);
+        }
     }
+    
+    //prepare blood layer for draw:
+    prepare_for_draw_blood();
     
     
     
@@ -415,9 +433,11 @@ function gameloop(){
         hero_drag_target.get_dragged();
         //leaves blood trail behind as you drag.
         if(hero_drag_target.blood_trail){
-            hero_drag_target.blood_trail.thing.x = hero_drag_target.x-hero_drag_target.blood_trail.death_coords.x;
-            hero_drag_target.blood_trail.thing.y = hero_drag_target.y-hero_drag_target.blood_trail.death_coords.y;
-            hero_drag_target.blood_trail.snap();
+            var len = hero_drag_target.blood_trail.length;
+            if(Math.abs(hero_drag_target.blood_trail[len-2]-hero_drag_target.x)>1 || Math.abs(hero_drag_target.blood_trail[len-1]-hero_drag_target.y)>1){
+                hero_drag_target.blood_trail.push(hero_drag_target.x);//[0]:initial coords.x
+                hero_drag_target.blood_trail.push(hero_drag_target.y);//[1]:initial coords.y
+             }
         }
         //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
     }
@@ -656,7 +676,10 @@ window.onkeyup = function(e){
     }
     
 };
+// IE9, Chrome, Safari, Opera
 window.addEventListener("mousewheel", mouseWheelHandler, false);
+// Firefox
+window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
 function mouseWheelHandler(e){
     // cross-browser wheel delta
 	var e = window.event || e; // old IE support
@@ -681,7 +704,7 @@ onmousedown = function(e){
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
                 guards[i].kill();
-                guards[i].blood_trail = new jo_blood_trail(guards[i].x,guards[i].y);
+                guards[i].blood_trail = [guards[i].x,guards[i].y];
                 //make sure the dead body sprite is on top of the blood trail:
                 display_actors.removeChild(guards[i].sprite);
                 display_actors.addChild(guards[i].sprite);
@@ -749,6 +772,11 @@ function shoot_gun(){
         var path = grid.getPath(guard_index,hero_index);
         guards[i].path = path;
     }
+}
+function prepare_for_draw_blood(){
+    var draw_coords = camera.relativePoint({x:0,y:0});//0,0 because blood_holder does not consider its sprite
+    blood_holder.x = draw_coords.x;
+    blood_holder.y = draw_coords.y;
 }
 //Mr. Doob's Stats.js
 stats.domElement.style.position = 'absolute';

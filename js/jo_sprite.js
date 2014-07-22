@@ -98,7 +98,6 @@ function jo_sprite(pixiSprite, parent){
         //rotate to face direction of movement
         var newRad = Math.atan2(b,a);
         var diff = newRad - this.rad;
-        console.log('rad', diff);
         if(Math.abs(diff) <= 0.1)this.rad = newRad;
         else if(diff > Math.PI)this.rad -= 0.1;
         else if(diff < -Math.PI)this.rad += 0.1;
