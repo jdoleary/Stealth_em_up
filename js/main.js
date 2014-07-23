@@ -104,14 +104,14 @@ display_blood.addChild(blood_holder);
 			var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 			var guards = [];
 			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards[0].x = 288;
-			guards[0].y = 96;
-			guards[1].x = 480;
-			guards[1].y = 96;
-			guards[2].x = 608;
-			guards[2].y = 500;
+			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			//guards[0].x = 288;
+			//guards[0].y = 96;
+			//guards[1].x = 480;
+			//guards[1].y = 96;
+			guards[0].x = 608;
+			guards[0].y = 500;
 			var civs = [];
 			/*
 			for(var i = 0; i < 8; i++){
@@ -367,7 +367,14 @@ function gameloop(){
         
         //draw blood trails.
         if(guards[i].blood_trail){
-            graphics_blood.drawPath(guards[i].blood_trail);
+            for(var z = 20, j = 1; j > 0; z += 20, j -= 0.04){
+                //decrease the alpha for every 40 points on the path
+                var min = z-22;
+                if(min < 0)min = 0;
+                var path = guards[i].blood_trail.slice(min,z);
+                graphics_blood.lineStyle(15, 0xb51d1d, j);
+                graphics_blood.drawPath(path);
+            }
         }
     }
     
