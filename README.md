@@ -1,6 +1,8 @@
 Stealth_em_up
 =============
 
+## Bugs:
+* Sound doesn't work properly on firefox.  Cannot play another sound of the same kind until the first is finished.
 
 ## Next:
 
