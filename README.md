@@ -5,21 +5,24 @@ Stealth_em_up
 * Sound doesn't work properly on firefox.  Cannot play another sound of the same kind until the first is finished.
 
 ## Next:
+  Summary:
+    Day 1: 8 Tasks, 3hrs
 
-* Function for "fully press and release key" so that mask doesn't flash on and off
-* Map Maker improvements
+* Text over units heads.  For hero it could be unlock count down.  For enemies it could be state.
+* Function for "fully press and release key" so that mask doesn't flash on and off. Keep buttons from rapid firing actions (like space and shift)
+* Improved map design (use tile editor with multiple layers)
 * Sprint
-* Disable blood path
+* Make blood path alert guards
 * Make Civs avoid restricted areas and wait longer.
 * Make guards wait.
 * Intimidate
 
+  Day 2: 
+
 * Blood spray when shot (alarming object)
-* Keep buttons from rapid firing actions (like space and shift)
+* Improve gun fire with collision instead of hit scan (But keep it really fast).
 * Option to allow 'easy space' meaning you only have to press space once for an action to occur (not hold it) for unlocking and strangling
 * Make droping money a different button than picking it up.
-* Improved map design (use tile editor with multiple layers)
-* multiple buildings
 * (e)Hero Health
 * (e)Make loot drop work with score
 * Less loot
@@ -52,7 +55,7 @@ Stealth_em_up
 
 ## Optimize:
 * Anything that doesn't need to have its objective x and y calculated independently should be a part of a parent sprite.  Then the sprite's xy is calculated and all the children aren't.
-* Pixi v1.6 added drawPath. Use for blood trails? (http://www.html5gamedevs.com/topic/7782-pixijs-v16-is-%E2%80%98in-da-house%E2%80%99/)
+* Increase the usuable size of maps by turning off .visible for cells not in view?
 
 ## Notes:
 * SpriteBatch is a super charged display object container
