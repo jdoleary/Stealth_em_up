@@ -37,27 +37,25 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     this.x = this.v8.x;
     this.y = this.v8.y;
     switch(image_number) {
-        case 1:
+        case 0:
             var sprite = new PIXI.Sprite.fromImage(img_tile_black);
             break;
-        case 2:
+        case 1:
             var sprite = new PIXI.Sprite.fromImage(img_tile_white);
             break;
-        case 3:
+        case 2:
             var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
             break;
-        case 4:
+        case 3:
             var sprite = new PIXI.Sprite.fromImage(img_tile_red);
             break;
-        case 5:
+        case 4:
             var sprite = new PIXI.Sprite.fromImage(img_tile_purple);
             break;
             
     }
     this.image_sprite = sprite;
     //tile_container.addChild(this.image_sprite);//caused fps drops for some reason
-    //convert image_number to 0 indexed:
-    image_number--;
     tile_containers[image_number].addChild(sprite);
     
     

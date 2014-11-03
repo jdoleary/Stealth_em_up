@@ -164,29 +164,29 @@ function jo_grid(map){
         switch(tile_type) {
         case 1:
             //black
-            this.cells.push(new jo_wall(1,true,true,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(0,true,true,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 2:
             //white
-            this.cells.push(new jo_wall(2,false,false,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 3:
             //brown
-            this.cells.push(new jo_wall(3,true,false,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(2,true,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 4:
             //red
-            this.cells.push(new jo_wall(4,false,false,true,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(3,false,false,true,this.getWallCoords('square',x_index,y_index)));
             break;
         case 5:
             //purple (door)
-            var door = new jo_wall(5,true,true,true,this.getWallCoords('square',x_index,y_index));
+            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index));
             door.door = true;
             this.cells.push(door);
             this.doors.push(door);
             break;
         default:
-            this.cells.push(new jo_wall(2,false,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(1,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         };
     }

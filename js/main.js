@@ -46,12 +46,14 @@ var look_sensitivity = 2.5;
 //display object containers that hold the layers of everything.
 var display_tiles = new PIXI.DisplayObjectContainer();
 var display_blood = new PIXI.DisplayObjectContainer();
-var display_actors = new PIXI.DisplayObjectContainer();
 var display_effects = new PIXI.DisplayObjectContainer();
+var display_actors = new PIXI.DisplayObjectContainer();
+var display_tiles_walls = new PIXI.DisplayObjectContainer();
 stage_child.addChild(display_tiles);
 stage_child.addChild(display_blood);
-stage_child.addChild(display_actors);
 stage_child.addChild(display_effects);
+stage_child.addChild(display_actors);
+stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
 
 
 ////////////////////////////////////////////////////////////
@@ -64,7 +66,11 @@ Map / Game Object Setup
 
 //grid/map
 var grid = new jo_grid(map_diamond_store);
-for(var i = 0; i < tile_containers.length; i++)display_tiles.addChild(tile_containers[i]);//add SpriteBatches
+display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
+display_tiles_walls.addChild(tile_containers[2]);//add SpriteBatches, brown furnature
+display_tiles.addChild(tile_containers[1]);//add SpriteBatches
+display_tiles.addChild(tile_containers[3]);//add SpriteBatches
+display_tiles.addChild(tile_containers[4]);//add SpriteBatches
 
 //camera/debug
 var camera = new jo_cam(window_properties);
@@ -87,6 +93,8 @@ var img_getawaycar = PIXI.Texture.fromImage("van.png");
 var img_hero_with_money = PIXI.Texture.fromImage("blue_with_money.png");
 var img_civilian = PIXI.Texture.fromImage("civ.png");
 var img_origin = PIXI.Texture.fromImage("origin.png");
+var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
+var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
 
 
 
@@ -105,15 +113,15 @@ display_blood.addChild(blood_holder);
 			hero.speed = 4;
 			var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 			var guards = [];
-			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			//guards[0].x = 288;
-			//guards[0].y = 96;
-			//guards[1].x = 480;
-			//guards[1].y = 96;
-			//guards[0].x = 608;
-			//guards[0].y = 500;
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards[0].x = 288;
+			guards[0].y = 96;
+			guards[1].x = 480;
+			guards[1].y = 96;
+			guards[2].x = 608;
+			guards[2].y = 500;
 			var civs = [];
 			/*
 			for(var i = 0; i < 8; i++){
@@ -171,6 +179,10 @@ var spark_clip = new jo_sprite(jo_movie_clip("movie_clips/","spark_",9,".png"),d
 spark_clip.sprite.loop = false;
 spark_clip.sprite.animationSpeed = 0.7;//slow it down
 
+//effects:
+var static_effect_sprites = [];
+
+
 
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
@@ -218,6 +230,11 @@ function gameloop(){
     graphics_blood.clear();
     graphics_blood.lineStyle(15, 0xb51d1d, 1);
     
+    //update effects:
+    for(var i = 0; i < static_effect_sprites.length; i++){
+        static_effect_sprites[i].prepare_for_draw();
+    }
+    spark_clip.prepare_for_draw();
     
     //////////////////////
     //update Hero
@@ -225,8 +242,6 @@ function gameloop(){
     
     hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
     if(hero.masked)hero.draw_gun_shot(hero.aim);//only draw aim line when hero is masked (which means gun is out).
-    //to do test todo
-    spark_clip.prepare_for_draw();
     hero.move_to_target();
     
     //check collisions and prepare to draw walls:
@@ -725,6 +740,9 @@ onmousedown = function(e){
         for(var i = 0; i < guards.length; i++){
             if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
                 guards[i].kill();
+                //make blood splatter:
+                makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
+                //make blood trail:
                 guards[i].blood_trail = [guards[i].x,guards[i].y];
                 //make sure the dead body sprite is on top of the blood trail:
                 display_actors.removeChild(guards[i].sprite);
@@ -798,6 +816,19 @@ function prepare_for_draw_blood(){
     var draw_coords = camera.relativePoint({x:0,y:0});//0,0 because blood_holder does not consider its sprite
     blood_holder.x = draw_coords.x;
     blood_holder.y = draw_coords.y;
+}
+function makeBloodSplatter(atX,atY,pointAtX,pointAtY){
+    var img = img_blood_splatter;
+    //the below line has a 50% chance of reassigning the image
+    var roll = [true,false][Math.round(Math.random())];
+    if(roll){
+        img = img_blood_splatter2;
+    }
+    var blood_splatter = new jo_sprite(new PIXI.Sprite(img),display_effects);
+    blood_splatter.x = atX;
+    blood_splatter.y = atY;
+    blood_splatter.rotate_to_instant(pointAtX,pointAtY);
+    static_effect_sprites.push(blood_splatter);//add to array of still effects
 }
 //Mr. Doob's Stats.js
 stats.domElement.style.position = 'absolute';
