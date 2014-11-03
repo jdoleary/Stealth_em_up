@@ -47,9 +47,11 @@ var look_sensitivity = 2.5;
 var display_tiles = new PIXI.DisplayObjectContainer();
 var display_blood = new PIXI.DisplayObjectContainer();
 var display_actors = new PIXI.DisplayObjectContainer();
+var display_effects = new PIXI.DisplayObjectContainer();
 stage_child.addChild(display_tiles);
 stage_child.addChild(display_blood);
 stage_child.addChild(display_actors);
+stage_child.addChild(display_effects);
 
 
 ////////////////////////////////////////////////////////////
@@ -164,6 +166,10 @@ message.anchor.y = 1;
 var messageText = [];
 stage.addChild(message);
 
+//MOVIE CLIPS:
+var spark_clip = new jo_sprite(jo_movie_clip("movie_clips/","spark_",9,".png"),display_effects);
+spark_clip.sprite.loop = false;
+spark_clip.sprite.animationSpeed = 0.7;//slow it down
 
 
 ////////////////////////////////////////////////////////////
@@ -175,7 +181,6 @@ Game Loop
 ////////////////////////////////////////////////////////////
 
 function gameloop(){
-    
     
     //////////////////////
     //update Mouse
@@ -220,7 +225,10 @@ function gameloop(){
     
     hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
     if(hero.masked)hero.draw_gun_shot(hero.aim);//only draw aim line when hero is masked (which means gun is out).
+    //to do test todo
+    spark_clip.prepare_for_draw();
     hero.move_to_target();
+    
     //check collisions and prepare to draw walls:
     for(var i = 0; i < grid.cells.length; i++){
         if(grid.cells[i].solid){
@@ -699,6 +707,12 @@ onmousedown = function(e){
     if(hero.masked){
         //gun_shot sound:
         play_sound(sound_gun_shot);
+        //play gun spark against wall where gun shot hits: todo test to do
+        spark_clip.x = hero.aim.end.x;
+        spark_clip.y = hero.aim.end.y;
+        spark_clip.rotate_to_instant(hero.x,hero.y);
+        spark_clip.sprite.gotoAndPlay(0);
+        
         //toggles on the visiblity of .draw_gun_shot's line
         hero.shoot();
         //shoot_gun();//make noise (not real sound, but noise for guards) which draws guards

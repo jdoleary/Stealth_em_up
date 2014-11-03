@@ -31,7 +31,7 @@ function jo_sprite(pixiSprite, parent){
     
     this.shoot = function(){
         //shows gun_shot_line
-        this.gun_shot_line.graphics.visible = true;
+        //this.gun_shot_line.graphics.visible = true;
         this.can_shoot = false; //so the guards don't shoot way too fast
         setTimeout(function(){
             //allow sprite to shoot again.
@@ -103,6 +103,30 @@ function jo_sprite(pixiSprite, parent){
         else if(diff < -Math.PI)this.rad += 0.1;
         else if(diff < 0)this.rad -= 0.1;
         else if(diff > 0)this.rad += 0.1;
+        if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
+        if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
+        
+    };
+    
+    //instantly rotates to target, rather than over time based on frames
+    this.rotate_to_instant = function(x,y){
+        //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
+        //the movement of this.x and this.y (a,b) are found with the formulas: A/C = a/c and B/C = b/c
+        if(x == null || y == null )return;//no target
+        var a,b;
+        var c = this.speed;
+        var A = x-this.x;
+        var B = y-this.y;
+        var C = Math.sqrt(A*A+B*B);
+        if(C<this.stop_distance){        
+            return true; // the object is close enough that it need not move
+        }
+        a = c*A/C;
+        b = c*B/C;
+        
+        //rotate to face direction of movement
+        var newRad = Math.atan2(b,a);
+        this.rad = newRad;
         if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         
@@ -241,3 +265,4 @@ function jo_sprite(pixiSprite, parent){
     };
 
 }
+
