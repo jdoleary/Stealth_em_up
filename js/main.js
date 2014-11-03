@@ -62,7 +62,7 @@ Map / Game Object Setup
 
 //grid/map
 var grid = new jo_grid(map_diamond_store);
-display_tiles.addChild(tile_container);
+for(var i = 0; i < tile_containers.length; i++)display_tiles.addChild(tile_containers[i]);//add SpriteBatches
 
 //camera/debug
 var camera = new jo_cam(window_properties);
@@ -103,15 +103,15 @@ display_blood.addChild(blood_holder);
 			hero.speed = 4;
 			var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 			var guards = [];
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			//guards[0].x = 288;
 			//guards[0].y = 96;
 			//guards[1].x = 480;
 			//guards[1].y = 96;
-			guards[0].x = 608;
-			guards[0].y = 500;
+			//guards[0].x = 608;
+			//guards[0].y = 500;
 			var civs = [];
 			/*
 			for(var i = 0; i < 8; i++){

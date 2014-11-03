@@ -9,13 +9,15 @@ var map1 = {
         "width":20
         };
 
-var img_tile_black = PIXI.Texture.fromImage("tile_black.png");
-var img_tile_white = PIXI.Texture.fromImage("tile_white.png");
-var img_tile_brown = PIXI.Texture.fromImage("tile_brown.png");
-var img_tile_red = PIXI.Texture.fromImage("tile_red.png");
-var img_tile_purple = PIXI.Texture.fromImage("tile_door.png");
 
-var tile_container = new PIXI.SpriteBatch();//for efficiency!
+//NOTE: to be batched, I think they all have to be the same sprite:
+var tile_container_black = new PIXI.SpriteBatch();//for efficiency!
+var tile_container_white = new PIXI.SpriteBatch();//for efficiency!
+var tile_container_brown = new PIXI.SpriteBatch();//for efficiency!
+var tile_container_red = new PIXI.SpriteBatch();//for efficiency!
+var tile_container_purple = new PIXI.SpriteBatch();//for efficiency!
+var tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
+
 
 
 function jo_grid(map){
@@ -162,29 +164,29 @@ function jo_grid(map){
         switch(tile_type) {
         case 1:
             //black
-            this.cells.push(new jo_wall(img_tile_black,true,true,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(1,true,true,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 2:
             //white
-            this.cells.push(new jo_wall(img_tile_white,false,false,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(2,false,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 3:
-            //green
-            this.cells.push(new jo_wall(img_tile_brown,true,false,false,this.getWallCoords('square',x_index,y_index)));
+            //brown
+            this.cells.push(new jo_wall(3,true,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 4:
             //red
-            this.cells.push(new jo_wall(img_tile_red,false,false,true,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(4,false,false,true,this.getWallCoords('square',x_index,y_index)));
             break;
         case 5:
             //purple (door)
-            var door = new jo_wall(img_tile_purple,true,true,true,this.getWallCoords('square',x_index,y_index));
+            var door = new jo_wall(5,true,true,true,this.getWallCoords('square',x_index,y_index));
             door.door = true;
             this.cells.push(door);
             this.doors.push(door);
             break;
         default:
-            this.cells.push(new jo_wall(img_tile_white,false,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(2,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         };
     }

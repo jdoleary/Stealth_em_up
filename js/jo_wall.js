@@ -1,5 +1,12 @@
 //also referred to as "cell"
-function jo_wall(image,solid,blocks_vision,restricted,vertices){
+
+var img_tile_black = "tile_black.png";
+var img_tile_white = "tile_white.png";
+var img_tile_brown = "tile_brown.png";
+var img_tile_red = "tile_red.png";
+var img_tile_purple = "tile_door.png";
+
+function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     /*
     To be able to build walls dynamically they will be made of points
     Grid cells around the cell that the wall is in will only check against 
@@ -27,10 +34,31 @@ function jo_wall(image,solid,blocks_vision,restricted,vertices){
     if(this.v8.x < 0 || this.v8.y < 0) throw new Error("Walls cannot be placed in negative space!");
     
     //for drawing image
-    this.image_sprite = new PIXI.Sprite(image);
     this.x = this.v8.x;
     this.y = this.v8.y;
-    tile_container.addChild(this.image_sprite);
+    switch(image_number) {
+        case 1:
+            var sprite = new PIXI.Sprite.fromImage(img_tile_black);
+            break;
+        case 2:
+            var sprite = new PIXI.Sprite.fromImage(img_tile_white);
+            break;
+        case 3:
+            var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
+            break;
+        case 4:
+            var sprite = new PIXI.Sprite.fromImage(img_tile_red);
+            break;
+        case 5:
+            var sprite = new PIXI.Sprite.fromImage(img_tile_purple);
+            break;
+            
+    }
+    this.image_sprite = sprite;
+    //tile_container.addChild(this.image_sprite);//caused fps drops for some reason
+    //convert image_number to 0 indexed:
+    image_number--;
+    tile_containers[image_number].addChild(sprite);
     
     
     this.graphics = new PIXI.Graphics();
