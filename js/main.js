@@ -524,7 +524,7 @@ function gameloop(){
 
 }
 var states = {"StartMenu":0,"Gameplay":1};
-var state = states["StartMenu"];
+var state = states["Gameplay"];
 function animate() {
     if(state == 0){
     
