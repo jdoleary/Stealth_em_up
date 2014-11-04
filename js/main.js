@@ -523,19 +523,23 @@ function gameloop(){
     
 
 }
-
+var states = {"StartMenu":0,"Gameplay":1};
+var state = states["StartMenu"];
 function animate() {
-    stats.begin();//Mr Doob's Stats.js
+    if(state == 0){
     
-    gameloop();
-    // render the stage
-    renderer.render(stage);
+    }else if(state == 1){
+        stats.begin();//Mr Doob's Stats.js
+        
+        gameloop();
+        // render the stage
+        renderer.render(stage);
 
-    requestAnimFrame(animate);	
-    
-    
-    stats.end();//Mr Doob's Stats.js
-    
+        requestAnimFrame(animate);	
+        
+        
+        stats.end();//Mr Doob's Stats.js
+    }
 
     
 }
@@ -563,9 +567,17 @@ window.onkeydown = function(e){
             //change image to reflect that hero is wearing mask
             if(hero.masked){
                 hero.sprite.setTexture(img_masked);
+                //switch music
+                
+                music_masked.volume = 0.5;
+                music_unmasked.volume = 0.0;
             }
             else{
                 hero.sprite.setTexture(img_blue);
+                //switch music
+                music_masked.volume = 0.0;
+                music_unmasked.volume = 0.5;
+                
             }
         }
     }

@@ -108,7 +108,7 @@ function jo_sprite(pixiSprite, parent){
         
     };
     
-    //instantly rotates to target, rather than over time based on frames
+    //instantly rotate to target (not incrementally)
     this.rotate_to_instant = function(x,y){
         //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
         //the movement of this.x and this.y (a,b) are found with the formulas: A/C = a/c and B/C = b/c
