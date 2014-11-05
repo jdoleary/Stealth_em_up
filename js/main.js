@@ -532,9 +532,9 @@ var state = states["StartMenu"];
 //test todo:
 if(state == 0){
 // create some textures from an image path
-        var textureButton = PIXI.Texture.fromImage("civ.png");
-        var textureButtonOver = PIXI.Texture.fromImage("blue.png");
-        var textureButtonDown = PIXI.Texture.fromImage("blue_with_money.png");
+        var textureButton = PIXI.Texture.fromImage("play1.png");
+        var textureButtonOver = PIXI.Texture.fromImage("play2.png");
+        var textureButtonDown = PIXI.Texture.fromImage("play3.png");
 		var button = new PIXI.Sprite(textureButton);
 		button.anchor.x = 0.5;
 		button.anchor.y = 0.5;		
@@ -544,7 +544,6 @@ if(state == 0){
 }
 function startGame(){
     state = states["Gameplay"];
-    console.log("state: " + state);
     stage.removeChild(button);
 }
 function animate() {
