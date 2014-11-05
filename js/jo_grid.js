@@ -10,17 +10,25 @@ var map1 = {
         };
 
 
-//NOTE: to be batched, I think they all have to be the same sprite:
-var tile_container_black = new PIXI.SpriteBatch();//for efficiency!
-var tile_container_white = new PIXI.SpriteBatch();//for efficiency!
-var tile_container_brown = new PIXI.SpriteBatch();//for efficiency!
-var tile_container_red = new PIXI.SpriteBatch();//for efficiency!
-var tile_container_purple = new PIXI.SpriteBatch();//for efficiency!
-var tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
+//NOTE: to be batched, I think all images in spritebatch have to be the same sprite:
+var tile_container_black;
+var tile_container_white;
+var tile_container_brown;
+var tile_container_red;
+var tile_container_purple;
+var tile_containers;
 
 
 
 function jo_grid(map){
+    //set up sprite batches:
+    tile_container_black = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_white = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_brown = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_red = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_purple = new PIXI.SpriteBatch();//for efficiency!
+    tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
+
     //2d array:
     this.width = map.width;
     this.height = map.height;

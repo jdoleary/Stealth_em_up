@@ -1,5 +1,261 @@
 
 
+var states = {"StartMenu":0,"Gameplay":1};
+var state;
+        
+function removeAllChildren(obj){
+    if(obj){
+        for (var i = obj.children.length - 1; i >= 0; i--) {
+            obj.removeChild(obj.children[i]);
+        };
+    }
+}
+function clearStage(){
+    removeKeyHandlers();
+    //remove all children:
+    removeAllChildren(display_tiles);
+    removeAllChildren(display_blood);
+    removeAllChildren(display_effects);
+    removeAllChildren(display_actors);
+    removeAllChildren(display_tiles_walls);
+    removeAllChildren(stage_child);
+    removeAllChildren(stage);
+    stage = new PIXI.Stage(0xEEEEEE, interactive);
+}
+function startMenu(){
+/////MENU/////
+
+        clearStage();
+        state = states["StartMenu"];
+        
+        
+        var textureButton = PIXI.Texture.fromImage("play1.png");
+        var textureButtonOver = PIXI.Texture.fromImage("play2.png");
+        var textureButtonDown = PIXI.Texture.fromImage("play3.png");
+		var button = new PIXI.Sprite(textureButton);
+		button.anchor.x = 0.5;
+		button.anchor.y = 0.5;		
+        button.x = 300;
+        button.y = 300;
+		button.setInteractive(true);
+        
+        button.mousedown = button.touchstart = function(data){
+			
+			this.isdown = true;
+			this.setTexture(textureButtonDown);
+			this.alpha = 1;
+		}
+		
+		// set the mouseup and touchend callback..
+		button.mouseup = button.touchend = function(data){
+			this.isdown = false;
+			
+			if(this.isOver)
+			{
+				this.setTexture(textureButtonOver);
+			}
+			else
+			{
+				this.setTexture(textureButton);
+			}
+		}
+		
+		// set the mouseover callback..
+		button.mouseover = function(data){
+			
+			this.isOver = true;
+			
+			if(this.isdown)return
+			
+			this.setTexture(textureButtonOver)
+		}
+        // set the mouseout callback..
+		button.mouseout = function(data){
+			
+			this.isOver = false;
+			if(this.isdown)return
+			this.setTexture(textureButton)
+		}
+		
+		button.click = function(data){
+            startGame();
+		}
+        
+		stage.addChild(button);
+}
+function startGame(){
+
+    //the the menu or any other previous children
+    clearStage();
+    
+    state = states["Gameplay"];
+    
+    //initialize variables:
+    keys = {w: false, a: false, s: false, d: false, shift: false, space:false};
+    stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
+    stage.addChild(stage_child);
+    
+    //zoom:
+    zoom = 1;
+    zoom_magnitude = 0.03;
+    
+    //look sensitivity: This affects how far the camera stretches when the player moves the mouse around;
+    //1.5: very far, all the way to the mouse
+    //2: a lot
+    //3: not much
+    look_sensitivity = 2.5;
+    
+    
+    //display object containers that hold the layers of everything.
+    display_tiles = new PIXI.DisplayObjectContainer();
+    display_blood = new PIXI.DisplayObjectContainer();
+    display_effects = new PIXI.DisplayObjectContainer();
+    display_actors = new PIXI.DisplayObjectContainer();
+    display_tiles_walls = new PIXI.DisplayObjectContainer();
+    stage_child.addChild(display_tiles);
+    stage_child.addChild(display_blood);
+    stage_child.addChild(display_effects);
+    stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
+    stage_child.addChild(display_actors);
+    
+    ///////////////////////
+    ///////////////////////
+    /*
+    Map / Game Object Setup
+    */
+    ///////////////////////
+    ///////////////////////    
+    
+    //grid/map
+    grid = new jo_grid(map_diamond_store);
+    display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
+    display_tiles_walls.addChild(tile_containers[2]);//add SpriteBatches, brown furnature
+    display_tiles.addChild(tile_containers[1]);//add SpriteBatches
+    display_tiles.addChild(tile_containers[3]);//add SpriteBatches
+    display_tiles.addChild(tile_containers[4]);//add SpriteBatches
+    
+    //camera/debug
+    camera = new jo_cam(window_properties);
+    test_cone = new debug_line();
+    hero_cir = new debug_circle();
+    
+    
+    //blood_drawer:
+    blood_holder = new PIXI.Sprite(img_origin);
+    graphics_blood = new PIXI.Graphics();
+    graphics_blood.lineStyle(15, 0xb51d1d, 1);
+    blood_holder.addChild(graphics_blood);
+    display_blood.addChild(blood_holder);
+    
+            //make sprites:
+			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue));
+			hero_end_aim_coord;
+            hero.x = 1182;
+			hero.y = 615;
+			hero.speed = 4;
+            hero_drag_target = null; // a special var reserved for when the hero is dragging something.
+			guards = [];
+            guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards[0].x = 288;
+			guards[0].y = 96;
+			guards[1].x = 480;
+			guards[1].y = 96;
+			guards[2].x = 608;
+			guards[2].y = 500;
+            
+			civs = [];
+            /*
+			for(var i = 0; i < 8; i++){
+			    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
+			}*/
+            
+            		
+			computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
+			computer_for_security_cameras.x = 480;
+			computer_for_security_cameras.y = 1056;
+			
+			//security camera
+			security_cameras = [];
+			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,129,Math.PI/2,0));
+			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,1153,Math.PI,0));
+            
+            
+alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
+
+
+			//Loot and Getaway car:
+			getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
+			getawaycar.sprite.anchor.y = 0.25;
+			getawaycar.x = 1184;
+			getawaycar.y = 384;
+			getawaycar.rad = -Math.PI/2;
+			loot = [];
+			var money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = 480;
+			money.y = 288;
+			loot.push(money);
+			money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = 540;
+			money.y = 224;
+			loot.push(money);
+			money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = 672;
+			money.y = 288;
+			loot.push(money);
+			money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = 928;
+			money.y = 288;
+			loot.push(money);
+            
+            //UI text.  Use newMessage() to add a message.
+            message = new PIXI.Text("", { font: "20px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 4 });
+            message.position.x = 0;
+            message.position.y = window_properties.height;
+            message.anchor.y = 1;
+            messageText = [];
+            stage.addChild(message);
+
+            //MOVIE CLIPS:
+            spark_clip = new jo_sprite(jo_movie_clip("movie_clips/","spark_",9,".png"),display_effects);
+            spark_clip.sprite.loop = false;
+            spark_clip.sprite.animationSpeed = 0.7;//slow it down
+
+            //effects:
+            static_effect_sprites = [];
+            
+            addKeyHandlers();
+
+}
+
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+/*
+Animate Loop
+*/
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+function animate() {
+    if(state == 0){
+    }else if(state == 1){
+        /////Game/////
+        
+        stats.begin();//Mr Doob's Stats.js
+        
+        gameloop();
+        
+        
+        stats.end();//Mr Doob's Stats.js
+    }
+    // render the stage
+    renderer.render(stage);
+    //request another animate call
+    requestAnimFrame(animate);	
+
+    
+}
+
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 /*
@@ -11,49 +267,45 @@ Window Setup
 //Mr Doob's Stats.js:
 var stats = new Stats();
 
+//CREATE STAGE
+// create an new instance of a pixi stage
+// the second parameter is interactivity...
+var interactive = true;
+var stage;
 
 //make sure that width value is the same in index.html's style
 var window_properties = {width: 620*2, height: 400*2};
 //make sure that width value is the same in index.html's style
 
-
-var mouse;
-var keys = {w: false, a: false, s: false, d: false, shift: false, space:false};
-// create an new instance of a pixi stage
-// the second parameter is interactivity...
-var interactive = true;
-var stage = new PIXI.Stage(0xEEEEEE, interactive);
-var stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
-stage.addChild(stage_child);
 // create a renderer instance.
 var renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height);
 // add the renderer view element to the DOM
 document.body.appendChild(renderer.view);
 
+
+
+var mouse;
+var keys;
+
+var stage_child;
+
+
+startMenu();//init menu
 requestAnimFrame(animate);
 
 //zoom:
-var zoom = 1;
-var zoom_magnitude = 0.03;
+var zoom;
+var zoom_magnitude;
 
-//look sensitivity: This affects how far the camera stretches when the player moves the mouse around;
-//1.5: very far, all the way to the mouse
-//2: a lot
-//3: not much
-var look_sensitivity = 2.5;
 
+var look_sensitivity;
 
 //display object containers that hold the layers of everything.
-var display_tiles = new PIXI.DisplayObjectContainer();
-var display_blood = new PIXI.DisplayObjectContainer();
-var display_effects = new PIXI.DisplayObjectContainer();
-var display_actors = new PIXI.DisplayObjectContainer();
-var display_tiles_walls = new PIXI.DisplayObjectContainer();
-stage_child.addChild(display_tiles);
-stage_child.addChild(display_blood);
-stage_child.addChild(display_effects);
-stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
-stage_child.addChild(display_actors);
+var display_tiles;
+var display_blood;
+var display_effects;
+var display_actors;
+var display_tiles_walls;
 
 
 ////////////////////////////////////////////////////////////
@@ -65,17 +317,13 @@ Map / Game Object Setup
 ////////////////////////////////////////////////////////////    
 
 //grid/map
-var grid = new jo_grid(map_diamond_store);
-display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
-display_tiles_walls.addChild(tile_containers[2]);//add SpriteBatches, brown furnature
-display_tiles.addChild(tile_containers[1]);//add SpriteBatches
-display_tiles.addChild(tile_containers[3]);//add SpriteBatches
-display_tiles.addChild(tile_containers[4]);//add SpriteBatches
+var grid;
+
 
 //camera/debug
-var camera = new jo_cam(window_properties);
-var test_cone = new debug_line();
-var hero_cir = new debug_circle();
+var camera;
+var test_cone;
+var hero_cir;
 
 
 //images:
@@ -99,88 +347,41 @@ var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
 
 
 //blood_drawer:
-var blood_holder = new PIXI.Sprite(img_origin);
-var graphics_blood = new PIXI.Graphics();
-graphics_blood.lineStyle(15, 0xb51d1d, 1);
-blood_holder.addChild(graphics_blood);
-display_blood.addChild(blood_holder);
+var blood_holder;
+var graphics_blood;
 
 			//make sprites
-			var hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue));
-			var hero_end_aim_coord;
-			hero.x = 1182;
-			hero.y = 615;
-			hero.speed = 4;
-			var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
-			var guards = [];
-			/*guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards[0].x = 288;
-			guards[0].y = 96;
-			guards[1].x = 480;
-			guards[1].y = 96;
-			guards[2].x = 608;
-			guards[2].y = 500;*/
-			var civs = [];
-			/*
-			for(var i = 0; i < 8; i++){
-			    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
-			}*/
+            var hero;
+            var hero_end_aim_coord;
+			
+			var hero_drag_target; // a special var reserved for when the hero is dragging something.
+			var guards;
+			var civs;
+			
 
 			
-			var computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
-			computer_for_security_cameras.x = 480;
-			computer_for_security_cameras.y = 1056;
+			var computer_for_security_cameras;
 			
 			//security camera
-			var security_cameras = [];
-			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,129,Math.PI/2,0));
-			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,1153,Math.PI,0));
+			var security_cameras;
 
-var alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
+var alarmingObjects;//guards will sound alarm if they see an alarming object (dead bodies)
 
 
 			//Loot and Getaway car:
-			var getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
-			getawaycar.sprite.anchor.y = 0.25;
-			getawaycar.x = 1184;
-			getawaycar.y = 384;
-			getawaycar.rad = -Math.PI/2;
-			var loot = [];
-			var money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 480;
-			money.y = 288;
-			loot.push(money);
-			money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 540;
-			money.y = 224;
-			loot.push(money);
-			money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 672;
-			money.y = 288;
-			loot.push(money);
-			money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 928;
-			money.y = 288;
-			loot.push(money);
+			var getawaycar;
+			var loot;
 
   
 //UI text.  Use newMessage() to add a message.
-var message = new PIXI.Text("", { font: "20px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 4 });
-message.position.x = 0;
-message.position.y = window_properties.height;
-message.anchor.y = 1;
-var messageText = [];
-stage.addChild(message);
+var message;
+var messageText;
 
 //MOVIE CLIPS:
-var spark_clip = new jo_sprite(jo_movie_clip("movie_clips/","spark_",9,".png"),display_effects);
-spark_clip.sprite.loop = false;
-spark_clip.sprite.animationSpeed = 0.7;//slow it down
+var spark_clip;
 
 //effects:
-var static_effect_sprites = [];
+var static_effect_sprites;
 
 
 
@@ -527,86 +728,7 @@ function gameloop(){
     
 
 }
-var states = {"StartMenu":0,"Gameplay":1};
-var state = states["StartMenu"];
-//test todo:
-if(state == 0){
-// create some textures from an image path
-        var textureButton = PIXI.Texture.fromImage("play1.png");
-        var textureButtonOver = PIXI.Texture.fromImage("play2.png");
-        var textureButtonDown = PIXI.Texture.fromImage("play3.png");
-		var button = new PIXI.Sprite(textureButton);
-		button.anchor.x = 0.5;
-		button.anchor.y = 0.5;		
-        button.x = 300;
-        button.y = 300;
-		button.setInteractive(true);
-}
-function startGame(){
-    state = states["Gameplay"];
-    stage.removeChild(button);
-}
-function animate() {
-    if(state == 0){
-        
-        	button.mousedown = button.touchstart = function(data){
-			
-			this.isdown = true;
-			this.setTexture(textureButtonDown);
-			this.alpha = 1;
-		}
-		
-		// set the mouseup and touchend callback..
-		button.mouseup = button.touchend = function(data){
-			this.isdown = false;
-			
-			if(this.isOver)
-			{
-				this.setTexture(textureButtonOver);
-			}
-			else
-			{
-				this.setTexture(textureButton);
-			}
-		}
-		
-		// set the mouseover callback..
-		button.mouseover = function(data){
-			
-			this.isOver = true;
-			
-			if(this.isdown)return
-			
-			this.setTexture(textureButtonOver)
-		}
-        // set the mouseout callback..
-		button.mouseout = function(data){
-			
-			this.isOver = false;
-			if(this.isdown)return
-			this.setTexture(textureButton)
-		}
-		
-		button.click = function(data){
-            startGame();
-		}
-        
-		stage.addChild(button);
-    }else if(state == 1){
-        stats.begin();//Mr Doob's Stats.js
-        
-        gameloop();
-        
-        
-        stats.end();//Mr Doob's Stats.js
-    }
-    // render the stage
-    renderer.render(stage);
-    //request another animate call
-    requestAnimFrame(animate);	
 
-    
-}
 
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
@@ -615,235 +737,246 @@ Key Handlers
 */
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
-
-window.onkeydown = function(e){
-    var code = e.keyCode ? e.keyCode : e.which;
-    //keyinfo[code] = String.fromCharCode(code);
-    if(code == 87){keys['w'] = true;}
-    if(code == 65){keys['a'] = true;}
-    if(code == 83){keys['s'] = true;}
-    if(code == 68){keys['d'] = true;}
-    if(code == 16){
-        keys['shift'] = true;
-        if(!hero.carry){
-            //hero cannot remove mask while carrying loot
-            useMask(!hero.masked);
+function addKeyHandlers(){
+    window.onkeydown = function(e){
+        var code = e.keyCode ? e.keyCode : e.which;
+        //keyinfo[code] = String.fromCharCode(code);
+        if(code == 87){keys['w'] = true;}
+        if(code == 65){keys['a'] = true;}
+        if(code == 83){keys['s'] = true;}
+        if(code == 68){keys['d'] = true;}
+        if(code == 16){
+            keys['shift'] = true;
+            if(!hero.carry){
+                //hero cannot remove mask while carrying loot
+                useMask(!hero.masked);
+            }
         }
-    }
-    if(code == 32){
-        keys['space'] = true;
-        if(!hero_drag_target){
-            //check if any dead guards are close enough to be dragged.
-            for(var i = 0; i < guards.length; i++){
-                if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*2.5){
-                    if(!guards[i].alive){
-                        //hero is dragging a dead body
-                        
-                        //slow down hero speed because he just started dragging something.
-                        hero.speed = hero.speed/2;
-                        hero_drag_target = guards[i];
-                        hero_drag_target.speed = hero.speed;
-                        hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                        return;
-                    }else if(hero.masked && !guards[i].alarmed){
-                        //hero is choking out a live guard who is not already alarmed:
-                        newMessage('You are choking out a guard!');
-                        play_sound(sound_guard_choke);
-                        
-                        guards[i].moving = true;
-                        guards[i].path = [];
-                        guards[i].target = {x: null, y:null}; 
-                        guards[i].being_choked_out = true;
-                        //slow down hero speed because he just started dragging something.
-                        hero.speed = hero.speed/2;
-                        hero_drag_target = guards[i];
-                        hero_drag_target.speed = hero.speed;
-                        hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                        setTimeout(function(){
-                            //check that the guard is still being choked out, if not, he's not dead so don't kill() him
-                            if(hero_drag_target == this){
-                                newMessage('The guard is dispached!');
-                                this.kill();
-                            }
-                        }.bind(guards[i]), 3000);
-                        return;
-                    }
-
-                }
-                
-                    
-                
-            }
-            //note: dragging guards takes precedence over all the following actions.
-            
-            //check if hero is close enough to the security camera computer to disable cameras:
-            if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
-                cameras_disabled = true;
-                newMessage('All security cameras have been disabled!');
-                computer_for_security_cameras.sprite.setTexture(img_computer_off);
-            }
-            if(hero.masked){
-                //hero must be masked to lockpick:
-                if(!grid.a_door_is_being_unlocked){
-                    for(var i = 0; i < grid.doors.length; i++){
-                        if(grid.doors[i].solid && get_distance(hero.x,hero.y,grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2) <= hero.radius*5){
-                            //if door isn't solid, then it is already unlocked.
-                            grid.a_door_is_being_unlocked = true;
+        if(code == 27){
+            //esc
+            startMenu();
+        }
+        if(code == 32){
+            keys['space'] = true;
+            if(!hero_drag_target){
+                //check if any dead guards are close enough to be dragged.
+                for(var i = 0; i < guards.length; i++){
+                    if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*2.5){
+                        if(!guards[i].alive){
+                            //hero is dragging a dead body
                             
-                            //timer
-                            var unlockTimeRemaining = 5000;
-                            newMessage('It will take ' + unlockTimeRemaining/1000 + ' seconds to unlock the door...');
-                            var unlock_timer = setInterval(function(){
-                                unlockTimeRemaining -= 1000;
-                                newMessage('Unlocking...' + unlockTimeRemaining/1000);
-                            },1000);
+                            //slow down hero speed because he just started dragging something.
+                            hero.speed = hero.speed/2;
+                            hero_drag_target = guards[i];
+                            hero_drag_target.speed = hero.speed;
+                            hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                            return;
+                        }else if(hero.masked && !guards[i].alarmed){
+                            //hero is choking out a live guard who is not already alarmed:
+                            newMessage('You are choking out a guard!');
+                            play_sound(sound_guard_choke);
                             
+                            guards[i].moving = true;
+                            guards[i].path = [];
+                            guards[i].target = {x: null, y:null}; 
+                            guards[i].being_choked_out = true;
+                            //slow down hero speed because he just started dragging something.
+                            hero.speed = hero.speed/2;
+                            hero_drag_target = guards[i];
+                            hero_drag_target.speed = hero.speed;
+                            hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                             setTimeout(function(){
-                                clearInterval(unlock_timer);//stop the countdown
-                                if(grid.a_door_is_being_unlocked){
-                                    //door is unlocked
-                                    newMessage('The door is unlocked');
-                                    
-                                    this.solid = false;
-                                    this.blocks_vision = false;
-                                    //WARN: CAN NO LONGER MODIFY SPRITE BATCHED TILE IMAGE: this.image_sprite.setTexture(img_tile_red);
-                                    tile_containers[4].removeChild(this.image_sprite);//hide it from vision
+                                //check that the guard is still being choked out, if not, he's not dead so don't kill() him
+                                if(hero_drag_target == this){
+                                    newMessage('The guard is dispached!');
+                                    this.kill();
                                 }
-                            }.bind(grid.doors[i]),unlockTimeRemaining);
-                            return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
+                            }.bind(guards[i]), 3000);
+                            return;
                         }
-                    }
-                }
-                //hero must be masked to interact with loot
-                if(!hero.carry){
-                    //check if hero is close enough to the loot to pick it up
-                    for(var i = 0; i < loot.length; i++){
-                        if(get_distance(hero.x,hero.y,loot[i].x,loot[i] .y) <= hero.radius*2){
-                            hero.carry = loot[i];
-                            loot[i].sprite.visible = false;
-                            hero.sprite.setTexture(img_hero_with_money);
-                            newMessage("You've got the money!  Get it to the escape vehicle!");
-                            break;
-                        }
+
                     }
                     
-                //hero is already carring loot, drop it
-                }else if(!grid.a_door_is_being_unlocked){
-                    console.log("ggg: " + getawaycar.radius*5 + " " + get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y));
-                    //Note on if statement: unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
-                    if(get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y) <= getawaycar.radius*5){
-                        //deposite money in car:
-                        newMessage("The money is safe!");
-                    }else{
-                        //just drop money:
-                        hero.carry.sprite.visible = true;
-                        hero.carry.x = hero.x;
-                        hero.carry.y = hero.y;
-                    }
-                    hero.carry = null;
-                    hero.sprite.setTexture(img_masked);
+                        
+                    
                 }
+                //note: dragging guards takes precedence over all the following actions.
                 
-                
+                //check if hero is close enough to the security camera computer to disable cameras:
+                if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
+                    cameras_disabled = true;
+                    newMessage('All security cameras have been disabled!');
+                    computer_for_security_cameras.sprite.setTexture(img_computer_off);
+                }
+                if(hero.masked){
+                    //hero must be masked to lockpick:
+                    if(!grid.a_door_is_being_unlocked){
+                        for(var i = 0; i < grid.doors.length; i++){
+                            if(grid.doors[i].solid && get_distance(hero.x,hero.y,grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2) <= hero.radius*5){
+                                //if door isn't solid, then it is already unlocked.
+                                grid.a_door_is_being_unlocked = true;
+                                
+                                //timer
+                                var unlockTimeRemaining = 5000;
+                                newMessage('It will take ' + unlockTimeRemaining/1000 + ' seconds to unlock the door...');
+                                var unlock_timer = setInterval(function(){
+                                    unlockTimeRemaining -= 1000;
+                                    newMessage('Unlocking...' + unlockTimeRemaining/1000);
+                                },1000);
+                                
+                                setTimeout(function(){
+                                    clearInterval(unlock_timer);//stop the countdown
+                                    if(grid.a_door_is_being_unlocked){
+                                        //door is unlocked
+                                        newMessage('The door is unlocked');
+                                        
+                                        this.solid = false;
+                                        this.blocks_vision = false;
+                                        //WARN: CAN NO LONGER MODIFY SPRITE BATCHED TILE IMAGE: this.image_sprite.setTexture(img_tile_red);
+                                        tile_containers[4].removeChild(this.image_sprite);//hide it from vision
+                                    }
+                                }.bind(grid.doors[i]),unlockTimeRemaining);
+                                return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
+                            }
+                        }
+                    }
+                    //hero must be masked to interact with loot
+                    if(!hero.carry){
+                        //check if hero is close enough to the loot to pick it up
+                        for(var i = 0; i < loot.length; i++){
+                            if(get_distance(hero.x,hero.y,loot[i].x,loot[i] .y) <= hero.radius*2){
+                                hero.carry = loot[i];
+                                loot[i].sprite.visible = false;
+                                hero.sprite.setTexture(img_hero_with_money);
+                                newMessage("You've got the money!  Get it to the escape vehicle!");
+                                break;
+                            }
+                        }
+                        
+                    //hero is already carring loot, drop it
+                    }else if(!grid.a_door_is_being_unlocked){
+                        console.log("ggg: " + getawaycar.radius*5 + " " + get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y));
+                        //Note on if statement: unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
+                        if(get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y) <= getawaycar.radius*5){
+                            //deposite money in car:
+                            newMessage("The money is safe!");
+                        }else{
+                            //just drop money:
+                            hero.carry.sprite.visible = true;
+                            hero.carry.x = hero.x;
+                            hero.carry.y = hero.y;
+                        }
+                        hero.carry = null;
+                        hero.sprite.setTexture(img_masked);
+                    }
+                    
+                    
+                }
             }
+            
         }
         
-    }
-    
-};
-window.onkeyup = function(e){
-    var code = e.keyCode ? e.keyCode : e.which;
-    if(code == 87){keys['w'] = false;}
-    if(code == 65){keys['a'] = false;}
-    if(code == 83){keys['s'] = false;}
-    if(code == 68){keys['d'] = false;}
-    if(code == 16){keys['shift'] = false;}
-    if(code == 32){
-        keys['space'] = false;
-        //if hero was dragging something, drop it.
-        if(hero_drag_target){
-            if(hero_drag_target.alive){
-                //if hero cancels the drag and his target is still alive, target becomes alarmed
-                pause_sound(sound_guard_choke);
-                newMessage('You release the guard early!');
-                hero_drag_target.becomeAlarmed(hero);
+    };
+    window.onkeyup = function(e){
+        var code = e.keyCode ? e.keyCode : e.which;
+        if(code == 87){keys['w'] = false;}
+        if(code == 65){keys['a'] = false;}
+        if(code == 83){keys['s'] = false;}
+        if(code == 68){keys['d'] = false;}
+        if(code == 16){keys['shift'] = false;}
+        if(code == 32){
+            keys['space'] = false;
+            //if hero was dragging something, drop it.
+            if(hero_drag_target){
+                if(hero_drag_target.alive){
+                    //if hero cancels the drag and his target is still alive, target becomes alarmed
+                    pause_sound(sound_guard_choke);
+                    newMessage('You release the guard early!');
+                    hero_drag_target.becomeAlarmed(hero);
+                }
+                //drag is a toggle action so release current drag target.
+                hero_drag_target = null;
+                //bring hero speed back to normal
+                hero.speed = hero.speed*2;
             }
-            //drag is a toggle action so release current drag target.
-            hero_drag_target = null;
-            //bring hero speed back to normal
-            hero.speed = hero.speed*2;
+            grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
         }
-        grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
-    }
-    
-};
-// IE9, Chrome, Safari, Opera
-window.addEventListener("mousewheel", mouseWheelHandler, false);
-// Firefox
-window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
-function mouseWheelHandler(e){
-    // cross-browser wheel delta
-	var e = window.event || e; // old IE support
-	var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+        
+    };
+    // IE9, Chrome, Safari, Opera
+    window.addEventListener("mousewheel", mouseWheelHandler, false);
+    // Firefox
+    window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
+    function mouseWheelHandler(e){
+        // cross-browser wheel delta
+        var e = window.event || e; // old IE support
+        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 
-    zoom += delta * 0.1;
+        zoom += delta * 0.1;
+    }
+    onmousedown = function(e){
+        //you can only shoot if hero is masked
+        if(hero.masked){
+            //gun_shot sound:
+            play_sound(sound_gun_shot);
+            //play gun spark against wall where gun shot hits: todo test to do
+            spark_clip.x = hero.aim.end.x;
+            spark_clip.y = hero.aim.end.y;
+            spark_clip.rotate_to_instant(hero.x,hero.y);
+            spark_clip.sprite.gotoAndPlay(0);
+            
+            //toggles on the visiblity of .draw_gun_shot's line
+            hero.shoot();
+            //shoot_gun();//make noise (not real sound, but noise for guards) which draws guards
+            mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
+            
+            //what happens on mouse click:
+            
+            
+            //check if hero aim intersects guard:
+            for(var i = 0; i < guards.length; i++){
+                if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
+                    guards[i].kill();
+                    //make blood splatter:
+                    makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
+                    //make blood trail:
+                    guards[i].blood_trail = [guards[i].x,guards[i].y];
+                    //make sure the dead body sprite is on top of the blood trail:
+                    display_actors.removeChild(guards[i].sprite);
+                    display_actors.addChild(guards[i].sprite);
+                    
+                    if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
+
+                }
+            
+            }
+            //check if hero aim intersects civs:
+            for(var i = 0; i < civs.length; i++){
+                if(civs[i].alive && circle_linesetment_intersect(civs[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
+                    civs[i].kill();
+                    if(civs[i].alarmed)newMessage("You dispatch the civilian before he can get the word out!");
+
+                }
+            
+            }
+            //check if hero aim intersects camera:
+            for(var i = 0; i < security_cameras.length; i++){
+                if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
+                    security_cameras[i].kill();
+                }
+            
+            }
+        }
+
+    }
 }
-onmousedown = function(e){
-    //you can only shoot if hero is masked
-    if(hero.masked){
-        //gun_shot sound:
-        play_sound(sound_gun_shot);
-        //play gun spark against wall where gun shot hits: todo test to do
-        spark_clip.x = hero.aim.end.x;
-        spark_clip.y = hero.aim.end.y;
-        spark_clip.rotate_to_instant(hero.x,hero.y);
-        spark_clip.sprite.gotoAndPlay(0);
-        
-        //toggles on the visiblity of .draw_gun_shot's line
-        hero.shoot();
-        //shoot_gun();//make noise (not real sound, but noise for guards) which draws guards
-        mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
-        
-        //what happens on mouse click:
-        
-        
-        //check if hero aim intersects guard:
-        for(var i = 0; i < guards.length; i++){
-            if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
-                guards[i].kill();
-                //make blood splatter:
-                makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
-                //make blood trail:
-                guards[i].blood_trail = [guards[i].x,guards[i].y];
-                //make sure the dead body sprite is on top of the blood trail:
-                display_actors.removeChild(guards[i].sprite);
-                display_actors.addChild(guards[i].sprite);
-                
-                if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
-
-            }
-        
-        }
-        //check if hero aim intersects civs:
-        for(var i = 0; i < civs.length; i++){
-            if(civs[i].alive && circle_linesetment_intersect(civs[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
-                civs[i].kill();
-                if(civs[i].alarmed)newMessage("You dispatch the civilian before he can get the word out!");
-
-            }
-        
-        }
-        //check if hero aim intersects camera:
-        for(var i = 0; i < security_cameras.length; i++){
-            if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
-                security_cameras[i].kill();
-            }
-        
-        }
-    }
-
+function removeKeyHandlers(){
+    window.onkeydown = null;
+    window.onkeyup = null;
+    window.removeEventListener("mousewheel");
+    window.removeEventListener("DOMMouseScroll");
+    onmousedown = null;
 }
-
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 /*
