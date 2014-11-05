@@ -61,6 +61,7 @@ var grid;
 
 //camera/debug
 var camera;
+var cameras_disabled;
 var test_cone;
 var hero_cir;
 
@@ -164,62 +165,14 @@ function startMenu(){
 
         clearStage();
         state = states["StartMenu"];
+        addButton("play1.png","play2.png",startGame);
+        //set music to "unmasked"
+        if(music_masked && music_unmasked){
+            music_masked.volume = 0.0;
+            music_unmasked.volume = 1.0;
+        }
         
         
-        var textureButton = PIXI.Texture.fromImage("play1.png");
-        var textureButtonOver = PIXI.Texture.fromImage("play2.png");
-        var textureButtonDown = PIXI.Texture.fromImage("play3.png");
-		button = new PIXI.Sprite(textureButton);
-		button.anchor.x = 0.5;
-		button.anchor.y = 0.5;		
-        button.x = window_properties.width/2;
-        button.y = window_properties.height/2;
-		button.setInteractive(true);
-        
-        button.mousedown = button.touchstart = function(data){
-			
-			this.isdown = true;
-			this.setTexture(textureButtonDown);
-			this.alpha = 1;
-		}
-		
-		// set the mouseup and touchend callback..
-		button.mouseup = button.touchend = function(data){
-			this.isdown = false;
-			
-			if(this.isOver)
-			{
-				this.setTexture(textureButtonOver);
-			}
-			else
-			{
-				this.setTexture(textureButton);
-			}
-		}
-		
-		// set the mouseover callback..
-		button.mouseover = function(data){
-			
-			this.isOver = true;
-			
-			if(this.isdown)return
-			
-			this.setTexture(textureButtonOver)
-		}
-        // set the mouseout callback..
-		button.mouseout = function(data){
-			
-			this.isOver = false;
-			if(this.isdown)return
-			this.setTexture(textureButton)
-		}
-		
-		button.click = function(data){
-            console.log('ckickl');
-            startGame();
-		}
-        
-		stage.addChild(button);
 }
 function startGame(){
 
@@ -235,7 +188,7 @@ function startGame(){
     
     //zoom:
     zoom = 1;
-    zoom_magnitude = 0.03;
+    zoom_magnitude = 0.01;
     
     //look sensitivity: This affects how far the camera stretches when the player moves the mouse around;
     //1.5: very far, all the way to the mouse
@@ -274,6 +227,7 @@ function startGame(){
     
     //camera/debug
     camera = new jo_cam(window_properties);
+    cameras_disabled = false;
     test_cone = new debug_line();
     hero_cir = new debug_circle();
     
@@ -576,8 +530,29 @@ function gameloop(){
                         guards[i].moving = false;
                         guards[i].rotate_to(hero.x,hero.y);
                         if(guards[i].can_shoot){
-                            play_sound(sound_gun_shot);
+                            
+                            doGunShotEffects(guards[i], false);//plays sound and shows affects
+                            
                             guards[i].shoot();//toggles on the visiblity of .draw_gun_shot's line
+                            
+                            //check if guard aim intersects with hero
+                            if(hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),guards[i].aim.start,guards[i].aim.end)){
+                                hero.kill();
+                                //make blood splatter:
+                                makeBloodSplatter(hero.x,hero.y,guards[i].x,guards[i].y);
+                                newMessage("THEY KILLED YOU!!!!!");
+                                //remove key handlers so hero can no longer move around
+                                removeKeyHandlers();
+
+                            }
+            
+            
+                            
+                            
+                            
+                            
+                            
+                            
                         }
                     }
                 }else{
@@ -922,19 +897,18 @@ function addKeyHandlers(){
         // cross-browser wheel delta
         var e = window.event || e; // old IE support
         var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-
-        zoom += delta * 0.1;
+        
+        //limit amount that cam can zoom out
+        if(delta < 0 && zoom > 0.1){
+            zoom += delta * 0.1;
+        }else if (delta >0){
+            zoom += delta * 0.1;
+        }
     }
     onmousedown = function(e){
         //you can only shoot if hero is masked
         if(hero.masked){
-            //gun_shot sound:
-            play_sound(sound_gun_shot);
-            //play gun spark against wall where gun shot hits: todo test to do
-            spark_clip.x = hero.aim.end.x;
-            spark_clip.y = hero.aim.end.y;
-            spark_clip.rotate_to_instant(hero.x,hero.y);
-            spark_clip.sprite.gotoAndPlay(0);
+            doGunShotEffects(hero, true);//plays sound and shows affects
             
             //toggles on the visiblity of .draw_gun_shot's line
             hero.shoot();
@@ -982,6 +956,8 @@ function addKeyHandlers(){
     }
 }
 function removeKeyHandlers(){
+
+    keys = {w: false, a: false, s: false, d: false, shift: false, space:false};
     window.onkeydown = null;
     window.onkeyup = null;
     window.removeEventListener("mousewheel");
@@ -1070,6 +1046,18 @@ function useMask(toggle){
         }
         
     }
+}
+
+//plays sound and shows affects
+function doGunShotEffects(unit, silenced){
+    //gun_shot sound:
+    if(silenced)play_sound(sound_gun_shot_silenced);
+    else play_sound(sound_gun_shot);
+    //play gun spark against wall where gun shot hits:
+    spark_clip.x = unit.aim.end.x;
+    spark_clip.y = unit.aim.end.y;
+    spark_clip.rotate_to_instant(unit.x,unit.y);
+    spark_clip.sprite.gotoAndPlay(0);
 }
 //Mr. Doob's Stats.js
 stats.domElement.style.position = 'absolute';

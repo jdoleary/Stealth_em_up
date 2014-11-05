@@ -31,7 +31,7 @@ function jo_sprite(pixiSprite, parent){
     
     this.shoot = function(){
         //shows gun_shot_line
-        //this.gun_shot_line.graphics.visible = true;
+        this.gun_shot_line.graphics.visible = true;
         this.can_shoot = false; //so the guards don't shoot way too fast
         setTimeout(function(){
             //allow sprite to shoot again.

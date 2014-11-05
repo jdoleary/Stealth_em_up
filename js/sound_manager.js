@@ -1,4 +1,5 @@
 var sound_gun_shot = new Audio("sound/gun_shot.mp3");
+var sound_gun_shot_silenced = new Audio("sound/gun_shot_silenced.mp3");
 var sound_guard_choke = new Audio("sound/guard_choke.wav");
 var music_masked;
 var music_unmasked;

@@ -7,9 +7,14 @@ function sprite_hero_wrapper(pixiSprite){
         this.kill = function(){
             this.alive = false;
             //enable moving so they can be dragged
-            this.moving = true;
+            this.moving = false;
             this.path = [];
             this.target = {x: null, y:null};
+            
+            this.sprite.setTexture(img_skull);
+            
+            
+            addButton("Menu.png","Menu2.png",startMenu);
         }
 
 

@@ -1,4 +1,4 @@
-var cameras_disabled = false;
+
 function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
 function jo_security_camera(x,y,maxswivel,minswivel){
     this.x = x;
