@@ -151,6 +151,7 @@ function clearStage(){
     }
     //clear all timeouts
     if(timeouts){
+        console.log('cleared ' + timeouts.length + ' timeouts');
         for (var i = 0; i < timeouts.length; i++) {
             clearTimeout(timeouts[i]);
         }
@@ -912,9 +913,9 @@ function addKeyHandlers(){
         
         //limit amount that cam can zoom out
         if(delta < 0 && zoom > 0.1){
-            zoom += delta * 0.1;
+            zoom += delta * 0.05;
         }else if (delta >0){
-            zoom += delta * 0.1;
+            zoom += delta * 0.05;
         }
     }
     onmousedown = function(e){
@@ -1032,6 +1033,7 @@ function makeBloodSplatter(atX,atY,pointAtX,pointAtY){
     blood_splatter.y = atY;
     blood_splatter.rotate_to_instant(pointAtX,pointAtY);
     static_effect_sprites.push(blood_splatter);//add to array of still effects
+    alarmingObjects.push(blood_splatter);//add bloodsplatter to alarming objects so if it is see they will sound alarm
 }
 function useMask(toggle){
     hero.masked = toggle;
