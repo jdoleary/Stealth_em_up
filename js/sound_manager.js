@@ -29,6 +29,11 @@ function force_buffer_sound(url, vol, callback_return){
         var aud = new Audio();
         aud.src = sound;
         aud.volume = vol;
+        //repeat music
+        aud.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play();
+        }.bind(aud));
         aud.play();
         callback_return(aud);
         
