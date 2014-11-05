@@ -65,8 +65,7 @@ var cameras_disabled;
 var test_cone;
 var hero_cir;
 
-//timeouts: (for keeping track of all set timeout calls):
-var timeouts;
+
 
 //images:
 var img_orange = PIXI.Texture.fromImage("orange2.png");
@@ -98,6 +97,8 @@ var graphics_blood;
 			
 			var hero_drag_target; // a special var reserved for when the hero is dragging something.
 			var guards;
+            var guard_backup_spawn;
+            var numOfBackupGuards;
 			var civs;
 			
 
@@ -150,12 +151,11 @@ function clearStage(){
         button = null;
     }
     //clear all timeouts
-    if(timeouts){
-        console.log('cleared ' + timeouts.length + ' timeouts');
-        for (var i = 0; i < timeouts.length; i++) {
-            clearTimeout(timeouts[i]);
-        }
+    var id = window.setTimeout(function() {}, 0);
+    while (id--) {
+        window.clearTimeout(id); // will do nothing if no timeout with id is present
     }
+
     //removekeyhandlers:
     removeKeyHandlers();
     //remove all children:
@@ -239,9 +239,7 @@ function startGame(){
     cameras_disabled = false;
     test_cone = new debug_line();
     hero_cir = new debug_circle();
-    
-    //timeouts: (for keeping track of all set timeout calls):
-    timeouts = [];
+
 
     //blood_drawer:
     blood_holder = new PIXI.Sprite(img_origin);
@@ -267,6 +265,8 @@ function startGame(){
 			guards[1].y = 96;
 			guards[2].x = 608;
 			guards[2].y = 500;
+            guard_backup_spawn = {'x':31*64,'y':1*64};
+            numOfBackupGuards = 7;
             
 			civs = [];
             /*
@@ -281,8 +281,8 @@ function startGame(){
 			
 			//security camera
 			security_cameras = [];
-			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,129,Math.PI/2,0));
-			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),193,1153,Math.PI,0));
+			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),3*64,4*64,Math.PI/2,0));
+			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),5*64,21*64,Math.PI,0));
             
             
 alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
@@ -291,26 +291,15 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
 			//Loot and Getaway car:
 			getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
 			getawaycar.sprite.anchor.y = 0.25;
-			getawaycar.x = 1184;
-			getawaycar.y = 384;
+			getawaycar.x = 30.5*64;
+			getawaycar.y = 6*64;
 			getawaycar.rad = -Math.PI/2;
 			loot = [];
 			var money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 480;
-			money.y = 288;
-			loot.push(money);
-			money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 540;
-			money.y = 224;
-			loot.push(money);
-			money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 672;
-			money.y = 288;
-			loot.push(money);
-			money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 928;
-			money.y = 288;
-			loot.push(money);
+			money.x = 12.5*64;
+			money.y = 7.5*64;
+            loot.push(money);
+
             
             //UI text.  Use newMessage() to add a message.
             message = new PIXI.Text("", { font: "20px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 4 });
@@ -480,10 +469,10 @@ function gameloop(){
                 if(!civs[i].waiting){
                     civs[i].waiting = true;
                     var how_long_to_wait = Math.floor(Math.random() * 7000) + 1000;
-                    timeouts.push(setTimeout(function(){
+                    setTimeout(function(){
                         this.waiting = false;
                         this.getRandomPatrolPath();//get new path after waiting
-                    }.bind(civs[i]),how_long_to_wait));
+                    }.bind(civs[i]),how_long_to_wait);
                 }
             }
             //call move to target, if target is reached, it will return true and set target to null
@@ -782,13 +771,13 @@ function addKeyHandlers(){
                             hero_drag_target = guards[i];
                             hero_drag_target.speed = hero.speed;
                             hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                            timeouts.push(setTimeout(function(){
+                            setTimeout(function(){
                                 //check that the guard is still being choked out, if not, he's not dead so don't kill() him
                                 if(hero_drag_target == this){
                                     newMessage('The guard is dispached!');
                                     this.kill();
                                 }
-                            }.bind(guards[i]), 3000));
+                            }.bind(guards[i]), 3000);
                             return;
                         }
 
@@ -821,7 +810,7 @@ function addKeyHandlers(){
                                     newMessage('Unlocking...' + unlockTimeRemaining/1000);
                                 },1000);
                                 
-                                timeouts.push(setTimeout(function(){
+                                setTimeout(function(){
                                     clearInterval(unlock_timer);//stop the countdown
                                     if(grid.a_door_is_being_unlocked){
                                         //door is unlocked
@@ -832,7 +821,7 @@ function addKeyHandlers(){
                                         //WARN: CAN NO LONGER MODIFY SPRITE BATCHED TILE IMAGE: this.image_sprite.setTexture(img_tile_red);
                                         tile_containers[4].removeChild(this.image_sprite);//hide it from vision
                                     }
-                                }.bind(grid.doors[i]),unlockTimeRemaining));
+                                }.bind(grid.doors[i]),unlockTimeRemaining);
                                 return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                             }
                         }
@@ -985,7 +974,7 @@ Other
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 function newMessage(mess){
-    console.log(mess);
+    //console.log(mess);
     messageText.push(mess);
     setTimeout(function(){
         messageText.shift();
@@ -1005,6 +994,19 @@ function alert_all_guards(){
         //alert the other living guards
         if(guards[z].alive)guards[z].hearAlarm();
     }
+    //spawn backup:
+    for(var backup = 0; backup < numOfBackupGuards; backup++){
+        setTimeout(function(){
+            var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_orange));
+            newGuard.x = guard_backup_spawn.x;
+            newGuard.y = guard_backup_spawn.y;
+            if(newGuard.alive)newGuard.hearAlarm();
+            guards.push(newGuard);
+            newMessage("The police have arrived!");
+        },1000*backup);//wait an extra second for each guard
+    }
+    
+            //
 }
 function shoot_gun(){
     //makes a sound and draws all guards:
