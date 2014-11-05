@@ -1,7 +1,136 @@
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+/*
+Window Setup
+*/
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+
+//Mr Doob's Stats.js:
+var stats = new Stats();
+
+//CREATE STAGE
+// create an new instance of a pixi stage
+// the second parameter is interactivity...
+var interactive = true;
+var stage;
+
+//make sure that width value is the same in index.html's style
+var window_properties = {width: 620*2, height: 400*2};
+//make sure that width value is the same in index.html's style
+
+// create a renderer instance.
+var renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height);
+// add the renderer view element to the DOM
+document.body.appendChild(renderer.view);
+
+
+
+var mouse;
+var keys;
+
+var stage_child;
+
+
+//zoom:
+var zoom;
+var zoom_magnitude;
+
+
+var look_sensitivity;
+
+//display object containers that hold the layers of everything.
+var display_tiles;
+var display_blood;
+var display_effects;
+var display_actors;
+var display_tiles_walls;
+
+
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+/*
+Map / Game Object Setup
+*/
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////    
+
+//grid/map
+var grid;
+
+
+//camera/debug
+var camera;
+var test_cone;
+var hero_cir;
+
+
+//images:
+var img_orange = PIXI.Texture.fromImage("orange2.png");
+var img_blue = PIXI.Texture.fromImage("blue.png");
+var img_masked = PIXI.Texture.fromImage("masked.png");
+var img_skull = PIXI.Texture.fromImage("skull.png");
+var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
+var img_security_camera = PIXI.Texture.fromImage("camera.png");
+var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
+var img_computer = PIXI.Texture.fromImage("computer.png");
+var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
+var img_money = PIXI.Texture.fromImage("money.png");
+var img_getawaycar = PIXI.Texture.fromImage("van.png");
+var img_hero_with_money = PIXI.Texture.fromImage("blue_with_money.png");
+var img_civilian = PIXI.Texture.fromImage("civ.png");
+var img_origin = PIXI.Texture.fromImage("origin.png");
+var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
+var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
+
+
+
+//blood_drawer:
+var blood_holder;
+var graphics_blood;
+
+			//make sprites
+            var hero;
+            var hero_end_aim_coord;
+			
+			var hero_drag_target; // a special var reserved for when the hero is dragging something.
+			var guards;
+			var civs;
+			
+
+			
+			var computer_for_security_cameras;
+			
+			//security camera
+			var security_cameras;
+
+var alarmingObjects;//guards will sound alarm if they see an alarming object (dead bodies)
+
+
+			//Loot and Getaway car:
+			var getawaycar;
+			var loot;
+
+  
+//UI text.  Use newMessage() to add a message.
+var message;
+var messageText;
+
+//MOVIE CLIPS:
+var spark_clip;
+
+//effects:
+var static_effect_sprites;
+
 
 
 var states = {"StartMenu":0,"Gameplay":1};
 var state;
+
+
+
+startMenu();//init menu
+requestAnimFrame(animate);//start main loop
         
 function removeAllChildren(obj){
     if(obj){
@@ -11,6 +140,13 @@ function removeAllChildren(obj){
     }
 }
 function clearStage(){
+    //for menu:
+    if(button){
+        button.setInteractive(false);
+        button.click = null;
+        button = null;
+    }
+    
     removeKeyHandlers();
     //remove all children:
     removeAllChildren(display_tiles);
@@ -22,6 +158,7 @@ function clearStage(){
     removeAllChildren(stage);
     stage = new PIXI.Stage(0xEEEEEE, interactive);
 }
+var button;//menu button
 function startMenu(){
 /////MENU/////
 
@@ -32,11 +169,11 @@ function startMenu(){
         var textureButton = PIXI.Texture.fromImage("play1.png");
         var textureButtonOver = PIXI.Texture.fromImage("play2.png");
         var textureButtonDown = PIXI.Texture.fromImage("play3.png");
-		var button = new PIXI.Sprite(textureButton);
+		button = new PIXI.Sprite(textureButton);
 		button.anchor.x = 0.5;
 		button.anchor.y = 0.5;		
-        button.x = 300;
-        button.y = 300;
+        button.x = window_properties.width/2;
+        button.y = window_properties.height/2;
 		button.setInteractive(true);
         
         button.mousedown = button.touchstart = function(data){
@@ -78,6 +215,7 @@ function startMenu(){
 		}
 		
 		button.click = function(data){
+            console.log('ckickl');
             startGame();
 		}
         
@@ -255,133 +393,6 @@ function animate() {
 
     
 }
-
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
-/*
-Window Setup
-*/
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
-
-//Mr Doob's Stats.js:
-var stats = new Stats();
-
-//CREATE STAGE
-// create an new instance of a pixi stage
-// the second parameter is interactivity...
-var interactive = true;
-var stage;
-
-//make sure that width value is the same in index.html's style
-var window_properties = {width: 620*2, height: 400*2};
-//make sure that width value is the same in index.html's style
-
-// create a renderer instance.
-var renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height);
-// add the renderer view element to the DOM
-document.body.appendChild(renderer.view);
-
-
-
-var mouse;
-var keys;
-
-var stage_child;
-
-
-startMenu();//init menu
-requestAnimFrame(animate);
-
-//zoom:
-var zoom;
-var zoom_magnitude;
-
-
-var look_sensitivity;
-
-//display object containers that hold the layers of everything.
-var display_tiles;
-var display_blood;
-var display_effects;
-var display_actors;
-var display_tiles_walls;
-
-
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
-/*
-Map / Game Object Setup
-*/
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////    
-
-//grid/map
-var grid;
-
-
-//camera/debug
-var camera;
-var test_cone;
-var hero_cir;
-
-
-//images:
-var img_orange = PIXI.Texture.fromImage("orange2.png");
-var img_blue = PIXI.Texture.fromImage("blue.png");
-var img_masked = PIXI.Texture.fromImage("masked.png");
-var img_skull = PIXI.Texture.fromImage("skull.png");
-var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
-var img_security_camera = PIXI.Texture.fromImage("camera.png");
-var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
-var img_computer = PIXI.Texture.fromImage("computer.png");
-var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
-var img_money = PIXI.Texture.fromImage("money.png");
-var img_getawaycar = PIXI.Texture.fromImage("van.png");
-var img_hero_with_money = PIXI.Texture.fromImage("blue_with_money.png");
-var img_civilian = PIXI.Texture.fromImage("civ.png");
-var img_origin = PIXI.Texture.fromImage("origin.png");
-var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
-var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
-
-
-
-//blood_drawer:
-var blood_holder;
-var graphics_blood;
-
-			//make sprites
-            var hero;
-            var hero_end_aim_coord;
-			
-			var hero_drag_target; // a special var reserved for when the hero is dragging something.
-			var guards;
-			var civs;
-			
-
-			
-			var computer_for_security_cameras;
-			
-			//security camera
-			var security_cameras;
-
-var alarmingObjects;//guards will sound alarm if they see an alarming object (dead bodies)
-
-
-			//Loot and Getaway car:
-			var getawaycar;
-			var loot;
-
-  
-//UI text.  Use newMessage() to add a message.
-var message;
-var messageText;
-
-//MOVIE CLIPS:
-var spark_clip;
-
-//effects:
-var static_effect_sprites;
 
 
 
