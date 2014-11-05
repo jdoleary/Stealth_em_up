@@ -113,7 +113,7 @@ display_blood.addChild(blood_holder);
 			hero.speed = 4;
 			var hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 			var guards = [];
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			/*guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			guards[0].x = 288;
@@ -121,7 +121,7 @@ display_blood.addChild(blood_holder);
 			guards[1].x = 480;
 			guards[1].y = 96;
 			guards[2].x = 608;
-			guards[2].y = 500;
+			guards[2].y = 500;*/
 			var civs = [];
 			/*
 			for(var i = 0; i < 8; i++){
@@ -704,9 +704,11 @@ window.onkeydown = function(e){
                                 if(grid.a_door_is_being_unlocked){
                                     //door is unlocked
                                     newMessage('The door is unlocked');
+                                    
                                     this.solid = false;
                                     this.blocks_vision = false;
-                                    this.image_sprite.setTexture(img_tile_red);
+                                    //WARN: CAN NO LONGER MODIFY SPRITE BATCHED TILE IMAGE: this.image_sprite.setTexture(img_tile_red);
+                                    tile_containers[4].removeChild(this.image_sprite);//hide it from vision
                                 }
                             }.bind(grid.doors[i]),unlockTimeRemaining);
                             return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
