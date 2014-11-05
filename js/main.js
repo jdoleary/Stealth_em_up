@@ -276,8 +276,8 @@ function startGame(){
             
             		
 			computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
-			computer_for_security_cameras.x = 480;
-			computer_for_security_cameras.y = 1056;
+			computer_for_security_cameras.x = 11*64+32;
+			computer_for_security_cameras.y = 19*64+32;
 			
 			//security camera
 			security_cameras = [];

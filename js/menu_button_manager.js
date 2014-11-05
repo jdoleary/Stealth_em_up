@@ -1,5 +1,4 @@
 function addButton(img,imgOver, clickFunction){
-    console.log('ADD BUTTON');
     //clickFunction is the function that is called whent this button is clicked.
     var textureButton = PIXI.Texture.fromImage(img);
     var textureButtonOver = PIXI.Texture.fromImage(imgOver);
