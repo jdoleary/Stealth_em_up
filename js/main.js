@@ -65,6 +65,8 @@ var cameras_disabled;
 var test_cone;
 var hero_cir;
 
+//timeouts: (for keeping track of all set timeout calls):
+var timeouts;
 
 //images:
 var img_orange = PIXI.Texture.fromImage("orange2.png");
@@ -147,7 +149,13 @@ function clearStage(){
         button.click = null;
         button = null;
     }
-    
+    //clear all timeouts
+    if(timeouts){
+        for (var i = 0; i < timeouts.length; i++) {
+            clearTimeout(timeouts[i]);
+        }
+    }
+    //removekeyhandlers:
     removeKeyHandlers();
     //remove all children:
     removeAllChildren(display_tiles);
@@ -231,7 +239,9 @@ function startGame(){
     test_cone = new debug_line();
     hero_cir = new debug_circle();
     
-    
+    //timeouts: (for keeping track of all set timeout calls):
+    timeouts = [];
+
     //blood_drawer:
     blood_holder = new PIXI.Sprite(img_origin);
     graphics_blood = new PIXI.Graphics();
@@ -469,10 +479,10 @@ function gameloop(){
                 if(!civs[i].waiting){
                     civs[i].waiting = true;
                     var how_long_to_wait = Math.floor(Math.random() * 7000) + 1000;
-                    setTimeout(function(){
+                    timeouts.push(setTimeout(function(){
                         this.waiting = false;
                         this.getRandomPatrolPath();//get new path after waiting
-                    }.bind(civs[i]),how_long_to_wait);
+                    }.bind(civs[i]),how_long_to_wait));
                 }
             }
             //call move to target, if target is reached, it will return true and set target to null
@@ -771,13 +781,13 @@ function addKeyHandlers(){
                             hero_drag_target = guards[i];
                             hero_drag_target.speed = hero.speed;
                             hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                            setTimeout(function(){
+                            timeouts.push(setTimeout(function(){
                                 //check that the guard is still being choked out, if not, he's not dead so don't kill() him
                                 if(hero_drag_target == this){
                                     newMessage('The guard is dispached!');
                                     this.kill();
                                 }
-                            }.bind(guards[i]), 3000);
+                            }.bind(guards[i]), 3000));
                             return;
                         }
 
@@ -810,7 +820,7 @@ function addKeyHandlers(){
                                     newMessage('Unlocking...' + unlockTimeRemaining/1000);
                                 },1000);
                                 
-                                setTimeout(function(){
+                                timeouts.push(setTimeout(function(){
                                     clearInterval(unlock_timer);//stop the countdown
                                     if(grid.a_door_is_being_unlocked){
                                         //door is unlocked
@@ -821,7 +831,7 @@ function addKeyHandlers(){
                                         //WARN: CAN NO LONGER MODIFY SPRITE BATCHED TILE IMAGE: this.image_sprite.setTexture(img_tile_red);
                                         tile_containers[4].removeChild(this.image_sprite);//hide it from vision
                                     }
-                                }.bind(grid.doors[i]),unlockTimeRemaining);
+                                }.bind(grid.doors[i]),unlockTimeRemaining));
                                 return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                             }
                         }
@@ -846,6 +856,8 @@ function addKeyHandlers(){
                         if(get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y) <= getawaycar.radius*5){
                             //deposite money in car:
                             newMessage("The money is safe!");
+                            //add button for win condition
+                            addButton("Menu.png","Menu2.png",startMenu);
                         }else{
                             //just drop money:
                             hero.carry.sprite.visible = true;
