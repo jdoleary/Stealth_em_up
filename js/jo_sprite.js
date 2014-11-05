@@ -24,7 +24,7 @@ function jo_sprite(pixiSprite, parent){
 	else display_actors.addChild(this.sprite);
     
     this.kill = function(){
-        play_sound(sound_unit_die);
+        //play_sound(sound_unit_die);
         this.alive = false;
         this.target = {x: null, y:null};
     }

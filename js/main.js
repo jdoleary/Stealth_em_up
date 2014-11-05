@@ -52,8 +52,8 @@ var display_tiles_walls = new PIXI.DisplayObjectContainer();
 stage_child.addChild(display_tiles);
 stage_child.addChild(display_blood);
 stage_child.addChild(display_effects);
-stage_child.addChild(display_actors);
 stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
+stage_child.addChild(display_actors);
 
 
 ////////////////////////////////////////////////////////////
@@ -244,6 +244,10 @@ function gameloop(){
     if(hero.masked)hero.draw_gun_shot(hero.aim);//only draw aim line when hero is masked (which means gun is out).
     hero.move_to_target();
     
+    if(grid.isTileRestricted_coords(hero.x,hero.y)){
+        useMask(true);
+    }
+    
     //check collisions and prepare to draw walls:
     for(var i = 0; i < grid.cells.length; i++){
         if(grid.cells[i].solid){
@@ -345,11 +349,11 @@ function gameloop(){
                         newMessage('A guard has seen you wearing a mask!');
                         //alarm if hero is seen masked
                         guards[i].becomeAlarmed(hero);
-                    }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
+                    }/*else if(grid.isTileRestricted_coords(hero.x,hero.y)){
                         newMessage('A guard has seen you in a restricted area!');
                         //alarm if hero is seen on restricted tiles
                         guards[i].becomeAlarmed(hero);
-                    }
+                    }*///Im going to make it so hero automatically puts on mask when entering restricted area
                     
                 }
             }else{
@@ -524,22 +528,83 @@ function gameloop(){
 
 }
 var states = {"StartMenu":0,"Gameplay":1};
-var state = states["Gameplay"];
+var state = states["StartMenu"];
+//test todo:
+if(state == 0){
+// create some textures from an image path
+        var textureButton = PIXI.Texture.fromImage("civ.png");
+        var textureButtonOver = PIXI.Texture.fromImage("blue.png");
+        var textureButtonDown = PIXI.Texture.fromImage("blue_with_money.png");
+		var button = new PIXI.Sprite(textureButton);
+		button.anchor.x = 0.5;
+		button.anchor.y = 0.5;		
+        button.x = 300;
+        button.y = 300;
+		button.setInteractive(true);
+}
+function startGame(){
+    state = states["Gameplay"];
+    console.log("state: " + state);
+    stage.removeChild(button);
+}
 function animate() {
     if(state == 0){
-    
+        
+        	button.mousedown = button.touchstart = function(data){
+			
+			this.isdown = true;
+			this.setTexture(textureButtonDown);
+			this.alpha = 1;
+		}
+		
+		// set the mouseup and touchend callback..
+		button.mouseup = button.touchend = function(data){
+			this.isdown = false;
+			
+			if(this.isOver)
+			{
+				this.setTexture(textureButtonOver);
+			}
+			else
+			{
+				this.setTexture(textureButton);
+			}
+		}
+		
+		// set the mouseover callback..
+		button.mouseover = function(data){
+			
+			this.isOver = true;
+			
+			if(this.isdown)return
+			
+			this.setTexture(textureButtonOver)
+		}
+        // set the mouseout callback..
+		button.mouseout = function(data){
+			
+			this.isOver = false;
+			if(this.isdown)return
+			this.setTexture(textureButton)
+		}
+		
+		button.click = function(data){
+            startGame();
+		}
+        
+		stage.addChild(button);
     }else if(state == 1){
         stats.begin();//Mr Doob's Stats.js
         
         gameloop();
-        // render the stage
-        renderer.render(stage);
-
-        requestAnimFrame(animate);	
         
         
         stats.end();//Mr Doob's Stats.js
     }
+    // render the stage
+    renderer.render(stage);
+    //request another animate call
+    requestAnimFrame(animate);	
 
     
 }
@@ -563,22 +628,7 @@ window.onkeydown = function(e){
         keys['shift'] = true;
         if(!hero.carry){
             //hero cannot remove mask while carrying loot
-            hero.masked = !hero.masked;//toggle mask
-            //change image to reflect that hero is wearing mask
-            if(hero.masked){
-                hero.sprite.setTexture(img_masked);
-                //switch music
-                
-                music_masked.volume = 0.5;
-                music_unmasked.volume = 0.0;
-            }
-            else{
-                hero.sprite.setTexture(img_blue);
-                //switch music
-                music_masked.volume = 0.0;
-                music_unmasked.volume = 0.5;
-                
-            }
+            useMask(!hero.masked);
         }
     }
     if(code == 32){
@@ -672,15 +722,23 @@ window.onkeydown = function(e){
                             loot[i].sprite.visible = false;
                             hero.sprite.setTexture(img_hero_with_money);
                             newMessage("You've got the money!  Get it to the escape vehicle!");
+                            break;
                         }
                     }
                     
                 //hero is already carring loot, drop it
                 }else if(!grid.a_door_is_being_unlocked){
+                    console.log("ggg: " + getawaycar.radius*5 + " " + get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y));
                     //Note on if statement: unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
-                    hero.carry.sprite.visible = true;
-                    hero.carry.x = hero.x;
-                    hero.carry.y = hero.y;
+                    if(get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y) <= getawaycar.radius*5){
+                        //deposite money in car:
+                        newMessage("The money is safe!");
+                    }else{
+                        //just drop money:
+                        hero.carry.sprite.visible = true;
+                        hero.carry.x = hero.x;
+                        hero.carry.y = hero.y;
+                    }
                     hero.carry = null;
                     hero.sprite.setTexture(img_masked);
                 }
@@ -841,6 +899,32 @@ function makeBloodSplatter(atX,atY,pointAtX,pointAtY){
     blood_splatter.y = atY;
     blood_splatter.rotate_to_instant(pointAtX,pointAtY);
     static_effect_sprites.push(blood_splatter);//add to array of still effects
+}
+function useMask(toggle){
+    hero.masked = toggle;
+    if(toggle){
+        if(hero.carry){
+            //mask and bag of money
+            hero.sprite.setTexture(img_hero_with_money);
+        }else{
+            //put on mask
+            hero.sprite.setTexture(img_masked);
+        }
+        //switch music
+        if(music_masked && music_unmasked){
+            music_masked.volume = 0.5;
+            music_unmasked.volume = 0.0;
+        }
+    }else{
+        //take off mask
+        hero.sprite.setTexture(img_blue);
+        //switch music
+        if(music_masked && music_unmasked){
+            music_masked.volume = 0.0;
+            music_unmasked.volume = 1.0;
+        }
+        
+    }
 }
 //Mr. Doob's Stats.js
 stats.domElement.style.position = 'absolute';

@@ -6,7 +6,7 @@ function sprite_guard_wrapper(pixiSprite){
         this.blood_trail;
 
         this.kill = function(){
-            play_sound(sound_unit_die);
+            //play_sound(sound_unit_die);
             this.sprite.setTexture(img_skull);
             this.alive = false;
             //enable moving so they can be dragged
