@@ -122,12 +122,17 @@ var alarmingObjects;//guards will sound alarm if they see an alarming object (de
 var message;
 var messageText;
 
+//Tooltip text:
+var tooltip;
+
 //MOVIE CLIPS:
 var spark_clip;
 
 //effects:
 var static_effect_sprites;
 
+//how far hero has to be from something to drag it:
+var dragDistance;
 
 
 var states = {"StartMenu":0,"Gameplay":1};
@@ -316,6 +321,14 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             message.anchor.y = 1;
             messageText = [];
             stage.addChild(message);
+            
+            
+            //Tooltip text: todo test
+            tooltip = new PIXI.Text("Tooltip", { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 4 });
+            tooltip.anchor.x = 0.5;//centered
+            tooltip.objX = 0;
+            tooltip.objY = 0;
+            stage_child.addChild(tooltip);
 
             //MOVIE CLIPS:
             spark_clip = new jo_sprite(jo_movie_clip("movie_clips/","spark_",9,".png"),display_effects);
@@ -324,6 +337,8 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
 
             //effects:
             static_effect_sprites = [];
+            
+            dragDistance = 3;
             
             addKeyHandlers();
             
@@ -713,6 +728,18 @@ function gameloop(deltaTime){
     //////////////////////
     //Drag Target
     //////////////////////
+    //show tooltip if hero is close enough to drag a guard:
+    var tooltipshown = false;  //hero is not close enough to any guards, toggle visiblity off.
+    for(var i = 0; i < guards.length; i++){
+        if(hero.masked && guards[i].alive  && !guards[i].being_choked_out && get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
+            tooltip.visible = true;
+            tooltipshown = true;
+            tooltip.setText("[Space]");
+            tooltip.objX = guards[i].x;
+            tooltip.objY = guards[i].y - 32;
+        }
+    }
+    if(!tooltipshown)tooltip.visible = false;
     
     //move sprite/item which the hero is dragging.
     if(hero_drag_target){
@@ -726,8 +753,16 @@ function gameloop(deltaTime){
                 hero_drag_target.blood_trail.push(hero_drag_target.y);//[1]:initial coords.y
              }
         }
-        //hero_drag_target.prepare_for_draw();//not necessary - should already be prepared in another line of code
     }
+    
+    //////////////////////
+    //Tooltip
+    //////////////////////
+        //I didn't want to create a whole new class for tooltip so I'm using a shorthand of prepare_for_draw
+        //and I added two new memebers to the PIXI.Text object (objX and objY)
+    var objPos = camera.relativePoint({x:tooltip.objX,y:tooltip.objY});
+    tooltip.x = objPos.x;
+    tooltip.y = objPos.y;
     
     //////////////////////
     //Camera
@@ -822,7 +857,7 @@ function addKeyHandlers(){
             if(!hero_drag_target){
                 //check if any dead guards are close enough to be dragged.
                 for(var i = 0; i < guards.length; i++){
-                    if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*2.5){
+                    if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
                         if(!guards[i].alive){
                             //hero is dragging a dead body
                             
