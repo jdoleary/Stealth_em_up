@@ -5,6 +5,9 @@ function jo_security_camera(x,y,maxswivel,minswivel){
     this.y = y;
     this.radius = 14;
     this.alarmed = false;
+    //change anchor:
+    this.sprite.anchor.x = 0.35;
+    
     //camera specific stuff:
     this.max = maxswivel;//-Math.PI/2;//max swivel
     this.min = minswivel;//Math.PI/2;//max swivel
@@ -44,7 +47,7 @@ function jo_security_camera(x,y,maxswivel,minswivel){
         }
     }
     this.kill = function(){
-        this.sprite.setTexture(img_skull);
+        this.sprite.setTexture(img_cam_broken);
         this.alive = false;
         this.target = {x: null, y:null};
         alarmingObjects.push(this);//add body to alarming objects so if it is see they will sound alarm

@@ -17,11 +17,13 @@ function circularProgressBar(posx,posy,size,lineWidth){
     this.timePassedSinceStart = 0;
     this.timeToFinish;//The amount of millis that it takes to finish
     this.callback;
+    this.callback2;
     this.increment = function(deltaTime){
         this.timePassedSinceStart += deltaTime;
         this.percent = this.timePassedSinceStart/this.timeToFinish;
         if(this.percent >= 1){
             this.callback();
+            this.callback2();
             this.visible = false;
         }
     };
@@ -31,9 +33,10 @@ function circularProgressBar(posx,posy,size,lineWidth){
         this.timePassedSinceStart = 0;
         this.percent = 0;
         this.callback = null;
+        this.callback2 = null;
         
     }
-    this.reset = function(posx,posy,timeToFinish,callWhenFinished){
+    this.reset = function(posx,posy,timeToFinish,callWhenFinished,callWhenFinished2){
         //move the position
         this.x = posx;
         this.y = posy;
@@ -43,13 +46,13 @@ function circularProgressBar(posx,posy,size,lineWidth){
         //reset percent
         this.percent = 0;
         //init callback
-        this.callback = callWhenFinished;    
+        this.callback = callWhenFinished;   
+        this.callback2 = callWhenFinished2;    
         //show
         this.visible = true;
     
     };
     this.draw = function(){
-        console.log('percent (formatted) : ' + this.percent*100 + '%');
         this.graphics.clear();
         if(this.visible){
             //draw base circle:

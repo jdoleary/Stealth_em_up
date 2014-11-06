@@ -85,7 +85,6 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     };
     
     this.unlockDoor = function(){
-        console.log('door unlocked');
         this.solid = false;
         this.blocks_vision = false;
     

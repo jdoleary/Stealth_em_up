@@ -1,6 +1,8 @@
 var sound_gun_shot = new Audio("sound/gun_shot.mp3");
 var sound_gun_shot_silenced = new Audio("sound/gun_shot_silenced.mp3");
 var sound_guard_choke = new Audio("sound/guard_choke.wav");
+var sound_door_open = new Audio("sound/door-2-open.mp3");
+var sound_door_close = new Audio("sound/door-3-close.wav");
 var music_masked;
 var music_unmasked;
 force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});

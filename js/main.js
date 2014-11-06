@@ -75,6 +75,7 @@ var img_skull = PIXI.Texture.fromImage("skull.png");
 var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
 var img_security_camera = PIXI.Texture.fromImage("camera.png");
 var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
+var img_cam_broken = PIXI.Texture.fromImage("camera_broken.png");
 var img_computer = PIXI.Texture.fromImage("computer.png");
 var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
 var img_money = PIXI.Texture.fromImage("money.png");
@@ -84,6 +85,7 @@ var img_civilian = PIXI.Texture.fromImage("civ.png");
 var img_origin = PIXI.Texture.fromImage("origin.png");
 var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
 var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
+var img_door = PIXI.Texture.fromImage("door.png");
 
 
 
@@ -133,6 +135,8 @@ var state;
 
 //circular progress bar:
 var circProgBar;
+
+
 
 startMenu();//init menu
 requestAnimFrame(animate);//start main loop
@@ -261,12 +265,14 @@ function startGame(){
             guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards[0].x = 288;
-			guards[0].y = 96;
-			guards[1].x = 480;
-			guards[1].y = 96;
-			guards[2].x = 608;
-			guards[2].y = 500;
+			guards[0].x = 64*3+32;
+			//guards[0].x = 288;
+			guards[0].y = 64*5;
+			//guards[0].y = 96;
+			guards[1].x = 64*3+32;
+			guards[1].y = 64*6;
+			guards[2].x = 64*3+32;
+			guards[2].y = 64*7;
             guard_backup_spawn = {'x':31*64,'y':1*64};
             numOfBackupGuards = 7;
             
@@ -324,6 +330,7 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             
             //circular progress bar:
             circProgBar = new circularProgressBar(400,400,60,15);
+            
 
 }
 
@@ -420,6 +427,11 @@ function gameloop(deltaTime){
         circProgBar.increment(deltaTime);
         circProgBar.prepare_for_draw();
         circProgBar.draw();
+    }
+    
+    //update door:
+    for(var i = 0; i < grid.door_sprites.length; i++){
+        grid.door_sprites[i].prepare_for_draw();
     }
     
     //////////////////////
@@ -596,6 +608,7 @@ function gameloop(deltaTime){
                 guards[i].target.x = null;
                 guards[i].target.y = null;
             }
+            
         }
         guards[i].prepare_for_draw();
         
@@ -663,6 +676,38 @@ function gameloop(deltaTime){
         loot[i].prepare_for_draw();
     }
 
+     //////////////////////
+    //Doors
+    //////////////////////
+    for(var d = 0; d < grid.door_sprites.length; d++){
+        var door_inst = grid.door_sprites[d];
+        //door is anchored at top, so account for offset when checking distance
+        var door_center_y_offset = 32;
+        var door_center_x_offset = 0;
+        if(door_inst.horizontal){
+            door_center_y_offset = 0;
+            door_center_x_offset = -32;
+        }
+        door_inst.openerNear = false; 
+        for(var g = 0; g < guards.length; g++){
+        //check if any guard is near door_inst, open door_inst:
+                
+            if(get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,guards[g].x,guards[g].y) <= guards[g].radius*3){
+               door_inst.openerNear = true;
+            }
+        }
+        //if hero can open door_inst:
+        if(door_inst.unlocked && get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,hero.x,hero.y) <= hero.radius*3){
+           door_inst.openerNear = true;
+        }
+        if(door_inst.openerNear){
+            door_inst.open();
+        
+        }else{
+            door_inst.close();
+        
+        }
+    }
     
     //////////////////////
     //Drag Target
@@ -825,7 +870,7 @@ function addKeyHandlers(){
                                 
                                 //timer
                                 var unlockTimeRemaining = 5000;
-                                circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.doors[i].unlockDoor.bind(grid.doors[i]));
+                                circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.doors[i].unlockDoor.bind(grid.doors[i]),grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
                                 
                                 return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                             }

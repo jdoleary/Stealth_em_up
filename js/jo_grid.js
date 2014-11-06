@@ -7,7 +7,7 @@ var map_diamond_store = {
 1,2,1,4,1,4,1,4,1,1,1,1,1,1,4,1,4,1,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,
 1,2,1,4,1,4,1,4,4,4,4,1,4,4,4,1,4,4,4,1,2,1,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,
 1,2,1,4,1,4,1,4,4,4,3,1,4,4,4,1,4,4,4,1,2,1,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,
-1,2,2,2,1,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,
+1,2,2,2,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,
 1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,1,1,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,
 1,2,2,2,1,2,3,3,2,3,3,2,2,3,3,2,3,3,2,1,2,1,1,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,
 1,2,2,2,1,2,2,2,2,3,2,2,2,2,3,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,
@@ -19,7 +19,7 @@ var map_diamond_store = {
 1,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,2,3,2,1,2,2,2,2,2,2,2,2,2,2,1,1,1,2,2,2,2,2,2,1,
 1,2,2,2,1,4,4,4,4,4,4,4,4,4,4,1,2,2,2,1,2,1,2,2,2,2,2,2,2,2,1,1,1,2,2,2,2,2,2,1,
 1,2,2,2,1,4,1,4,4,3,3,3,4,4,4,5,2,2,1,1,2,1,2,2,2,2,2,2,2,1,1,1,1,2,2,2,2,2,2,1,
-1,2,2,2,1,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,1,1,1,1,1,1,2,2,2,2,2,2,1,
+1,2,2,2,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,1,1,1,1,1,1,2,2,2,2,2,2,1,
 1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,2,1,
 1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,1,
@@ -81,6 +81,7 @@ function jo_grid(map){
     this.cells = [];
     
     this.doors = [];//list of doors allows for lockpicking
+    this.door_sprites = [];//list of door sprite objects which correspond to doors
     this.a_door_is_being_unlocked = false;
     
     this.getInfoFromIndex = function(index){
@@ -203,6 +204,16 @@ function jo_grid(map){
         return randomCellIndex;
     
     }
+     //private
+    this.make_door = function(door, horizontal){
+            this.doors.push(door);
+            var door_sprite = new sprite_door_wrapper(new PIXI.Sprite(img_door),horizontal,display_actors);
+            //+= because door sprites have an offest calculated in the constructor
+            door_sprite.x += door.x;
+            door_sprite.y += door.y;
+            this.door_sprites.push(door_sprite);
+    
+    };
     
     //create map:
     for(var i = 0; i < this.map_data.length; i++){
@@ -228,11 +239,19 @@ function jo_grid(map){
             this.cells.push(new jo_wall(3,false,false,true,this.getWallCoords('square',x_index,y_index)));
             break;
         case 5:
-            //purple (door)
+            //purple (door vertical)
             var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index));
             door.door = true;
             this.cells.push(door);
-            this.doors.push(door);
+            this.make_door(door, false);
+            break;
+        
+        case 6:
+            //purple (door horizontal)
+            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index));
+            door.door = true;
+            this.cells.push(door);
+            this.make_door(door, true);
             break;
         default:
             this.cells.push(new jo_wall(1,false,false,this.getWallCoords('square',x_index,y_index)));
@@ -276,7 +295,8 @@ function jo_grid(map){
         }
         return path; //path is an array of points
     
-    }
+    };
+   
         
 
 
