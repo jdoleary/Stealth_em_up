@@ -131,7 +131,8 @@ var static_effect_sprites;
 var states = {"StartMenu":0,"Gameplay":1};
 var state;
 
-
+//circular progress bar:
+var circProgBar;
 
 startMenu();//init menu
 requestAnimFrame(animate);//start main loop
@@ -210,13 +211,14 @@ function startGame(){
     display_tiles = new PIXI.DisplayObjectContainer();
     display_blood = new PIXI.DisplayObjectContainer();
     display_effects = new PIXI.DisplayObjectContainer();
-    display_actors = new PIXI.DisplayObjectContainer();
     display_tiles_walls = new PIXI.DisplayObjectContainer();
+    display_actors = new PIXI.DisplayObjectContainer();
     stage_child.addChild(display_tiles);
     stage_child.addChild(display_blood);
     stage_child.addChild(display_effects);
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
     stage_child.addChild(display_actors);
+    
     
     ///////////////////////
     ///////////////////////
@@ -318,6 +320,10 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             static_effect_sprites = [];
             
             addKeyHandlers();
+            
+            
+            //circular progress bar:
+            circProgBar = new circularProgressBar(400,400,60,15);
 
 }
 
@@ -328,14 +334,21 @@ Animate Loop
 */
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
-function animate() {
+var lastTimeStamp;
+var deltaTime;
+function animate(time) {
     if(state == 0){
     }else if(state == 1){
         /////Game/////
+        if(!lastTimeStamp) lastTimeStamp = time;
+        deltaTime = time - lastTimeStamp;
+        lastTimeStamp = time;
+        //console.log('delta: ' + deltaTime);
+        //console.log('time: ' + time);
         
         stats.begin();//Mr Doob's Stats.js
         
-        gameloop();
+        gameloop(deltaTime);
         
         
         stats.end();//Mr Doob's Stats.js
@@ -358,7 +371,7 @@ Game Loop
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
-function gameloop(){
+function gameloop(deltaTime){
     
     //////////////////////
     //update Mouse
@@ -401,6 +414,13 @@ function gameloop(){
         static_effect_sprites[i].prepare_for_draw();
     }
     spark_clip.prepare_for_draw();
+    
+    //update circularProgressBar:
+    if(circProgBar.visible){
+        circProgBar.increment(deltaTime);
+        circProgBar.prepare_for_draw();
+        circProgBar.draw();
+    }
     
     //////////////////////
     //update Hero
@@ -712,9 +732,10 @@ function gameloop(){
     
     }
     
+    
+    
 
 }
-
 
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
@@ -804,24 +825,8 @@ function addKeyHandlers(){
                                 
                                 //timer
                                 var unlockTimeRemaining = 5000;
-                                newMessage('It will take ' + unlockTimeRemaining/1000 + ' seconds to unlock the door...');
-                                var unlock_timer = setInterval(function(){
-                                    unlockTimeRemaining -= 1000;
-                                    newMessage('Unlocking...' + unlockTimeRemaining/1000);
-                                },1000);
+                                circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.doors[i].unlockDoor.bind(grid.doors[i]));
                                 
-                                setTimeout(function(){
-                                    clearInterval(unlock_timer);//stop the countdown
-                                    if(grid.a_door_is_being_unlocked){
-                                        //door is unlocked
-                                        newMessage('The door is unlocked');
-                                        
-                                        this.solid = false;
-                                        this.blocks_vision = false;
-                                        //WARN: CAN NO LONGER MODIFY SPRITE BATCHED TILE IMAGE: this.image_sprite.setTexture(img_tile_red);
-                                        tile_containers[4].removeChild(this.image_sprite);//hide it from vision
-                                    }
-                                }.bind(grid.doors[i]),unlockTimeRemaining);
                                 return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                             }
                         }
@@ -888,6 +893,7 @@ function addKeyHandlers(){
                 hero.speed = hero.speed*2;
             }
             grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
+            circProgBar.stop();
         }
         
     };
