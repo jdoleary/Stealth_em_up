@@ -40,7 +40,6 @@ function sprite_door_wrapper(pixiSprite,horizontal,parent){
         
         }
         this.unlock = function(){
-            console.log('unlock');
             this.unlocked = true;
         }
    

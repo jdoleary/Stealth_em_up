@@ -1,6 +1,7 @@
-function sprite_hero_wrapper(pixiSprite){
+function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
     function sprite_hero(){
-
+        this.speed_walk = speed_walk;
+        this.speed_sprint = speed_sprint;
         this.radius = 14;
         this.masked = false;
 

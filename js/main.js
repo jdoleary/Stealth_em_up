@@ -196,7 +196,7 @@ function startGame(){
     state = states["Gameplay"];
     
     //initialize variables:
-    keys = {w: false, a: false, s: false, d: false, shift: false, space:false};
+    keys = {w: false, a: false, s: false, d: false, v: false, space:false, shift:false};
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
     
@@ -255,11 +255,11 @@ function startGame(){
     display_blood.addChild(blood_holder);
     
             //make sprites:
-			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue));
+			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue),4,8);
 			hero_end_aim_coord;
             hero.x = 1182;
 			hero.y = 615;
-			hero.speed = 4;
+			hero.speed = hero.speed_walk;
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 			guards = [];
             guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
@@ -542,7 +542,7 @@ function gameloop(deltaTime){
                     }
                 }
                 //check if guard sees hero:
-                if(guards[i].doesSpriteSeeSprite(hero)){
+                if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
                     if(hero.masked){
                         newMessage('A guard has seen you wearing a mask!');
                         //alarm if hero is seen masked
@@ -556,7 +556,8 @@ function gameloop(deltaTime){
                 }
             }else{
                 //guard is alarmed:
-                if(guards[i].doesSpriteSeeSprite(hero)){
+                if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
+                    //guard is not being choked out and sees hero
                     if(hero.masked){
                         //reset target
                         guards[i].moving = false;
@@ -797,12 +798,20 @@ function addKeyHandlers(){
         if(code == 65){keys['a'] = true;}
         if(code == 83){keys['s'] = true;}
         if(code == 68){keys['d'] = true;}
-        if(code == 16){
-            keys['shift'] = true;
+        if(code == 86){
+            keys['v'] = true;
             if(!hero.carry){
                 //hero cannot remove mask while carrying loot
                 useMask(!hero.masked);
             }
+        }
+        if(code == 16){
+            keys['shift'] = true;
+            //cannot sprint while dragging something
+            if(!hero_drag_target){
+                hero.speed = hero.speed_sprint;
+            }
+        
         }
         if(code == 27){
             //esc
@@ -833,7 +842,7 @@ function addKeyHandlers(){
                             guards[i].target = {x: null, y:null}; 
                             guards[i].being_choked_out = true;
                             //slow down hero speed because he just started dragging something.
-                            hero.speed = hero.speed/2;
+                            hero.speed = hero.speed_walk/2;
                             hero_drag_target = guards[i];
                             hero_drag_target.speed = hero.speed;
                             hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
@@ -842,6 +851,13 @@ function addKeyHandlers(){
                                 if(hero_drag_target == this){
                                     newMessage('The guard is dispached!');
                                     this.kill();
+                                    //if space isn't still being held release body:
+                                    if(!keys['space']){
+                                        //drag is a toggle action so release current drag target.
+                                        hero_drag_target = null;
+                                        //bring hero speed back to normal
+                                        hero.speed = hero.speed_walk;
+                                    }
                                 }
                             }.bind(guards[i]), 3000);
                             return;
@@ -921,21 +937,19 @@ function addKeyHandlers(){
         if(code == 65){keys['a'] = false;}
         if(code == 83){keys['s'] = false;}
         if(code == 68){keys['d'] = false;}
-        if(code == 16){keys['shift'] = false;}
+        if(code == 86){keys['v'] = false;}
+        if(code == 16){
+            keys['shift'] = false;
+            hero.speed = hero.speed_walk;
+        }
         if(code == 32){
             keys['space'] = false;
-            //if hero was dragging something, drop it.
-            if(hero_drag_target){
-                if(hero_drag_target.alive){
-                    //if hero cancels the drag and his target is still alive, target becomes alarmed
-                    pause_sound(sound_guard_choke);
-                    newMessage('You release the guard early!');
-                    hero_drag_target.becomeAlarmed(hero);
-                }
+            //if hero was dragging something, drop it. (Don't drop a guard while he's being choked
+            if(hero_drag_target && !hero_drag_target.alive){
                 //drag is a toggle action so release current drag target.
                 hero_drag_target = null;
                 //bring hero speed back to normal
-                hero.speed = hero.speed*2;
+                hero.speed = hero.speed_walk;
             }
             grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
             circProgBar.stop();
@@ -1010,7 +1024,7 @@ function addKeyHandlers(){
 }
 function removeKeyHandlers(){
 
-    keys = {w: false, a: false, s: false, d: false, shift: false, space:false};
+    keys = {w: false, a: false, s: false, d: false, v: false, space:false, shift:false};
     window.onkeydown = null;
     window.onkeyup = null;
     window.removeEventListener("mousewheel");
