@@ -4,6 +4,7 @@ function sprite_guard_wrapper(pixiSprite){
         this.alarmed = false;
         this.being_choked_out = false;
         this.blood_trail;
+        this.chasingHero = false;
 
         this.kill = function(){
             //play_sound(sound_unit_die);

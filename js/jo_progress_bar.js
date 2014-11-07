@@ -19,12 +19,24 @@ function circularProgressBar(posx,posy,size,lineWidth){
     this.callback;
     this.callback2;
     this.increment = function(deltaTime){
+        if(this.targetFollow){
+            //if the progress bar should follow an object:
+            this.x = this.targetFollow.x;
+            this.y = this.targetFollow.y;
+        }
+    
         this.timePassedSinceStart += deltaTime;
         this.percent = this.timePassedSinceStart/this.timeToFinish;
         if(this.percent >= 1){
-            this.callback();
-            this.callback2();
+            if(this.paramForCallback){
+                this.callback(this.paramForCallback);
+            }else{
+                this.callback();
+            }
+            if(this.callback2)this.callback2();
             this.visible = false;
+            this.targetFollow = null;
+            this.paramForCallback = null;
         }
     };
     this.stop = function(){
@@ -36,7 +48,25 @@ function circularProgressBar(posx,posy,size,lineWidth){
         this.callback2 = null;
         
     }
-    this.reset = function(posx,posy,timeToFinish,callWhenFinished,callWhenFinished2){
+    
+    this.targetFollow;
+    this.paramForCallback;//pass param to callback
+    this.heroMaskProg = function(timeToFinish,callback,param){
+        this.targetFollow = hero;
+        //set timetofinish:
+        this.timePassedSinceStart = 0;
+        this.timeToFinish = timeToFinish;
+        //reset percent
+        this.percent = 0;
+        //init callback
+        this.callback = callback;    
+        this.paramForCallback = param;
+        //show
+        this.visible = true;
+        
+        
+    }
+    this.reset = function(posx,posy,timeToFinish,callback,callback2){
         //move the position
         this.x = posx;
         this.y = posy;
@@ -46,8 +76,8 @@ function circularProgressBar(posx,posy,size,lineWidth){
         //reset percent
         this.percent = 0;
         //init callback
-        this.callback = callWhenFinished;   
-        this.callback2 = callWhenFinished2;    
+        this.callback = callback;   
+        this.callback2 = callback2;    
         //show
         this.visible = true;
     

@@ -562,11 +562,10 @@ function gameloop(deltaTime){
                         newMessage('A guard has seen you wearing a mask!');
                         //alarm if hero is seen masked
                         guards[i].becomeAlarmed(hero);
-                    }/*else if(grid.isTileRestricted_coords(hero.x,hero.y)){
-                        newMessage('A guard has seen you in a restricted area!');
-                        //alarm if hero is seen on restricted tiles
-                        guards[i].becomeAlarmed(hero);
-                    }*///Im going to make it so hero automatically puts on mask when entering restricted area
+                        
+                        //set lastSeen for investigating hero
+                        hero.setLastSeen();
+                    }
                     
                 }
             }else{
@@ -602,10 +601,18 @@ function gameloop(deltaTime){
                             
                             
                         }
+                        
+                        //set lastSeen for investigating hero
+                        hero.setLastSeen();
                     }
                 }else{
-                    guards[i].moving = true;
-                    guards[i].pathToCoords(hero.x,hero.y);
+                    //if alarmed move to last place hero was seen
+                    if(!guards[i].chasingHero && hero.lastSeenX && hero.lastSeenY){
+                        //repath to hero pos
+                        guards[i].moving = true;
+                        guards[i].pathToCoords(hero.lastSeenX,hero.lastSeenY);
+                        guards[i].chasingHero = true;
+                    }
                 }
             }
             //if guard has a path
@@ -670,10 +677,12 @@ function gameloop(deltaTime){
                     if(hero.masked){
                         newMessage('A security camera has seen you wearing a mask!');
                         security_cameras[i].becomeAlarmed(hero);
-                    }else if(grid.isTileRestricted_coords(hero.x,hero.y)){
-                        //alarm if hero is seen on restricted tiles
-                        newMessage('A security camera has seen you in a restricted area!');
-                        security_cameras[i].becomeAlarmed(hero);
+                        
+                        //set lastSeen for investigating hero
+                        hero.setLastSeen();
+                        
+                        
+                        
                     }
                 }
             }
@@ -834,11 +843,12 @@ function addKeyHandlers(){
         if(code == 83){keys['s'] = true;}
         if(code == 68){keys['d'] = true;}
         if(code == 86){
-            keys['v'] = true;
-            if(!hero.carry){
+            // !keys['v'] makes it so that it will only be called once for a single press of the letter
+            if(!hero.carry && !keys['v']){
                 //hero cannot remove mask while carrying loot
-                useMask(!hero.masked);
+                circProgBar.heroMaskProg(2000,useMask,!hero.masked);
             }
+            keys['v'] = true;
         }
         if(code == 16){
             keys['shift'] = true;
@@ -948,7 +958,7 @@ function addKeyHandlers(){
                             //deposite money in car:
                             newMessage("The money is safe!");
                             //add button for win condition
-                            addButton("Menu.png","Menu2.png",startMenu);
+                            addButton("menu.png","menu2.png",startMenu);
                         }else{
                             //just drop money:
                             hero.carry.sprite.visible = true;
@@ -1109,6 +1119,7 @@ function alert_all_guards(){
             //
 }
 function shoot_gun(){
+    console.log('old method');
     //makes a sound and draws all guards:
     for(var i = 0; i < guards.length; i++){
         guards[i].hearAlarm();
