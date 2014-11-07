@@ -17,7 +17,6 @@ function circularProgressBar(posx,posy,size,lineWidth){
     this.timePassedSinceStart = 0;
     this.timeToFinish;//The amount of millis that it takes to finish
     this.callback;
-    this.callback2;
     this.increment = function(deltaTime){
         if(this.targetFollow){
             //if the progress bar should follow an object:
@@ -33,7 +32,6 @@ function circularProgressBar(posx,posy,size,lineWidth){
             }else{
                 this.callback();
             }
-            if(this.callback2)this.callback2();
             this.visible = false;
             this.targetFollow = null;
             this.paramForCallback = null;
@@ -45,7 +43,6 @@ function circularProgressBar(posx,posy,size,lineWidth){
         this.timePassedSinceStart = 0;
         this.percent = 0;
         this.callback = null;
-        this.callback2 = null;
         
     }
     
@@ -66,7 +63,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
         
         
     }
-    this.reset = function(posx,posy,timeToFinish,callback,callback2){
+    this.reset = function(posx,posy,timeToFinish,callback){
         //move the position
         this.x = posx;
         this.y = posy;
@@ -76,8 +73,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
         //reset percent
         this.percent = 0;
         //init callback
-        this.callback = callback;   
-        this.callback2 = callback2;    
+        this.callback = callback;     
         //show
         this.visible = true;
     

@@ -107,6 +107,18 @@ function jo_sprite(pixiSprite, parent){
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         
     };
+    //for when guards are idling, they look around
+    this.rotate_to = function(rad){
+        var diff = rad - this.rad;
+        if(Math.abs(diff) <= 0.1)this.rad = rad;
+        else if(diff > Math.PI)this.rad -= 0.1;
+        else if(diff < -Math.PI)this.rad += 0.1;
+        else if(diff < 0)this.rad -= 0.1;
+        else if(diff > 0)this.rad += 0.1;
+        if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
+        if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
+    
+    }
     
     //instantly rotate to target (not incrementally)
     this.rotate_to_instant = function(x,y){

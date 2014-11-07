@@ -572,7 +572,7 @@ function gameloop(deltaTime){
                 //guard is alarmed:
                 if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
                     //guard is not being choked out and sees hero
-                    if(hero.masked){
+                    if(hero.masked && hero.alive){
                         //reset target
                         guards[i].moving = false;
                         guards[i].rotate_to(hero.x,hero.y);
@@ -623,8 +623,21 @@ function gameloop(deltaTime){
                 }
                 
             }else{
-                //if guard does not have a path:
-                guards[i].getRandomPatrolPath();
+                //if guard does not have a path, wait a little while, then move
+                var wait_max = 10000;
+                var wait_min = 1000;
+                if(!guards[i].idling){
+                    setTimeout(function(){
+                        
+                        this.getRandomPatrolPath();
+     
+                    }.bind(guards[i]), Math.random() * (wait_max - wait_min) + wait_min);
+                }else{
+                    //todo swivel:
+                    //guards[i].rotate_to(guards[i].rad-180);
+                }
+                guards[i].idling = true;
+                
             }
             //call move to target, if target is reached, it will return true and set target to null
             if(guards[i].move_to_target()){
@@ -717,12 +730,12 @@ function gameloop(deltaTime){
         for(var g = 0; g < guards.length; g++){
         //check if any guard is near door_inst, open door_inst:
                 
-            if(get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,guards[g].x,guards[g].y) <= guards[g].radius*3){
+            if(get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,guards[g].x,guards[g].y) <= guards[g].radius*4){
                door_inst.openerNear = true;
             }
         }
         //if hero can open door_inst:
-        if(door_inst.unlocked && get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,hero.x,hero.y) <= hero.radius*3){
+        if(door_inst.unlocked && get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,hero.x,hero.y) <= hero.radius*4){
            door_inst.openerNear = true;
         }
         if(door_inst.openerNear){
@@ -931,7 +944,7 @@ function addKeyHandlers(){
                                 
                                 //timer
                                 var unlockTimeRemaining = 5000;
-                                circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.doors[i].unlockDoor.bind(grid.doors[i]),grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
+                                circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
                                 
                                 return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                             }
@@ -1160,7 +1173,7 @@ function useMask(toggle){
         }
         //switch music
         if(music_masked && music_unmasked){
-            music_masked.volume = 0.5;
+            music_masked.volume = 0.4;
             music_unmasked.volume = 0.0;
         }
     }else{
@@ -1179,7 +1192,9 @@ function useMask(toggle){
 function doGunShotEffects(unit, silenced){
     //gun_shot sound:
     if(silenced)play_sound(sound_gun_shot_silenced);
-    else play_sound(sound_gun_shot);
+    else{
+        play_sound_many(sound_gun_shots);
+    }
     //play gun spark against wall where gun shot hits:
     spark_clip.x = unit.aim.end.x;
     spark_clip.y = unit.aim.end.y;

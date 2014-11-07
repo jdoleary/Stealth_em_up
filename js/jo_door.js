@@ -1,9 +1,10 @@
-function sprite_door_wrapper(pixiSprite,horizontal,parent){
+function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
     function sprite_door(){
 
         this.sprite.anchor.x = 0.125;
         this.sprite.anchor.y = 0;
         this.unlocked = false;
+        this.relatedDoorWall = doorwall;//a reference to the door wall object for changing "solidness" and line of sight
         this.opened = false;
         this.openerNear = false;//true if a person able to open it is near
         
@@ -28,6 +29,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,parent){
                 this.opened = true;
                 play_sound(sound_door_open);
                 this.rad = this.rotOpen;
+                this.relatedDoorWall.openDoor();//for changing "solidness" and line of sight
             }
         
         }
@@ -36,6 +38,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,parent){
                 play_sound(sound_door_close);
                 this.opened = false;
                 this.rad = this.rotClosed;
+                this.relatedDoorWall.closeDoor();//for changing "solidness" and line of sight
             }
         
         }

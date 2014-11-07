@@ -84,9 +84,15 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
         this.image_sprite.position.y = draw_coords.y;
     };
     
-    this.unlockDoor = function(){
+    //these two functions don't affect the door sprite only the door tile:
+    this.openDoor = function(){
         this.solid = false;
         this.blocks_vision = false;
+    
+    }
+    this.closeDoor = function(){
+        this.solid = true;
+        this.blocks_vision = true;
     
     }
     

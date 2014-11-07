@@ -5,6 +5,7 @@ function sprite_guard_wrapper(pixiSprite){
         this.being_choked_out = false;
         this.blood_trail;
         this.chasingHero = false;
+        this.idling = false;//if guard is just standing
 
         this.kill = function(){
             //play_sound(sound_unit_die);
@@ -30,6 +31,7 @@ function sprite_guard_wrapper(pixiSprite){
                 var currentIndex = grid.getIndexFromCoords_2d(this.x,this.y);
                 this.path = grid.getPath(currentIndex,newCellIndex);
             }
+            this.idling = false;
         
         };
         
