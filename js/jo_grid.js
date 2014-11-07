@@ -141,6 +141,7 @@ function jo_grid(map){
         else return false;
         
     }
+
     this.isTileRestricted_coords = function(x,y){
         //returns true if the wall that the (x,y) coords are within is restricted:
         
@@ -293,6 +294,8 @@ function jo_grid(map){
             path.push({x: result[i].y*this.cell_size+this.cell_size/2, y: result[i].x*this.cell_size+this.cell_size/2});//return path in obj pixel location, index*64-32 will center the pixel on the correct index cell
             //console.log(result[i].y , ',' , result[i].x);
         }
+        //console.log('grid return path: ');
+        //console.log(path);
         return path; //path is an array of points
     
     };

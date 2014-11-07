@@ -84,6 +84,8 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
         this.image_sprite.position.y = draw_coords.y;
     };
     
+    
+    //Corresponding door_sprite is responsible for opening and closing this "door"
     //these two functions don't affect the door sprite only the door tile:
     this.openDoor = function(){
         this.solid = false;

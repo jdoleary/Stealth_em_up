@@ -268,16 +268,16 @@ function startGame(){
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 			guards = [];
             guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			guards[0].x = 64*3+32;
 			//guards[0].x = 288;
 			guards[0].y = 64*5;
 			//guards[0].y = 96;
-			guards[1].x = 64*3+32;
+			/*guards[1].x = 64*16+32;
 			guards[1].y = 64*6;
 			guards[2].x = 64*3+32;
-			guards[2].y = 64*7;
+			guards[2].y = 64*15;*/
             guard_backup_spawn = {'x':31*64,'y':1*64};
             numOfBackupGuards = 7;
             
@@ -617,6 +617,7 @@ function gameloop(deltaTime){
             }
             //if guard has a path
             if(guards[i].path.length > 0){
+                guards[i].swiveling = false;
                 //if guard does not have a target:
                 if(guards[i].target.x == null || guards[i].target.y == null){
                     guards[i].target = guards[i].path.shift();//get the first element.
@@ -624,17 +625,22 @@ function gameloop(deltaTime){
                 
             }else{
                 //if guard does not have a path, wait a little while, then move
-                var wait_max = 10000;
-                var wait_min = 1000;
+                var wait_max = 3000;
+                var wait_min = 500;
                 if(!guards[i].idling){
+                    var random_idle = Math.random() * (wait_max - wait_min) + wait_min;
+                    console.log('random idle: ' + random_idle);
                     setTimeout(function(){
                         
                         this.getRandomPatrolPath();
+                        //console.log('stop idle');
      
-                    }.bind(guards[i]), Math.random() * (wait_max - wait_min) + wait_min);
+                    }.bind(guards[i]), random_idle);
                 }else{
-                    //todo swivel:
-                    //guards[i].rotate_to(guards[i].rad-180);
+                    if(!guards[i].swiveling){
+                        guards[i].setSwivel(guards[i].rad-Math.PI/2,guards[i].rad+Math.PI/2);
+                        guards[i].swiveling = true;
+                    }else guards[i].swivel();
                 }
                 guards[i].idling = true;
                 
@@ -729,12 +735,13 @@ function gameloop(deltaTime){
         door_inst.openerNear = false; 
         for(var g = 0; g < guards.length; g++){
         //check if any guard is near door_inst, open door_inst:
-                
+            //this radius is very important!  If door_inst doesn't detect unit close enough, the "wall" tile that it is on will be solid and unit won't be able to get close enough
             if(get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,guards[g].x,guards[g].y) <= guards[g].radius*4){
                door_inst.openerNear = true;
             }
         }
         //if hero can open door_inst:
+        //this radius is very important!  If door_inst doesn't detect unit close enough, the "wall" tile that it is on will be solid and unit won't be able to get close enough
         if(door_inst.unlocked && get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,hero.x,hero.y) <= hero.radius*4){
            door_inst.openerNear = true;
         }
