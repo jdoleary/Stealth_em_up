@@ -268,16 +268,16 @@ function startGame(){
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 			guards = [];
             guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			//guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
 			guards[0].x = 64*3+32;
 			//guards[0].x = 288;
 			guards[0].y = 64*5;
 			//guards[0].y = 96;
-			/*guards[1].x = 64*16+32;
+			guards[1].x = 64*16+32;
 			guards[1].y = 64*6;
 			guards[2].x = 64*3+32;
-			guards[2].y = 64*15;*/
+			guards[2].y = 64*15;
             guard_backup_spawn = {'x':31*64,'y':1*64};
             numOfBackupGuards = 7;
             
@@ -617,19 +617,23 @@ function gameloop(deltaTime){
             }
             //if guard has a path
             if(guards[i].path.length > 0){
-                guards[i].swiveling = false;
                 //if guard does not have a target:
                 if(guards[i].target.x == null || guards[i].target.y == null){
                     guards[i].target = guards[i].path.shift();//get the first element.
                 }
                 
             }else{
+                //set the rotation point when guard first starts idling
+                if(!guards[i].startedIdling){
+                    guards[i].idleRotateRad = guards[i].rad+Math.PI
+                    guards[i].startedIdling = true;
+                }
                 //if guard does not have a path, wait a little while, then move
                 var wait_max = 3000;
                 var wait_min = 500;
                 if(!guards[i].idling){
                     var random_idle = Math.random() * (wait_max - wait_min) + wait_min;
-                    console.log('random idle: ' + random_idle);
+                    //console.log('random idle: ' + random_idle);
                     setTimeout(function(){
                         
                         this.getRandomPatrolPath();
@@ -637,10 +641,9 @@ function gameloop(deltaTime){
      
                     }.bind(guards[i]), random_idle);
                 }else{
-                    if(!guards[i].swiveling){
-                        guards[i].setSwivel(guards[i].rad-Math.PI/2,guards[i].rad+Math.PI/2);
-                        guards[i].swiveling = true;
-                    }else guards[i].swivel();
+                    //note: if a path is not found and this.path == [], the guard will idle again.
+                    //guard idling
+                    guards[i].rotate_to(guards[i].idleRotateRad);
                 }
                 guards[i].idling = true;
                 

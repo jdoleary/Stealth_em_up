@@ -107,6 +107,25 @@ function jo_sprite(pixiSprite, parent){
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         
     };
+    this.rotate_to = function(rad){
+    
+        //sanitize:
+        if(rad >= Math.PI*2)rad = rad%Math.PI*2;
+        if(rad <= Math.PI*2)rad = rad%Math.PI*2;
+        //console.log('rot from' + Math.round(this.rad*360/(Math.PI*2)) + ' to ' + Math.round(rad*360/(Math.PI*2)));
+        
+        //rotate to face direction of movement
+        var diff = rad - this.rad;
+        var rotSpeed = 0.01;
+        if(Math.abs(diff) <= rotSpeed*3)this.rad = rad;
+        else if(diff > Math.PI)this.rad -= rotSpeed;
+        else if(diff < -Math.PI)this.rad += rotSpeed;
+        else if(diff < 0)this.rad -= rotSpeed;
+        else if(diff > 0)this.rad += rotSpeed;
+        if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
+        if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
+        
+    };
 
     
     //instantly rotate to target (not incrementally)
