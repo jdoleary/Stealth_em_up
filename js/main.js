@@ -76,6 +76,7 @@ var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
 var img_security_camera = PIXI.Texture.fromImage("camera.png");
 var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
 var img_cam_broken = PIXI.Texture.fromImage("camera_broken.png");
+var img_cam_off = PIXI.Texture.fromImage("camera_off.png");
 var img_computer = PIXI.Texture.fromImage("computer.png");
 var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
 var img_money = PIXI.Texture.fromImage("money.png");
@@ -859,6 +860,7 @@ Key Handlers
 ////////////////////////////////////////////////////////////
 function addKeyHandlers(){
     window.onkeydown = function(e){
+        //this function is called every frame that said key is down
         var code = e.keyCode ? e.keyCode : e.which;
         //keyinfo[code] = String.fromCharCode(code);
         if(code == 87){keys['w'] = true;}
@@ -867,9 +869,13 @@ function addKeyHandlers(){
         if(code == 68){keys['d'] = true;}
         if(code == 86){
             // !keys['v'] makes it so that it will only be called once for a single press of the letter
-            if(!hero.carry && !keys['v']){
-                //hero cannot remove mask while carrying loot
-                circProgBar.heroMaskProg(2000,useMask,!hero.masked);
+            if(!keys['v']){
+                if(hero.carry || grid.isTileRestricted_coords(hero.x,hero.y)){
+                    newMessage("You cannot remove your mask while in a restricted area, or while carrying loot!");
+                }else{
+                    //hero cannot remove mask while carrying loot
+                    circProgBar.heroMaskProg(2000,useMask,!hero.masked);
+                }
             }
             keys['v'] = true;
         }
@@ -943,6 +949,10 @@ function addKeyHandlers(){
                     cameras_disabled = true;
                     newMessage('All security cameras have been disabled!');
                     computer_for_security_cameras.sprite.setTexture(img_computer_off);
+                    for(var i = 0; i < security_cameras.length; i++){
+                        security_cameras[i].sprite.setTexture(img_cam_off);
+                    
+                    }
                 }
                 if(hero.masked){
                     //hero must be masked to lockpick:
@@ -1005,7 +1015,11 @@ function addKeyHandlers(){
         if(code == 65){keys['a'] = false;}
         if(code == 83){keys['s'] = false;}
         if(code == 68){keys['d'] = false;}
-        if(code == 86){keys['v'] = false;}
+        if(code == 86){
+            //on release of key only
+            if(keys['v'])circProgBar.stop();//stop putting on mask
+            keys['v'] = false;
+        }
         if(code == 16){
             keys['shift'] = false;
             hero.speed = hero.speed_walk;
