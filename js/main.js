@@ -105,8 +105,8 @@ var hero_cir;
 
 //images:
 var img_orange = PIXI.Texture.fromImage("orange2.png");
-var img_blue = PIXI.Texture.fromImage("blue.png");
-var img_masked = PIXI.Texture.fromImage("masked.png");
+var img_blue = PIXI.Texture.fromImage("hero_body_1.png");
+var img_masked = PIXI.Texture.fromImage("hero_body_1_masked.png");
 var img_skull = PIXI.Texture.fromImage("skull.png");
 var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
 var img_security_camera = PIXI.Texture.fromImage("camera.png");
@@ -117,7 +117,7 @@ var img_computer = PIXI.Texture.fromImage("computer.png");
 var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
 var img_money = PIXI.Texture.fromImage("money.png");
 var img_getawaycar = PIXI.Texture.fromImage("van.png");
-var img_hero_with_money = PIXI.Texture.fromImage("blue_with_money.png");
+var img_hero_with_money = PIXI.Texture.fromImage("hero_body_1_bag.png");
 var img_civilian = PIXI.Texture.fromImage("civ.png");
 var img_origin = PIXI.Texture.fromImage("origin.png");
 var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
@@ -164,6 +164,7 @@ var tooltip;
 
 //MOVIE CLIPS:
 var spark_clip;
+var feet_clip;
 
 //effects:
 var static_effect_sprites;
@@ -326,6 +327,11 @@ function startGame(){
     blood_holder.addChild(graphics_blood);
     display_blood.addChild(blood_holder);
     
+            //hero feet:
+            feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
+            feet_clip.sprite.loop = true;
+            feet_clip.sprite.animationSpeed = 0.2;//slow it down
+    
             //make sprites:
 			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue),4,8);
 			hero_end_aim_coord;
@@ -398,9 +404,10 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             stage_child.addChild(tooltip);
 
             //MOVIE CLIPS:
-            spark_clip = new jo_sprite(jo_movie_clip("movie_clips/","spark_",9,".png"),display_effects);
+            spark_clip = new jo_sprite(jo_movie_clip("movie_clips/","spark_",10,".png"),display_effects);
             spark_clip.sprite.loop = false;
             spark_clip.sprite.animationSpeed = 0.7;//slow it down
+            
 
             //effects:
             static_effect_sprites = [];
@@ -503,6 +510,7 @@ function gameloop(deltaTime){
         static_effect_sprites[i].prepare_for_draw();
     }
     spark_clip.prepare_for_draw();
+    feet_clip.prepare_for_draw();
     
     //update circularProgressBar:
     if(circProgBar.visible){
@@ -523,6 +531,11 @@ function gameloop(deltaTime){
     hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
     if(hero.masked)hero.draw_gun_shot(hero.aim);//only draw aim line when hero is masked (which means gun is out).
     hero.move_to_target();
+    
+    //test todo, keep feet under hero:
+    feet_clip.x = hero.x;
+    feet_clip.y = hero.y;
+    feet_clip.rad = hero.rad;
     
     if(grid.isTileRestricted_coords(hero.x,hero.y)){
         useMask(true);
@@ -1076,6 +1089,7 @@ function addKeyHandlers(){
             
         }
         
+        hero_move_animation_check();
     };
     window.onkeyup = function(e){
         var code = e.keyCode ? e.keyCode : e.which;
@@ -1104,6 +1118,7 @@ function addKeyHandlers(){
             grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
             circProgBar.stop();
         }
+        hero_move_animation_check();
         
     };
     // IE9, Chrome, Safari, Opera
@@ -1293,6 +1308,16 @@ function doGunShotEffects(unit, silenced){
     spark_clip.rotate_to_instant(unit.x,unit.y);
     spark_clip.sprite.gotoAndPlay(0);
 }
+var hero_moving = false;
+function hero_move_animation_check(){
+        var hero_was = hero_moving;
+        if(keys['w'] || keys['a'] || keys['s'] || keys['d'])hero_moving = true;
+        else hero_moving = false;
+        if(hero_moving && !hero_was)feet_clip.sprite.gotoAndPlay(0);
+        if(!hero_moving)feet_clip.sprite.gotoAndStop(0);
+}
+
+
 window.onresize = function (event){
     var w = window.innerWidth;
     var h = window.innerHeight;

@@ -4,7 +4,7 @@ function jo_movie_clip(path, name, frames, type){
     
     for (var i=0; i < frames; i++) 
     {
-        var texture = PIXI.Texture.fromImage(path + name + (i+1) + type);
+        var texture = PIXI.Texture.fromImage(path + name + (i) + type);
         movie_textures.push(texture);
     };
     return new PIXI.MovieClip(movie_textures);
