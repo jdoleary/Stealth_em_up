@@ -15,9 +15,12 @@ var stats = new Stats();
 var interactive = true;
 var stage;
 
+
+
 //make sure that width value is the same in index.html's style
-var window_properties = {width: 620*2, height: 400*2};
-//make sure that width value is the same in index.html's style
+//var window_properties = {width: 620*2, height: 400*2};
+
+var window_properties = {width: window.innerWidth, height: window.innerHeight};
 
 // create a renderer instance.
 var renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height);
@@ -180,22 +183,37 @@ function clearStage(){
     stage = new PIXI.Stage(0xEEEEEE, interactive);
 }
 var button;//menu button
+
+console.log('Credits:  Music: "Hidden Agenda" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/   "Volatile Reaction" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/');
+function fullscreen() {
+    console.log("SET FULLSCREEN");
+    var
+          el = document.documentElement
+        , rfs =
+               el.requestFullScreen
+            || el.webkitRequestFullscreen
+            || el.mozRequestFullScreen
+            || el.msRequestFullscreen
+    ;
+    rfs.call(el);
+}
 function startMenu(){
 /////MENU/////
 
         clearStage();
         state = states["StartMenu"];
-        addButton("play1.png","play2.png",startGame);
+        addButton("Play",200,200,startGame);
         //set music to "unmasked"
         if(music_masked && music_unmasked){
-            music_masked.volume = 0.0;
-            music_unmasked.volume = 1.0;
+            changeVolume(music_masked,0.0);
+            changeVolume(music_unmasked,1.0);
         }
         
         
 }
 function startGame(){
-
+    //enter full screen:
+    fullscreen();
     //the the menu or any other previous children
     clearStage();
     
@@ -859,6 +877,7 @@ Key Handlers
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 function addKeyHandlers(){
+    console.log('add key handlers');
     window.onkeydown = function(e){
         //this function is called every frame that said key is down
         var code = e.keyCode ? e.keyCode : e.which;
@@ -991,7 +1010,7 @@ function addKeyHandlers(){
                             //deposite money in car:
                             newMessage("The money is safe!");
                             //add button for win condition
-                            addButton("menu.png","menu2.png",startMenu);
+                            addButton("Menu",window.innerWidth/2,window.innerHeight/2,startMenu);
                         }else{
                             //just drop money:
                             hero.carry.sprite.visible = true;
@@ -1105,7 +1124,7 @@ function addKeyHandlers(){
     }
 }
 function removeKeyHandlers(){
-
+    console.log('remove key handlers');
     keys = {w: false, a: false, s: false, d: false, v: false, space:false, shift:false};
     window.onkeydown = null;
     window.onkeyup = null;
@@ -1197,16 +1216,16 @@ function useMask(toggle){
         }
         //switch music
         if(music_masked && music_unmasked){
-            music_masked.volume = 0.4;
-            music_unmasked.volume = 0.0;
+            changeVolume(music_masked,0.4);
+            changeVolume(music_unmasked,0.0);
         }
     }else{
         //take off mask
         hero.sprite.setTexture(img_blue);
         //switch music
         if(music_masked && music_unmasked){
-            music_masked.volume = 0.0;
-            music_unmasked.volume = 1.0;
+            changeVolume(music_masked,0.0);
+            changeVolume(music_unmasked,1.0);
         }
         
     }
@@ -1225,9 +1244,26 @@ function doGunShotEffects(unit, silenced){
     spark_clip.rotate_to_instant(unit.x,unit.y);
     spark_clip.sprite.gotoAndPlay(0);
 }
+window.onresize = function (event){
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    //reset window_properties for camera code:
+    window_properties.width = w;
+    window_properties.height = h;
+    //this part resizes the canvas but keeps ratio the same
+    renderer.view.style.width = w + "px";
+    renderer.view.style.height = h + "px";
+    //this part adjusts the ratio:
+    renderer.resize(w,h);
+
+
+}
+
+
+
 //Mr. Doob's Stats.js
 stats.domElement.style.position = 'absolute';
-stats.domElement.style.left = '0px';
-stats.domElement.style.top = '0px';
+stats.domElement.style.left = '8px';
+stats.domElement.style.top = '8px';
 document.body.appendChild( stats.domElement );
 

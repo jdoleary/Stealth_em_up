@@ -1,13 +1,22 @@
-function addButton(img,imgOver, clickFunction){
+function addButton(text,x,y, clickFunction){
     //clickFunction is the function that is called whent this button is clicked.
-    var textureButton = PIXI.Texture.fromImage(img);
-    var textureButtonOver = PIXI.Texture.fromImage(imgOver);
+    //var textureButton = PIXI.Texture.fromImage(img);
+    //var textureButtonOver = PIXI.Texture.fromImage(imgOver);
+    
+    var textureButton = PIXI.Texture.fromImage("button.png");
+    var textureButtonOver = PIXI.Texture.fromImage("button2.png");
+    
+    var textforbutton = new PIXI.Text(text, { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 4 });
+    textforbutton.anchor.x = 0.5;//centered
+    
     button = new PIXI.Sprite(textureButton);
     button.anchor.x = 0.5;
     button.anchor.y = 0.5;		
-    button.x = window_properties.width/2;
-    button.y = window_properties.height/2;
+    button.x = x;
+    button.y = y;
     button.setInteractive(true);
+    
+    button.addChild(textforbutton);
     
 
     // set the mouseup and touchend callback..

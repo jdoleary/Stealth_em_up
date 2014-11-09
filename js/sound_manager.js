@@ -1,3 +1,6 @@
+var volume_master = 0.0;
+console.log("Master Volume: " + volume_master);
+
 var sound_gun_shot = new Audio("sound/gun_shot.mp3");
 
 var sound_gun_shots = {"index": 0,"array":[]};
@@ -18,10 +21,17 @@ var music_unmasked;
 force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});
 force_buffer_sound("sound/Volatile_Reaction.mp3", 0.0, function(audio){music_masked = audio;});
 
-sound_door_open.volume = 0.2;
-sound_door_close.volume = 0.2;
-sound_gun_shot.volume = 0.2;//sound is too loud, reduce volume for this clip
-for(var i = 0; i < sound_gun_shots["array"].length; i++)sound_gun_shots["array"].volume = 0.2;
+changeVolume(sound_door_open,0.2);
+changeVolume(sound_door_close,0.2);
+changeVolume(sound_gun_shot,0.2);
+changeVolume(sound_gun_shot_silenced,1.0);
+changeVolume(sound_guard_choke,1.0);
+for(var i = 0; i < sound_gun_shots["array"].length; i++)changeVolume(sound_gun_shots["array"][i],0.2);
+
+
+function changeVolume(clip,newVolume){
+    clip.volume = newVolume*volume_master;
+}
 
 function play_sound(sound){
     //chrome / firefox discrepancy:
@@ -53,7 +63,7 @@ function force_buffer_sound(url, vol, callback_return){
 
         var aud = new Audio();
         aud.src = sound;
-        aud.volume = vol;
+        changeVolume(aud,vol)
         //repeat music
         aud.addEventListener('ended', function() {
             this.currentTime = 0;
