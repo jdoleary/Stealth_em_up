@@ -21,13 +21,17 @@ var music_unmasked;
 force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});
 force_buffer_sound("sound/Volatile_Reaction.mp3", 0.0, function(audio){music_masked = audio;});
 
-changeVolume(sound_door_open,0.2);
-changeVolume(sound_door_close,0.2);
-changeVolume(sound_gun_shot,0.2);
-changeVolume(sound_gun_shot_silenced,1.0);
-changeVolume(sound_guard_choke,1.0);
-for(var i = 0; i < sound_gun_shots["array"].length; i++)changeVolume(sound_gun_shots["array"][i],0.2);
+readjustVolumes();//call once automatically:
 
+function readjustVolumes(){
+    changeVolume(sound_door_open,0.2);
+    changeVolume(sound_door_close,0.2);
+    changeVolume(sound_gun_shot,0.2);
+    changeVolume(sound_gun_shot_silenced,1.0);
+    changeVolume(sound_guard_choke,1.0);
+    for(var i = 0; i < sound_gun_shots["array"].length; i++)changeVolume(sound_gun_shots["array"][i],0.2);
+}
+    
 
 function changeVolume(clip,newVolume){
     clip.volume = newVolume*volume_master;

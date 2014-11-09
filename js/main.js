@@ -5,27 +5,60 @@ Window Setup
 */
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
-
-//Mr Doob's Stats.js:
-var stats = new Stats();
-
-//CREATE STAGE
-// create an new instance of a pixi stage
-// the second parameter is interactivity...
-var interactive = true;
+var stats;
+var interactive;
 var stage;
+var window_properties;
+var renderer;
+
+function windowSetup(){
+    //Mr Doob's Stats.js:
+    stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '8px';
+    stats.domElement.style.top = '8px';
+    document.body.appendChild( stats.domElement );
+
+    //CREATE STAGE
+    // create an new instance of a pixi stage
+    // the second parameter is interactivity...
+    interactive = true;
+    stage;
 
 
 
-//make sure that width value is the same in index.html's style
-//var window_properties = {width: 620*2, height: 400*2};
+    //make sure that width value is the same in index.html's style
+    //var window_properties = {width: 620*2, height: 400*2};
 
-var window_properties = {width: window.innerWidth, height: window.innerHeight};
+    window_properties = {width: window.innerWidth, height: window.innerHeight};
 
-// create a renderer instance.
-var renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height);
-// add the renderer view element to the DOM
-document.body.appendChild(renderer.view);
+    // create a renderer instance.
+    renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height);
+    // add the renderer view element to the DOM
+
+    document.getElementById("canvas_holder").appendChild(renderer.view);
+    //document.body.appendChild(renderer.view);
+
+
+    startMenu();//init menu
+    requestAnimFrame(animate);//start main loop
+    
+}
+function fullscreen() {
+    var
+          el = document.documentElement
+        , rfs =
+               el.requestFullScreen
+            || el.webkitRequestFullscreen
+            || el.mozRequestFullScreen
+            || el.msRequestFullscreen
+    ;
+    rfs.call(el);
+    startGame();
+}
+
+
+
 
 
 
@@ -147,8 +180,34 @@ var circProgBar;
 
 
 
-startMenu();//init menu
-requestAnimFrame(animate);//start main loop
+
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+/*
+Entry Point
+*/
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+var url_queryString = getUrlVars();
+if(url_queryString["volume"]){
+    var newVol = url_queryString["volume"];
+    volume_master = newVol;
+    readjustVolumes();
+}
+windowSetup();
+
         
 function removeAllChildren(obj){
     if(obj){
@@ -171,6 +230,7 @@ function clearStage(){
     }
 
     //removekeyhandlers:
+    console.log('clear stage');
     removeKeyHandlers();
     //remove all children:
     removeAllChildren(display_tiles);
@@ -184,25 +244,14 @@ function clearStage(){
 }
 var button;//menu button
 
-console.log('Credits:  Music: "Hidden Agenda" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/   "Volatile Reaction" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/');
-function fullscreen() {
-    console.log("SET FULLSCREEN");
-    var
-          el = document.documentElement
-        , rfs =
-               el.requestFullScreen
-            || el.webkitRequestFullscreen
-            || el.mozRequestFullScreen
-            || el.msRequestFullscreen
-    ;
-    rfs.call(el);
-}
+
 function startMenu(){
 /////MENU/////
-
+        console.log("start menu");
         clearStage();
         state = states["StartMenu"];
         addButton("Play",200,200,startGame);
+        addButton("Fullscreen",200,400,fullscreen);
         //set music to "unmasked"
         if(music_masked && music_unmasked){
             changeVolume(music_masked,0.0);
@@ -212,9 +261,8 @@ function startMenu(){
         
 }
 function startGame(){
-    //enter full screen:
-    fullscreen();
     //the the menu or any other previous children
+        console.log("start game");
     clearStage();
     
     state = states["Gameplay"];
@@ -608,6 +656,7 @@ function gameloop(deltaTime){
                                 makeBloodSplatter(hero.x,hero.y,guards[i].x,guards[i].y);
                                 newMessage("THEY KILLED YOU!!!!!");
                                 //remove key handlers so hero can no longer move around
+                                console.log('you died');
                                 removeKeyHandlers();
 
                             }
@@ -1260,10 +1309,4 @@ window.onresize = function (event){
 }
 
 
-
-//Mr. Doob's Stats.js
-stats.domElement.style.position = 'absolute';
-stats.domElement.style.left = '8px';
-stats.domElement.style.top = '8px';
-document.body.appendChild( stats.domElement );
 
