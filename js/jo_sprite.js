@@ -186,6 +186,7 @@ function jo_sprite(pixiSprite, parent){
         else if(diff > 0)this.rad += 0.1;
         if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
+        
     }
     
     this.doesSpriteSeeSprite = function(otherSprite){

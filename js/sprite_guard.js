@@ -11,7 +11,7 @@ function sprite_guard_wrapper(pixiSprite){
         
         this.kill = function(){
             //play_sound(sound_unit_die);
-            this.sprite.setTexture(img_skull);
+            this.sprite.setTexture(img_guard_dead);
             this.alive = false;
             //enable moving so they can be dragged
             this.moving = true;
@@ -89,6 +89,21 @@ function sprite_guard_wrapper(pixiSprite){
             this.alarmed = true;
         
         };
+        
+        this.get_dragged_parent = this.get_dragged;
+        //modify and call parent function
+        this.get_dragged = function(){
+            //if not being choked out, set texture to drag
+            if(this.being_choked_out && this.alive)this.sprite.setTexture(img_guard_choke);
+            else this.sprite.setTexture(img_guard_drag);
+            this.get_dragged_parent();
+   
+        
+        }
+        this.stop_dragging = function(){
+            console.log('stop dragging' + this.alive);
+            if(!this.alive)this.sprite.setTexture(img_guard_dead);
+        }
         
         
     }

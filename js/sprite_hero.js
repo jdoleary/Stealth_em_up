@@ -20,7 +20,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             this.path = [];
             this.target = {x: null, y:null};
             
-            this.sprite.setTexture(img_skull);
+            this.sprite.setTexture(img_hero_dead);
             
             
             addButton("Menu.png","Menu2.png",startMenu);

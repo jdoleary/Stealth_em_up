@@ -104,11 +104,8 @@ var hero_cir;
 
 
 //images:
-var img_orange = PIXI.Texture.fromImage("orange2.png");
 var img_blue = PIXI.Texture.fromImage("hero_body_1.png");
 var img_masked = PIXI.Texture.fromImage("hero_body_1_masked.png");
-var img_skull = PIXI.Texture.fromImage("skull.png");
-var img_guard_alert = PIXI.Texture.fromImage("alert_guard.png");
 var img_security_camera = PIXI.Texture.fromImage("camera.png");
 var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
 var img_cam_broken = PIXI.Texture.fromImage("camera_broken.png");
@@ -123,6 +120,14 @@ var img_origin = PIXI.Texture.fromImage("origin.png");
 var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
 var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
 var img_door = PIXI.Texture.fromImage("door.png");
+
+//new images:
+var img_hero_dead   = PIXI.Texture.fromImage("hero_dead.png");
+var img_guard_reg   = PIXI.Texture.fromImage("guard.png");
+var img_guard_alert = PIXI.Texture.fromImage("guard_alert.png");
+var img_guard_dead  = PIXI.Texture.fromImage("guard_dead.png");
+var img_guard_choke = PIXI.Texture.fromImage("guard_choke.png");
+var img_guard_drag  = PIXI.Texture.fromImage("guard_dragging.png");
 
 
 
@@ -340,9 +345,9 @@ function startGame(){
 			hero.speed = hero.speed_walk;
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 			guards = [];
-            guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_orange)));
+            guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg)));
+			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg)));
 			guards[0].x = 64*3+32;
 			//guards[0].x = 288;
 			guards[0].y = 64*5;
@@ -412,7 +417,7 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             //effects:
             static_effect_sprites = [];
             
-            dragDistance = 3;
+            dragDistance = 5;
             
             addKeyHandlers();
             
@@ -1009,6 +1014,7 @@ function addKeyHandlers(){
                                     //if space isn't still being held release body:
                                     if(!keys['space']){
                                         //drag is a toggle action so release current drag target.
+                                        hero_drag_target.stop_dragging();
                                         hero_drag_target = null;
                                         //bring hero speed back to normal
                                         hero.speed = hero.speed_walk;
@@ -1111,6 +1117,7 @@ function addKeyHandlers(){
             //if hero was dragging something, drop it. (Don't drop a guard while he's being choked
             if(hero_drag_target && !hero_drag_target.alive){
                 //drag is a toggle action so release current drag target.
+                hero_drag_target.stop_dragging();
                 hero_drag_target = null;
                 //bring hero speed back to normal
                 hero.speed = hero.speed_walk;
@@ -1227,7 +1234,7 @@ function alert_all_guards(){
     //spawn backup:
     for(var backup = 0; backup < numOfBackupGuards; backup++){
         setTimeout(function(){
-            var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_orange));
+            var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert));
             newGuard.x = guard_backup_spawn.x;
             newGuard.y = guard_backup_spawn.y;
             if(newGuard.alive)newGuard.hearAlarm();
