@@ -68,7 +68,7 @@ function getRaycastPoint(startx,starty,endx,endy){
         var ray_h_closest;
         
         //find the closest point that touches a wall
-        for(var i = 0; i < 20; i++){
+        for(var i = 0; i < 40; i++){
             var nextPoint_h = nextPointAlongRay(rayh,i);
             
             if(grid.isWallSightBlocking_coords(nextPoint_h.x,nextPoint_h.y)){
@@ -83,7 +83,7 @@ function getRaycastPoint(startx,starty,endx,endy){
         
         
         //find the closest point that touches a wall
-        for(var i = 0; i < 20; i++){
+        for(var i = 0; i < 40; i++){
             var nextPoint_v = nextPointAlongRay(rayv,i);
             
             if(grid.isWallSightBlocking_coords(nextPoint_v.x,nextPoint_v.y)){
@@ -115,6 +115,7 @@ function getRaycastPoint(startx,starty,endx,endy){
             console.log('ray out of range, try increasing the value of i if you wish to raycast further.');
             //returns endx,endy so as to not cause errors in all the places that use this function if the ray is null
             //it returns the end point of the linesegment passed in, having detected no walls.
+            
             ray_closest = {x: endx, y: endy};
         }
         //ray_debug.x = ray_closest.x;

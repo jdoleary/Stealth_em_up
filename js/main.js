@@ -309,7 +309,9 @@ function startGame(){
     */
     ///////////////////////
     ///////////////////////    
-    
+    setup_map(map_diamond_store);
+    //setup_map(map_bank_1);
+    /*
     //grid/map
     grid = new jo_grid(map_diamond_store);
     display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
@@ -317,7 +319,7 @@ function startGame(){
     display_tiles.addChild(tile_containers[1]);//add SpriteBatches
     display_tiles.addChild(tile_containers[3]);//add SpriteBatches
     display_tiles.addChild(tile_containers[4]);//add SpriteBatches
-    
+    */
     //camera/debug
     camera = new jo_cam(window_properties);
     cameras_disabled = false;
@@ -331,7 +333,7 @@ function startGame(){
     graphics_blood.lineStyle(15, 0xb51d1d, 1);
     blood_holder.addChild(graphics_blood);
     display_blood.addChild(blood_holder);
-    
+    /*
             //hero feet:
             feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
             feet_clip.sprite.loop = true;
@@ -365,7 +367,7 @@ function startGame(){
 			    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
 			}*/
             
-            		
+            		/*
 			computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
 			computer_for_security_cameras.x = 11*64+32;
 			computer_for_security_cameras.y = 19*64+32;
@@ -374,10 +376,10 @@ function startGame(){
 			security_cameras = [];
 			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),3*64,4*64,Math.PI/2,0));
 			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),5*64,21*64,Math.PI,0));
-            
+            */
             
 alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
-
+/*
 
 			//Loot and Getaway car:
 			getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
@@ -389,11 +391,11 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
 			var money = new jo_sprite(new PIXI.Sprite(img_money));
 			money.x = 12.5*64;
 			money.y = 7.5*64;
-            loot.push(money);
+            loot.push(money);*/
 
             
             //UI text.  Use newMessage() to add a message.
-            message = new PIXI.Text("", { font: "20px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 4 });
+            message = new PIXI.Text("", { font: "20px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 3 });
             message.position.x = 0;
             message.position.y = window_properties.height;
             message.anchor.y = 1;
@@ -402,7 +404,7 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             
             
             //Tooltip text: todo test
-            tooltip = new PIXI.Text("Tooltip", { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 4 });
+            tooltip = new PIXI.Text("Tooltip", { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 2 });
             tooltip.anchor.x = 0.5;//centered
             tooltip.objX = 0;
             tooltip.objY = 0;
@@ -427,7 +429,72 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             
 
 }
+function setup_map(map){
+    console.log('map:');
+    console.log(map);
+    //grid/map
+    grid = new jo_grid(map);
+    display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
+    display_tiles_walls.addChild(tile_containers[2]);//add SpriteBatches, brown furnature
+    display_tiles.addChild(tile_containers[1]);//add SpriteBatches
+    display_tiles.addChild(tile_containers[3]);//add SpriteBatches
+    display_tiles.addChild(tile_containers[4]);//add SpriteBatches
+    
+             //hero feet:
+            feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
+            feet_clip.sprite.loop = true;
+            feet_clip.sprite.animationSpeed = 0.2;//slow it down
+    
+            //make sprites:
+			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue),4,8);
+			hero_end_aim_coord;
+            hero.x = map.objects.hero[0];
+            hero.y = map.objects.hero[1];
+			hero.speed = hero.speed_walk;
+            hero_drag_target = null; // a special var reserved for when the hero is dragging something.
+            
+			guards = [];
+            for(var i = 0; i < map.objects.guards.length; i++){
+                var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg));
+                guard_inst.x = map.objects.guards[i][0];
+                guard_inst.x = map.objects.guards[i][1];
+                guards.push(guard_inst);
+            }
 
+            guard_backup_spawn = {'x':map.objects.guard_backup_spawn[0],'y':map.objects.guard_backup_spawn[1]};
+            numOfBackupGuards = 7;
+            
+			civs = [];
+            /*
+			for(var i = 0; i < 8; i++){
+			    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
+			}*/
+			computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
+			computer_for_security_cameras.x = map.objects.computer[0];
+			computer_for_security_cameras.y = map.objects.computer[1];
+			
+			//security camera
+			security_cameras = [];
+            for(var i = 0; i < map.objects.security_cams.length; i++){
+                var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),map.objects.security_cams[i][0],map.objects.security_cams[i][1],Math.PI/2,0);
+                security_cameras.push(cam_inst);
+            }
+            
+			//Loot and Getaway car:
+			getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
+			getawaycar.sprite.anchor.y = 0.25;
+			getawaycar.x = map.objects.van[0];
+			getawaycar.y = map.objects.van[1];
+			getawaycar.rad = -Math.PI/2;
+			loot = [];
+			var money = new jo_sprite(new PIXI.Sprite(img_money));
+			money.x = map.objects.loot[0];
+			money.y = map.objects.loot[1];
+            loot.push(money);
+
+            
+
+}
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 /*
@@ -812,6 +879,7 @@ function gameloop(deltaTime){
      //////////////////////
     //Doors
     //////////////////////
+    var tooltipshown = false;  //hero is not close enough to any doors/guards, toggle visiblity off.
     for(var d = 0; d < grid.door_sprites.length; d++){
         var door_inst = grid.door_sprites[d];
         //door is anchored at top, so account for offset when checking distance
@@ -831,8 +899,18 @@ function gameloop(deltaTime){
         }
         //if hero can open door_inst:
         //this radius is very important!  If door_inst doesn't detect unit close enough, the "wall" tile that it is on will be solid and unit won't be able to get close enough
-        if(door_inst.unlocked && get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,hero.x,hero.y) <= hero.radius*4){
-           door_inst.openerNear = true;
+        if(get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,hero.x,hero.y) <= hero.radius*4){
+            if(door_inst.unlocked)door_inst.openerNear = true;
+            
+            
+            //if hero is near a door and masked, show tooltip to open door
+            if(hero.masked){
+                tooltip.visible = true;
+                tooltipshown = true;
+                tooltip.setText("[Space]");
+                tooltip.objX = door_inst.x;
+                tooltip.objY = door_inst.y - 32;
+            }
         }
         if(door_inst.openerNear){
             door_inst.open();
@@ -847,7 +925,6 @@ function gameloop(deltaTime){
     //Drag Target
     //////////////////////
     //show tooltip if hero is close enough to drag a guard:
-    var tooltipshown = false;  //hero is not close enough to any guards, toggle visiblity off.
     for(var i = 0; i < guards.length; i++){
         if(hero.masked && guards[i].alive  && !guards[i].being_choked_out && get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
             tooltip.visible = true;
@@ -857,7 +934,18 @@ function gameloop(deltaTime){
             tooltip.objY = guards[i].y - 32;
         }
     }
-    if(!tooltipshown)tooltip.visible = false;
+    if(!tooltipshown){
+        tooltip.visible = false;
+        //if hero is not wearing mask, show instructions for how to put on mask
+        if(!hero.masked){
+            tooltip.visible = true;
+            tooltipshown = true;
+            tooltip.setText("Hold [v] to put on your mask");
+            tooltip.objX = hero.x;
+            tooltip.objY = hero.y + grid.cell_size;
+            
+        }
+    }
     
     //move sprite/item which the hero is dragging.
     if(hero_drag_target){
