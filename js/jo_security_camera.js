@@ -17,6 +17,16 @@ function jo_security_camera(x,y,maxswivel,minswivel){
     this.increasing = true;
     this.wait_checker = new Date();
     
+    this.rad = this.min;//set rotation to min swivel
+    
+    /*
+    This is the range of motion of rotation:
+    
+    -Math.PI   
+            +     0
+     Math.PI
+    
+    */
     this.swivel = function(){
         var time = new Date();
         if(time.getTime() >= this.wait_checker.getTime()+this.wait_time){

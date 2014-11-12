@@ -268,7 +268,7 @@ function startMenu(){
 }
 function startGame(){
     //the the menu or any other previous children
-        console.log("start game");
+    console.log("start game");
     clearStage();
     
     state = states["Gameplay"];
@@ -309,17 +309,9 @@ function startGame(){
     */
     ///////////////////////
     ///////////////////////    
-    setup_map(map_diamond_store);
-    //setup_map(map_bank_1);
-    /*
-    //grid/map
-    grid = new jo_grid(map_diamond_store);
-    display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
-    display_tiles_walls.addChild(tile_containers[2]);//add SpriteBatches, brown furnature
-    display_tiles.addChild(tile_containers[1]);//add SpriteBatches
-    display_tiles.addChild(tile_containers[3]);//add SpriteBatches
-    display_tiles.addChild(tile_containers[4]);//add SpriteBatches
-    */
+    //setup_map(map_diamond_store);
+    setup_map(map_bank_1);
+
     //camera/debug
     camera = new jo_cam(window_properties);
     cameras_disabled = false;
@@ -333,65 +325,10 @@ function startGame(){
     graphics_blood.lineStyle(15, 0xb51d1d, 1);
     blood_holder.addChild(graphics_blood);
     display_blood.addChild(blood_holder);
-    /*
-            //hero feet:
-            feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
-            feet_clip.sprite.loop = true;
-            feet_clip.sprite.animationSpeed = 0.2;//slow it down
-    
-            //make sprites:
-			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue),4,8);
-			hero_end_aim_coord;
-            hero.x = 1182;
-			hero.y = 615;
-			hero.speed = hero.speed_walk;
-            hero_drag_target = null; // a special var reserved for when the hero is dragging something.
-			guards = [];
-            guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg)));
-			guards.push(new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg)));
-			guards[0].x = 64*3+32;
-			//guards[0].x = 288;
-			guards[0].y = 64*5;
-			//guards[0].y = 96;
-			guards[1].x = 64*16+32;
-			guards[1].y = 64*6;
-			guards[2].x = 64*3+32;
-			guards[2].y = 64*15;
-            guard_backup_spawn = {'x':31*64,'y':1*64};
-            numOfBackupGuards = 7;
-            
-			civs = [];
-            /*
-			for(var i = 0; i < 8; i++){
-			    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
-			}*/
-            
-            		/*
-			computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
-			computer_for_security_cameras.x = 11*64+32;
-			computer_for_security_cameras.y = 19*64+32;
-			
-			//security camera
-			security_cameras = [];
-			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),3*64,4*64,Math.PI/2,0));
-			security_cameras.push(new security_camera_wrapper(new PIXI.Sprite(img_security_camera),5*64,21*64,Math.PI,0));
-            */
+  
             
 alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
-/*
 
-			//Loot and Getaway car:
-			getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
-			getawaycar.sprite.anchor.y = 0.25;
-			getawaycar.x = 30.5*64;
-			getawaycar.y = 6*64;
-			getawaycar.rad = -Math.PI/2;
-			loot = [];
-			var money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = 12.5*64;
-			money.y = 7.5*64;
-            loot.push(money);*/
 
             
             //UI text.  Use newMessage() to add a message.
@@ -457,7 +394,7 @@ function setup_map(map){
             for(var i = 0; i < map.objects.guards.length; i++){
                 var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg));
                 guard_inst.x = map.objects.guards[i][0];
-                guard_inst.x = map.objects.guards[i][1];
+                guard_inst.y = map.objects.guards[i][1];
                 guards.push(guard_inst);
             }
 
@@ -476,7 +413,7 @@ function setup_map(map){
 			//security camera
 			security_cameras = [];
             for(var i = 0; i < map.objects.security_cams.length; i++){
-                var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),map.objects.security_cams[i][0],map.objects.security_cams[i][1],Math.PI/2,0);
+                var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),map.objects.security_cams[i].pos[0],map.objects.security_cams[i].pos[1],map.objects.security_cams[i].swivel_max,map.objects.security_cams[i].swivel_min);
                 security_cameras.push(cam_inst);
             }
             
