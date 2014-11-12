@@ -6,6 +6,10 @@
 
         body{
             margin: 0px;
+            background-image: url("icons/grimly.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-color: #d9ddec;
         }
         canvas {
             padding-left: 0;
@@ -15,6 +19,54 @@
             display: block;
         
         }
+        #footer{
+            position:fixed;
+            left:0px;
+            bottom:0px;
+            height:104px;
+            width:100%;
+            background:#3399FF;
+        }
+        /* Für ie6*/
+        * html #footer{
+            position:absolute;
+            top:expression((0-(footer.offsetHeight)+(document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)+(ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop))+'px');
+        }	
+        
+        .btn {
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            background: none;
+            cursor: pointer;
+            padding: 25px 32px;
+            display: inline-block;
+            margin: 15px 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            outline: none;
+            position: relative;
+            -webkit-transition: all 0.3s;
+            -moz-transition: all 0.3s;
+            transition: all 0.3s;
+        }
+        .btn-1 {
+            border: 3px solid #fff;
+            color: #fff;
+        }
+
+        /* Button 1a */
+        .btn-1a:hover,
+        .btn-1a:active {
+            color: #0e83cd;
+            background: #fff;
+        }
+
+        
+        #mc_embed_signup{background:#fff; font:14px Helvetica,Arial,sans-serif;  width:390px;}
+        
 	</style>
 
 	<script src="../../bin/pixi.dev.js"></script>
@@ -22,7 +74,7 @@
 </head>
     <body>
     <div id="canvas_holder"></div>
-    <!--<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>-->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="js/menu_button_manager.js"></script>
     <script src="js/jo_debug.js"></script>
     <script src="js/jo_door.js"></script>
@@ -42,6 +94,7 @@
     <script src="js/jo_movie_clip.js"></script>
     <script src="js/sound_manager.js"></script>
     <script src="js/jo_progress_bar.js"></script>
+    <script src="js/jo_local_storage.js"></script>
     <!--  EVERYTHING ABOVE IS FOR PRELOADING ^^ <script src="js/main.js"></script>-->
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -54,15 +107,133 @@
 
     </script>
         
-    <div id="menu">
-        <button type="button" onclick="location.href='/game.html?volume=1.0'";">Start Game</button>
-        <button type="button" onclick="location.href='/game.html?volume=0.0'";">Start Game (Muted)</button>
-        <video autoplay loop muted width="400" height="300">
+
+    <div id="startScreen" align="right">
+        
+        <div><button type="button" class="btn btn-1 btn-1a" onclick="location.href='/game.html?volume=1.0'">Start Game</button></div>
+        <div><button type="button" class="btn btn-1 btn-1a" onclick="location.href='/game.html?volume=0.0'">Start Game (Muted)</button></div>
+        
+        <div><video autoplay loop muted width="400" height="300">
             <source src="big-buck-bunny_trailer.webm#t=19,20" type='video/webm; codecs="vp8, vorbis"'>
-        </video>
-        <p>Credits:  Music: "Hidden Agenda" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/   "Volatile Reaction" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/</p>
+        </video></div>
+        <div><p>Credits: <br> 
+        Music: "Hidden Agenda" Kevin MacLeod (incompetech.com)<br>
+        Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/<br>
+<br>
+        "Volatile Reaction" Kevin MacLeod (incompetech.com)<br>
+        Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/<br></p></div>
 
     </div>
+    <div id="levelSelect">
+        level select
+    </div>
+    <div id="achievements" align="right">
+        <div id="playerStats">
+        </div>
+        <table>
+        <tr>
+            <td>
+                <p><b>Ghost</b> <br> Never Seen</p>
+            </td>
+            <td>
+            <img src="icons/ghost.png">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p><b>Pacifist</b> <br> None Dead</p>
+            </td>
+            <td>
+            <img src="icons/peace.png">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p><b>Flawless</b> <br> Never Seen, None Dead</p>
+            </td>
+            <td>
+            <img src="icons/flawless.png">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p><b>Speedy</b> <br> Completed Quickly</p>
+            </td>
+            <td>
+            <img src="icons/speedy.png">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p><b>Never Give Up</b> <br> Completed After Police <br> Backup Arrives</p>
+            </td>
+            <td>
+                <img src="icons/ngu.png">
+            </td>
+        </tr>
+        </table>
+    </div>
+    <div align="right" id="mailingList">
+        <!-- Begin MailChimp Signup Form -->
+        <link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
+
+        <div id="mc_embed_signup">
+        <form action="//triagegame.us9.list-manage.com/subscribe/post?u=f089bff381b5dde5efe54f853&amp;id=8917d648ec" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+            <div id="mc_embed_signup_scroll">
+            <h2>Mailing List - Only used for major news</h2>
+        <div class="mc-field-group">
+            <label for="mce-EMAIL">Email Address </label>
+            <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+        </div>
+            <div id="mce-responses" class="clear">
+                <div class="response" id="mce-error-response" style="display:none"></div>
+                <div class="response" id="mce-success-response" style="display:none"></div>
+            </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+            <div style="position: absolute; left: -5000px;"><input type="text" name="b_f089bff381b5dde5efe54f853_8917d648ec" tabindex="-1" value=""></div>
+            <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+            </div>
+        </form>
+        </div>
+
+        <!--End mc_embed_signup-->
+    </div>
+    <div id="feedback" align="right">
+        <iframe src="https://docs.google.com/forms/d/1g9iHmcgLgr4Ob_XtQXY8P5cIKpV4QaSOcXAFXrAADvs/viewform?embedded=true" width="760" height="1000" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    </div>
     
+    <div id="footer" align="center">
+        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('startScreen');">Start Screen</button>
+        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Level Select</button>
+        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('achievements');updateStats();">Achievements</button>
+        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('mailingList');">Join Mailing List</button>
+        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('feedback');">Leave Feedback</button>
+    
+    </div>
+    <script>
+        function updateStats(){
+            var wins = jo_store_get("wins");
+            var loses = jo_store_get("loses");
+            var guardsShot = jo_store_get("guardsShot");
+            var guardsChoked = jo_store_get("guardsChoked");
+            $("#playerStats").empty();
+            $("#playerStats").append("Statistics");
+            $("#playerStats").append("<br>Wins: " + wins);
+            $("#playerStats").append("<br>Loses: " + loses);
+            $("#playerStats").append("<br>Guards Shot: " + guardsShot);
+            $("#playerStats").append("<br>Guards Choked: " + guardsChoked);
+        }
+        function showMenuScreen(id){
+            $("#startScreen").hide();
+            $("#levelSelect").hide();
+            $("#achievements").hide();
+            $("#mailingList").hide();
+            $("#feedback").hide();
+            
+            $("#"+id).show();
+        
+        }
+        //start out only showing startscreen
+        showMenuScreen("startScreen");
+    </script>
 	</body>
 </html>

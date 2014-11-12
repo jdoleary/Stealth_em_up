@@ -685,15 +685,12 @@ function gameloop(deltaTime){
                                 //remove key handlers so hero can no longer move around
                                 console.log('you died');
                                 removeKeyHandlers();
+                                
+                                //add to stats:
+                                jo_store_inc("loses");
 
                             }
             
-            
-                            
-                            
-                            
-                            
-                            
                             
                         }
                         
@@ -795,9 +792,10 @@ function gameloop(deltaTime){
                         newMessage('A security camera has seen you wearing a mask!');
                         security_cameras[i].becomeAlarmed(hero);
                         
-                        
+                        //THIS DOESN"T WORK YET:
                         //rotate cam to face hero:
                         security_cameras[i].rotate_to(hero.x,hero.y);
+                        //
                         
                         //set lastSeen for investigating hero
                         hero.setLastSeen();
@@ -1030,6 +1028,10 @@ function addKeyHandlers(){
                             //hero is choking out a live guard who is not already alarmed:
                             newMessage('You are choking out a guard!');
                             play_sound(sound_guard_choke);
+                                    
+                                    
+                            //add to stats:
+                            jo_store_inc("guardsChoked");
                             
                             guards[i].moving = true;
                             guards[i].path = [];
@@ -1113,6 +1115,11 @@ function addKeyHandlers(){
                             newMessage("The money is safe!");
                             //add button for win condition
                             addButton("Menu",window.innerWidth/2,window.innerHeight/2,startMenu);
+                            
+                            
+                            //add to stats:
+                            jo_store_inc("wins");
+                            
                         }else{
                             //just drop money:
                             hero.carry.sprite.visible = true;
@@ -1204,6 +1211,10 @@ function addKeyHandlers(){
                     display_actors.addChild(guards[i].sprite);
                     
                     if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
+                    
+                    
+                    //add to stats:
+                    jo_store_inc("guardsShot");
 
                 }
             
