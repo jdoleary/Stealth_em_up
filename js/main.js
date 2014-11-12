@@ -143,6 +143,7 @@ var graphics_blood;
 			var guards;
             var guard_backup_spawn;
             var numOfBackupGuards;
+            var backupCalled;//true when backup has been called so it cannot be called again
 			var civs;
 			
 
@@ -400,6 +401,7 @@ function setup_map(map){
 
             guard_backup_spawn = {'x':map.objects.guard_backup_spawn[0],'y':map.objects.guard_backup_spawn[1]};
             numOfBackupGuards = 7;
+            backupCalled = false;
             
 			civs = [];
             /*
@@ -652,6 +654,9 @@ function gameloop(deltaTime){
                         //alarm if hero is seen masked
                         guards[i].becomeAlarmed(hero);
                         
+                        //rotate guard to face hero:
+                        guards[i].rotate_to(hero.x,hero.y);
+                        
                         //set lastSeen for investigating hero
                         hero.setLastSeen();
                     }
@@ -789,6 +794,10 @@ function gameloop(deltaTime){
                     if(hero.masked){
                         newMessage('A security camera has seen you wearing a mask!');
                         security_cameras[i].becomeAlarmed(hero);
+                        
+                        
+                        //rotate cam to face hero:
+                        security_cameras[i].rotate_to(hero.x,hero.y);
                         
                         //set lastSeen for investigating hero
                         hero.setLastSeen();
@@ -1251,12 +1260,9 @@ function updateMessage(){
     }
     message.setText(textForMessage);
 };
-function alert_all_guards(){
-    for(var z = 0; z < guards.length; z++){
-        //alert the other living guards
-        if(guards[z].alive)guards[z].hearAlarm();
-    }
-    //spawn backup:
+function spawn_backup(){
+    newMessage("The police have arrived!");
+    
     for(var backup = 0; backup < numOfBackupGuards; backup++){
         setTimeout(function(){
             var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert));
@@ -1264,11 +1270,24 @@ function alert_all_guards(){
             newGuard.y = guard_backup_spawn.y;
             if(newGuard.alive)newGuard.hearAlarm();
             guards.push(newGuard);
-            newMessage("The police have arrived!");
         },1000*backup);//wait an extra second for each guard
     }
+}
+function alert_all_guards(){
+    for(var z = 0; z < guards.length; z++){
+        //alert the other living guards
+        if(guards[z].alive)guards[z].hearAlarm();
+    }
+    if(!backupCalled){
+        //this part cannot repeat in the same game
+        backupCalled = true;
+        //spawn backup:
+        //every 30 seconds, call another numOfBackupGuards guards.
+        spawn_backup();
+        setInterval(spawn_backup, 30000);
+        
+    }
     
-            //
 }
 function shoot_gun(){
     console.log('old method');
