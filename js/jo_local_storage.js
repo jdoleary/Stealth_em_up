@@ -8,27 +8,46 @@ Guards Shot
 Guards choked
 Time Played
 */
+function supports_html5_storage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
+}
+var storageEnabled = supports_html5_storage();
+console.log("Supports HTML5 Storage: " + storageEnabled);
 function jo_store(name,value){
-    if(localStorage[name]){
-        localStorage[name] = value;
-        console.log("localStorage: " + name + " is now " + value);
-    }else{
-        console.log("localStorage " + name + " not found.");
+    if(storageEnabled){
+        if(localStorage[name]){
+            localStorage[name] = value;
+            console.log("localStorage: " + name + " is now " + value);
+        }else{
+            console.log("localStorage " + name + " not found.");
+        }
     }
 }
 function jo_store_inc(name){
-    //increment
-    if(localStorage[name]){
-        localStorage[name]++;
-        console.log("localStorage: " + name + " is now " + localStorage[name]);
-    }else {
-            localStorage[name] = 1;
+
+    if(storageEnabled){
+        //increment
+        if(localStorage[name]){
+            localStorage[name]++;
+            console.log("localStorage: " + name + " is now " + localStorage[name]);
+        }else {
+                localStorage[name] = 1;
+        }
     }
 }
 function jo_store_get(name){
-    if(localStorage[name]){
-        return localStorage[name];
+
+    if(storageEnabled){
+        if(localStorage[name]){
+            return localStorage[name];
+        }else{
+            console.log("localStorage " + name + " not found.");
+        }
     }else{
-        console.log("localStorage " + name + " not found.");
+        return "HTML5 Storage Not Enabled";
     }
 }

@@ -91,6 +91,8 @@ Map / Game Object Setup
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////    
 
+var mapData;
+
 //grid/map
 var grid;
 
@@ -213,6 +215,11 @@ if(url_queryString["volume"]){
     volume_master = newVol;
     readjustVolumes();
 }
+
+var mapName;
+if(url_queryString["level"]){
+    mapName = url_queryString["level"];
+}
 windowSetup();
 
         
@@ -311,7 +318,15 @@ function startGame(){
     ///////////////////////
     ///////////////////////    
     //setup_map(map_diamond_store);
-    setup_map(map_bank_1);
+    
+    //store string references to maps here so that query string can choose maps:
+    mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
+    if(mapName){
+        setup_map(mapData[mapName]);
+    }else{
+        //if no map is in query string, default to bank 1
+        setup_map(map_bank_1);
+    }
 
     //camera/debug
     camera = new jo_cam(window_properties);

@@ -47,7 +47,7 @@ var map_diamond_store = {
         "hero":[1182,615],
         "guards":[[64*3+32,64*5],[64*16+32,64*6],[64*3+32,64*15]],
         "guard_backup_spawn":[31*64,1*64],
-        "security_cams":[[3*64,4*64],[5*64,21*64]],
+        "security_cams":[{"swivel_max":0,"swivel_min":Math.PI/2,"pos":[3*64,4*64]},{"swivel_max":0,"swivel_min":Math.PI/2,"pos":[5*64,21*64]}],
         "computer":[11*64+32,19*64+32],
         "van":[30.5*64,6*64],
         "loot":[12.5*64,7.5*64]

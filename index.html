@@ -25,7 +25,7 @@
             bottom:0px;
             height:104px;
             width:100%;
-            background:#3399FF;
+            background:#D06565;
         }
         /* Für ie6*/
         * html #footer{
@@ -53,16 +53,21 @@
             transition: all 0.3s;
         }
         .btn-1 {
-            border: 3px solid #fff;
-            color: #fff;
+            border: 3px solid #494B52;
+            color: #494B52;
         }
 
         /* Button 1a */
         .btn-1a:hover,
         .btn-1a:active {
-            color: #0e83cd;
-            background: #fff;
+            color: #D06565;
+            background: #494B52;
         }
+        
+        .levelSelect{
+            margin-bottom: 0px; 
+        }
+        
 
         
         #mc_embed_signup{background:#fff; font:14px Helvetica,Arial,sans-serif;  width:390px;}
@@ -124,10 +129,54 @@
         Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/<br></p></div>
 
     </div>
-    <div id="levelSelect">
-        level select
+    <div id="levelSelect" align="right">
+    
+        <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='/game.html?volume=1.0&level=diamondStore'">
+            <h1 class="levelSelect" align="center">Diamond Store</h1>
+            <table align="center">
+            <tr>
+                <td>
+                    <img src="icons/ghost.png" height="32" width="32">
+                </td>
+                <td>
+                    <img src="icons/peace.png" height="32" width="32">
+                </td>
+                <td>
+                    <img src="icons/flawless.png" height="32" width="32">
+                </td>
+                <td>
+                    <img src="icons/speedy.png" height="32" width="32">
+                </td>
+                <td>
+                    <img src="icons/ngu.png" height="32" width="32">
+                </td>
+            </tr>
+            </table>
+        </div>
+        <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='/game.html?volume=1.0&level=bank1'">
+            <h1 class="levelSelect" align="center">International Bank</h1>
+            <table align="center">
+            <tr>
+                <td>
+                    <img src="icons/ghost.png" height="32" width="32">
+                </td>
+                <td>
+                    <img src="icons/peace.png" height="32" width="32">
+                </td>
+                <td>
+                    <img src="icons/flawless.png" height="32" width="32">
+                </td>
+                <td>
+                    <img src="icons/speedy.png" height="32" width="32">
+                </td>
+                <td>
+                    <img src="icons/ngu.png" height="32" width="32">
+                </td>
+            </tr>
+            </table>
+        </div>
     </div>
-    <div id="achievements" align="right">
+    <div id="achievements" align="right">
         <div id="playerStats">
         </div>
         <table>
