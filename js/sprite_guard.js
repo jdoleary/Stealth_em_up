@@ -18,6 +18,11 @@ function sprite_guard_wrapper(pixiSprite){
             this.path = [];
             this.target = {x: null, y:null};                    
             alarmingObjects.push(this);//add body to alarming objects so if it is see they will sound alarm
+            
+            
+            //make sure the dead body sprite is on top of the blood trail and below other people
+            display_actors.removeChild(this.sprite);
+            display_effects.addChild(this.sprite);
                 
         }
         

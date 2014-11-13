@@ -20,7 +20,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             this.path = [];
             this.target = {x: null, y:null};
             
-            console.log('change hero texture to dead hero');
+            console.log('||||||||||||||||||||||||change hero texture to dead hero');
             this.sprite.setTexture(img_hero_dead);
             
             

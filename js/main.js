@@ -564,7 +564,7 @@ function gameloop(deltaTime){
     feet_clip.rad = hero.rad;
     
     if(grid.isTileRestricted_coords(hero.x,hero.y)){
-        useMask(true);
+        if(hero.alive)useMask(true);
     }
     
     //check collisions and prepare to draw walls:
@@ -1064,6 +1064,7 @@ function addKeyHandlers(){
                                     this.kill();
                                     //if space isn't still being held release body:
                                     if(!keys['space']){
+                                        console.log('space is no longer held, stop dragging');
                                         //drag is a toggle action so release current drag target.
                                         hero_drag_target.stop_dragging();
                                         hero_drag_target = null;
@@ -1166,7 +1167,7 @@ function addKeyHandlers(){
         }
         if(code == 16){
             keys['shift'] = false;
-            hero.speed = hero.speed_walk;
+            if(hero_drag_target==null)hero.speed = hero.speed_walk;
         }
         if(code == 32){
             keys['space'] = false;
@@ -1221,9 +1222,6 @@ function addKeyHandlers(){
                     makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
                     //make blood trail:
                     guards[i].blood_trail = [guards[i].x,guards[i].y];
-                    //make sure the dead body sprite is on top of the blood trail:
-                    display_actors.removeChild(guards[i].sprite);
-                    display_actors.addChild(guards[i].sprite);
                     
                     if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
                     
