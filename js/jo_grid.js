@@ -47,7 +47,7 @@ var map_diamond_store = {
         "hero":[1182,615],
         "guards":[[64*3+32,64*5],[64*16+32,64*6],[64*3+32,64*15]],
         "guard_backup_spawn":[31*64,1*64],
-        "security_cams":[{"swivel_max":0,"swivel_min":Math.PI/2,"pos":[3*64,4*64]},{"swivel_max":0,"swivel_min":Math.PI/2,"pos":[5*64,21*64]}],
+        "security_cams":[{"swivel_max":Math.PI/2,"swivel_min":0,"pos":[3*64,4*64]},{"swivel_max":Math.PI,"swivel_min":0,"pos":[5*64,21*64]}],
         "computer":[11*64+32,19*64+32],
         "van":[30.5*64,6*64],
         "loot":[12.5*64,7.5*64]
@@ -102,7 +102,7 @@ var map_bank_1 = {
         "hero":[64*16,64*37],
         "guards":[[64*32,64*27],[64*11,64*27],[64*23,64*18],[64*30,64*2],[64*15,64*7],[64*35,64*35]],
         "guard_backup_spawn":[35*64,30*64],
-        "security_cams":[{"swivel_max":0,"swivel_min":Math.PI/2,"pos":[64*34,64*19]},{"swivel_max":Math.PI,"swivel_min":Math.PI/2,"pos":[64*14,64*17]}],
+        "security_cams":[{"swivel_max":Math.PI,"swivel_min":Math.PI/2,"pos":[64*34,64*19]},{"swivel_max":2*Math.PI,"swivel_min":Math.PI/2,"pos":[64*14,64*17]}],
         "computer":[33*64+32,29*64+32],
         "van":[38*64,37*64],
         "loot":[29*64,2*64]

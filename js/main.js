@@ -990,6 +990,7 @@ Key Handlers
 */
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
+
 function addKeyHandlers(){
     console.log('add key handlers');
     window.onkeydown = function(e){
@@ -1189,18 +1190,7 @@ function addKeyHandlers(){
     window.addEventListener("mousewheel", mouseWheelHandler, false);
     // Firefox
     window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
-    function mouseWheelHandler(e){
-        // cross-browser wheel delta
-        var e = window.event || e; // old IE support
-        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-        
-        //limit amount that cam can zoom out
-        if(delta < 0 && zoom > 0.1){
-            zoom += delta * 0.05;
-        }else if (delta >0){
-            zoom += delta * 0.05;
-        }
-    }
+
     onmousedown = function(e){
         //you can only shoot if hero is masked
         if(hero.masked){
@@ -1252,13 +1242,25 @@ function addKeyHandlers(){
 
     }
 }
+function mouseWheelHandler(e){
+    // cross-browser wheel delta
+    var e = window.event || e; // old IE support
+    var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+    
+    //limit amount that cam can zoom out
+    if(delta < 0 && zoom > 0.1){
+        zoom += delta * 0.05;
+    }else if (delta >0){
+        zoom += delta * 0.05;
+    }
+}
 function removeKeyHandlers(){
     console.log('remove key handlers');
     keys = {w: false, a: false, s: false, d: false, v: false, space:false, shift:false};
     window.onkeydown = null;
     window.onkeyup = null;
-    window.removeEventListener("mousewheel");
-    window.removeEventListener("DOMMouseScroll");
+    window.removeEventListener("mousewheel",mouseWheelHandler);
+    window.removeEventListener("DOMMouseScroll",mouseWheelHandler);
     onmousedown = null;
 }
 ////////////////////////////////////////////////////////////

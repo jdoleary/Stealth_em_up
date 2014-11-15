@@ -1,6 +1,7 @@
 
 function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
 function jo_security_camera(x,y,maxswivel,minswivel){
+
     this.x = x;
     this.y = y;
     this.radius = 14;
@@ -20,11 +21,7 @@ function jo_security_camera(x,y,maxswivel,minswivel){
     this.rad = this.min;//set rotation to min swivel
     
     /*
-    This is the range of motion of rotation:
-    
-    -Math.PI   
-            +     0
-     Math.PI
+    The range of motion of rotation is 0 - 360
     
     */
     this.swivel = function(){
@@ -33,8 +30,8 @@ function jo_security_camera(x,y,maxswivel,minswivel){
         
             if(this.increasing){
                 this.rotation += this.speed;
-                //allows rotation to loop around from PI to -PI
-                if(this.rotation > Math.PI)this.rotation = -Math.PI;
+                //allows rotation to loop around from 360deg to 0
+                if(this.rotation > 2*Math.PI)this.rotation = 0;
                 //reached limit, wait, then loop back
                 if(Math.abs(this.rotation-this.max) <= 0.05){
                     this.wait_checker = new Date();
@@ -42,8 +39,8 @@ function jo_security_camera(x,y,maxswivel,minswivel){
                 }
             }else{
                 this.rotation -= this.speed;
-                //allows rotation to loop around from -PI to PI
-                if(this.rotation < -Math.PI)this.rotation = Math.PI;
+                //allows rotation to loop around from 0 to 360deg
+                if(this.rotation < 0)this.rotation = 2*Math.PI;
                 //reached limit, wait, then loop back
                 if(Math.abs(this.rotation-this.min) <= 0.05){
                     this.wait_checker = new Date();
