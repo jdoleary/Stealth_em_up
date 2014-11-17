@@ -126,12 +126,116 @@
 
     <div id="startScreen" align="right">
         
-        <div><button type="button" class="btn btn-1 btn-1a" onclick="location.href='/game.html?volume=1.0'">Start Game</button></div>
-        <div><button type="button" class="btn btn-1 btn-1a" onclick="location.href='/game.html?volume=0.0'">Start Game (Muted)</button></div>
+        <div><button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Start Game</button></div>
+        <!--<div><button type="button" class="btn btn-1 btn-1a" onclick="location.href='/game.html?volume=0.0'">Start Game (Muted)</button></div>-->
+
         
-        <div><video autoplay loop muted width="400" height="300">
+        <table>
+        <tr>
+            <td>
+            <b>Controls:</b>
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr></tr>
+        <tr>
+            <td>
+            Movement:
+            </td>
+            <td>
+            W A S D
+            </td>
+        </tr>
+        <tr>
+            <td>
+            Put On Mask:
+            </td>
+            <td>
+            Hold V
+            </td>
+        </tr>
+        <tr>
+            
+            <td>
+            Shoot (While Mask Is On):  
+            </td>
+            <td>
+            Left Click
+            </td>
+        </tr>
+        <tr>
+            <td>
+            Lock-pick Door:
+            </td>
+            <td>
+            Hold Space
+            </td>
+        </tr>
+        <tr>
+            <td>
+            Interact:
+            </td>
+            <td>
+            Space
+            </td>
+        </tr>
+        <tr>
+            <td>
+            Drag Body:
+            </td>
+            <td>
+            Hold Space
+            </td>
+        </tr>
+        <tr>
+            <td>
+            Zoom:
+            </td>
+            <td>
+            Mouse Wheel
+            </td>
+        </tr>
+        <tr>
+            <td>
+            Choke Out Guard:
+            </td>
+            <td>
+            Space
+            </td>
+        </tr>
+        
+        </table>
+        <br><br><br>
+        <table>
+        <tr>
+            <td>
+            -Grey Tiles are restricted and your mask <br>will automatically be put on when you<br> enter a restricted tile.
+            </td>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+            <td>
+            -Brown Tiles are tables.  Enemies can <br>shoot and see past them, but cannot <br>move past them.
+            </td>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+            <td>
+            -Black Tiles are walls.
+            </td>
+        </tr>
+        </table>
+
+        <!---<div><video autoplay loop muted width="400" height="300">
             <source src="test.webm" type='video/webm; codecs="vp8, vorbis"'>
-        </video></div>
+        </video></div>-->
  
 
     </div>
