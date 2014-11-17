@@ -4,7 +4,6 @@ var img_tile_black = "tile_black.png";
 var img_tile_white = "tile_white.png";
 var img_tile_brown = "tile_brown.png";
 var img_tile_red = "tile_red.png";
-var img_tile_purple = "tile_door.png";
 
 function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     /*
@@ -47,10 +46,8 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
             break;
         case 3:
-            var sprite = new PIXI.Sprite.fromImage(img_tile_red);
-            break;
         case 4:
-            var sprite = new PIXI.Sprite.fromImage(img_tile_purple);
+            var sprite = new PIXI.Sprite.fromImage(img_tile_red);
             break;
             
     }

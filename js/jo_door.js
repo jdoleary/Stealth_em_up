@@ -30,6 +30,9 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
                 play_sound(sound_door_open);
                 this.rad = this.rotOpen;
                 this.relatedDoorWall.openDoor();//for changing "solidness" and line of sight
+                
+                //change color:
+                this.sprite.setTexture(img_door_open);
             }
         
         }
@@ -40,10 +43,16 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
                 this.rad = this.rotClosed;
                 this.relatedDoorWall.closeDoor();//for changing "solidness" and line of sight
             }
+            
+            
+                //change color: (unlocked doors stay green)
+                if(!this.unlocked)this.sprite.setTexture(img_door_closed);
         
         }
         this.unlock = function(){
             this.unlocked = true;
+            //change color:
+            this.sprite.setTexture(img_door_open);
         }
    
 

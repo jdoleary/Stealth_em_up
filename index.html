@@ -79,29 +79,35 @@
 	<script src="../../bin/pixi.dev.js"></script>
 	
 </head>
-    <body>
+    <script>
+    
+        function finishedloading(text){
+            console.log('Finished loading: ' + text);
+        }
+    </script>
+    <body onload="finishedloading('body');">
     <div id="canvas_holder"></div>
-    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="js/menu_button_manager.js"></script>
-    <script src="js/jo_debug.js"></script>
-    <script src="js/jo_door.js"></script>
-    <script src="js/jo_math.js"></script>
-	<script src="js/jo_sprite.js"></script>
-	<script src="js/jo_cam.js"></script>
-	<script src="js/jo_utility.js"></script>
-	<script src="js/jo_wall.js"></script>
-	<script src="js/jo_grid.js"></script>
-	<script src="js/astar.js"></script>
-	<script src="js/Stats.js"></script>
-	<script src="js/jo_raycast.js"></script>
-	<script src="js/jo_security_camera.js"></script>
-	<script src="js/sprite_hero.js"></script>
-	<script src="js/sprite_guard.js"></script>
-	<script src="js/sprite_civ.js"></script>
-    <script src="js/jo_movie_clip.js"></script>
-    <script src="js/sound_manager.js"></script>
-    <script src="js/jo_progress_bar.js"></script>
-    <script src="js/jo_local_storage.js"></script>
+    <script onload="finishedloading('script1');" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script onload="finishedloading('script2');" src="js/menu_button_manager.js"></script>
+    <script onload="finishedloading('script3');" src="js/jo_debug.js"></script>
+    <script onload="finishedloading('script4');" src="js/jo_door.js"></script>
+    <script onload="finishedloading('script5');" src="js/jo_math.js"></script>
+	<script onload="finishedloading('script6');" src="js/jo_sprite.js"></script>
+	<script onload="finishedloading('script7');" src="js/jo_cam.js"></script>
+	<script onload="finishedloading('script8');" src="js/jo_utility.js"></script>
+	<script onload="finishedloading('script9');" src="js/jo_wall.js"></script>
+	<script onload="finishedloading('script10');" src="js/jo_grid.js"></script>
+	<script onload="finishedloading('script11');" src="js/astar.js"></script>
+	<script onload="finishedloading('script12');" src="js/Stats.js"></script>
+	<script onload="finishedloading('script13');" src="js/jo_raycast.js"></script>
+	<script onload="finishedloading('script14');" src="js/jo_security_camera.js"></script>
+	<script onload="finishedloading('script15');" src="js/sprite_hero.js"></script>
+	<script onload="finishedloading('script16');" src="js/sprite_guard.js"></script>
+	<script onload="finishedloading('script17');" src="js/sprite_civ.js"></script>
+    <script onload="finishedloading('script18');" src="js/jo_movie_clip.js"></script>
+    <script onload="finishedloading('script19');" src="js/sound_manager.js"></script>
+    <script onload="finishedloading('script20');" src="js/jo_progress_bar.js"></script>
+    <script onload="finishedloading('script21');" src="js/jo_local_storage.js"></script>
     <!--  EVERYTHING ABOVE IS FOR PRELOADING ^^ <script src="js/main.js"></script>-->
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -123,59 +129,16 @@
         <div><video autoplay loop muted width="400" height="300">
             <source src="test.webm" type='video/webm; codecs="vp8, vorbis"'>
         </video></div>
-        <div><p>Credits: <br> 
-        Music: "Hidden Agenda" Kevin MacLeod (incompetech.com)<br>
-        Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/<br>
-<br>
-        "Volatile Reaction" Kevin MacLeod (incompetech.com)<br>
-        Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/<br></p></div>
+ 
 
     </div>
     <div id="levelSelect" align="right">
     
         <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='/game.html?volume=1.0&level=diamondStore'">
             <h1 class="levelSelect" align="center">Diamond Store</h1>
-            <table align="center">
-            <tr>
-                <td>
-                    <img src="icons/ghost.png" height="32" width="32">
-                </td>
-                <td>
-                    <img src="icons/peace.png" height="32" width="32">
-                </td>
-                <td>
-                    <img src="icons/flawless.png" height="32" width="32">
-                </td>
-                <td>
-                    <img src="icons/speedy.png" height="32" width="32">
-                </td>
-                <td>
-                    <img src="icons/ngu.png" height="32" width="32">
-                </td>
-            </tr>
-            </table>
         </div>
         <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='/game.html?volume=1.0&level=bank1'">
             <h1 class="levelSelect" align="center">International Bank</h1>
-            <table align="center">
-            <tr>
-                <td>
-                    <img src="icons/ghost.png" height="32" width="32">
-                </td>
-                <td>
-                    <img src="icons/peace.png" height="32" width="32">
-                </td>
-                <td>
-                    <img src="icons/flawless.png" height="32" width="32">
-                </td>
-                <td>
-                    <img src="icons/speedy.png" height="32" width="32">
-                </td>
-                <td>
-                    <img src="icons/ngu.png" height="32" width="32">
-                </td>
-            </tr>
-            </table>
         </div>
     </div>
     <div id="achievements" align="right">
@@ -247,6 +210,13 @@
         </div>
 
         <!--End mc_embed_signup-->
+       <div><p>Credits: <br> 
+            Music: "Hidden Agenda" Kevin MacLeod (incompetech.com)<br>
+            Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/<br>
+            <br>
+            "Volatile Reaction" Kevin MacLeod (incompetech.com)<br>
+            Licensed under Creative Commons: By Attribution 3.0 http://creativecommons.org/licenses/by/3.0/<br></p>
+        </div>
     </div>
     <div id="feedback" align="right">
         <iframe src="https://docs.google.com/forms/d/1g9iHmcgLgr4Ob_XtQXY8P5cIKpV4QaSOcXAFXrAADvs/viewform?embedded=true" width="760" height="1000" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>

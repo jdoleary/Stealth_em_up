@@ -274,7 +274,7 @@ function jo_grid(map){
      //private
     this.make_door = function(door, horizontal){
             this.doors.push(door);
-            var door_sprite = new sprite_door_wrapper(new PIXI.Sprite(img_door),horizontal,door,display_actors);
+            var door_sprite = new sprite_door_wrapper(new PIXI.Sprite(img_door_closed),horizontal,door,display_actors);
             //+= because door sprites have an offest calculated in the constructor
             door_sprite.x += door.x;
             door_sprite.y += door.y;

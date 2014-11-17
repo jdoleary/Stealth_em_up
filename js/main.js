@@ -121,7 +121,9 @@ var img_civilian = PIXI.Texture.fromImage("civ.png");
 var img_origin = PIXI.Texture.fromImage("origin.png");
 var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
 var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
-var img_door = PIXI.Texture.fromImage("door.png");
+var img_door_open = PIXI.Texture.fromImage("door_open.png");
+var img_door_closed = PIXI.Texture.fromImage("door_closed.png");
+
 
 //new images:
 var img_hero_dead   = PIXI.Texture.fromImage("hero_dead.png");
@@ -1040,7 +1042,7 @@ function addKeyHandlers(){
                             hero_drag_target.speed = hero.speed;
                             hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                             return;
-                        }else if(hero.masked && !guards[i].alarmed){
+                        }else if(hero.masked){
                             //hero is choking out a live guard who is not already alarmed:
                             newMessage('You are choking out a guard!');
                             play_sound(sound_guard_choke);
