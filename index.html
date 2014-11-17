@@ -87,6 +87,19 @@
         function finishedloading(text){
             console.log('Finished loading: ' + text);
         }
+        
+        function getUrlVars()
+        {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for(var i = 0; i < hashes.length; i++)
+            {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        }
     </script>
     <body onload="finishedloading('body');">
     <div id="canvas_holder"></div>
@@ -357,6 +370,7 @@
             $("#playerStats").append("<br>Guards Choked: " + guardsChoked);
         }
         function showMenuScreen(id){
+            window.history.pushState("object or string", "Title", "/?m=" + id);
         
             $("#startScreen").hide();
             $("#levelSelect").hide();
@@ -376,8 +390,17 @@
             $("#button_"+id).addClass("currentMenuItem");
         
         }
-        //start out only showing startscreen
-        showMenuScreen("startScreen");
+        
+        var url_queryString = getUrlVars();
+        if(url_queryString["m"]){
+            var menuItem = url_queryString["m"];
+            console.log('menu: ' + menuItem.substr(menuItem.length -1));
+            if(menuItem.substr(menuItem.length -1) == "/")menuItem = menuItem.slice(0,-1);
+            showMenuScreen(menuItem);
+        }else{
+            //start out only showing startscreen
+            showMenuScreen("startScreen");
+        }
     </script>
 	</body>
 </html>

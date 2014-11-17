@@ -1133,7 +1133,7 @@ function addKeyHandlers(){
                             //deposite money in car:
                             newMessage("The money is safe!");
                             //add button for win condition
-                            addButton("Menu",window.innerWidth/2,window.innerHeight/2,startMenu);
+                            addButton("Level Select",window.innerWidth/2,window.innerHeight/2,function(){location.href='/?m=levelSelect';});
                             
                             
                             //add to stats:
