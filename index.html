@@ -25,9 +25,9 @@
             position:fixed;
             left:0px;
             bottom:0px;
-            height:104px;
+            /*height:104px;*/
             width:100%;
-            background:#D06565;
+            background:#afbcec;
         }
         /* Für ie6*/
         * html #footer{
@@ -43,6 +43,8 @@
             background: none;
             cursor: pointer;
             padding: 25px 32px;
+            /*width: 15%;
+            height: 80%;*/
             display: inline-block;
             margin: 15px 8px;
             text-transform: uppercase;
@@ -55,15 +57,16 @@
             transition: all 0.3s;
         }
         .btn-1 {
-            border: 3px solid #494B52;
-            color: #494B52;
+            border: 3px solid #4c5267;
+            color: #4c5267;
         }
 
         /* Button 1a */
+        .currentMenuItem,
         .btn-1a:hover,
         .btn-1a:active {
-            color: #D06565;
-            background: #494B52;
+            color: #afbcec;
+            background: #4c5267;
         }
         
         .levelSelect{
@@ -142,9 +145,15 @@
         </div>
     </div>
     <div id="achievements" align="right">
-        <div id="playerStats">
-        </div>
+        
         <table>
+        <tr>
+            <td>
+                <div id="playerStats"></div>
+            </td>
+            <td>
+            </td>
+        </tr>
         <tr>
             <td>
                 <p><b>Ghost</b> <br> Never Seen</p>
@@ -223,11 +232,11 @@
     </div>
     
     <div id="footer" align="center">
-        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('startScreen');">Start Screen</button>
-        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Level Select</button>
-        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('achievements');updateStats();">Achievements</button>
-        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('mailingList');">Join Mailing List</button>
-        <button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('feedback');">Leave Feedback</button>
+        <button id="button_startScreen" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('startScreen');">Start Screen</button>
+        <button id="button_levelSelect" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Level Select</button>
+        <button id="button_achievements" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('achievements');updateStats();">Achievements</button>
+        <button id="button_mailingList" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('mailingList');">Join Mailing List</button>
+        <button id="button_feedback" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('feedback');">Leave Feedback</button>
     
     </div>
     <script>
@@ -237,13 +246,14 @@
             var guardsShot = jo_store_get("guardsShot");
             var guardsChoked = jo_store_get("guardsChoked");
             $("#playerStats").empty();
-            $("#playerStats").append("Statistics");
+            $("#playerStats").append("<b>Statistics<b>");
             $("#playerStats").append("<br>Wins: " + wins);
             $("#playerStats").append("<br>Loses: " + loses);
             $("#playerStats").append("<br>Guards Shot: " + guardsShot);
             $("#playerStats").append("<br>Guards Choked: " + guardsChoked);
         }
         function showMenuScreen(id){
+        
             $("#startScreen").hide();
             $("#levelSelect").hide();
             $("#achievements").hide();
@@ -251,6 +261,15 @@
             $("#feedback").hide();
             
             $("#"+id).show();
+            
+            //set no buttons to currentMenuItem
+            $("#button_startScreen").removeClass("currentMenuItem");
+            $("#button_levelSelect").removeClass("currentMenuItem");
+            $("#button_achievements").removeClass("currentMenuItem");
+            $("#button_mailingList").removeClass("currentMenuItem");
+            $("#button_feedback").removeClass("currentMenuItem");
+            //Set the currentMenuItem
+            $("#button_"+id).addClass("currentMenuItem");
         
         }
         //start out only showing startscreen
