@@ -1,6 +1,7 @@
 var volume_master = 0.0;
 console.log("Master Volume: " + volume_master);
 
+var sound_dry_fire = new Audio("sound/dryfiregun.wav");
 var sound_gun_shot = new Audio("sound/gun_shot.mp3");
 
 var sound_gun_shots = {"index": 0,"array":[]};

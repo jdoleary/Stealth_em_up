@@ -133,7 +133,8 @@ var img_guard_dead  = PIXI.Texture.fromImage("guard_dead.png");
 var img_guard_choke = PIXI.Texture.fromImage("guard_choke.png");
 var img_guard_drag  = PIXI.Texture.fromImage("guard_dragging.png");
 
-
+//ammo
+var ammo;
 
 //blood_drawer:
 var blood_holder;
@@ -168,6 +169,7 @@ var alarmingObjects;//guards will sound alarm if they see an alarming object (de
 //UI text.  Use newMessage() to add a message.
 var message;
 var messageText;
+var messageGameOver;
 
 //Tooltip text:
 var tooltip;
@@ -245,9 +247,9 @@ function clearStage(){
         window.clearTimeout(id); // will do nothing if no timeout with id is present
     }
 
-    //removekeyhandlers:
+    //removeHandlers:
     console.log('clear stage');
-    removeKeyHandlers();
+    removeHandlers();
     //remove all children:
     removeAllChildren(display_tiles);
     removeAllChildren(display_blood);
@@ -336,6 +338,7 @@ function startGame(){
     test_cone = new debug_line();
     hero_cir = new debug_circle();
 
+    ammo = 6;
 
     //blood_drawer:
     blood_holder = new PIXI.Sprite(img_origin);
@@ -357,6 +360,11 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             messageText = [];
             stage.addChild(message);
             
+            messageGameOver = new PIXI.Text("", { font: "30px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 2 });
+            messageGameOver.position.x = window_properties.width/2;
+            messageGameOver.position.y = window_properties.height/2;
+            messageGameOver.anchor.x = 0.5;
+            stage.addChild(messageGameOver);
             
             //Tooltip text: todo test
             tooltip = new PIXI.Text("Tooltip", { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 2 });
@@ -698,11 +706,10 @@ function gameloop(deltaTime){
                                 hero.kill();
                                 //make blood splatter:
                                 makeBloodSplatter(hero.x,hero.y,guards[i].x,guards[i].y);
-                                newMessage("THEY KILLED YOU!!!!!");
                                 //remove key handlers so hero can no longer move around
                                 console.log('you died');
-                                removeKeyHandlers();
-                                
+                                messageGameOver.setText('Press [Esc] to restart!');
+                                removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
                                 //add to stats:
                                 jo_store_inc("loses");
 
@@ -836,6 +843,39 @@ function gameloop(deltaTime){
     for(var i = 0; i < loot.length; i++){
         loot[i].prepare_for_draw();
     }
+    
+    //pickup loot if close enough
+    if(!hero.carry){
+        //check if hero is close enough to the loot to pick it up
+        for(var i = 0; i < loot.length; i++){
+            if(get_distance(hero.x,hero.y,loot[i].x,loot[i] .y) <= hero.radius*2){
+                hero.carry = loot[i];
+                loot[i].sprite.visible = false;
+                hero.sprite.setTexture(img_hero_with_money);
+                newMessage("You've got the money!  Get it to the escape vehicle!");
+                break;
+            }
+        }
+        
+    //check distance between the loot-carrying hero and the escape van, if he is close enough, deposit the loot.
+    }else{
+        //console.log("ggg: " + getawaycar.radius*5 + " " + get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y));
+        if(get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y) <= getawaycar.radius*5){
+            //deposite money in car:
+            newMessage("The money is safe!");
+            //add button for win condition
+            addButton("Level Select",window.innerWidth/2,window.innerHeight/2,function(){location.href='/?m=levelSelect';});
+            
+            
+            //add to stats:
+            jo_store_inc("wins");
+            
+            
+            hero.carry = null;
+            hero.sprite.setTexture(img_masked);
+            
+        }
+    }
 
      //////////////////////
     //Doors
@@ -865,7 +905,7 @@ function gameloop(deltaTime){
             
             
             //if hero is near a door and masked, show tooltip to open door
-            if(hero.masked){
+            if(hero.masked && hero.alive){
                 tooltip.visible = true;
                 tooltipshown = true;
                 tooltip.setText("[Space]");
@@ -887,7 +927,7 @@ function gameloop(deltaTime){
     //////////////////////
     //show tooltip if hero is close enough to drag a guard:
     for(var i = 0; i < guards.length; i++){
-        if(hero.masked && guards[i].alive  && !guards[i].being_choked_out && get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
+        if(hero.masked && hero.alive && guards[i].alive  && !guards[i].being_choked_out && get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
             tooltip.visible = true;
             tooltipshown = true;
             tooltip.setText("[Space]");
@@ -999,160 +1039,128 @@ function addKeyHandlers(){
         //this function is called every frame that said key is down
         var code = e.keyCode ? e.keyCode : e.which;
         //keyinfo[code] = String.fromCharCode(code);
-        if(code == 87){keys['w'] = true;}
-        if(code == 65){keys['a'] = true;}
-        if(code == 83){keys['s'] = true;}
-        if(code == 68){keys['d'] = true;}
-        if(code == 86){
-            // !keys['v'] makes it so that it will only be called once for a single press of the letter
-            if(!keys['v']){
-                if(hero.carry || grid.isTileRestricted_coords(hero.x,hero.y)){
-                    newMessage("You cannot remove your mask while in a restricted area, or while carrying loot!");
-                }else{
-                    //hero cannot remove mask while carrying loot
-                    circProgBar.heroMaskProg(2000,useMask,!hero.masked);
+        if(hero.alive){
+            if(code == 87){keys['w'] = true;}
+            if(code == 65){keys['a'] = true;}
+            if(code == 83){keys['s'] = true;}
+            if(code == 68){keys['d'] = true;}
+            if(code == 86){
+                // !keys['v'] makes it so that it will only be called once for a single press of the letter
+                if(!keys['v']){
+                    if(hero.carry || grid.isTileRestricted_coords(hero.x,hero.y)){
+                        newMessage("You cannot remove your mask while in a restricted area, or while carrying loot!");
+                    }else{
+                        //hero cannot remove mask while carrying loot
+                        circProgBar.heroMaskProg(2000,useMask,!hero.masked);
+                    }
                 }
+                keys['v'] = true;
             }
-            keys['v'] = true;
+            if(code == 16){
+                keys['shift'] = true;
+                //cannot sprint while dragging something
+                if(!hero_drag_target){
+                    hero.speed = hero.speed_sprint;
+                }
+            
+            }
+            if(code == 32){
+                keys['space'] = true;
+                if(!hero_drag_target){
+                    if(!grid.a_door_is_being_unlocked){
+                            //lockpick door:
+                        
+                        if(hero.masked){
+                        //hero must be masked to lockpick:
+                            for(var i = 0; i < grid.doors.length; i++){
+                                if(grid.doors[i].solid && get_distance(hero.x,hero.y,grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2) <= hero.radius*5){
+                                    //if door isn't solid, then it is already unlocked.
+                                    grid.a_door_is_being_unlocked = true;
+                                    
+                                    //timer
+                                    var unlockTimeRemaining = 5000;
+                                    circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
+                                    
+                                    return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
+                                }
+                            }
+                        }
+                        //check if any dead guards are close enough to be dragged.
+                        for(var i = 0; i < guards.length; i++){
+                            if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
+                                if(!guards[i].alive){
+                                    //hero is dragging a dead body
+                                    
+                                    //slow down hero speed because he just started dragging something.
+                                    hero.speed = hero.speed/2;
+                                    hero_drag_target = guards[i];
+                                    hero_drag_target.speed = hero.speed;
+                                    hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                                    return;
+                                }else if(hero.masked){
+                                    //hero is choking out a live guard who is not already alarmed:
+                                    newMessage('You are choking out a guard!');
+                                    play_sound(sound_guard_choke);
+                                            
+                                            
+                                    //add to stats:
+                                    jo_store_inc("guardsChoked");
+                                    
+                                    guards[i].moving = true;
+                                    guards[i].path = [];
+                                    guards[i].target = {x: null, y:null}; 
+                                    guards[i].being_choked_out = true;
+                                    //slow down hero speed because he just started dragging something.
+                                    hero.speed = hero.speed_walk/2;
+                                    hero_drag_target = guards[i];
+                                    hero_drag_target.speed = hero.speed;
+                                    hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                                    setTimeout(function(){
+                                        //check that the guard is still being choked out, if not, he's not dead so don't kill() him
+                                        if(hero_drag_target == this){
+                                            newMessage('The guard is dispached!');
+                                            this.kill();
+                                            //if space isn't still being held release body:
+                                            if(!keys['space']){
+                                                console.log('space is no longer held, stop dragging');
+                                                //drag is a toggle action so release current drag target.
+                                                hero_drag_target.stop_dragging();
+                                                hero_drag_target = null;
+                                                //bring hero speed back to normal
+                                                hero.speed = hero.speed_walk;
+                                            }
+                                        }
+                                    }.bind(guards[i]), 3000);
+                                    return;
+                                }
+
+                            }
+                            
+                                
+                            
+                        }
+                        //note: dragging guards takes precedence over all the following actions.
+                        
+                        //check if hero is close enough to the security camera computer to disable cameras:
+                        if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
+                            cameras_disabled = true;
+                            newMessage('All security cameras have been disabled!');
+                            computer_for_security_cameras.sprite.setTexture(img_computer_off);
+                            for(var i = 0; i < security_cameras.length; i++){
+                                security_cameras[i].sprite.setTexture(img_cam_off);
+                            
+                            }
+                        }
+                    }
+                    
+                }
+                
+            }
         }
-        if(code == 16){
-            keys['shift'] = true;
-            //cannot sprint while dragging something
-            if(!hero_drag_target){
-                hero.speed = hero.speed_sprint;
-            }
         
-        }
         if(code == 27){
             //esc
             startMenu();
-        }
-        if(code == 32){
-            keys['space'] = true;
-            if(!hero_drag_target){
-                //check if any dead guards are close enough to be dragged.
-                for(var i = 0; i < guards.length; i++){
-                    if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
-                        if(!guards[i].alive){
-                            //hero is dragging a dead body
-                            
-                            //slow down hero speed because he just started dragging something.
-                            hero.speed = hero.speed/2;
-                            hero_drag_target = guards[i];
-                            hero_drag_target.speed = hero.speed;
-                            hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                            return;
-                        }else if(hero.masked){
-                            //hero is choking out a live guard who is not already alarmed:
-                            newMessage('You are choking out a guard!');
-                            play_sound(sound_guard_choke);
-                                    
-                                    
-                            //add to stats:
-                            jo_store_inc("guardsChoked");
-                            
-                            guards[i].moving = true;
-                            guards[i].path = [];
-                            guards[i].target = {x: null, y:null}; 
-                            guards[i].being_choked_out = true;
-                            //slow down hero speed because he just started dragging something.
-                            hero.speed = hero.speed_walk/2;
-                            hero_drag_target = guards[i];
-                            hero_drag_target.speed = hero.speed;
-                            hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                            setTimeout(function(){
-                                //check that the guard is still being choked out, if not, he's not dead so don't kill() him
-                                if(hero_drag_target == this){
-                                    newMessage('The guard is dispached!');
-                                    this.kill();
-                                    //if space isn't still being held release body:
-                                    if(!keys['space']){
-                                        console.log('space is no longer held, stop dragging');
-                                        //drag is a toggle action so release current drag target.
-                                        hero_drag_target.stop_dragging();
-                                        hero_drag_target = null;
-                                        //bring hero speed back to normal
-                                        hero.speed = hero.speed_walk;
-                                    }
-                                }
-                            }.bind(guards[i]), 3000);
-                            return;
-                        }
-
-                    }
-                    
-                        
-                    
-                }
-                //note: dragging guards takes precedence over all the following actions.
-                
-                //check if hero is close enough to the security camera computer to disable cameras:
-                if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
-                    cameras_disabled = true;
-                    newMessage('All security cameras have been disabled!');
-                    computer_for_security_cameras.sprite.setTexture(img_computer_off);
-                    for(var i = 0; i < security_cameras.length; i++){
-                        security_cameras[i].sprite.setTexture(img_cam_off);
-                    
-                    }
-                }
-                if(hero.masked){
-                    //hero must be masked to lockpick:
-                    if(!grid.a_door_is_being_unlocked){
-                        for(var i = 0; i < grid.doors.length; i++){
-                            if(grid.doors[i].solid && get_distance(hero.x,hero.y,grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2) <= hero.radius*5){
-                                //if door isn't solid, then it is already unlocked.
-                                grid.a_door_is_being_unlocked = true;
-                                
-                                //timer
-                                var unlockTimeRemaining = 5000;
-                                circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
-                                
-                                return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
-                            }
-                        }
-                    }
-                    //hero must be masked to interact with loot
-                    if(!hero.carry){
-                        //check if hero is close enough to the loot to pick it up
-                        for(var i = 0; i < loot.length; i++){
-                            if(get_distance(hero.x,hero.y,loot[i].x,loot[i] .y) <= hero.radius*2){
-                                hero.carry = loot[i];
-                                loot[i].sprite.visible = false;
-                                hero.sprite.setTexture(img_hero_with_money);
-                                newMessage("You've got the money!  Get it to the escape vehicle!");
-                                break;
-                            }
-                        }
-                        
-                    //hero is already carring loot, drop it
-                    }else if(!grid.a_door_is_being_unlocked){
-                        console.log("ggg: " + getawaycar.radius*5 + " " + get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y));
-                        //Note on if statement: unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
-                        if(get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y) <= getawaycar.radius*5){
-                            //deposite money in car:
-                            newMessage("The money is safe!");
-                            //add button for win condition
-                            addButton("Level Select",window.innerWidth/2,window.innerHeight/2,function(){location.href='/?m=levelSelect';});
-                            
-                            
-                            //add to stats:
-                            jo_store_inc("wins");
-                            
-                        }else{
-                            //just drop money:
-                            hero.carry.sprite.visible = true;
-                            hero.carry.x = hero.x;
-                            hero.carry.y = hero.y;
-                        }
-                        hero.carry = null;
-                        hero.sprite.setTexture(img_masked);
-                    }
-                    
-                    
-                }
-            }
-            
         }
         
         hero_move_animation_check();
@@ -1195,7 +1203,9 @@ function addKeyHandlers(){
 
     onmousedown = function(e){
         //you can only shoot if hero is masked
-        if(hero.masked){
+        if(hero.masked && ammo > 0){
+            ammo--;
+        
             doGunShotEffects(hero, true);//plays sound and shows affects
             
             //toggles on the visiblity of .draw_gun_shot's line
@@ -1241,6 +1251,7 @@ function addKeyHandlers(){
             
             }
         }
+        if(ammo<=0)play_sound(sound_dry_fire);
 
     }
 }
@@ -1256,11 +1267,13 @@ function mouseWheelHandler(e){
         zoom += delta * 0.05;
     }
 }
-function removeKeyHandlers(){
+function removeHandlers(excludeKeyHandlers){
     console.log('remove key handlers');
     keys = {w: false, a: false, s: false, d: false, v: false, space:false, shift:false};
-    window.onkeydown = null;
-    window.onkeyup = null;
+    
+    //if excludeKeyDown is true, don't remove the onkeydown and onkeyup listeners
+    if(!excludeKeyHandlers)window.onkeydown = null;
+    if(!excludeKeyHandlers)window.onkeyup = null;
     window.removeEventListener("mousewheel",mouseWheelHandler);
     window.removeEventListener("DOMMouseScroll",mouseWheelHandler);
     onmousedown = null;
@@ -1310,9 +1323,7 @@ function alert_all_guards(){
         //this part cannot repeat in the same game
         backupCalled = true;
         //spawn backup:
-        //every 30 seconds, call another numOfBackupGuards guards.
         spawn_backup();
-        setInterval(spawn_backup, 30000);
         
     }
     
