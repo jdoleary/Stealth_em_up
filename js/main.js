@@ -342,7 +342,7 @@ function startGame(){
     test_cone = new debug_line();
     hero_cir = new debug_circle();
 
-    ammo = 60;
+    ammo = 6;
 
     //make a new bullet with: new jo_sprite(new PIXI.Sprite(img_bullet));
     bullets = [];

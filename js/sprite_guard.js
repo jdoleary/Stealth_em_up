@@ -83,7 +83,7 @@ function sprite_guard_wrapper(pixiSprite){
             setTimeout(function(){
                 //allow sprite to shoot again.
                 this.can_shoot = true;
-            }.bind(this),this.shoot_speed/2);
+            }.bind(this),this.shoot_speed);
             
         };
         

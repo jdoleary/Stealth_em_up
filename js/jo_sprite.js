@@ -42,7 +42,9 @@ function jo_sprite(pixiSprite, parent){
         bullets.push(bullet);
         
         //end make bullet
-    
+        
+        
+        this.rotate_to_instant(bullet.target.x,bullet.target.y);
         //shows gun_shot_line
         //this.gun_shot_line.graphics.visible = true;
         this.can_shoot = false; //so the guards don't shoot way too fast
