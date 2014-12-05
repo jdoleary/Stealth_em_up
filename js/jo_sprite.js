@@ -31,7 +31,8 @@ function jo_sprite(pixiSprite, parent){
     
     this.shoot = function(){
         //make bullet (all assets in main.js):
-        var bullet = new jo_sprite(new PIXI.Sprite(img_bullet))
+        var bullet = new jo_sprite(new PIXI.Sprite(img_bullet));
+        bullet.ignore = this;//don't kill the shooter with own bullet
         bullet.x = this.x;
         bullet.y = this.y;
         bullet.target = getRaycastPoint(this.x,this.y,this.aim.end.x,this.aim.end.y);
@@ -50,10 +51,10 @@ function jo_sprite(pixiSprite, parent){
             this.can_shoot = true;
         }.bind(this),this.shoot_speed);
         //toggle gun_shot_line visibility.
-        setTimeout(function(){
+        /*setTimeout(function(){
             this.gun_shot_line.graphics.clear();
             this.gun_shot_line.graphics.visible = false;//turn off gunshot after .5 seconds
-        }.bind(this),50);
+        }.bind(this),50);*/
     }
     this.draw_gun_shot = function(ray){
         this.gun_shot_line.draw_Ray(ray);

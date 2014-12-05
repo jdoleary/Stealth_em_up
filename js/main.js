@@ -709,23 +709,10 @@ function gameloop(deltaTime){
                         guards[i].rotate_to(hero.x,hero.y);
                         if(guards[i].can_shoot){
                             
-                            doGunShotEffects(guards[i], false);//plays sound and shows affects
+                            doGunShotEffects(guards[i], false);//plays sound
                             
                             guards[i].shoot();//toggles on the visiblity of .draw_gun_shot's line
                             
-                            //check if guard aim intersects with hero
-                            if(hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),guards[i].aim.start,guards[i].aim.end)){
-                                hero.kill();
-                                //make blood splatter:
-                                makeBloodSplatter(hero.x,hero.y,guards[i].x,guards[i].y);
-                                //remove key handlers so hero can no longer move around
-                                console.log('you died');
-                                messageGameOver.setText('Press [Esc] to restart!');
-                                removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
-                                //add to stats:
-                                jo_store_inc("loses");
-
-                            }
             
                             
                         }
@@ -850,15 +837,83 @@ function gameloop(deltaTime){
     //////////////////////
     //Bullets
     //////////////////////
-    for(var i = 0; i < bullets.length; i++){
-        bullets[i].prepare_for_draw();
+    for(var b = 0; b < bullets.length; b++){
+        bullets[b].prepare_for_draw();
         //call move to target, if target is reached, it should remove the bullet
-        if(bullets[i].move_to_target()){
-            display_actors.removeChild(bullets[i].sprite);
-            bullets.splice(i,1);
+        
+        var bulletPosBeforeMove = {x:bullets[b].x,y:bullets[b].y};//to check if a bullet kills a target, check if the prev position to the move position intersects the target
+        //continued: this is because bullet path between frames looks like      a--------x------b
+        //a: bullet start pos, b: bullet end pos, x: target  
+        
+        if(bullets[b].move_to_target()){
+            //if true, bullet hits wall
+            
+            //play gun spark against wall where gun shot hits:
+            spark_clip.x = bullets[b].target.x;
+            spark_clip.y = bullets[b].target.y;
+            spark_clip.rotate_to_instant(bullets[b].ignore.x,bullets[b].ignore.y);
+            spark_clip.sprite.gotoAndPlay(0);
+            
+            //destroy bullet
+            display_actors.removeChild(bullets[b].sprite);
+            bullets.splice(b,1);
+            
             continue;
         }
-        bullets[i].rotate_to_instant(bullets[i].target.x,bullets[i].target.y);
+        bullets[b].rotate_to_instant(bullets[b].target.x,bullets[b].target.y);
+        
+            
+        //check if bullet intersects guard:
+        for(var i = 0; i < guards.length; i++){
+            if(bullets[b].ignore == guards[i])continue;//don't kill the shooter with his own bullet
+            console.log('new pos: ' + bullets[b].x + ',' + bullets[b].y);
+            if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+                guards[i].kill();
+                //make blood splatter:
+                makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
+                //make blood trail:
+                guards[i].blood_trail = [guards[i].x,guards[i].y];
+                
+                if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
+                
+                
+                //add to stats:
+                jo_store_inc("guardsShot");
+
+            }
+        
+        }
+        
+        //check if bullet intersects with hero
+            //ignore:: //don't kill the shooter with his own bullet
+        if(bullets[b].ignore != hero && hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+            hero.kill();
+            //make blood splatter:
+            makeBloodSplatter(hero.x,hero.y,bullets[b].ignore.x,bullets[b].ignore.y);
+            //remove key handlers so hero can no longer move around
+            console.log('you died');
+            messageGameOver.setText('Press [Esc] to restart!');
+            removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
+            //add to stats:
+            jo_store_inc("loses");
+
+        }
+        /*//check if hero aim intersects civs:
+        for(var i = 0; i < civs.length; i++){
+            if(civs[i].alive && circle_linesetment_intersect(civs[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
+                civs[i].kill();
+                if(civs[i].alarmed)newMessage("You dispatch the civilian before he can get the word out!");
+
+            }
+        
+        }*/
+        //check if bullet intersects camera:
+        for(var i = 0; i < security_cameras.length; i++){
+            if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+                security_cameras[i].kill();
+            }
+        
+        }
     }
     
     //////////////////////
@@ -1238,43 +1293,7 @@ function addKeyHandlers(){
             //shoot_gun();//make noise (not real sound, but noise for guards) which draws guards
             mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
             
-            //what happens on mouse click:
             
-            
-            //check if hero aim intersects guard:
-            for(var i = 0; i < guards.length; i++){
-                if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
-                    guards[i].kill();
-                    //make blood splatter:
-                    makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
-                    //make blood trail:
-                    guards[i].blood_trail = [guards[i].x,guards[i].y];
-                    
-                    if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
-                    
-                    
-                    //add to stats:
-                    jo_store_inc("guardsShot");
-
-                }
-            
-            }
-            //check if hero aim intersects civs:
-            for(var i = 0; i < civs.length; i++){
-                if(civs[i].alive && circle_linesetment_intersect(civs[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
-                    civs[i].kill();
-                    if(civs[i].alarmed)newMessage("You dispatch the civilian before he can get the word out!");
-
-                }
-            
-            }
-            //check if hero aim intersects camera:
-            for(var i = 0; i < security_cameras.length; i++){
-                if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),hero.aim.start,hero.aim.end)){
-                    security_cameras[i].kill();
-                }
-            
-            }
         }
         if(ammo<=0)play_sound(sound_dry_fire);
 
@@ -1410,18 +1429,13 @@ function useMask(toggle){
     }
 }
 
-//plays sound and shows affects
+//plays sound
 function doGunShotEffects(unit, silenced){
     //gun_shot sound:
     if(silenced)play_sound(sound_gun_shot_silenced);
     else{
         play_sound_many(sound_gun_shots);
     }
-    //play gun spark against wall where gun shot hits:
-    spark_clip.x = unit.aim.end.x;
-    spark_clip.y = unit.aim.end.y;
-    spark_clip.rotate_to_instant(unit.x,unit.y);
-    spark_clip.sprite.gotoAndPlay(0);
 }
 var hero_moving = false;
 function hero_move_animation_check(){
