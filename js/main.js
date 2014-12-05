@@ -132,9 +132,13 @@ var img_guard_alert = PIXI.Texture.fromImage("guard_alert.png");
 var img_guard_dead  = PIXI.Texture.fromImage("guard_dead.png");
 var img_guard_choke = PIXI.Texture.fromImage("guard_choke.png");
 var img_guard_drag  = PIXI.Texture.fromImage("guard_dragging.png");
+var img_bullet  = PIXI.Texture.fromImage("bullet.png");
 
 //ammo
 var ammo;
+
+//visible bullets:
+var bullets;
 
 //blood_drawer:
 var blood_holder;
@@ -338,8 +342,11 @@ function startGame(){
     test_cone = new debug_line();
     hero_cir = new debug_circle();
 
-    ammo = 6;
+    ammo = 60;
 
+    //make a new bullet with: new jo_sprite(new PIXI.Sprite(img_bullet));
+    bullets = [];
+    
     //blood_drawer:
     blood_holder = new PIXI.Sprite(img_origin);
     graphics_blood = new PIXI.Graphics();
@@ -658,7 +665,12 @@ function gameloop(deltaTime){
             var aim_x_offset = Math.floor(Math.random() * 50);
             var aim_y_offset = Math.floor(Math.random() * 50);
             //only set aim if they are able to shoot again, don't reset aim every loop
-            if(guards[i].can_shoot)guards[i].aim.set(guards[i].x,guards[i].y,hero.x+aim_x_offset,hero.y+aim_y_offset);
+            if(guards[i].can_shoot){
+                
+                //take the ray from guard to hero and make it go all the way to the wall:
+                var guard_aim_to_wall = getRaycastPoint(guards[i].x,guards[i].y,hero.x+aim_x_offset,hero.y+aim_y_offset);
+                guards[i].aim.set(guards[i].x,guards[i].y,guard_aim_to_wall.x,guard_aim_to_wall.y);
+            }
             //draw the guards gun shot
             guards[i].draw_gun_shot(guards[i].aim);
             
@@ -835,6 +847,19 @@ function gameloop(deltaTime){
     
     computer_for_security_cameras.prepare_for_draw();
     
+    //////////////////////
+    //Bullets
+    //////////////////////
+    for(var i = 0; i < bullets.length; i++){
+        bullets[i].prepare_for_draw();
+        //call move to target, if target is reached, it should remove the bullet
+        if(bullets[i].move_to_target()){
+            display_actors.removeChild(bullets[i].sprite);
+            bullets.splice(i,1);
+            continue;
+        }
+        bullets[i].rotate_to_instant(bullets[i].target.x,bullets[i].target.y);
+    }
     
     //////////////////////
     //Getaway Car and Loot
@@ -1051,7 +1076,7 @@ function addKeyHandlers(){
                         newMessage("You cannot remove your mask while in a restricted area, or while carrying loot!");
                     }else{
                         //hero cannot remove mask while carrying loot
-                        circProgBar.heroMaskProg(2000,useMask,!hero.masked);
+                        circProgBar.heroMaskProg(500,useMask,!hero.masked);
                     }
                 }
                 keys['v'] = true;

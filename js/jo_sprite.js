@@ -30,8 +30,20 @@ function jo_sprite(pixiSprite, parent){
     }
     
     this.shoot = function(){
+        //make bullet (all assets in main.js):
+        var bullet = new jo_sprite(new PIXI.Sprite(img_bullet))
+        bullet.x = this.x;
+        bullet.y = this.y;
+        bullet.target = getRaycastPoint(this.x,this.y,this.aim.end.x,this.aim.end.y);
+        bullet.rotate_to_instant(bullet.target.x,bullet.target.y);
+        bullet.speed = 50;
+        bullet.stop_distance = 30;
+        bullets.push(bullet);
+        
+        //end make bullet
+    
         //shows gun_shot_line
-        this.gun_shot_line.graphics.visible = true;
+        //this.gun_shot_line.graphics.visible = true;
         this.can_shoot = false; //so the guards don't shoot way too fast
         setTimeout(function(){
             //allow sprite to shoot again.

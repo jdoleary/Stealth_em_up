@@ -1,3 +1,7 @@
+
+
+//NOTE: When you add a new sound, be sure to use changeVolume under readjustVolumes
+
 var volume_master = 0.0;
 console.log("Master Volume: " + volume_master);
 
@@ -30,6 +34,7 @@ function readjustVolumes(){
     changeVolume(sound_gun_shot,0.2);
     changeVolume(sound_gun_shot_silenced,1.0);
     changeVolume(sound_guard_choke,1.0);
+    changeVolume(sound_dry_fire,1.0);
     for(var i = 0; i < sound_gun_shots["array"].length; i++)changeVolume(sound_gun_shots["array"][i],0.2);
 }
     
