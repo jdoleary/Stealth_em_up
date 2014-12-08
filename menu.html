@@ -79,7 +79,7 @@
         
 	</style>
 
-	<script src="../../bin/pixi.dev.js"></script>
+	<script src="bin/pixi.dev.js"></script>
 	
 </head>
     <script>
@@ -305,10 +305,10 @@
     </div>
     <div id="levelSelect" align="right">
     
-        <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='/game.html?volume=1.0&level=diamondStore'">
+        <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='./game.html?volume=1.0&level=diamondStore'">
             <h1 class="levelSelect" align="center">Diamond Store</h1>
         </div>
-        <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='/game.html?volume=1.0&level=bank1'">
+        <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='./game.html?volume=1.0&level=bank1'">
             <h1 class="levelSelect" align="center">International Bank</h1>
         </div>
     </div>
@@ -394,11 +394,11 @@
     </div>
     
     <div id="footer" align="center">
-        <button id="button_startScreen" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('startScreen');">Start Screen</button>
-        <button id="button_levelSelect" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Level Select</button>
-        <button id="button_achievements" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('achievements');updateStats();">Achievements</button>
-        <button id="button_mailingList" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('mailingList');">Join Mailing List</button>
-        <button id="button_feedback" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('feedback');">Leave Feedback</button>
+        <a href="#startScreen"><button id="button_startScreen" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('startScreen');">Start Screen</button></a>
+        <a href="#levelSelect"><button id="button_levelSelect" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Level Select</button></a>
+        <a href="#achievements"><button id="button_achievements" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('achievements');updateStats();">Achievements</button></a>
+        <a href="#mailingList"><button id="button_mailingList" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('mailingList');">Join Mailing List</button></a>
+        <a href="#feedback"><button id="button_feedback" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('feedback');">Leave Feedback</button></a>
     
     </div>
     <script>
@@ -415,7 +415,7 @@
             $("#playerStats").append("<br>Guards Choked: " + guardsChoked);
         }
         function showMenuScreen(id){
-            window.history.pushState("object or string", "Title", "/?m=" + id);
+            //window.history.pushState("object or string", "Title", "./?m=" + id);
         
             $("#startScreen").hide();
             $("#levelSelect").hide();
@@ -436,7 +436,11 @@
         
         }
         
-        var url_queryString = getUrlVars();
+        //a refresh or regular navigation to the page will show the correct div.
+        if(location.hash.substring(0,1)=='#')showMenuScreen(location.hash.substring(1));
+        else showMenuScreen("startScreen");
+        //no longer used now that is use location.hash
+        /*var url_queryString = getUrlVars();
         if(url_queryString["m"]){
             var menuItem = url_queryString["m"];
             console.log('menu: ' + menuItem.substr(menuItem.length -1));
@@ -445,7 +449,7 @@
         }else{
             //start out only showing startscreen
             showMenuScreen("startScreen");
-        }
+        }*/
     </script>
 	</body>
 </html>
