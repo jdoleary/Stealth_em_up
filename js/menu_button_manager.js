@@ -14,7 +14,8 @@ function addButton(text,x,y, clickFunction){
     button.anchor.y = 0.5;		
     button.x = x;
     button.y = y;
-    button.setInteractive(true);
+    button.interactive = true;
+    //button.setInteractive(true);
     
     button.addChild(textforbutton);
     

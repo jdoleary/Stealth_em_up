@@ -21,11 +21,12 @@ var sound_gun_shot_silenced = new Audio("sound/gun_shot_silenced.mp3");
 var sound_guard_choke = new Audio("sound/guard_choke.wav");
 var sound_door_open = new Audio("sound/door-2-open.mp3");
 var sound_door_close = new Audio("sound/door-3-close.wav");
-var music_hero_dead = new Audio("sound/Vanes.mp3");
+var music_hero_dead;
 var music_masked;
 var music_unmasked;
 force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});
 force_buffer_sound("sound/Volatile_Reaction.mp3", 0.0, function(audio){music_masked = audio;});
+force_buffer_sound("sound/Vanes.mp3", 1.0, function(audio){music_hero_dead = audio;});
 
 readjustVolumes();//call once automatically:
 
@@ -36,7 +37,6 @@ function readjustVolumes(){
     changeVolume(sound_gun_shot_silenced,1.0);
     changeVolume(sound_guard_choke,1.0);
     changeVolume(sound_dry_fire,1.0);
-    changeVolume(music_hero_dead,1.0);
     for(var i = 0; i < sound_gun_shots["array"].length; i++)changeVolume(sound_gun_shots["array"][i],0.2);
 }
     

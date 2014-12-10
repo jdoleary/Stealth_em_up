@@ -32,7 +32,10 @@ function windowSetup(){
     window_properties = {width: window.innerWidth, height: window.innerHeight};
 
     // create a renderer instance.
-    renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height);
+    var renderOptions = {
+        resolution:window.devicePixelRatio
+    };
+    renderer = PIXI.autoDetectRenderer(window_properties.width, window_properties.height,renderOptions);
     // add the renderer view element to the DOM
 
     document.getElementById("canvas_holder").appendChild(renderer.view);
@@ -104,34 +107,6 @@ var hero_cir;
 
 
 
-//images:
-var img_blue = PIXI.Texture.fromImage("hero_body_1.png");
-var img_masked = PIXI.Texture.fromImage("hero_body_1_masked.png");
-var img_security_camera = PIXI.Texture.fromImage("camera.png");
-var img_security_camera_alerted = PIXI.Texture.fromImage("camera_alert.png");
-var img_cam_broken = PIXI.Texture.fromImage("camera_broken.png");
-var img_cam_off = PIXI.Texture.fromImage("camera_off.png");
-var img_computer = PIXI.Texture.fromImage("computer.png");
-var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
-var img_money = PIXI.Texture.fromImage("money.png");
-var img_getawaycar = PIXI.Texture.fromImage("van.png");
-var img_hero_with_money = PIXI.Texture.fromImage("hero_body_1_bag.png");
-var img_lastSeen = PIXI.Texture.fromImage("last_seen.png");
-var img_origin = PIXI.Texture.fromImage("last_seen.png");
-var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
-var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
-var img_door_open = PIXI.Texture.fromImage("door_open.png");
-var img_door_closed = PIXI.Texture.fromImage("door_closed.png");
-
-
-//new images:
-var img_hero_dead   = PIXI.Texture.fromImage("hero_dead.png");
-var img_guard_reg   = PIXI.Texture.fromImage("guard.png");
-var img_guard_alert = PIXI.Texture.fromImage("guard_alert.png");
-var img_guard_dead  = PIXI.Texture.fromImage("guard_dead.png");
-var img_guard_choke = PIXI.Texture.fromImage("guard_choke.png");
-var img_guard_drag  = PIXI.Texture.fromImage("guard_dragging.png");
-var img_bullet  = PIXI.Texture.fromImage("bullet.png");
 
 //ammo
 var ammo;
@@ -241,7 +216,7 @@ function removeAllChildren(obj){
 function clearStage(){
     //for menu:
     if(button){
-        button.setInteractive(false);
+        button.interactive = false;
         button.click = null;
         button = null;
     }
@@ -812,7 +787,7 @@ function gameloop(deltaTime){
                 if(min < 0)min = 0;
                 var path = guards[i].blood_trail.slice(min,z);
                 graphics_blood.lineStyle(15, 0xb51d1d, j);
-                graphics_blood.drawPath(path);
+                //graphics_blood.drawPath(path);
             }
         }
     }
