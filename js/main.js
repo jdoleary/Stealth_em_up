@@ -23,7 +23,6 @@ function windowSetup(){
     // create an new instance of a pixi stage
     // the second parameter is interactivity...
     interactive = true;
-    stage;
 
 
 
@@ -117,8 +116,8 @@ var img_computer_off = PIXI.Texture.fromImage("computer_off.png");
 var img_money = PIXI.Texture.fromImage("money.png");
 var img_getawaycar = PIXI.Texture.fromImage("van.png");
 var img_hero_with_money = PIXI.Texture.fromImage("hero_body_1_bag.png");
-var img_civilian = PIXI.Texture.fromImage("civ.png");
-var img_origin = PIXI.Texture.fromImage("origin.png");
+var img_lastSeen = PIXI.Texture.fromImage("last_seen.png");
+var img_origin = PIXI.Texture.fromImage("last_seen.png");
 var img_blood_splatter = PIXI.Texture.fromImage("blood_splatter.png");
 var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
 var img_door_open = PIXI.Texture.fromImage("door_open.png");
@@ -146,6 +145,7 @@ var graphics_blood;
 
 			//make sprites
             var hero;
+            var hero_last_seen;
             var hero_end_aim_coord;
 			
 			var hero_drag_target; // a special var reserved for when the hero is dragging something.
@@ -423,6 +423,11 @@ function setup_map(map){
 			hero.speed = hero.speed_walk;
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
             
+            
+			hero_last_seen = new jo_sprite(new PIXI.Sprite(img_lastSeen));
+            hero_last_seen.sprite.visible = false;
+            
+            
 			guards = [];
             for(var i = 0; i < map.objects.guards.length; i++){
                 var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg));
@@ -600,6 +605,17 @@ function gameloop(deltaTime){
     }
     hero.prepare_for_draw();
     
+    
+    //don't show hero_last_seen if it is too close to hero:
+    if(backupCalled){
+        if(Math.sqrt(Math.pow(hero.x-hero_last_seen.x,2)+Math.pow(hero.y-hero_last_seen.y,2))<=hero.radius){
+            hero_last_seen.sprite.visible = false;
+        }else{
+            hero_last_seen.sprite.visible = true;
+        }
+    }
+    hero_last_seen.prepare_for_draw();
+    
     if(hero_drag_target)hero.sprite.rotation += Math.PI;//reverse the hero's rotation because he is dragging something.
     
     //////////////////////
@@ -769,6 +785,22 @@ function gameloop(deltaTime){
                 guards[i].target.y = null;
             }
             
+        }else{
+            //if guard dead:
+            if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
+            
+                //if hero is out of ammo, pick up guards gun:
+                if(ammo <= 0){
+                    hero.silenced = false;
+                    var max = 6- ammo;
+                    guards[i].ammo -= max;
+                    ammo += max;
+                    
+                    newMessage('You pick up ammo from guard.');
+                    newMessage(ammo);
+                    newMessage(guards[i].ammo);
+                }
+            }
         }
         guards[i].prepare_for_draw();
         
@@ -866,7 +898,6 @@ function gameloop(deltaTime){
         //check if bullet intersects guard:
         for(var i = 0; i < guards.length; i++){
             if(bullets[b].ignore == guards[i])continue;//don't kill the shooter with his own bullet
-            console.log('new pos: ' + bullets[b].x + ',' + bullets[b].y);
             if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
                 guards[i].kill();
                 //make blood splatter:
@@ -1168,6 +1199,8 @@ function addKeyHandlers(){
                         //check if any dead guards are close enough to be dragged.
                         for(var i = 0; i < guards.length; i++){
                             if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
+                            
+                                //check if any dead guards are close enough to be dragged.
                                 if(!guards[i].alive){
                                     //hero is dragging a dead body
                                     
@@ -1285,12 +1318,12 @@ function addKeyHandlers(){
         //you can only shoot if hero is masked
         if(hero.masked && ammo > 0){
             ammo--;
-        
-            doGunShotEffects(hero, true);//plays sound and shows affects
+            newMessage("Ammo: " + ammo + "/6");
+            doGunShotEffects(hero, hero.silenced);//plays sound and shows affects
             
             //toggles on the visiblity of .draw_gun_shot's line
             hero.shoot();
-            //shoot_gun();//make noise (not real sound, but noise for guards) which draws guards
+            if(!hero.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
             mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
             
             
@@ -1372,16 +1405,12 @@ function alert_all_guards(){
     }
     
 }
-function shoot_gun(){
-    console.log('old method');
+function unsilenced_gun(){
     //makes a sound and draws all guards:
-    for(var i = 0; i < guards.length; i++){
-        guards[i].hearAlarm();
-        var hero_index = grid.getIndexFromCoords_2d(hero.x,hero.y);
-        var guard_index = grid.getIndexFromCoords_2d(guards[i].x,guards[i].y);
-        var path = grid.getPath(guard_index,hero_index);
-        guards[i].path = path;
-    }
+    alert_all_guards();
+    //set lastSeen for investigating hero
+    hero.setLastSeen();
+
 }
 function prepare_for_draw_blood(){
     var draw_coords = camera.relativePoint({x:0,y:0});//0,0 because blood_holder does not consider its sprite
@@ -1428,7 +1457,12 @@ function useMask(toggle){
         
     }
 }
+function hero_is_dead(){
 
+    play_sound(music_hero_dead);
+    changeVolume(music_unmasked,0.0);
+    changeVolume(music_masked,0.0);
+}
 //plays sound
 function doGunShotEffects(unit, silenced){
     //gun_shot sound:

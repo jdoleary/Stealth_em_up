@@ -8,6 +8,7 @@ function sprite_guard_wrapper(pixiSprite){
         this.idling = false;//if guard is just standing
         this.startedIdling = false;
         this.idleRotateRad;//radians to rotate to while idling (changes each time)
+        this.ammo = 6;
         
         this.kill = function(){
             //play_sound(sound_unit_die);
@@ -88,10 +89,12 @@ function sprite_guard_wrapper(pixiSprite){
         };
         
         this.hearAlarm = function(){
-            //when a guard is told of an alarming event.
-            this.sprite.setTexture(img_guard_alert)
-            this.speed = 3;//speed up when alarmed.
-            this.alarmed = true;
+            if(this.alive){
+                //when a guard is told of an alarming event.
+                this.sprite.setTexture(img_guard_alert)
+                this.speed = 3;//speed up when alarmed.
+                this.alarmed = true;
+            }
         
         };
         

@@ -7,7 +7,7 @@ function jo_sprite(pixiSprite, parent){
     this.speed = 1.5;
     this.moving = true;
     this.alive = true;
-    this.radius = 14;
+    this.radius = 19;
     this.carry = null;//object hero is carrying (loot)
     
     this.gun_shot_line = new debug_line();

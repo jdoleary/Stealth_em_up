@@ -4,6 +4,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.speed_sprint = speed_sprint;
         this.radius = 14;
         this.masked = false;
+        this.silenced = true;
         //this.currentlySeen = false;
         
         //pos where hero was last seen by guards or camera
@@ -12,6 +13,8 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.setLastSeen = function(){
             this.lastSeenX = this.x;
             this.lastSeenY = this.y;
+            hero_last_seen.x = this.x;
+            hero_last_seen.y = this.y;
            /* if(!currentlySeen){
                 //repath alert guards to hero
                 for(var g = 0; g < guards.length; g++){
@@ -28,6 +31,8 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             //newMessage("Last seen " + this.x + "," + this.y);
         }
         this.kill = function(){
+            hero_is_dead();
+        
             this.alive = false;
             //enable moving so they can be dragged
             this.moving = false;
