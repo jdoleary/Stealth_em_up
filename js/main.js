@@ -156,6 +156,9 @@ var tooltip;
 //MOVIE CLIPS:
 var spark_clip;
 var feet_clip;
+var alert_clip;
+
+var latestAlert;//the last unit to be alerted (used to show alert icon)
 
 //effects:
 var static_effect_sprites;
@@ -361,6 +364,10 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             spark_clip.sprite.loop = false;
             spark_clip.sprite.animationSpeed = 0.7;//slow it down
             
+            alert_clip = new jo_sprite(jo_movie_clip("movie_clips/","alert_",12,".png"),display_actors);
+            alert_clip.sprite.loop = false;
+            alert_clip.sprite.visible = false;
+            alert_clip.sprite.animationSpeed = 0.6;//slow it down
 
             //effects:
             static_effect_sprites = [];
@@ -539,6 +546,7 @@ function gameloop(deltaTime){
     }
     spark_clip.prepare_for_draw();
     feet_clip.prepare_for_draw();
+    alert_clip.prepare_for_draw();
     
     //update circularProgressBar:
     if(circProgBar.visible){
@@ -687,6 +695,9 @@ function gameloop(deltaTime){
                         //alarm if hero is seen masked
                         guards[i].becomeAlarmed(hero);
                         
+                        //show alert icon for this guard:
+                        set_latestAlert(guards[i]);
+                        
                         //rotate guard to face hero:
                         guards[i].rotate_to(hero.x,hero.y);
                         
@@ -712,6 +723,9 @@ function gameloop(deltaTime){
             
                             
                         }
+                        
+                        //show alert icon for this guard:
+                        set_latestAlert(guards[i]);
                         
                         //set lastSeen for investigating hero
                         hero.setLastSeen();
@@ -831,6 +845,7 @@ function gameloop(deltaTime){
                         security_cameras[i].rotate_to(hero.x,hero.y);
                         //
                         
+                        set_latestAlert(security_cameras[i]);
                         //set lastSeen for investigating hero
                         hero.setLastSeen();
                         
@@ -845,6 +860,29 @@ function gameloop(deltaTime){
     
     computer_for_security_cameras.prepare_for_draw();
     
+    
+    //////////////////////
+    //Alert Animation
+    //////////////////////
+    if(latestAlert){
+        if(!latestAlert.doesSpriteSeeSprite(hero)){
+            //don't show alert_clip if latestAlert cannot see hero.
+            alert_clip.sprite.visible = false;
+            latestAlert = null;
+        }else{
+            //update alert_clip position
+            var distFromHero = 400; //dist that alert will be displayed
+            var difX = -hero.x + latestAlert.x;
+            var difY = -hero.y + latestAlert.y;
+            var CCC = Math.sqrt(difX*difX+difY*difY);
+            alert_clip.x = hero.x + difX*(distFromHero/CCC);
+            alert_clip.y = hero.y + difY*(distFromHero/CCC);
+            if(distFromHero >= CCC){
+                alert_clip.x = latestAlert.x;
+                alert_clip.y = latestAlert.y - 64;
+            }
+        }
+    }
     //////////////////////
     //Bullets
     //////////////////////
@@ -1458,6 +1496,24 @@ function hero_move_animation_check(){
         else hero_moving = false;
         if(hero_moving && !hero_was)feet_clip.sprite.gotoAndPlay(0);
         if(!hero_moving)feet_clip.sprite.gotoAndStop(0);
+}
+
+//show alert icon
+function set_latestAlert(unit){
+    //if latestAlert doesn't already equal this unit, play it and set it
+    if(latestAlert!=unit){
+        latestAlert = unit;
+        alert_clip.sprite.visible = true;
+        alert_clip.sprite.gotoAndPlay(0);
+        
+        //turn off the alert after 3.5 second
+        setTimeout(function(){
+            
+            alert_clip.sprite.visible = false;
+
+        }, 3500);
+    }
+    
 }
 
 
