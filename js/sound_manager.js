@@ -56,7 +56,7 @@ function play_sound_many(sound_array){
     //and cycle it whenever I want a sound to play, it is likely that the sound will finish by the time a new one is started.
     if(sound_array["index"] >= sound_array["array"].length)sound_array["index"] = 0;
     play_sound(sound_array["array"][sound_array["index"]++]);
-    console.log('play index ' + sound_array["index"] + ' size: ' + sound_array["array"].length);
+    //console.log('play index ' + sound_array["index"] + ' size: ' + sound_array["array"].length);
 }
 
 function pause_sound(sound){

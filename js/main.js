@@ -914,6 +914,7 @@ function gameloop(deltaTime){
     //////////////////////
     //Bullets
     //////////////////////
+    bulletLoop:
     for(var b = 0; b < bullets.length; b++){
         bullets[b].prepare_for_draw();
         //call move to target, if target is reached, it should remove the bullet
@@ -934,8 +935,7 @@ function gameloop(deltaTime){
             //destroy bullet
             display_actors.removeChild(bullets[b].sprite);
             bullets.splice(b,1);
-            
-            continue;
+            continue bulletLoop;
         }
         bullets[b].rotate_to_instant(bullets[b].target.x,bullets[b].target.y);
         
@@ -950,11 +950,16 @@ function gameloop(deltaTime){
                 //make blood trail:
                 guards[i].blood_trail = [guards[i].x,guards[i].y];
                 
-                if(guards[i].alarmed)newMessage("You dispatch the guard before he can get the word out!");
+                if(guards[i].alarmed && !backupCalled)newMessage("You dispatch the guard before he can get the word out!");
                 
                 
                 //add to stats:
                 jo_store_inc("guardsShot");
+                
+                //destroy bullet
+                display_actors.removeChild(bullets[b].sprite);
+                bullets.splice(b,1);
+                continue bulletLoop;
 
             }
         
@@ -972,6 +977,12 @@ function gameloop(deltaTime){
             removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
             //add to stats:
             jo_store_inc("loses");
+            
+            
+            //destroy bullet
+            display_actors.removeChild(bullets[b].sprite);
+            bullets.splice(b,1);
+            continue bulletLoop;
 
         }
         /*//check if hero aim intersects civs:
@@ -1528,18 +1539,21 @@ function hero_move_animation_check(){
 
 //show alert icon
 function set_latestAlert(unit){
-    //if latestAlert doesn't already equal this unit, play it and set it
-    if(latestAlert!=unit){
-        latestAlert = unit;
-        alert_clip.sprite.visible = true;
-        alert_clip.sprite.gotoAndPlay(0);
-        
-        //turn off the alert after 3.5 second
-        setTimeout(function(){
+    //don't reset alert until animation is done playing
+    if(alert_clip.sprite.currentFrame == alert_clip.sprite.totalFrames-1 || alert_clip.sprite.currentFrame == 0){
+        //if latestAlert doesn't already equal this unit, play it and set it
+        if(latestAlert!=unit){
+            latestAlert = unit;
+            alert_clip.sprite.visible = true;
+            alert_clip.sprite.gotoAndPlay(0);
             
-            alert_clip.sprite.visible = false;
+            //turn off the alert after 3.5 second
+            setTimeout(function(){
+                
+                alert_clip.sprite.visible = false;
 
-        }, 3500);
+            }, 3500);
+        }
     }
     
 }

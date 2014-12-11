@@ -79,13 +79,7 @@ function sprite_guard_wrapper(pixiSprite){
                     };
                 }.bind(this), 2000);
             }
-            //guard shouldn't be able to shoot immediately, so it takes 1/2 of reload time to shoot for first time.
-            this.can_shoot = false; //so the guards don't shoot way too fast
-            setTimeout(function(){
-                //REACTION TIME
-                //allow sprite to shoot again if he still sees hero
-                if(this.doesSpriteSeeSprite(hero))this.can_shoot = true;
-            }.bind(this),this.shoot_speed);
+
             
         };
         

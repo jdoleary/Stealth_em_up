@@ -38,8 +38,9 @@ function jo_sprite(pixiSprite, parent){
         bullet.y = this.y;
         bullet.target = getRaycastPoint(this.x,this.y,this.aim.end.x,this.aim.end.y);
         bullet.rotate_to_instant(bullet.target.x,bullet.target.y);
-        bullet.speed = 50;
-        bullet.stop_distance = 30;
+        bullet.speed = 75;
+        //bullet.speed = 10;//slow motion bullets!
+        bullet.stop_distance = bullet.speed;
         bullets.push(bullet);
         
         //end make bullet
@@ -49,14 +50,7 @@ function jo_sprite(pixiSprite, parent){
         //shows gun_shot_line
         //this.gun_shot_line.graphics.visible = true;
         this.can_shoot = false; //so the guards don't shoot way too fast
-        if(!this.reacting){
-            this.reacting = true;
-            setTimeout(function(){
-                //allow sprite to shoot again.
-                this.can_shoot = true;
-                this.reacting = false;
-            }.bind(this),this.shoot_speed);
-        }
+
         //toggle gun_shot_line visibility.
         /*setTimeout(function(){
             this.gun_shot_line.graphics.clear();
