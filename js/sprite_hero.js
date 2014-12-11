@@ -10,25 +10,35 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         //pos where hero was last seen by guards or camera
         this.lastSeenX;
         this.lastSeenY;
-        this.setLastSeen = function(){
-            this.lastSeenX = this.x;
-            this.lastSeenY = this.y;
-            hero_last_seen.x = this.x;
-            hero_last_seen.y = this.y;
-           /* if(!currentlySeen){
-                //repath alert guards to hero
-                for(var g = 0; g < guards.length; g++){
-                    //repath to hero pos
-                    if(guards[g].alarmed && !guards[g].chasingHero){
-                            console.log('repath to hero');
-                            guards[g].moving = true;
-                            guards[g].pathToCoords(hero.lastSeenX,hero.lastSeenY);
-                            guards[g].chasingHero = true;
-                    }
+        this.setLastSeen = function(observer){
+            if(observer){
+                //if the observer is still alive after 2 seconds and not being choked out, alert the others
+                setTimeout(function(){
+                    if(observer.alive && !observer.being_choked_out){
+                        if(this.lastSeenX != this.x && this.lastSeenY != this.y){
+                            this.lastSeenX = this.x;
+                            this.lastSeenY = this.y;
+                            hero_last_seen.x = this.x;
+                            hero_last_seen.y = this.y;
+                            //repath alert guards to hero
+                            notifyGuardsOfHeroLocation = true;
+                            //newMessage("Last seen " + this.x + "," + this.y);
+                        }
+                    };
+                }.bind(this), 2000);
+            }else{
+                //if observer is null, everyone is notified immediately (gunshot or camera or something).
+                if(this.lastSeenX != this.x && this.lastSeenY != this.y){
+                    this.lastSeenX = this.x;
+                    this.lastSeenY = this.y;
+                    hero_last_seen.x = this.x;
+                    hero_last_seen.y = this.y;
+                    //repath alert guards to hero
+                    notifyGuardsOfHeroLocation = true;
+                    //newMessage("Last seen " + this.x + "," + this.y);
                 }
             }
-            currentlySeen = true;*/
-            //newMessage("Last seen " + this.x + "," + this.y);
+            
         }
         this.kill = function(){
             hero_is_dead();

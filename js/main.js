@@ -173,6 +173,8 @@ var state;
 //circular progress bar:
 var circProgBar;
 
+//notify guards of new hero location flag
+var notifyGuardsOfHeroLocation = false;
 
 
 
@@ -702,7 +704,7 @@ function gameloop(deltaTime){
                         guards[i].rotate_to(hero.x,hero.y);
                         
                         //set lastSeen for investigating hero
-                        hero.setLastSeen();
+                        hero.setLastSeen(guards[i]);
                     }
                     
                 }
@@ -722,17 +724,28 @@ function gameloop(deltaTime){
                             
             
                             
+                        }else{
+                            //if guard can't shoot yet (reaction time)
+                            if(!guards[i].reacting){
+                                guards[i].reacting = true;
+                                setTimeout(function(){
+                                    //allow sprite to shoot again if he still sees hero
+                                    if(this.doesSpriteSeeSprite(hero))this.can_shoot = true;
+                                    this.reacting = false;
+                                }.bind( guards[i]), guards[i].shoot_speed);
+                            }
                         }
                         
                         //show alert icon for this guard:
                         set_latestAlert(guards[i]);
                         
                         //set lastSeen for investigating hero
-                        hero.setLastSeen();
+                        hero.setLastSeen(guards[i]);
                     }
                 }else{
                     //if alarmed move to last place hero was seen
-                    if(!guards[i].chasingHero && hero.lastSeenX && hero.lastSeenY){
+                    if(notifyGuardsOfHeroLocation || !guards[i].chasingHero && hero.lastSeenX && hero.lastSeenY){
+                        //this is only called once due to .chasingHero
                         //repath to hero pos
                         guards[i].moving = true;
                         guards[i].pathToCoords(hero.lastSeenX,hero.lastSeenY);
@@ -783,8 +796,8 @@ function gameloop(deltaTime){
             //if guard dead:
             if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
             
-                //if hero is out of ammo, pick up guards gun:
-                if(ammo <= 0){
+                //if hero is out of ammo (or has a guards gun), pick up guards gun/ammo:
+                if(ammo <= 0 || (!hero.silenced && guards[i].ammo > 0 && ammo != 6)){
                     hero.silenced = false;
                     var max = 6- ammo;
                     guards[i].ammo -= max;
@@ -809,6 +822,8 @@ function gameloop(deltaTime){
             }
         }
     }
+    if(notifyGuardsOfHeroLocation)console.log("Repath all guards to hero last seen");
+    notifyGuardsOfHeroLocation = false;
     
     //prepare blood layer for draw:
     prepare_for_draw_blood();
@@ -847,9 +862,22 @@ function gameloop(deltaTime){
                         
                         set_latestAlert(security_cameras[i]);
                         //set lastSeen for investigating hero
-                        hero.setLastSeen();
+                        hero.setLastSeen(null);
                         
                         
+                        
+                    }
+                }
+            }else{
+                //if camera is already alarmed, check to update hero position:
+                 //check if security_camera sees hero:
+                if(security_cameras[i].doesSpriteSeeSprite(hero)){
+                    //alarm if hero is seen masked
+                    if(hero.masked){
+                        
+                        set_latestAlert(security_cameras[i]);
+                        //set lastSeen for investigating hero
+                        hero.setLastSeen(null);
                         
                     }
                 }
@@ -865,7 +893,7 @@ function gameloop(deltaTime){
     //Alert Animation
     //////////////////////
     if(latestAlert){
-        if(!latestAlert.doesSpriteSeeSprite(hero)){
+        if(!latestAlert.doesSpriteSeeSprite(hero) || !latestAlert.alive){
             //don't show alert_clip if latestAlert cannot see hero.
             alert_clip.sprite.visible = false;
             latestAlert = null;
@@ -1226,7 +1254,7 @@ function addKeyHandlers(){
                                     hero_drag_target = guards[i];
                                     hero_drag_target.speed = hero.speed;
                                     hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                                    return;
+                                    //return;//don't return, this allows choking out a guard to have higher precedence than dragging a body
                                 }else if(hero.masked){
                                     //hero is choking out a live guard who is not already alarmed:
                                     newMessage('You are choking out a guard!');
@@ -1426,7 +1454,7 @@ function unsilenced_gun(){
     //makes a sound and draws all guards:
     alert_all_guards();
     //set lastSeen for investigating hero
-    hero.setLastSeen();
+    hero.setLastSeen(null);
 
 }
 function prepare_for_draw_blood(){

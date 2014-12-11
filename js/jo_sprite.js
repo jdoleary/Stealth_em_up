@@ -13,8 +13,9 @@ function jo_sprite(pixiSprite, parent){
     this.gun_shot_line = new debug_line();
     this.gun_shot_line.graphics.visible = false;
     this.aim = new Ray(0,0,0,0);
-    this.can_shoot = true;
+    this.can_shoot = false;
     this.shoot_speed = 700;//shoots every 0.7 seconds
+    this.reacting = false;//reacting to be able to "can_shoot"
     
     this.sprite = pixiSprite;
     //center the image:
@@ -48,10 +49,14 @@ function jo_sprite(pixiSprite, parent){
         //shows gun_shot_line
         //this.gun_shot_line.graphics.visible = true;
         this.can_shoot = false; //so the guards don't shoot way too fast
-        setTimeout(function(){
-            //allow sprite to shoot again.
-            this.can_shoot = true;
-        }.bind(this),this.shoot_speed);
+        if(!this.reacting){
+            this.reacting = true;
+            setTimeout(function(){
+                //allow sprite to shoot again.
+                this.can_shoot = true;
+                this.reacting = false;
+            }.bind(this),this.shoot_speed);
+        }
         //toggle gun_shot_line visibility.
         /*setTimeout(function(){
             this.gun_shot_line.graphics.clear();
