@@ -26,7 +26,7 @@ var music_masked;
 var music_unmasked;
 force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});
 force_buffer_sound("sound/Volatile_Reaction.mp3", 0.0, function(audio){music_masked = audio;});
-force_buffer_sound("sound/Vanes.mp3", 1.0, function(audio){music_hero_dead = audio;});
+force_buffer_sound("sound/Vanes.mp3", 0.0, function(audio){music_hero_dead = audio;});
 
 readjustVolumes();//call once automatically:
 

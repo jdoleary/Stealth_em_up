@@ -104,7 +104,7 @@ var map_bank_1 = {
         "guard_backup_spawn":[35*64,30*64],
         "security_cams":[{"swivel_max":2*Math.PI,"swivel_min":Math.PI/2,"pos":[64*7,64*8]},{"swivel_max":2*Math.PI,"swivel_min":Math.PI/2,"pos":[64*14,64*17]}],
         "computer":[33*64+32,29*64+32],
-        "van":[38*64,37*64],
+        "van":[36*64,37*64],//this is the butt end of the car, the ground under it will automatically be solid
         "loot":[29*64,2*64]
     }
 };
@@ -205,6 +205,29 @@ function jo_grid(map){
             return true;
         }
         else return false;
+        
+    }
+    
+    //useful for an object that makes the cell beneath it solid:
+    this.makeWallSolid = function(x,y){
+        
+        //return if coords are outside of map bounds:
+        if(x < 0 || y < 0)return;//do not accept negative values;
+        if(x > this.cell_size*this.width || y > this.cell_size*this.height){
+            //console.log("error2");
+            return;//coord out of bounds
+        }
+        var grid_index = this.getIndexFromCoords_2d(x,y);
+        var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
+        
+        if(cell){
+            
+            cell.solid = true;
+            cell.blocks_vision = true;
+            
+        }else{
+            //console.log('error');
+        }
         
     }
 

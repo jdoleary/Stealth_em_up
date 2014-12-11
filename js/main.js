@@ -253,6 +253,7 @@ function startMenu(){
         if(music_masked && music_unmasked){
             changeVolume(music_masked,0.0);
             changeVolume(music_unmasked,1.0);
+            changeVolume(music_hero_dead,0.0);
         }
         
         
@@ -423,6 +424,7 @@ function setup_map(map){
 			computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
 			computer_for_security_cameras.x = map.objects.computer[0];
 			computer_for_security_cameras.y = map.objects.computer[1];
+            grid.makeWallSolid(computer_for_security_cameras.x,computer_for_security_cameras.y);//makes the ground under the car solid
 			
 			//security camera
 			security_cameras = [];
@@ -433,9 +435,12 @@ function setup_map(map){
             
 			//Loot and Getaway car:
 			getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
-			getawaycar.sprite.anchor.y = 0.25;
+			getawaycar.sprite.anchor.y = 0.0;
+			getawaycar.sprite.anchor.x = 0.5;
 			getawaycar.x = map.objects.van[0];
 			getawaycar.y = map.objects.van[1];
+            grid.makeWallSolid(getawaycar.x,getawaycar.y);//makes the ground under the car solid
+            grid.makeWallSolid(getawaycar.x,getawaycar.y-64);//makes the ground under the car solid
 			getawaycar.rad = -Math.PI/2;
 			loot = [];
 			var money = new jo_sprite(new PIXI.Sprite(img_money));
@@ -771,9 +776,8 @@ function gameloop(deltaTime){
                     guards[i].ammo -= max;
                     ammo += max;
                     
-                    newMessage('You pick up ammo from guard.');
-                    newMessage(ammo);
-                    newMessage(guards[i].ammo);
+                    newMessage('You pick up a regular pistol from a guard, careful, this one is not silenced!');
+                    newMessage("Ammo: " + ammo + "/6");
                 }
             }
         }
@@ -1437,6 +1441,7 @@ function hero_is_dead(){
     play_sound(music_hero_dead);
     changeVolume(music_unmasked,0.0);
     changeVolume(music_masked,0.0);
+    changeVolume(music_hero_dead,1.0);
 }
 //plays sound
 function doGunShotEffects(unit, silenced){
