@@ -1,3 +1,8 @@
+/*******************************************************\
+Copyright 2014,2015, Jordan O'Leary, All rights reserved.
+If you would like to copy or use my code, you may contact
+me at jdoleary@gmail.com
+/*******************************************************/
 function circle_linesetment_intersect(circle,linestart,lineend){
     //http://stackoverflow.com/questions/1073336/circle-line-collision-detection
     //linestart and lineend in form {x: #, y: #}

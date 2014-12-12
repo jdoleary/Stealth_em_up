@@ -1,3 +1,8 @@
+/*******************************************************\
+Copyright 2014,2015, Jordan O'Leary, All rights reserved.
+If you would like to copy or use my code, you may contact
+me at jdoleary@gmail.com
+/*******************************************************/
 function addButton(text,x,y, clickFunction){
     //clickFunction is the function that is called whent this button is clicked.
     //var textureButton = PIXI.Texture.fromImage(img);

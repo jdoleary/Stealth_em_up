@@ -1,3 +1,9 @@
+/*******************************************************\
+Copyright 2014,2015, Jordan O'Leary, All rights reserved.
+If you would like to copy or use my code, you may contact
+me at jdoleary@gmail.com
+/*******************************************************/
+
 function jo_cam(window_properties){
     this.x = 0;
     this.y = 0;

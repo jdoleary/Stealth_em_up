@@ -1,4 +1,8 @@
-
+/*******************************************************\
+Copyright 2014,2015, Jordan O'Leary, All rights reserved.
+If you would like to copy or use my code, you may contact
+me at jdoleary@gmail.com
+/*******************************************************/
 
 //NOTE: When you add a new sound, be sure to use changeVolume under readjustVolumes
 

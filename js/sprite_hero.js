@@ -1,3 +1,8 @@
+/*******************************************************\
+Copyright 2014,2015, Jordan O'Leary, All rights reserved.
+If you would like to copy or use my code, you may contact
+me at jdoleary@gmail.com
+/*******************************************************/
 function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
     function sprite_hero(){
         this.speed_walk = speed_walk;

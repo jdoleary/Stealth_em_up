@@ -1,3 +1,8 @@
+/*******************************************************\
+Copyright 2014,2015, Jordan O'Leary, All rights reserved.
+If you would like to copy or use my code, you may contact
+me at jdoleary@gmail.com
+/*******************************************************/
 function sprite_civ_wrapper(pixiSprite){
     function sprite_civ(){
         this.path = [];//path applies to AI following a path;

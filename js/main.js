@@ -1,3 +1,8 @@
+/*******************************************************\
+Copyright 2014,2015, Jordan O'Leary, All rights reserved.
+If you would like to copy or use my code, you may contact
+me at jdoleary@gmail.com
+/*******************************************************/
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 /*
@@ -369,7 +374,9 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             alert_clip = new jo_sprite(jo_movie_clip("movie_clips/","alert_",12,".png"),display_actors);
             alert_clip.sprite.loop = false;
             alert_clip.sprite.visible = false;
-            alert_clip.sprite.animationSpeed = 0.6;//slow it down
+            alert_clip.sprite.scale.x = 0.4;
+            alert_clip.sprite.scale.y = 0.4;
+            alert_clip.sprite.animationSpeed = 0.8;//slow it down
 
             //effects:
             static_effect_sprites = [];
@@ -1539,10 +1546,10 @@ function hero_move_animation_check(){
 
 //show alert icon
 function set_latestAlert(unit){
-    //don't reset alert until animation is done playing
-    if(alert_clip.sprite.currentFrame == alert_clip.sprite.totalFrames-1 || alert_clip.sprite.currentFrame == 0){
-        //if latestAlert doesn't already equal this unit, play it and set it
-        if(latestAlert!=unit){
+    //don't show alert unless the enemies don't know where you are.
+    if(hero_last_seen.sprite.visible == true || backupCalled == false){
+        //if latestAlert doesn't already equal this unit, play it and set it && don't reset alert until animation is done playing
+        if(latestAlert!=unit && (alert_clip.sprite.currentFrame == alert_clip.sprite.totalFrames-1 || alert_clip.sprite.currentFrame == 0)){
             latestAlert = unit;
             alert_clip.sprite.visible = true;
             alert_clip.sprite.gotoAndPlay(0);
@@ -1555,6 +1562,7 @@ function set_latestAlert(unit){
             }, 3500);
         }
     }
+    
     
 }
 
