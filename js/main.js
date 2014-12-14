@@ -155,6 +155,9 @@ var message;
 var messageText;
 var messageGameOver;
 
+//floating messages:
+var messages_floating;
+
 //Tooltip text:
 var tooltip;
 
@@ -358,6 +361,8 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             messageGameOver.position.y = window_properties.height/2;
             messageGameOver.anchor.x = 0.5;
             stage.addChild(messageGameOver);
+            
+            messages_floating = []
             
             //Tooltip text: todo test
             tooltip = new PIXI.Text("Tooltip", { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 2 });
@@ -817,7 +822,8 @@ function gameloop(deltaTime){
                     
                     newMessage('You pick up a regular pistol from a guard, careful, this one is not silenced!');
                     newMessage("Ammo: " + ammo + "/6");
-                    newMessage("guards[i].ammo: " + guards[i].ammo + "/6");
+                    newFloatingMessage("Ammo: " + ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
+                    newMessage("Dead guard's remaining ammo: " + guards[i].ammo + "/6");
                 }
             }
         }
@@ -1188,6 +1194,32 @@ function gameloop(deltaTime){
     tooltip.y = objPos.y;
     
     //////////////////////
+    //floating messages:
+    //////////////////////
+    for(var m_f = 0; m_f < messages_floating.length; m_f++){
+        //prepare for draw:
+        var drawPos = camera.relativePoint({x:messages_floating[m_f].objX,y:messages_floating[m_f].objY});
+        messages_floating[m_f].x = drawPos.x;
+        messages_floating[m_f].y = drawPos.y;
+        var startFloatSpeed = 0.1*deltaTime;
+        
+        if(!messages_floating[m_f].lastFloatSpeed){
+            messages_floating[m_f].objY -= startFloatSpeed;
+            messages_floating[m_f].lastFloatSpeed = startFloatSpeed;
+        }else{
+            messages_floating[m_f].objY -= messages_floating[m_f].lastFloatSpeed;
+        }
+        messages_floating[m_f].lastFloatSpeed *= 0.98;//reduce the float speed
+        if(messages_floating[m_f].lastFloatSpeed <= startFloatSpeed*0.5)messages_floating[m_f].alpha -= 0.0007*deltaTime;//fade out
+        if(messages_floating[m_f].alpha <= 0){
+            //remove it:
+            
+            stage_child.removeChild(messages_floating[m_f]);
+            messages_floating.splice(m_f,1);
+        }
+    }
+    
+    //////////////////////
     //Camera
     //////////////////////
     
@@ -1218,7 +1250,7 @@ function gameloop(deltaTime){
             camera.following = false;//when camera reaches it's target, turn off following so it can just stick.
         }
     }*/
-    
+ 
     //////////////////////
     //Zoom / Scale
     //////////////////////
@@ -1425,6 +1457,7 @@ function addKeyHandlers(){
         if(hero.masked && ammo > 0){
             ammo--;
             newMessage("Ammo: " + ammo + "/6");
+            newFloatingMessage("Ammo: " + ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
             doGunShotEffects(hero, hero.silenced);//plays sound and shows affects
             
             //toggles on the visiblity of .draw_gun_shot's line
@@ -1476,6 +1509,15 @@ function newMessage(mess){
         updateMessage();
     },7000);
     updateMessage();
+}
+function newFloatingMessage(mess,pos,color){
+    //Color in format of "#000000"
+    var m = new PIXI.Text(mess, { font: "20px Arial", fill: color, align: "left", stroke: "#FFFFFF", strokeThickness: 3 });
+    m.objX = pos.x;
+    m.objY = pos.y;
+    m.anchor.y = 1;
+    messages_floating.push(m);
+    stage_child.addChild(m);
 }
 function updateMessage(){
     var textForMessage = "";
