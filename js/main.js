@@ -545,6 +545,9 @@ function gameloop(deltaTime){
     //update all sprites:
     //////////////////////
     
+    
+    var tooltipshown = false;  //hero is not close enough to any doors/guards, toggle visiblity off.
+    
     //reset graphics_blood:
     graphics_blood.clear();
     graphics_blood.lineStyle(15, 0xb51d1d, 1);
@@ -806,7 +809,7 @@ function gameloop(deltaTime){
             if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
             
                 //if hero is out of ammo (or has a guards gun), pick up guards gun/ammo:
-                if(ammo <= 0 || (!hero.silenced && guards[i].ammo > 0 && ammo != 6)){
+                if((ammo <= 0 || !hero.silenced) && guards[i].ammo > 0 && ammo != 6){
                     hero.silenced = false;
                     var max = 6- ammo;
                     guards[i].ammo -= max;
@@ -814,6 +817,7 @@ function gameloop(deltaTime){
                     
                     newMessage('You pick up a regular pistol from a guard, careful, this one is not silenced!');
                     newMessage("Ammo: " + ammo + "/6");
+                    newMessage("guards[i].ammo: " + guards[i].ammo + "/6");
                 }
             }
         }
@@ -833,7 +837,9 @@ function gameloop(deltaTime){
         //collide with other guards so they don't overlap:
         //start at i+1 so it checks all the guards who haven't already been checked for collision
         for(var other_guard_index = i+1; other_guard_index < guards.length; other_guard_index++){
-            guards[i].unit_to_unit_collide({x:guards[other_guard_index].x-1,y:guards[other_guard_index].y-1},10);
+            if(guards[other_guard_index].alive){
+                guards[i].unit_to_unit_collide({x:guards[other_guard_index].x-1,y:guards[other_guard_index].y-1},10);
+            }
         }
     }
     if(notifyGuardsOfHeroLocation)console.log("Repath all guards to hero last seen");
@@ -900,6 +906,17 @@ function gameloop(deltaTime){
         security_cameras[i].prepare_for_draw();
     }
     
+    //show tooltip when close enough to computer
+    if(get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){        
+        //if hero is near a door and masked, show tooltip to open door
+        if(hero.alive && !cameras_disabled){
+            tooltip.visible = true;
+            tooltipshown = true;
+            tooltip.setText("[Space] to deactivate cameras");
+            tooltip.objX = computer_for_security_cameras.x;
+            tooltip.objY = computer_for_security_cameras.y;
+        }
+    }
     computer_for_security_cameras.prepare_for_draw();
     
     
@@ -1080,7 +1097,6 @@ function gameloop(deltaTime){
      //////////////////////
     //Doors
     //////////////////////
-    var tooltipshown = false;  //hero is not close enough to any doors/guards, toggle visiblity off.
     for(var d = 0; d < grid.door_sprites.length; d++){
         var door_inst = grid.door_sprites[d];
         //door is anchored at top, so account for offset when checking distance
@@ -1284,62 +1300,63 @@ function addKeyHandlers(){
                                     return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                                 }
                             }
-                        }
-                        //check if any dead guards are close enough to be dragged.
-                        for(var i = 0; i < guards.length; i++){
-                            if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
-                            
-                                //check if any dead guards are close enough to be dragged.
-                                if(!guards[i].alive){
-                                    //hero is dragging a dead body
-                                    
-                                    //slow down hero speed because he just started dragging something.
-                                    hero.speed = hero.speed/2;
-                                    hero_drag_target = guards[i];
-                                    hero_drag_target.speed = hero.speed;
-                                    hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                                    //return;//don't return, this allows choking out a guard to have higher precedence than dragging a body
-                                }else if(hero.masked){
-                                    //hero is choking out a live guard who is not already alarmed:
-                                    newMessage('You are choking out a guard!');
-                                    play_sound(sound_guard_choke);
-                                            
-                                            
-                                    //add to stats:
-                                    jo_store_inc("guardsChoked");
-                                    
-                                    guards[i].moving = true;
-                                    guards[i].path = [];
-                                    guards[i].target = {x: null, y:null}; 
-                                    guards[i].being_choked_out = true;
-                                    //slow down hero speed because he just started dragging something.
-                                    hero.speed = hero.speed_walk/2;
-                                    hero_drag_target = guards[i];
-                                    hero_drag_target.speed = hero.speed;
-                                    hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
-                                    setTimeout(function(){
-                                        //check that the guard is still being choked out, if not, he's not dead so don't kill() him
-                                        if(hero_drag_target == this){
-                                            newMessage('The guard is dispached!');
-                                            this.kill();
-                                            //if space isn't still being held release body:
-                                            if(!keys['space']){
-                                                console.log('space is no longer held, stop dragging');
-                                                //drag is a toggle action so release current drag target.
-                                                hero_drag_target.stop_dragging();
-                                                hero_drag_target = null;
-                                                //bring hero speed back to normal
-                                                hero.speed = hero.speed_walk;
-                                            }
-                                        }
-                                    }.bind(guards[i]), 3000);
-                                    return;
-                                }
-
-                            }
-                            
+                        
+                            //check if any dead guards are close enough to be dragged.
+                            for(var i = 0; i < guards.length; i++){
+                                if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
                                 
-                            
+                                    //check if any dead guards are close enough to be dragged.
+                                    if(!guards[i].alive){
+                                        //hero is dragging a dead body
+                                        
+                                        //slow down hero speed because he just started dragging something.
+                                        hero.speed = hero.speed/2;
+                                        hero_drag_target = guards[i];
+                                        hero_drag_target.speed = hero.speed;
+                                        hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                                        //return;//don't return, this allows choking out a guard to have higher precedence than dragging a body
+                                    }else if(hero.masked){
+                                        //hero is choking out a live guard who is not already alarmed:
+                                        newMessage('You are choking out a guard!');
+                                        play_sound(sound_guard_choke);
+                                                
+                                                
+                                        //add to stats:
+                                        jo_store_inc("guardsChoked");
+                                        
+                                        guards[i].moving = true;
+                                        guards[i].path = [];
+                                        guards[i].target = {x: null, y:null}; 
+                                        guards[i].being_choked_out = true;
+                                        //slow down hero speed because he just started dragging something.
+                                        hero.speed = hero.speed_walk/2;
+                                        hero_drag_target = guards[i];
+                                        hero_drag_target.speed = hero.speed;
+                                        hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
+                                        setTimeout(function(){
+                                            //check that the guard is still being choked out, if not, he's not dead so don't kill() him
+                                            if(hero_drag_target == this){
+                                                newMessage('The guard is dispached!');
+                                                this.kill();
+                                                //if space isn't still being held release body:
+                                                if(!keys['space']){
+                                                    console.log('space is no longer held, stop dragging');
+                                                    //drag is a toggle action so release current drag target.
+                                                    hero_drag_target.stop_dragging();
+                                                    hero_drag_target = null;
+                                                    //bring hero speed back to normal
+                                                    hero.speed = hero.speed_walk;
+                                                }
+                                            }
+                                        }.bind(guards[i]), 3000);
+                                        return;
+                                    }
+
+                                }
+                                
+                                    
+                                
+                            }
                         }
                         //note: dragging guards takes precedence over all the following actions.
                         
