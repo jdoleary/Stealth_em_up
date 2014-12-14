@@ -268,6 +268,24 @@ function jo_sprite(pixiSprite, parent){
         this.x = x2;
         this.y = y2;
     };
+    //added 10 to the radius because it looks better
+    this.unit_to_unit_collide = function(coord){
+        var opp = this.y - coord.y;
+        var adj = this.x - coord.x;
+        var C = Math.sqrt(opp*opp+adj*adj);
+        if ( C >= this.radius+10)return;
+        
+        var L = this.radius+10;
+        var Ang = Math.atan2(opp,adj);
+        
+        
+        var x2 = coord.x + (Math.cos(Ang) * L)
+        var y2 = coord.y + (Math.sin(Ang) * L)
+        
+        //set sprite to new coordinates
+        this.x = x2;
+        this.y = y2;
+    };
     this.collide_with_wall_sides = function(wall){
         //check for top/bottom side collision
         //if between left and right side

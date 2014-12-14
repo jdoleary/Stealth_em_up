@@ -14,6 +14,7 @@ function sprite_guard_wrapper(pixiSprite){
         this.startedIdling = false;
         this.idleRotateRad;//radians to rotate to while idling (changes each time)
         this.ammo = 6;
+        this.sawHeroLastAt = {x:null,y:null};
         
         this.kill = function(){
             //play_sound(sound_unit_die);

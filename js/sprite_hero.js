@@ -20,14 +20,14 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
                 //if the observer is still alive after 2 seconds and not being choked out, alert the others
                 setTimeout(function(){
                     if(observer.alive && !observer.being_choked_out){
-                        if(this.lastSeenX != this.x && this.lastSeenY != this.y){
-                            this.lastSeenX = this.x;
-                            this.lastSeenY = this.y;
-                            hero_last_seen.x = this.x;
-                            hero_last_seen.y = this.y;
+                        if(this.lastSeenX != observer.sawHeroLastAt.x && this.lastSeenY != observer.sawHeroLastAt.y){
+                            this.lastSeenX = observer.sawHeroLastAt.x;
+                            this.lastSeenY = observer.sawHeroLastAt.y;
+                            hero_last_seen.x = observer.sawHeroLastAt.x;
+                            hero_last_seen.y = observer.sawHeroLastAt.y;
                             //repath alert guards to hero
                             notifyGuardsOfHeroLocation = true;
-                            //newMessage("Last seen " + this.x + "," + this.y);
+                            //newMessage("Last seen " + observer.sawHeroLastAt.x + "," + observer.sawHeroLastAt.y);
                         }
                     };
                 }.bind(this), 2000);

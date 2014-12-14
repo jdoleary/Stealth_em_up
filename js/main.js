@@ -712,6 +712,7 @@ function gameloop(deltaTime){
                         
                         //set lastSeen for investigating hero
                         hero.setLastSeen(guards[i]);
+                        guards[i].sawHeroLastAt = {x:hero.x,y:hero.y};
                     }
                     
                 }
@@ -748,6 +749,7 @@ function gameloop(deltaTime){
                         
                         //set lastSeen for investigating hero
                         hero.setLastSeen(guards[i]);
+                        guards[i].sawHeroLastAt = {x:hero.x,y:hero.y};
                     }
                 }else{
                     //if alarmed move to last place hero was seen
@@ -827,6 +829,11 @@ function gameloop(deltaTime){
                 graphics_blood.lineStyle(15, 0xb51d1d, j);
                 //graphics_blood.drawPath(path);
             }
+        }
+        //collide with other guards so they don't overlap:
+        //start at i+1 so it checks all the guards who haven't already been checked for collision
+        for(var other_guard_index = i+1; other_guard_index < guards.length; other_guard_index++){
+            guards[i].unit_to_unit_collide({x:guards[other_guard_index].x-1,y:guards[other_guard_index].y-1},10);
         }
     }
     if(notifyGuardsOfHeroLocation)console.log("Repath all guards to hero last seen");
@@ -946,22 +953,63 @@ function gameloop(deltaTime){
         }
         bullets[b].rotate_to_instant(bullets[b].target.x,bullets[b].target.y);
         
+        
+        //Who does the bullet kill:
+            //bullets shot by hero can kill:
+                //cameras, guards
+            //bullets shot by guards can kill:
+                //hero, cameras, hero_drag_target
             
-        //check if bullet intersects guard:
-        for(var i = 0; i < guards.length; i++){
-            if(bullets[b].ignore == guards[i])continue;//don't kill the shooter with his own bullet
-            if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
-                guards[i].kill();
+        //if the hero shot the bullet check if bullet intersects guard:
+        if(bullets[b].ignore == hero){
+            for(var i = 0; i < guards.length; i++){
+                if(bullets[b].ignore == guards[i])continue;//don't kill the shooter with his own bullet
+                if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+                    guards[i].kill();
+                    //make blood splatter:
+                    makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
+                    //make blood trail:
+                    guards[i].blood_trail = [guards[i].x,guards[i].y];
+                    
+                    if(guards[i].alarmed && !backupCalled)newMessage("You dispatch the guard before he can get the word out!");
+                    
+                    
+                    //add to stats:
+                    jo_store_inc("guardsShot");
+                    
+                    //destroy bullet
+                    display_actors.removeChild(bullets[b].sprite);
+                    bullets.splice(b,1);
+                    continue bulletLoop;
+
+                }
+            
+            }
+        }else{
+            //check if bullet intersects hero_drag_target
+            if(hero_drag_target && circle_linesetment_intersect(hero_drag_target.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+                if(hero_drag_target.alive)hero_drag_target.kill();
                 //make blood splatter:
-                makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
-                //make blood trail:
-                guards[i].blood_trail = [guards[i].x,guards[i].y];
-                
-                if(guards[i].alarmed && !backupCalled)newMessage("You dispatch the guard before he can get the word out!");
-                
-                
+                makeBloodSplatter(hero_drag_target.x,hero_drag_target.y,bullets[b].ignore.x,bullets[b].ignore.y);
+                //destroy bullet
+                display_actors.removeChild(bullets[b].sprite);
+                bullets.splice(b,1);
+                continue bulletLoop;
+
+            }
+            //check if bullet intersects with hero
+                //ignore:: //don't kill the shooter with his own bullet
+            if(bullets[b].ignore != hero && hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+                hero.kill();
+                //make blood splatter:
+                makeBloodSplatter(hero.x,hero.y,bullets[b].ignore.x,bullets[b].ignore.y);
+                //remove key handlers so hero can no longer move around
+                console.log('you died');
+                messageGameOver.setText('Press [Esc] to restart!');
+                removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
                 //add to stats:
-                jo_store_inc("guardsShot");
+                jo_store_inc("loses");
+                
                 
                 //destroy bullet
                 display_actors.removeChild(bullets[b].sprite);
@@ -969,28 +1017,6 @@ function gameloop(deltaTime){
                 continue bulletLoop;
 
             }
-        
-        }
-        
-        //check if bullet intersects with hero
-            //ignore:: //don't kill the shooter with his own bullet
-        if(bullets[b].ignore != hero && hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
-            hero.kill();
-            //make blood splatter:
-            makeBloodSplatter(hero.x,hero.y,bullets[b].ignore.x,bullets[b].ignore.y);
-            //remove key handlers so hero can no longer move around
-            console.log('you died');
-            messageGameOver.setText('Press [Esc] to restart!');
-            removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
-            //add to stats:
-            jo_store_inc("loses");
-            
-            
-            //destroy bullet
-            display_actors.removeChild(bullets[b].sprite);
-            bullets.splice(b,1);
-            continue bulletLoop;
-
         }
         /*//check if hero aim intersects civs:
         for(var i = 0; i < civs.length; i++){
