@@ -8,6 +8,8 @@ me at jdoleary@gmail.com
 var img_tile_black = "tile_black.png";
 var img_tile_white = "tile_white.png";
 var img_tile_brown = "tile_brown.png";
+var img_tile_brown_1 = "tile_brown_1.png";
+var img_tile_brown_2 = "tile_brown_2.png";
 var img_tile_red = "tile_red.png";
 
 function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
@@ -48,7 +50,36 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             var sprite = new PIXI.Sprite.fromImage(img_tile_white);
             break;
         case 2:
-            var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
+            
+            var random_tile = Math.round(Math.random() * (10 - 1) + 1);
+            if(random_tile==1 || random_tile==3){
+                var sprite = new PIXI.Sprite.fromImage(img_tile_brown_1);
+            }else if(random_tile==2 || random_tile==4){
+                var sprite = new PIXI.Sprite.fromImage(img_tile_brown_2);
+            }else{
+                var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
+            }
+            /*var random_rot = Math.round(Math.random() * (4 - 1) + 1);
+            sprite.anchor.x = 0.5;
+            sprite.anchor.y = 0.5;
+            
+            switch(random_rot){
+                case 1:
+                    sprite.rotation = Math.PI/2;
+                    break;
+                case 2:
+                    sprite.rotation = Math.PI;
+                    break;
+                case 3:
+                    sprite.rotation = 3*Math.PI/2;
+                    break;
+                case 4:
+                    sprite.rotation = 2*Math.PI;
+                    break;
+            }
+            sprite.anchor.x = 0.0;
+            sprite.anchor.y = 0.0;*/
+            
             break;
         case 3:
         case 4:
