@@ -50,7 +50,8 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             var sprite = new PIXI.Sprite.fromImage(img_tile_white);
             break;
         case 2:
-            
+            var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
+            /*YOU CAN'T DO THIS BECAUSE IT IS SPRITE BATCHED
             var random_tile = Math.round(Math.random() * (10 - 1) + 1);
             if(random_tile==1 || random_tile==3){
                 var sprite = new PIXI.Sprite.fromImage(img_tile_brown_1);

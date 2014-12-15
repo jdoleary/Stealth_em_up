@@ -19,6 +19,7 @@ var img_door_open = PIXI.Texture.fromImage("door_open.png");
 var img_door_closed = PIXI.Texture.fromImage("door_closed.png");
 
 
+
 //new images:
 var img_hero_dead   = PIXI.Texture.fromImage("hero_dead.png");
 var img_guard_reg   = PIXI.Texture.fromImage("guard.png");
