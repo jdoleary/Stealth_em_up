@@ -856,7 +856,7 @@ function gameloop(deltaTime){
         //collide with other guards so they don't overlap:
         //start at i+1 so it checks all the guards who haven't already been checked for collision
         for(var other_guard_index = i+1; other_guard_index < guards.length; other_guard_index++){
-            if(guards[other_guard_index].alive){
+            if(guards[i].alive && guards[other_guard_index].alive){
                 guards[i].unit_to_unit_collide({x:guards[other_guard_index].x-1,y:guards[other_guard_index].y-1},10);
             }
         }
@@ -1585,7 +1585,7 @@ function makeBloodSplatter(atX,atY,pointAtX,pointAtY){
     if(roll){
         img = img_blood_splatter2;
     }
-    var blood_splatter = new jo_sprite(new PIXI.Sprite(img),display_effects);
+    var blood_splatter = new jo_sprite(new PIXI.Sprite(img),display_blood);
     blood_splatter.x = atX;
     blood_splatter.y = atY;
     blood_splatter.rotate_to_instant(pointAtX,pointAtY);
