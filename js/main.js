@@ -430,6 +430,7 @@ function setup_map(map){
                 var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg));
                 guard_inst.x = map.objects.guards[i][0];
                 guard_inst.y = map.objects.guards[i][1];
+                guard_inst.getRandomPatrolPath();
                 guards.push(guard_inst);
             }
 
@@ -681,6 +682,8 @@ function gameloop(deltaTime){
     
     for(var i = 0; i < guards.length; i++){
         if(guards[i].alive){
+        
+        
                 //shooting
             //guards aim can be off by up to 50 pixels:
             var aim_x_offset = Math.floor(Math.random() * 50);
@@ -716,6 +719,7 @@ function gameloop(deltaTime){
                         set_latestAlert(guards[i]);
                         
                         //rotate guard to face hero:
+                        guards[i].target_rotate = hero;
                         guards[i].rotate_to(hero.x,hero.y);
                         
                         //set lastSeen for investigating hero
@@ -723,6 +727,9 @@ function gameloop(deltaTime){
                         guards[i].sawHeroLastAt = {x:hero.x,y:hero.y};
                     }
                     
+                }else{
+                    //guard doesn't see hero so set target_rotate to null so guard can rotate where he moves again
+                    guards[i].target_rotate = null;
                 }
             }else{
                 //guard is alarmed:
@@ -731,7 +738,9 @@ function gameloop(deltaTime){
                     if(hero.masked && hero.alive){
                         //reset target
                         guards[i].moving = false;
+                        guards[i].target_rotate = hero;
                         guards[i].rotate_to(hero.x,hero.y);
+                        
                         if(guards[i].can_shoot){
                             
                             doGunShotEffects(guards[i], false);//plays sound
@@ -760,6 +769,10 @@ function gameloop(deltaTime){
                         guards[i].sawHeroLastAt = {x:hero.x,y:hero.y};
                     }
                 }else{
+                    
+                    //guard doesn't see hero so set target_rotate to null so guard can rotate where he moves again
+                    guards[i].target_rotate = null;
+                
                     //if alarmed move to last place hero was seen
                     if(notifyGuardsOfHeroLocation || !guards[i].chasingHero && hero.lastSeenX && hero.lastSeenY){
                         //this is only called once due to .chasingHero
@@ -784,8 +797,8 @@ function gameloop(deltaTime){
                     guards[i].startedIdling = true;
                 }
                 //if guard does not have a path, wait a little while, then move
-                var wait_max = 3000;
-                var wait_min = 500;
+                var wait_max = 4000;
+                var wait_min = 300;
                 if(!guards[i].idling){
                     var random_idle = Math.random() * (wait_max - wait_min) + wait_min;
                     //console.log('random idle: ' + random_idle);
@@ -798,7 +811,7 @@ function gameloop(deltaTime){
                 }else{
                     //note: if a path is not found and this.path == [], the guard will idle again.
                     //guard idling
-                    guards[i].rotate_to(guards[i].idleRotateRad);
+                    guards[i].rotate_to_rad(guards[i].idleRotateRad);
                 }
                 guards[i].idling = true;
                 

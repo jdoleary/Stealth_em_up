@@ -86,16 +86,20 @@ function jo_sprite(pixiSprite, parent){
             this.x += a;
             this.y += b;
         }
-        //rotate to face direction of movement
-        var newRad = Math.atan2(b,a);
-        var diff = newRad - this.rad;
-        if(Math.abs(diff) <= 0.1)this.rad = newRad;
-        else if(diff > Math.PI)this.rad -= 0.1;
-        else if(diff < -Math.PI)this.rad += 0.1;
-        else if(diff < 0)this.rad -= 0.1;
-        else if(diff > 0)this.rad += 0.1;
-        if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
-        if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
+        if(!this.target_rotate){
+            //rotate to face direction of movement
+            var newRad = Math.atan2(b,a);
+            var diff = newRad - this.rad;
+            if(Math.abs(diff) <= 0.1)this.rad = newRad;
+            else if(diff > Math.PI)this.rad -= 0.1;
+            else if(diff < -Math.PI)this.rad += 0.1;
+            else if(diff < 0)this.rad -= 0.1;
+            else if(diff > 0)this.rad += 0.1;
+            if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
+            if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
+        }else{
+            this.rotate_to(this.target_rotate);
+        }
         
     };
     
@@ -108,9 +112,7 @@ function jo_sprite(pixiSprite, parent){
         var A = x-this.x;
         var B = y-this.y;
         var C = Math.sqrt(A*A+B*B);
-        if(C<this.stop_distance){        
-            return true; // the object is close enough that it need not move
-        }
+
         a = c*A/C;
         b = c*B/C;
         
@@ -126,7 +128,7 @@ function jo_sprite(pixiSprite, parent){
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         
     };
-    this.rotate_to = function(rad){
+    this.rotate_to_rad = function(rad){
     
         //sanitize:
         if(rad >= Math.PI*2)rad = rad%Math.PI*2;
@@ -135,7 +137,7 @@ function jo_sprite(pixiSprite, parent){
         
         //rotate to face direction of movement
         var diff = rad - this.rad;
-        var rotSpeed = 0.01;
+        var rotSpeed = 0.03;
         if(Math.abs(diff) <= rotSpeed*3)this.rad = rad;
         else if(diff > Math.PI)this.rad -= rotSpeed;
         else if(diff < -Math.PI)this.rad += rotSpeed;
