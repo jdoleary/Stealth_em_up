@@ -98,7 +98,7 @@ function jo_sprite(pixiSprite, parent){
             if(this.rad < Math.PI)this.rad += Math.PI*2; //keep it between -PI and PI
             if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         }else{
-            this.rotate_to(this.target_rotate);
+            this.rotate_to(this.target_rotate.x, this.target_rotate.y);
         }
         
     };
@@ -151,6 +151,7 @@ function jo_sprite(pixiSprite, parent){
     
     //instantly rotate to target (not incrementally)
     this.rotate_to_instant = function(x,y){
+        //console.log('rotate to inst: ' + x + ' ' + y);
         //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
         //the movement of this.x and this.y (a,b) are found with the formulas: A/C = a/c and B/C = b/c
         if(x == null || y == null )return;//no target
