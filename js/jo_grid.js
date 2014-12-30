@@ -45,7 +45,7 @@ var map_diamond_store = {
     "width":40,
     "objects":{
         "hero":[1182,615],
-        "guards":[[64*3+32,64*5],[64*16+32,64*6],[64*3+32,64*15]],
+        "guards":[[64*3+32,64*5]],//,[64*16+32,64*6],[64*3+32,64*15]],
         "guard_backup_spawn":[31*64,1*64],
         "security_cams":[{"swivel_max":Math.PI/2,"swivel_min":0,"pos":[3*64,4*64]},{"swivel_max":Math.PI,"swivel_min":0,"pos":[5*64,21*64]}],
         "computer":[11*64+32,19*64+32],
@@ -383,9 +383,93 @@ function jo_grid(map){
             path.push({x: result[i].y*this.cell_size+this.cell_size/2, y: result[i].x*this.cell_size+this.cell_size/2});//return path in obj pixel location, index*64-32 will center the pixel on the correct index cell
             //console.log(result[i].y , ',' , result[i].x);
         }
+        
+        //test 2
+        var optimized_path = [];
+        var lastPoint = null;
+        var endtt = null;
+        for(var i = 0; i < path.length; i++){
+            if(!lastPoint){
+                lastPoint = path[i];
+                console.log('new start: ' + Math.floor(path[i].x / this.cell_size) + " , " + Math.floor(path[i].y / this.cell_size));
+            }
+            else{
+                if(hasLineOfSight(path[i].x,path[i].y,lastPoint.x,lastPoint.y)){
+                    //don't use:
+                    console.log('new end: ' + Math.floor(path[i].x / this.cell_size) + " , " + Math.floor(path[i].y / this.cell_size));
+                    endtt = path[i];
+                }
+                else{
+                    console.log('push both');
+                    optimized_path.push(lastPoint);
+                    if(endtt!=null){
+                        optimized_path.push(endtt);
+                        lastPoint = endtt;
+                        console.log('new start: ' + Math.floor(lastPoint.x / this.cell_size) + " , " + Math.floor(lastPoint.y / this.cell_size));
+                        i--;
+                        endtt = null;
+                    }
+                    
+                }
+            
+            }
+            console.log(i + " " + path[i].x + "," + path[i].y);
+        }
+                    
+        if(endtt!=null){
+            console.log('push end');
+            optimized_path.push(endtt);
+        }
+        //test 2
+        
+        //test
+        /*
+        var startt;
+        var endt;
+        console.log("path");
+        for(var i = 0; i < path.length; i++){
+            if(startt == null){
+                //console.log("new start");
+                startt = i;
+            }
+            else{
+                if(path[i].x == path[startt].x || path[i].y == path[startt].y){
+                //console.log("new end");
+                    endt = i;
+                }else{
+                    if(endt != null){
+                //console.log("push start and  end");
+                        optimized_path.push(path[startt]);
+                        optimized_path.push(path[endt]);
+                        endt = null;
+                        startt = endt;
+                        
+                    }else{
+                        startt = null;
+                    }
+                }
+            }
+            var test = grid.getIndexFromCoords_2d(path[i].x,path[i].y);
+            console.log(i + " " + test.x + "," + test.y);
+        }
+            if(startt!=null){
+                optimized_path.push(path[startt]);
+            }
+            if(endt!=null){
+                optimized_path.push(path[endt]);
+            }
+            */
+        console.log("op path");
+        for(var i = 0; i < optimized_path.length; i++){
+            var test = grid.getIndexFromCoords_2d(optimized_path[i].x,optimized_path[i].y);
+            console.log(i + " " + test.x + "," + test.y);
+        }
+        //test
+        
+        
         //console.log('grid return path: ');
         //console.log(path);
-        return path; //path is an array of points
+        return optimized_path; //path is an array of points
     
     };
    

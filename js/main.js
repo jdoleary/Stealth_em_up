@@ -1178,6 +1178,7 @@ function gameloop_alert_animation(deltaTime){
         }
     }
 }
+var mousetest;
 function gameloop(deltaTime){
     
     //////////////////////
@@ -1186,7 +1187,15 @@ function gameloop(deltaTime){
     mouse_rel = stage.getMousePosition();//gets relative mouse position
     if(mouse_rel.x != -10000)mouse = camera.objectivePoint(mouse_rel);//only set mouse position if the mouse is on the stage
     
-    
+    //test
+    var mouseIndex = grid.getIndexFromCoords_2d(mouse.x,mouse.y);
+    if(!mousetest || (mouseIndex.x != mousetest.x || mouseIndex.y != mousetest.y)){
+        mousetest = mouseIndex;
+        newFloatingMessage("Mouse Index: " + mousetest.x + " , " + mousetest.y,{x:mouse.x,y:mouse.y},"#FFaa00");
+    }
+    //test
+
+      
     //////////////////////
     //Hero Movement and Aim
     //////////////////////
@@ -1496,7 +1505,7 @@ function addKeyHandlers(){
         //you can only shoot if hero is masked
         if(hero.masked && ammo > 0){
             ammo--;
-            newMessage("Ammo: " + ammo + "/6");
+            //newMessage("Ammo: " + ammo + "/6");
             newFloatingMessage("Ammo: " + ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
             doGunShotEffects(hero, hero.silenced);//plays sound and shows affects
             
