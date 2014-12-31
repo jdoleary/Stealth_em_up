@@ -628,6 +628,7 @@ function gameloop_guards(deltaTime){
             if(guards[i].path.length > 0){
                 //if guard does not have a target:
                 if(guards[i].target.x == null || guards[i].target.y == null){
+                    grid.reducePathWithShortcut(guards[i].path);
                     guards[i].target = guards[i].path.shift();//get the first element.
                 }
                 
@@ -681,6 +682,7 @@ function gameloop_guards(deltaTime){
                 }
             }
         }
+        
         guards[i].prepare_for_draw();
         
         //draw blood trails.
@@ -1187,13 +1189,7 @@ function gameloop(deltaTime){
     mouse_rel = stage.getMousePosition();//gets relative mouse position
     if(mouse_rel.x != -10000)mouse = camera.objectivePoint(mouse_rel);//only set mouse position if the mouse is on the stage
     
-    //test
-    var mouseIndex = grid.getIndexFromCoords_2d(mouse.x,mouse.y);
-    if(!mousetest || (mouseIndex.x != mousetest.x || mouseIndex.y != mousetest.y)){
-        mousetest = mouseIndex;
-        newFloatingMessage("Mouse Index: " + mousetest.x + " , " + mousetest.y,{x:mouse.x,y:mouse.y},"#FFaa00");
-    }
-    //test
+
 
       
     //////////////////////

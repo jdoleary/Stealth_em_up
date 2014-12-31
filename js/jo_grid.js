@@ -45,7 +45,7 @@ var map_diamond_store = {
     "width":40,
     "objects":{
         "hero":[1182,615],
-        "guards":[[64*3+32,64*5]],//,[64*16+32,64*6],[64*3+32,64*15]],
+        "guards":[[64*3+32,64*5],[64*16+32,64*6],[64*3+32,64*15]],
         "guard_backup_spawn":[31*64,1*64],
         "security_cams":[{"swivel_max":Math.PI/2,"swivel_min":0,"pos":[3*64,4*64]},{"swivel_max":Math.PI,"swivel_min":0,"pos":[5*64,21*64]}],
         "computer":[11*64+32,19*64+32],
@@ -190,6 +190,22 @@ function jo_grid(map){
         }
         else return false;
         
+    }
+    this.isWallPathBlocking_coords = function(x,y){
+        //returns true if the wall that the (x,y) coords are within is path blocking (solid but not door):
+        
+        //return if coords are outside of map bounds:
+        if(x < 0 || y < 0)return false;//do not accept negative values;
+        if(x > this.cell_size*this.width || y > this.cell_size*this.height)return false;//coord out of bounds
+        var grid_index = this.getIndexFromCoords_2d(x,y);
+        var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
+        
+        if(cell && cell.solid && !cell.door){
+            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            return true;
+        }
+        else return false;
+    
     }
     this.isWallSolid_coords = function(x,y){
         //returns true if the wall that the (x,y) coords are within is solid:
@@ -371,7 +387,58 @@ function jo_grid(map){
         this.cells_astar.push(slice);
     }
     this.cells_astar = new Graph(this.cells_astar);//convert to astar graph
+    
+    
+    /*var optimized_path = [];
+    function confusing(pathIndex,path){
+        console.log("add path index: " + pathIndex);
+        var currentTestPointIndex = pathIndex;
+        optimized_path.push(path[currentTestPointIndex]);
+        //exit
+        if(pathIndex == path.length-1){
+            return;
+        }
+        var points_seen_from_currentTP = [];
+        for(var i = currentTestPointIndex+1; i < path.length; i++){
+                if(isLineOKForPath(path[i].x,path[i].y,path[currentTestPointIndex].x,path[currentTestPointIndex].y)){
+                    points_seen_from_currentTP.push(i);
+                    //console.log("psfctp: " + i);
+                }else break;
+        
+        }
+        console.log("points_seen_from_currentTP:" + points_seen_from_currentTP);
+        //now find out of points_seen_from_currentTP, which point can see to the next farthest:
+        var farthest_path_index;
+        var farthest_psfctp_index;
+        for(var i = 0; i < points_seen_from_currentTP.length; i++){
+            //console.log("i: " + points_seen_from_currentTP[i]);
+            //console.log("j: " + points_seen_from_currentTP[points_seen_from_currentTP.length-1]);
+            //console.log("p: " + path.length);
+            for(var j = points_seen_from_currentTP[points_seen_from_currentTP.length-1]; j < path.length; j++){
+                //console.log("path " + j + " to path " + points_seen_from_currentTP[i]);
+                    
+                if(isLineOKForPath(path[j].x,path[j].y,path[points_seen_from_currentTP[i]].x,path[points_seen_from_currentTP[i]].y)){
+                    //console.log('true');
+                    if(farthest_path_index == undefined){
+                        farthest_path_index = j;
+                        //console.log("far: " + j);
+                        farthest_psfctp_index = points_seen_from_currentTP[i];
+                    }else{
+                        if(j > farthest_path_index){
+                            farthest_path_index = j;
+                            //console.log("far: " + j);
+                            farthest_psfctp_index = points_seen_from_currentTP[i];
+                        }
+                    }
+                }else break;
+            
+            }
+        }
+        if(farthest_psfctp_index!=null)confusing(farthest_psfctp_index,path);
+        else console.log("farthest_psfctp went wrong");
+    }
     this.getPath = function(start,end){
+        console.log("GET PATH!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + start.x + "," + start.y + ":: " + end.x + "," + end.y);
         //start/end in format {x: #,y: #} # representing cell indices.
         //because of how I read 2d arrays I have to treat all the y's as x's and all the x's as y's in the astar lib
         //                      y   x
@@ -381,11 +448,13 @@ function jo_grid(map){
         var path = [];
         for(var i = 0; i < result.length; i++){
             path.push({x: result[i].y*this.cell_size+this.cell_size/2, y: result[i].x*this.cell_size+this.cell_size/2});//return path in obj pixel location, index*64-32 will center the pixel on the correct index cell
-            //console.log(result[i].y , ',' , result[i].x);
+            console.log("path: " + result[i].y , ',' , result[i].x);
         }
-        
+        //above is unoptomized path ^
+        if(path.length == 0)return [];
+        confusing(0,path);
         //test 2
-        var optimized_path = [];
+        /*var optimized_path = [];
         var lastPoint = null;
         var endtt = null;
         for(var i = 0; i < path.length; i++){
@@ -394,7 +463,7 @@ function jo_grid(map){
                 console.log('new start: ' + Math.floor(path[i].x / this.cell_size) + " , " + Math.floor(path[i].y / this.cell_size));
             }
             else{
-                if(hasLineOfSight(path[i].x,path[i].y,lastPoint.x,lastPoint.y)){
+                if(isLineOKForPath(path[i].x,path[i].y,lastPoint.x,lastPoint.y)){
                     //don't use:
                     console.log('new end: ' + Math.floor(path[i].x / this.cell_size) + " , " + Math.floor(path[i].y / this.cell_size));
                     endtt = path[i];
@@ -419,46 +488,10 @@ function jo_grid(map){
         if(endtt!=null){
             console.log('push end');
             optimized_path.push(endtt);
-        }
+        }*/
         //test 2
-        
-        //test
         /*
-        var startt;
-        var endt;
-        console.log("path");
-        for(var i = 0; i < path.length; i++){
-            if(startt == null){
-                //console.log("new start");
-                startt = i;
-            }
-            else{
-                if(path[i].x == path[startt].x || path[i].y == path[startt].y){
-                //console.log("new end");
-                    endt = i;
-                }else{
-                    if(endt != null){
-                //console.log("push start and  end");
-                        optimized_path.push(path[startt]);
-                        optimized_path.push(path[endt]);
-                        endt = null;
-                        startt = endt;
-                        
-                    }else{
-                        startt = null;
-                    }
-                }
-            }
-            var test = grid.getIndexFromCoords_2d(path[i].x,path[i].y);
-            console.log(i + " " + test.x + "," + test.y);
-        }
-            if(startt!=null){
-                optimized_path.push(path[startt]);
-            }
-            if(endt!=null){
-                optimized_path.push(path[endt]);
-            }
-            */
+        
         console.log("op path");
         for(var i = 0; i < optimized_path.length; i++){
             var test = grid.getIndexFromCoords_2d(optimized_path[i].x,optimized_path[i].y);
@@ -470,6 +503,47 @@ function jo_grid(map){
         //console.log('grid return path: ');
         //console.log(path);
         return optimized_path; //path is an array of points
+    
+    };*/
+    this.reducePathWithShortcut = function(path){
+        //checks if there are any angled shortcuts along this path:
+        var startPoint = path[0];
+        //magic number 3 is set to reduce the amount of times that guards walk through the corners of walls.
+        if(path.length <= 3)return path;
+        var lastPointIndex;
+        for(var i = 3; i < path.length; i++){
+            //ignore vertical and horizontal shortcuts
+            if(startPoint.x == path[i].x || startPoint.y == path[i].y)continue;
+            
+            if(isLineOKForPath(path[i].x,path[i].y,startPoint.x,startPoint.y)){
+                lastPointIndex = i;
+                //console.log("lastPointIndex: " + i);
+            }else break;
+        
+        }
+        //if lastpoint is found, splice up until that point:
+        if(lastPointIndex != undefined)path.splice(1,lastPointIndex-1);
+
+    }
+    this.getPath = function(start,end){
+        //start/end in format {x: #,y: #} # representing cell indices.
+        //because of how I read 2d arrays I have to treat all the y's as x's and all the x's as y's in the astar lib
+        //                      y   x
+        var start = this.cells_astar.nodes[start.y][start.x];//remember x and y are switched for the astar lib
+        var end = this.cells_astar.nodes[end.y][end.x];//remember x and y are switched for the astar lib
+        var result = astar.search(this.cells_astar.nodes, start, end);
+        var path = [];
+        for(var i = 0; i < result.length; i++){
+            path.push({x: result[i].y*this.cell_size+this.cell_size/2, y: result[i].x*this.cell_size+this.cell_size/2});//return path in obj pixel location, index*64-32 will center the pixel on the correct index cell
+            //console.log(result[i].y , ',' , result[i].x);
+        }
+        
+        
+        
+        
+        //console.log('grid return path: ');
+        //console.log(path);
+        return path; //path is an array of points
     
     };
    
