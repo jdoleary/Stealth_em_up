@@ -331,6 +331,7 @@ function startGame(){
     cameras_disabled = false;
     test_cone = new debug_line();
     hero_cir = new debug_circle();
+    
 
     ammo = 6;
 
@@ -517,10 +518,12 @@ Game Loop
 */
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
+
 function gameloop_guards(deltaTime){
     //////////////////////
     //update Guards
     //////////////////////
+    
     
     for(var i = 0; i < guards.length; i++){
         if(guards[i].alive){
@@ -682,7 +685,6 @@ function gameloop_guards(deltaTime){
                 }
             }
         }
-        
         guards[i].prepare_for_draw();
         
         //draw blood trails.

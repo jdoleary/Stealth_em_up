@@ -45,7 +45,7 @@ var map_diamond_store = {
     "width":40,
     "objects":{
         "hero":[1182,615],
-        "guards":[[64*3+32,64*5],[64*16+32,64*6],[64*3+32,64*15]],
+        "guards":[[64*3+32,64*5]],//,[64*16+32,64*6],[64*3+32,64*15]],
         "guard_backup_spawn":[31*64,1*64],
         "security_cams":[{"swivel_max":Math.PI/2,"swivel_min":0,"pos":[3*64,4*64]},{"swivel_max":Math.PI,"swivel_min":0,"pos":[5*64,21*64]}],
         "computer":[11*64+32,19*64+32],
@@ -125,8 +125,6 @@ var tile_container_red;
 var tile_container_purple;
 var tile_containers;
 
-
-
 function jo_grid(map){
     //set up sprite batches:
     tile_container_black = new PIXI.SpriteBatch();//for efficiency!
@@ -135,6 +133,17 @@ function jo_grid(map){
     tile_container_red = new PIXI.SpriteBatch();//for efficiency!
     tile_container_purple = new PIXI.SpriteBatch();//for efficiency!
     tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
+
+//test
+this.debug = new debug_line();
+this.debug.color = 0xff0000;
+this.debug2 = new debug_line();
+this.debug2.color = 0x00ff00;
+this.debug3 = new debug_line();
+this.debug3.color = 0xffa500;
+this.debug4 = new debug_line();
+this.debug4.color = 0xffa5ff;
+this.debugbounds = new debug_circle();
 
     //2d array:
     this.width = map.width;
@@ -509,20 +518,37 @@ function jo_grid(map){
         //checks if there are any angled shortcuts along this path:
         var startPoint = path[0];
         //magic number 3 is set to reduce the amount of times that guards walk through the corners of walls.
-        if(path.length <= 3)return path;
+        if(path.length <= 1)return path;
         var lastPointIndex;
-        for(var i = 3; i < path.length; i++){
+        for(var i = 1; i < path.length; i++){
             //ignore vertical and horizontal shortcuts
             if(startPoint.x == path[i].x || startPoint.y == path[i].y)continue;
-            
+            this.debug.draw_obj(path[i].x,path[i].y,startPoint.x,startPoint.y);
             if(isLineOKForPath(path[i].x,path[i].y,startPoint.x,startPoint.y)){
+                this.debug2.draw_obj(path[i].x,path[i].y,startPoint.x,startPoint.y);
+                this.debugbounds.draw_obj(startPoint.x,startPoint.y,19);
+                //clear red line:
+                this.debug.graphics.clear();
+                
+                var newPoint = this.getPointOnCirlceAtAngle(startPoint.x,startPoint.y,19,this.angleBetweenPoints(path[i].x,path[i].y,startPoint.x,startPoint.y)+(Math.PI/2));
+                var difX = newPoint.x - startPoint.x;
+                var difY = newPoint.y - startPoint.y;
+                
+                this.debug3.draw_obj(path[i].x+difX,path[i].y+difY,newPoint.x,newPoint.y);
+                var newPoint2 = this.getPointOnCirlceAtAngle(startPoint.x,startPoint.y,19,this.angleBetweenPoints(path[i].x,path[i].y,startPoint.x,startPoint.y)-(Math.PI/2));
+                var difX2 = newPoint2.x - startPoint.x;
+                var difY2 = newPoint2.y - startPoint.y;
+                this.debug4.draw_obj(path[i].x+difX2,path[i].y+difY2,newPoint2.x,newPoint2.y);
+                
                 lastPointIndex = i;
                 //console.log("lastPointIndex: " + i);
             }else break;
         
         }
         //if lastpoint is found, splice up until that point:
-        if(lastPointIndex != undefined)path.splice(1,lastPointIndex-1);
+        if(lastPointIndex != undefined){
+            path.splice(1,lastPointIndex-1);
+        }
 
     }
     this.getPath = function(start,end){
@@ -546,6 +572,26 @@ function jo_grid(map){
         return path; //path is an array of points
     
     };
+    
+    /*
+    The following functions are all to resolve if a path can take a shortcut.
+    At first I tested if a line between the mover and a list of next points intersects any walls.
+    Now im testing if the line between the point at the mover's normal vector of its direction with a magnitude of the movers
+    radius intersects any walls.  I do this for both sides of the bounds circle
+    */
+    this.angleBetweenPoints = function (ax,ay,bx,by){
+        //in radians
+        var deltaY = by - ay;
+        var deltaX = bx - ax;
+        return Math.atan2(deltaY,deltaX);
+    }
+    this.getPointOnCirlceAtAngle = function (cx,cy,radius,angle){
+        //angle in radians
+        var x = cx + radius * Math.cos(angle);
+        var y = cy + radius * Math.sin(angle);
+        return {x:x,y:y};
+    
+    }
    
         
 
