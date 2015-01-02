@@ -118,18 +118,13 @@ function jo_grid(map){
     tile_container_purple = new PIXI.SpriteBatch();//for efficiency!
     tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
 
-//test
-/*
-this.debug = new debug_line();
-this.debug.color = 0xff0000;
-this.debug2 = new debug_line();
-this.debug2.color = 0x00ff00;*/
-this.debug3 = new debug_line();
-this.debug3.color = 0xff0000;
-this.debug4 = new debug_line();
-this.debug4.color = 0xff0000;
-this.debugbounds = new debug_circle();
-
+    /*Debug lines for shortcut pathing
+    this.debug3 = new debug_line();
+    this.debug3.color = 0xff0000;
+    this.debug4 = new debug_line();
+    this.debug4.color = 0xff0000;
+    this.debugbounds = new debug_circle();
+    */
     //2d array:
     this.width = map.width;
     this.height = map.height;
@@ -499,7 +494,7 @@ this.debugbounds = new debug_circle();
         return optimized_path; //path is an array of points
     
     };*/
-    this.reducePathWithShortcut = function(path){
+    this.reducePathWithShortcut = function(path,radius){
         //checks if there are any angled shortcuts along this path:
         var startPoint = path[0];
         //magic number 3 is set to reduce the amount of times that guards walk through the corners of walls.
@@ -508,7 +503,7 @@ this.debugbounds = new debug_circle();
         for(var i = 1; i < path.length; i++){
             //ignore vertical and horizontal shortcuts
             if(startPoint.x == path[i].x || startPoint.y == path[i].y)continue;
-            if(this.isShortcutOK(startPoint,path[i])){
+            if(this.isShortcutOK(startPoint,path[i],radius)){
                 lastPointIndex = i;
                 //console.log("lastPointIndex: " + i);
             }else break;
@@ -561,31 +556,30 @@ this.debugbounds = new debug_circle();
         return {x:x,y:y};
     
     }
-    this.isShortcutOK = function(startPoint,endPoint){
+    this.isShortcutOK = function(startPoint,endPoint,radius){
     
-        this.debugbounds.draw_obj(startPoint.x,startPoint.y,19);
+        //this.debugbounds.draw_obj(startPoint.x,startPoint.y,radius);
         
-        var newPoint = this.getPointOnCirlceAtAngle(startPoint.x,startPoint.y,19,this.angleBetweenPoints(endPoint.x,endPoint.y,startPoint.x,startPoint.y)+(Math.PI/2));
+        var newPoint = this.getPointOnCirlceAtAngle(startPoint.x,startPoint.y,radius,this.angleBetweenPoints(endPoint.x,endPoint.y,startPoint.x,startPoint.y)+(Math.PI/2));
         var difX = newPoint.x - startPoint.x;
         var difY = newPoint.y - startPoint.y;
         
-        var newPoint2 = this.getPointOnCirlceAtAngle(startPoint.x,startPoint.y,19,this.angleBetweenPoints(endPoint.x,endPoint.y,startPoint.x,startPoint.y)-(Math.PI/2));
+        var newPoint2 = this.getPointOnCirlceAtAngle(startPoint.x,startPoint.y,radius,this.angleBetweenPoints(endPoint.x,endPoint.y,startPoint.x,startPoint.y)-(Math.PI/2));
         var difX2 = newPoint2.x - startPoint.x;
         var difY2 = newPoint2.y - startPoint.y;
         
         if(isLineOKForPath(endPoint.x+difX2,endPoint.y+difY2,newPoint2.x,newPoint2.y) && isLineOKForPath(endPoint.x+difX,endPoint.y+difY,newPoint.x,newPoint.y)){
-            this.debug3.color = 0x00ff00;
+            /*this.debug3.color = 0x00ff00;
             this.debug4.color = 0x00ff00;
             this.debug3.draw_obj(endPoint.x+difX,endPoint.y+difY,newPoint.x,newPoint.y);
-            this.debug4.draw_obj(endPoint.x+difX2,endPoint.y+difY2,newPoint2.x,newPoint2.y);
-
+            this.debug4.draw_obj(endPoint.x+difX2,endPoint.y+difY2,newPoint2.x,newPoint2.y);*/
             return true;
         
         }else{
-            this.debug3.color = 0xff0000;
+            /*this.debug3.color = 0xff0000;
             this.debug4.color = 0xff0000;
             this.debug3.draw_obj(endPoint.x+difX,endPoint.y+difY,newPoint.x,newPoint.y);
-            this.debug4.draw_obj(endPoint.x+difX2,endPoint.y+difY2,newPoint2.x,newPoint2.y);
+            this.debug4.draw_obj(endPoint.x+difX2,endPoint.y+difY2,newPoint2.x,newPoint2.y);*/
             return false;  
         }
     }

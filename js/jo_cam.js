@@ -47,4 +47,21 @@ function jo_cam(window_properties){
         this.y += b;
         
     };
+    this.posBeforeShakex;
+    this.posBeforeShakey;
+    this.shakeIntensity = 0;
+    this.shakeDecay = 0;
+    this.startShake = function(intensity,decay){
+        this.posBeforeShakex = this.x;
+        this.posBeforeShakey = this.y;
+        this.shakeIntensity = intensity;
+        this.shakeDecay = decay;
+    }
+    this.shake = function(){
+        if(this.shakeIntensity > 0){
+            this.x = this.posBeforeShakex +  Math.random() * this.shakeIntensity;
+            this.y = this.posBeforeShakey +  Math.random() * this.shakeIntensity;
+            this.shakeIntensity -= this.shakeDecay;
+        }
+    }
 }

@@ -8,7 +8,7 @@ me at jdoleary@gmail.com
 var img_tile_black = "tile_black.png";
 var img_tile_white = "tile_white.png";
 var img_tile_brown = "tile_brown.png";
-var img_doodad_paper = "paper.png";
+var img_doodad_paper = "papers.png";
 var img_doodad_lamp = "lamp.png";
 var img_tile_red = "tile_red.png";
 
@@ -51,13 +51,15 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             break;
         case 2:
             var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
-            /*var random_tile = Math.round(Math.random() * (10 - 1) + 1);
+            var random_tile = Math.round(Math.random() * (10 - 1) + 1);
             var sprite_doodad;
             if(random_tile==1 || random_tile==3){
                 sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_paper);
-            }else if(random_tile==2 || random_tile==4){
+            }else if(random_tile==2){
                 sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_lamp);
             }
+            
+            if(display_actors && sprite_doodad)new jo_doodad(sprite_doodad,display_actors,this.x,this.y);
             /*var random_rot = Math.round(Math.random() * (4 - 1) + 1);
             sprite.anchor.x = 0.5;
             sprite.anchor.y = 0.5;
@@ -87,7 +89,7 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             
     }
     this.image_sprite = sprite;
-    //tile_container.addChild(this.image_sprite);//caused fps drops for some reason
+    //tile_container.addChild(this.image_sprite);//caused fps drops because you can't have different sprites in a sprite batcher
     tile_containers[image_number].addChild(sprite);
     
     

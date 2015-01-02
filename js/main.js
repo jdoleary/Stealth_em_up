@@ -98,6 +98,17 @@ Map / Game Object Setup
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////    
 
+
+//doodads
+var doodads;
+
+//bomb
+var bomb;
+var bomb_fuse_start;
+var bomb_fuse;
+var bomb_tooltip;
+
+//
 var mapData;
 
 //grid/map
@@ -109,7 +120,6 @@ var camera;
 var cameras_disabled;
 var test_cone;
 var hero_cir;
-
 
 
 
@@ -280,7 +290,7 @@ function startGame(){
     state = states["Gameplay"];
     
     //initialize variables:
-    keys = {w: false, a: false, s: false, d: false, v: false, space:false, shift:false};
+    keys = {w: false, a: false, s: false, d: false, f: false, v: false, space:false, shift:false};
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
     
@@ -316,6 +326,26 @@ function startGame(){
     ///////////////////////
     ///////////////////////    
     //setup_map(map_diamond_store);
+    
+    doodads = [];
+    
+    
+    bomb = new jo_sprite(new PIXI.Sprite(img_bomb));
+    bomb.sprite.visible = false;
+    bomb.sprite.scale.x = 0.35;
+    bomb.sprite.scale.y = 0.35;
+    bomb.rad = Math.PI/6;
+    
+    bomb_fuse_start = 5000;
+    bomb_fuse = bomb_fuse_start;
+    //bomb_tooltip text:
+    bomb_tooltip = new PIXI.Text("Bomb Tooltip", { font: "45px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 2 });
+    bomb_tooltip.anchor.x = 0.5;//centered
+    bomb_tooltip.anchor.y = 0.5;//centered
+    bomb_tooltip.objX = 0;
+    bomb_tooltip.objY = 0;
+    bomb_tooltip.visible = false;
+    stage_child.addChild(bomb_tooltip);
     
     //store string references to maps here so that query string can choose maps:
     mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
@@ -366,7 +396,7 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             
             messages_floating = []
             
-            //Tooltip text: todo test
+            //Tooltip text:
             tooltip = new PIXI.Text("Tooltip", { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 2 });
             tooltip.anchor.x = 0.5;//centered
             tooltip.objX = 0;
@@ -631,7 +661,7 @@ function gameloop_guards(deltaTime){
             if(guards[i].path.length > 0){
                 //if guard does not have a target:
                 if(guards[i].target.x == null || guards[i].target.y == null){
-                    grid.reducePathWithShortcut(guards[i].path);
+                    grid.reducePathWithShortcut(guards[i].path,guards[i].radius);
                     guards[i].target = guards[i].path.shift();//get the first element.
                 }
                 
@@ -1040,6 +1070,10 @@ function gameloop_messages_and_tooltip(deltaTime){
     tooltip.x = objPos.x;
     tooltip.y = objPos.y;
     
+    var objPos2 = camera.relativePoint({x:bomb_tooltip.objX,y:bomb_tooltip.objY});
+    bomb_tooltip.x = objPos2.x;
+    bomb_tooltip.y = objPos2.y;
+    
     //////////////////////
     //floating messages:
     //////////////////////
@@ -1074,7 +1108,9 @@ function gameloop_zoom_and_camera(deltaTime){
     //loose camera
     camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
     camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
-    /*The below commented block is for smooth camera
+    camera.shake();
+    /*
+    //The below commented block is for smooth camera
     //press space to look around
     if(keys['space']){
         //camera floats between hero and mouse
@@ -1277,8 +1313,11 @@ function gameloop(deltaTime){
         //grid.cells[i].draw();//debug
         grid.cells[i].prepare_for_draw();
     }
+    if(hero.masked)hero.target_rotate = mouse;
+    else hero.target_rotate = null;
     hero.prepare_for_draw();
     
+    bomb.prepare_for_draw();
     
     //don't show hero_last_seen if it is too close to hero:
     if(backupCalled){
@@ -1316,6 +1355,10 @@ function gameloop(deltaTime){
     
     gameloop_messages_and_tooltip(deltaTime);
     
+    for(var i = 0; i < doodads.length; i++){
+        doodads[i].prepare_for_draw();
+    }
+    
     gameloop_zoom_and_camera(deltaTime);
 
 }
@@ -1339,6 +1382,39 @@ function addKeyHandlers(){
             if(code == 65){keys['a'] = true;}
             if(code == 83){keys['s'] = true;}
             if(code == 68){keys['d'] = true;}
+            if(code == 70){
+                if(!keys['f'] && !bomb.sprite.visible){
+                    //if f isn't already pressed and bomb isn't already set
+                    bomb.sprite.visible = true;
+                    bomb.x = hero.x;
+                    bomb.y = hero.y;
+                    bomb_tooltip.objX = bomb.x;
+                    bomb_tooltip.objY = bomb.y-32;
+                    bomb_tooltip.visible = true;
+                    
+                    bomb_fuse = bomb_fuse_start;
+                    var bomb_scale_variety = 0;
+                    var bomb_tooltip_interval = setInterval(function(){
+                        bomb_tooltip.setText((bomb_fuse/1000.0).toFixed(1));
+                        bomb_fuse -= 10;
+                        var percent_till_explode = 1-bomb_fuse/bomb_fuse_start;
+                        if(percent_till_explode>=0.95)bomb_tooltip.style.fill = "#ff0000";
+                        else bomb_tooltip.style.fill = "#" + Math.round(percent_till_explode*16).toString(16) +  Math.round(percent_till_explode*16).toString(16) + "0000";
+                        bomb_tooltip.scale.x = 0.1*Math.sin(bomb_scale_variety)+1;
+                        bomb_tooltip.scale.y = 0.1*Math.sin(bomb_scale_variety)+1;
+                        bomb_scale_variety+=0.1;
+                        if(bomb_fuse<=0){
+                            camera.startShake(1000,30);
+                            bomb.sprite.visible = false;
+                            bomb_tooltip.visible = false;
+                            //turn off the countdown
+                            clearInterval(bomb_tooltip_interval);
+                        }
+                    }, 10);
+                }
+                keys['f'] = true;
+            
+            }
             if(code == 86){
                 // !keys['v'] makes it so that it will only be called once for a single press of the letter
                 if(!keys['v']){
@@ -1469,6 +1545,7 @@ function addKeyHandlers(){
         if(code == 65){keys['a'] = false;}
         if(code == 83){keys['s'] = false;}
         if(code == 68){keys['d'] = false;}
+        if(code == 70){keys['f'] = false;}
         if(code == 86){
             //on release of key only
             if(keys['v'])circProgBar.stop();//stop putting on mask
@@ -1502,6 +1579,9 @@ function addKeyHandlers(){
     onmousedown = function(e){
         //you can only shoot if hero is masked
         if(hero.masked && ammo > 0){
+            //very minor camera shake:
+            camera.startShake(5,1.5);
+        
             ammo--;
             //newMessage("Ammo: " + ammo + "/6");
             newFloatingMessage("Ammo: " + ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
