@@ -116,6 +116,7 @@ function sprite_guard_wrapper(pixiSprite){
         
         
     }
+    
     sprite_guard.prototype = new jo_sprite(pixiSprite);
     return new sprite_guard();
 }
