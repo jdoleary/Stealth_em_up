@@ -1790,6 +1790,8 @@ function setBomb(){
         bomb_tooltip.scale.y = 0.1*Math.sin(bomb_scale_variety)+1;
         bomb_scale_variety+=0.1;
         if(bomb_fuse<=0){
+            play_sound(sound_explosion);
+        
             camera.startShake(1000,30);
             bomb.sprite.visible = false;
             bomb_tooltip.visible = false;

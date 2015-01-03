@@ -25,6 +25,7 @@ var sound_gun_shot_silenced = new Audio("sound/gun_shot_silenced.mp3");
 var sound_guard_choke = new Audio("sound/guard_choke.wav");
 var sound_door_open = new Audio("sound/door-2-open.mp3");
 var sound_door_close = new Audio("sound/door-3-close.wav");
+var sound_explosion = new Audio("sound/explosion.wav");
 var music_hero_dead;
 var music_masked;
 var music_unmasked;
@@ -41,6 +42,8 @@ function readjustVolumes(){
     changeVolume(sound_gun_shot_silenced,1.0);
     changeVolume(sound_guard_choke,1.0);
     changeVolume(sound_dry_fire,1.0);
+    changeVolume(sound_explosion,1.0);
+    
     for(var i = 0; i < sound_gun_shots["array"].length; i++)changeVolume(sound_gun_shots["array"][i],0.2);
 }
     
