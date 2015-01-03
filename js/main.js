@@ -1390,81 +1390,11 @@ function addKeyHandlers(){
             if(code == 83){keys['s'] = true;}
             if(code == 68){keys['d'] = true;}
             if(code == 70){
-                if(!keys['f'] && !bomb.sprite.visible){
+                if(!keys['f'] && !bomb.sprite.visible && hero.masked){
                     //if f isn't already pressed and bomb isn't already set
-                    bomb.sprite.visible = true;
-                    bomb.x = hero.x;
-                    bomb.y = hero.y;
-                    bomb_tooltip.objX = bomb.x;
-                    bomb_tooltip.objY = bomb.y-32;
-                    bomb_tooltip.visible = true;
-                    
-                    bomb_fuse = bomb_fuse_start;
-                    var bomb_scale_variety = 0;
-                    var bomb_tooltip_interval = setInterval(function(){
-                        bomb_tooltip.setText((bomb_fuse/1000.0).toFixed(1));
-                        bomb_fuse -= 10;
-                        var percent_till_explode = 1-bomb_fuse/bomb_fuse_start;
-                        if(percent_till_explode>=0.95)bomb_tooltip.style.fill = "#ff0000";
-                        else bomb_tooltip.style.fill = "#" + Math.round(percent_till_explode*16).toString(16) +  Math.round(percent_till_explode*16).toString(16) + "0000";
-                        bomb_tooltip.scale.x = 0.1*Math.sin(bomb_scale_variety)+1;
-                        bomb_tooltip.scale.y = 0.1*Math.sin(bomb_scale_variety)+1;
-                        bomb_scale_variety+=0.1;
-                        if(bomb_fuse<=0){
-                            camera.startShake(1000,30);
-                            bomb.sprite.visible = false;
-                            bomb_tooltip.visible = false;
-                            
-                            //destroy nearby walls:
-                            for(var w = 0; w < grid.cells.length; w++){
-                                if(get_distance(bomb.x,bomb.y,grid.cells[w].x,grid.cells[w].y) < bomb_radius){
-                                    var wallInfo = grid.getInfoFromIndex(w);
-                                    //do not blow through map bounds walls
-                                    if(wallInfo.x_index != 0 && wallInfo.x_index != grid.width-1 && wallInfo.y_index != 0 && wallInfo.y_index != grid.height-1){
-                                        if(grid.cells[w].image_number != 1 && grid.cells[w].image_number != 3 && grid.cells[w].image_number != 4)grid.cells[w].changeImage(1);
-                                        grid.cells[w].solid = false;
-                                        grid.cells[w].blocks_vision = false;
-                                        grid.cells[w].door = false;
-                                    
-                                    }
-                                
-                                }
-                            }
-                            
-                            //turn off the countdown
-                            clearInterval(bomb_tooltip_interval);
-                            //see if it kills anyone:
-                            for(var g = 0; g < guards.length; g++){
-                                if(get_distance(bomb.x,bomb.y,guards[g].x,guards[g].y) < bomb_radius){
-                                    guards[g].kill();
-                                    //make blood splatter:
-                                    makeBloodSplatter(guards[g].x,guards[g].y,bomb.x,bomb.y);
-                                
-                                }
-                            
-                            }
-                            //remove doodads in range:
-                            for(var d = 0; d < doodads.length; d++){
-                                if(get_distance(bomb.x,bomb.y,doodads[d].x,doodads[d].y) < bomb_radius+32){
-                                    doodads[d].parent.removeChild(doodads[d].sprite);
-                                    //doodads.splice(1,d);
-                                
-                                }
-                            
-                            }
-                            
-                            //make burn mark:
-                            new jo_doodad(new PIXI.Sprite(img_burn_mark),display_effects,bomb.x,bomb.y);
-                            
-                            if(get_distance(bomb.x,bomb.y,hero.x,hero.y)<bomb_radius){
-                                    hero.kill();
-                                    //make blood splatter:
-                                    makeBloodSplatter(hero.x,hero.y,bomb.x,bomb.y);
-                                
-                            }
-                            
-                        }
-                    }, 10);
+                    hero.moving = false;
+                    circProgBar.reset(hero.x,hero.y,1500,setBomb);
+                     
                 }
                 keys['f'] = true;
             
@@ -1831,7 +1761,84 @@ function set_latestAlert(unit){
     
     
 }
-
+function setBomb(){
+    //allow hero to move again:
+    hero.moving = true;
+    
+    bomb.sprite.visible = true;
+    bomb.x = hero.x;
+    bomb.y = hero.y;
+    bomb_tooltip.objX = bomb.x;
+    bomb_tooltip.objY = bomb.y-32;
+    bomb_tooltip.visible = true;
+    
+    bomb_fuse = bomb_fuse_start;
+    var bomb_scale_variety = 0;
+    var bomb_tooltip_interval = setInterval(function(){
+        bomb_tooltip.setText((bomb_fuse/1000.0).toFixed(1));
+        bomb_fuse -= 10;
+        var percent_till_explode = 1-bomb_fuse/bomb_fuse_start;
+        if(percent_till_explode>=0.95)bomb_tooltip.style.fill = "#ff0000";
+        else bomb_tooltip.style.fill = "#" + Math.round(percent_till_explode*16).toString(16) +  Math.round(percent_till_explode*16).toString(16) + "0000";
+        bomb_tooltip.scale.x = 0.1*Math.sin(bomb_scale_variety)+1;
+        bomb_tooltip.scale.y = 0.1*Math.sin(bomb_scale_variety)+1;
+        bomb_scale_variety+=0.1;
+        if(bomb_fuse<=0){
+            camera.startShake(1000,30);
+            bomb.sprite.visible = false;
+            bomb_tooltip.visible = false;
+            
+            //destroy nearby walls:
+            for(var w = 0; w < grid.cells.length; w++){
+                if(get_distance(bomb.x,bomb.y,grid.cells[w].x,grid.cells[w].y) < bomb_radius){
+                    var wallInfo = grid.getInfoFromIndex(w);
+                    //do not blow through map bounds walls
+                    if(wallInfo.x_index != 0 && wallInfo.x_index != grid.width-1 && wallInfo.y_index != 0 && wallInfo.y_index != grid.height-1){
+                        if(grid.cells[w].image_number != 1 && grid.cells[w].image_number != 3 && grid.cells[w].image_number != 4)grid.cells[w].changeImage(1);
+                        grid.cells[w].solid = false;
+                        grid.cells[w].blocks_vision = false;
+                        grid.cells[w].door = false;
+                    
+                    }
+                
+                }
+            }
+            
+            //turn off the countdown
+            clearInterval(bomb_tooltip_interval);
+            //see if it kills anyone:
+            for(var g = 0; g < guards.length; g++){
+                if(get_distance(bomb.x,bomb.y,guards[g].x,guards[g].y) < bomb_radius){
+                    guards[g].kill();
+                    //make blood splatter:
+                    makeBloodSplatter(guards[g].x,guards[g].y,bomb.x,bomb.y);
+                
+                }
+            
+            }
+            //remove doodads in range:
+            for(var d = 0; d < doodads.length; d++){
+                if(get_distance(bomb.x,bomb.y,doodads[d].x,doodads[d].y) < bomb_radius+32){
+                    doodads[d].parent.removeChild(doodads[d].sprite);
+                    //doodads.splice(1,d);
+                
+                }
+            
+            }
+            
+            //make burn mark:
+            new jo_doodad(new PIXI.Sprite(img_burn_mark),display_effects,bomb.x,bomb.y);
+            
+            if(get_distance(bomb.x,bomb.y,hero.x,hero.y)<bomb_radius){
+                    hero.kill();
+                    //make blood splatter:
+                    makeBloodSplatter(hero.x,hero.y,bomb.x,bomb.y);
+                
+            }
+            
+        }
+    }, 10);
+}
 
 window.onresize = function (event){
     var w = window.innerWidth;
