@@ -104,6 +104,7 @@ var doodads;
 
 //bomb
 var bomb;
+var bombs_left;
 var bomb_fuse_start;
 var bomb_fuse;
 var bomb_tooltip;
@@ -338,6 +339,8 @@ function startGame(){
     bomb.sprite.scale.y = 0.35;
     bomb.rad = Math.PI/6;
     
+    bombs_left = 1;
+    
     bomb_fuse_start = 5000;
     bomb_fuse = bomb_fuse_start;
     //bomb_tooltip text:
@@ -565,9 +568,9 @@ function gameloop_guards(deltaTime){
         
         
                 //shooting
-            //guards aim can be off by up to 50 pixels:
-            var aim_x_offset = Math.floor(Math.random() * 50);
-            var aim_y_offset = Math.floor(Math.random() * 50);
+            //guards aim can be off by up to guards[i].accuracy pixels:
+            var aim_x_offset = Math.floor(Math.random() * guards[i].accuracy);
+            var aim_y_offset = Math.floor(Math.random() * guards[i].accuracy);
             //only set aim if they are able to shoot again, don't reset aim every loop
             if(guards[i].can_shoot){
                 
@@ -624,6 +627,10 @@ function gameloop_guards(deltaTime){
                             doGunShotEffects(guards[i], false);//plays sound
                             
                             guards[i].shoot();//toggles on the visiblity of .draw_gun_shot's line
+                            
+                            //increase guard's accuracy every time they shoot, for gameplay reasons
+                            if(guards[i].accuracy > 10)guards[i].accuracy -= 10;
+                            else guards[i].accuracy = 0;
                             
             
                             
@@ -942,16 +949,7 @@ function gameloop_bullets(deltaTime){
             //check if bullet intersects with hero
                 //ignore:: //don't kill the shooter with his own bullet
             if(bullets[b].ignore != hero && hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
-                hero.kill();
-                //make blood splatter:
-                makeBloodSplatter(hero.x,hero.y,bullets[b].ignore.x,bullets[b].ignore.y);
-                //remove key handlers so hero can no longer move around
-                console.log('you died');
-                messageGameOver.setText('Press [Esc] to restart!');
-                removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
-                //add to stats:
-                jo_store_inc("loses");
-                
+                killHero(bullets[b].ignore.x,bullets[b].ignore.y);
                 
                 //destroy bullet
                 display_actors.removeChild(bullets[b].sprite);
@@ -1318,8 +1316,10 @@ function gameloop(deltaTime){
         //grid.cells[i].draw();//debug
         grid.cells[i].prepare_for_draw();
     }
-    if(hero.masked)hero.target_rotate = mouse;
-    else hero.target_rotate = null;
+    if(hero.masked && hero.alive){
+        hero.target_rotate = mouse;
+        hero.rotate_to(mouse.x,mouse.y);
+    }else hero.target_rotate = null;
     hero.prepare_for_draw();
     
     bomb.prepare_for_draw();
@@ -1392,8 +1392,13 @@ function addKeyHandlers(){
             if(code == 70){
                 if(!keys['f'] && !bomb.sprite.visible && hero.masked){
                     //if f isn't already pressed and bomb isn't already set
-                    hero.moving = false;
-                    circProgBar.reset(hero.x,hero.y,1500,setBomb);
+                    if(bombs_left>0){
+                        hero.moving = false;
+                        circProgBar.reset(hero.x,hero.y,1500,setBomb);
+                        bombs_left--;
+                    }else{
+                        newFloatingMessage("No Bombs Left",{x:hero.x,y:hero.y},"#FFaa00");
+                    }
                      
                 }
                 keys['f'] = true;
@@ -1761,6 +1766,7 @@ function set_latestAlert(unit){
     
     
 }
+//blow up bomb
 function setBomb(){
     //allow hero to move again:
     hero.moving = true;
@@ -1787,6 +1793,16 @@ function setBomb(){
             camera.startShake(1000,30);
             bomb.sprite.visible = false;
             bomb_tooltip.visible = false;
+            
+            //set last seen:
+            
+                alert_all_guards();
+                hero.lastSeenX = bomb.x;
+                hero.lastSeenY = bomb.y;
+                hero_last_seen.x = bomb.x;
+                hero_last_seen.y = bomb.y;
+                //repath alert guards to hero
+                notifyGuardsOfHeroLocation = true;
             
             //destroy nearby walls:
             for(var w = 0; w < grid.cells.length; w++){
@@ -1830,16 +1846,24 @@ function setBomb(){
             new jo_doodad(new PIXI.Sprite(img_burn_mark),display_effects,bomb.x,bomb.y);
             
             if(get_distance(bomb.x,bomb.y,hero.x,hero.y)<bomb_radius){
-                    hero.kill();
-                    //make blood splatter:
-                    makeBloodSplatter(hero.x,hero.y,bomb.x,bomb.y);
+                killHero(bomb.x,bomb.y);
                 
             }
             
         }
     }, 10);
 }
-
+function killHero(fromX,fromY){
+    hero.kill();
+    //make blood splatter:
+    makeBloodSplatter(hero.x,hero.y,fromX,fromY);
+    //remove key handlers so hero can no longer move around
+    console.log('you died');
+    messageGameOver.setText('Press [Esc] to restart!');
+    removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
+    //add to stats:
+    jo_store_inc("loses");
+}
 window.onresize = function (event){
     var w = window.innerWidth;
     var h = window.innerHeight;
