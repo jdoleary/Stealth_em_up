@@ -107,6 +107,8 @@ var bomb;
 var bomb_fuse_start;
 var bomb_fuse;
 var bomb_tooltip;
+var bomb_radius_debug;
+var bomb_radius;
 
 //
 var mapData;
@@ -346,6 +348,9 @@ function startGame(){
     bomb_tooltip.objY = 0;
     bomb_tooltip.visible = false;
     stage_child.addChild(bomb_tooltip);
+    
+    bomb_radius_debug = new debug_circle();
+    bomb_radius = 200;
     
     //store string references to maps here so that query string can choose maps:
     mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
@@ -1318,6 +1323,8 @@ function gameloop(deltaTime){
     hero.prepare_for_draw();
     
     bomb.prepare_for_draw();
+    if(bomb.sprite.visible)bomb_radius_debug.draw_obj(bomb.x,bomb.y,bomb_radius);
+    else bomb_radius_debug.graphics.clear();
     
     //don't show hero_last_seen if it is too close to hero:
     if(backupCalled){
@@ -1407,15 +1414,28 @@ function addKeyHandlers(){
                             camera.startShake(1000,30);
                             bomb.sprite.visible = false;
                             bomb_tooltip.visible = false;
-                            //make burn mark:
-                            //PROBLEM HERE
-                            //var burn_doodad = new PIXI.Sprite.fromImage(img_door_closed);
-                            //var burn_mark = new jo_doodad(burn_doodad,display_effects,bomb.x,bomb.y);
+                            
+                            //destroy nearby walls:
+                            for(var w = 0; w < grid.cells.length; w++){
+                                if(get_distance(bomb.x,bomb.y,grid.cells[w].x,grid.cells[w].y) < bomb_radius){
+                                    var wallInfo = grid.getInfoFromIndex(w);
+                                    //do not blow through map bounds walls
+                                    if(wallInfo.x_index != 0 && wallInfo.x_index != grid.width-1 && wallInfo.y_index != 0 && wallInfo.y_index != grid.height-1){
+                                        if(grid.cells[w].image_number != 1 && grid.cells[w].image_number != 3 && grid.cells[w].image_number != 4)grid.cells[w].changeImage(1);
+                                        grid.cells[w].solid = false;
+                                        grid.cells[w].blocks_vision = false;
+                                        grid.cells[w].door = false;
+                                    
+                                    }
+                                
+                                }
+                            }
+                            
                             //turn off the countdown
                             clearInterval(bomb_tooltip_interval);
                             //see if it kills anyone:
                             for(var g = 0; g < guards.length; g++){
-                                if(get_distance(bomb.x,bomb.y,guards[g].x,guards[g].y)<200){
+                                if(get_distance(bomb.x,bomb.y,guards[g].x,guards[g].y) < bomb_radius){
                                     guards[g].kill();
                                     //make blood splatter:
                                     makeBloodSplatter(guards[g].x,guards[g].y,bomb.x,bomb.y);
@@ -1423,7 +1443,20 @@ function addKeyHandlers(){
                                 }
                             
                             }
-                            if(get_distance(bomb.x,bomb.y,hero.x,hero.y)<200){
+                            //remove doodads in range:
+                            for(var d = 0; d < doodads.length; d++){
+                                if(get_distance(bomb.x,bomb.y,doodads[d].x,doodads[d].y) < bomb_radius+32){
+                                    doodads[d].parent.removeChild(doodads[d].sprite);
+                                    //doodads.splice(1,d);
+                                
+                                }
+                            
+                            }
+                            
+                            //make burn mark:
+                            new jo_doodad(new PIXI.Sprite(img_burn_mark),display_effects,bomb.x,bomb.y);
+                            
+                            if(get_distance(bomb.x,bomb.y,hero.x,hero.y)<bomb_radius){
                                     hero.kill();
                                     //make blood splatter:
                                     makeBloodSplatter(hero.x,hero.y,bomb.x,bomb.y);

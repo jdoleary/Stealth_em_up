@@ -7,8 +7,8 @@ function jo_doodad(pixiSprite, parent, xx, yy){
     //utility variables, these do not affect the actual sprite, but are used for camera and such, see prepare_for_draw()
     this.x = xx+32;//32 is half of one grid cell
     this.y = yy+32;
-    
-    var random_rot = Math.round(Math.random() * (4 - 1) + 1);
+    this.rad = Math.PI*2*Math.random();
+    /*var random_rot = Math.round(Math.random() * (4 - 1) + 1);
     
     switch(random_rot){
         case 1:
@@ -23,15 +23,20 @@ function jo_doodad(pixiSprite, parent, xx, yy){
         case 4:
             this.rad = 2*Math.PI;
             break;
-    }
+    }*/
     //this.rad = rad;//radians (rotation)
 
     this.sprite = pixiSprite;
     //center the image:
     this.sprite.anchor.x = 0.5;
     this.sprite.anchor.y = 0.5;
-    if(parent)parent.addChild(this.sprite);
-	else display_actors.addChild(this.sprite);
+    if(parent){
+        parent.addChild(this.sprite);
+        this.parent = parent;
+    }else{
+        display_actors.addChild(this.sprite);
+        this.parent = display_actors;
+    }
 
  
     this.prepare_for_draw = function(){
@@ -42,7 +47,6 @@ function jo_doodad(pixiSprite, parent, xx, yy){
     };
     
     //add to doodads array:
-    console.log(this);
     doodads.push(this);
 }
 

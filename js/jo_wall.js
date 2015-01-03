@@ -29,6 +29,7 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     this.blocks_vision = blocks_vision;//enemies cannot see / shoot through wall which blocks vision
     this.restricted = restricted; //the hero will cause alert if he is seen on a restricted tile even unmasked.
     this.door = false;
+    this.image_number = image_number; //for keeping track of the type of cell image
     
     this.v8 = vertices[0];
     this.v2 = vertices[1];
@@ -42,7 +43,13 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     //for drawing image
     this.x = this.v8.x;
     this.y = this.v8.y;
-    switch(image_number) {
+    
+    this.changeImage = function(image_number_p){
+        
+        //remove previous sprite
+        if(this.image_sprite!=undefined)tile_containers[this.image_number].removeChild(this.image_sprite);
+        
+        switch(image_number_p) {
         case 0:
             var sprite = new PIXI.Sprite.fromImage(img_tile_black);
             break;
@@ -59,8 +66,7 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
                 sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_lamp);
             }
             
-            //PROBLEM HERE
-            //if(display_actors && sprite_doodad)new jo_doodad(sprite_doodad,display_actors,this.x,this.y);
+            if(display_actors && sprite_doodad)new jo_doodad(sprite_doodad,display_actors,this.x,this.y);
             /*var random_rot = Math.round(Math.random() * (4 - 1) + 1);
             sprite.anchor.x = 0.5;
             sprite.anchor.y = 0.5;
@@ -88,11 +94,13 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             var sprite = new PIXI.Sprite.fromImage(img_tile_red);
             break;
             
+        }
+        this.image_sprite = sprite;
+        //tile_container.addChild(this.image_sprite);//caused fps drops because you can't have different sprites in a sprite batcher
+        tile_containers[image_number_p].addChild(sprite);
     }
-    this.image_sprite = sprite;
-    //tile_container.addChild(this.image_sprite);//caused fps drops because you can't have different sprites in a sprite batcher
-    tile_containers[image_number].addChild(sprite);
-    
+    //set the image
+    this.changeImage(this.image_number);
     
     this.graphics = new PIXI.Graphics();
     //stage_child.addChild(this.graphics);
