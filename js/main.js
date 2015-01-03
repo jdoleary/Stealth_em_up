@@ -447,7 +447,7 @@ function setup_map(map){
     display_tiles.addChild(tile_containers[3]);//add SpriteBatches
     display_tiles.addChild(tile_containers[4]);//add SpriteBatches
     
-             //hero feet:
+            //hero feet:
             feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
             feet_clip.sprite.loop = true;
             feet_clip.sprite.animationSpeed = 0.2;//slow it down
@@ -458,7 +458,11 @@ function setup_map(map){
             hero.x = map.objects.hero[0];
             hero.y = map.objects.hero[1];
 			hero.speed = hero.speed_walk;
+            feet_clip.speed = hero.speed;
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
+            //put feet under hero
+            feet_clip.x = hero.x;
+            feet_clip.y = hero.y;
             
             
 			hero_last_seen = new jo_sprite(new PIXI.Sprite(img_lastSeen));
@@ -1293,10 +1297,13 @@ function gameloop(deltaTime){
     if(hero.masked)hero.draw_gun_shot(hero.aim);//only draw aim line when hero is masked (which means gun is out).
     hero.move_to_target();
     
-    //test todo, keep feet under hero:
-    feet_clip.x = hero.x;
+    //keep feet under hero:
+    feet_clip.target.x = hero.x;
+    feet_clip.target.y = hero.y;
+    feet_clip.move_to_target();
+    /*feet_clip.x = hero.x;
     feet_clip.y = hero.y;
-    feet_clip.rad = hero.rad;
+    feet_clip.rad = hero.rad;*/
     
     if(grid.isTileRestricted_coords(hero.x,hero.y)){
         if(hero.alive)useMask(true);
@@ -1421,6 +1428,7 @@ function addKeyHandlers(){
                 //cannot sprint while dragging something
                 if(!hero_drag_target){
                     hero.speed = hero.speed_sprint;
+                    feet_clip.speed = hero.speed;
                 }
             
             }
@@ -1455,6 +1463,7 @@ function addKeyHandlers(){
                                         
                                         //slow down hero speed because he just started dragging something.
                                         hero.speed = hero.speed/2;
+                                        feet_clip.speed = hero.speed;
                                         hero_drag_target = guards[i];
                                         hero_drag_target.speed = hero.speed;
                                         hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
@@ -1474,6 +1483,7 @@ function addKeyHandlers(){
                                         guards[i].being_choked_out = true;
                                         //slow down hero speed because he just started dragging something.
                                         hero.speed = hero.speed_walk/2;
+                                        feet_clip.speed = hero.speed;
                                         hero_drag_target = guards[i];
                                         hero_drag_target.speed = hero.speed;
                                         hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
@@ -1490,6 +1500,7 @@ function addKeyHandlers(){
                                                     hero_drag_target = null;
                                                     //bring hero speed back to normal
                                                     hero.speed = hero.speed_walk;
+                                                    feet_clip.speed = hero.speed;
                                                 }
                                             }
                                         }.bind(guards[i]), 3000);
@@ -1542,7 +1553,10 @@ function addKeyHandlers(){
         }
         if(code == 16){
             keys['shift'] = false;
-            if(hero_drag_target==null)hero.speed = hero.speed_walk;
+            if(hero_drag_target==null){
+                hero.speed = hero.speed_walk;
+                feet_clip.speed = hero.speed;
+            }
         }
         if(code == 32){
             keys['space'] = false;
@@ -1553,6 +1567,7 @@ function addKeyHandlers(){
                 hero_drag_target = null;
                 //bring hero speed back to normal
                 hero.speed = hero.speed_walk;
+                feet_clip.speed = hero.speed;
             }
             grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
             circProgBar.stop();
@@ -1812,7 +1827,19 @@ function setBomb(){
                     var wallInfo = grid.getInfoFromIndex(w);
                     //do not blow through map bounds walls
                     if(wallInfo.x_index != 0 && wallInfo.x_index != grid.width-1 && wallInfo.y_index != 0 && wallInfo.y_index != grid.height-1){
-                        if(grid.cells[w].image_number != 1 && grid.cells[w].image_number != 3 && grid.cells[w].image_number != 4)grid.cells[w].changeImage(1);
+                        
+                        //test if any surrounding tiles are restricted:
+                        var makeRestricted = false;
+                        if(grid.isTileRestricted_coords(grid.cells[w].x-64,grid.cells[w].y))makeRestricted = true;
+                        if(grid.isTileRestricted_coords(grid.cells[w].x+64,grid.cells[w].y))makeRestricted = true;
+                        if(grid.isTileRestricted_coords(grid.cells[w].x,grid.cells[w].y-64))makeRestricted = true;
+                        if(grid.isTileRestricted_coords(grid.cells[w].x,grid.cells[w].y+64))makeRestricted = true;
+                        
+                        if(makeRestricted)grid.cells[w].changeImage(4);
+                        else{
+                            if(grid.cells[w].image_number != 1 && grid.cells[w].image_number != 3 && grid.cells[w].image_number != 4)grid.cells[w].changeImage(1);
+                        }
+                        
                         grid.cells[w].solid = false;
                         grid.cells[w].blocks_vision = false;
                         grid.cells[w].door = false;
