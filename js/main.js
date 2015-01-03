@@ -1408,6 +1408,7 @@ function addKeyHandlers(){
                             bomb.sprite.visible = false;
                             bomb_tooltip.visible = false;
                             //make burn mark:
+                            //PROBLEM HERE
                             //var burn_doodad = new PIXI.Sprite.fromImage(img_door_closed);
                             //var burn_mark = new jo_doodad(burn_doodad,display_effects,bomb.x,bomb.y);
                             //turn off the countdown
