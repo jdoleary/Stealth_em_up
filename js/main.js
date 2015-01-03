@@ -1407,8 +1407,28 @@ function addKeyHandlers(){
                             camera.startShake(1000,30);
                             bomb.sprite.visible = false;
                             bomb_tooltip.visible = false;
+                            //make burn mark:
+                            //var burn_doodad = new PIXI.Sprite.fromImage(img_door_closed);
+                            //var burn_mark = new jo_doodad(burn_doodad,display_effects,bomb.x,bomb.y);
                             //turn off the countdown
                             clearInterval(bomb_tooltip_interval);
+                            //see if it kills anyone:
+                            for(var g = 0; g < guards.length; g++){
+                                if(get_distance(bomb.x,bomb.y,guards[g].x,guards[g].y)<200){
+                                    guards[g].kill();
+                                    //make blood splatter:
+                                    makeBloodSplatter(guards[g].x,guards[g].y,bomb.x,bomb.y);
+                                
+                                }
+                            
+                            }
+                            if(get_distance(bomb.x,bomb.y,hero.x,hero.y)<200){
+                                    hero.kill();
+                                    //make blood splatter:
+                                    makeBloodSplatter(hero.x,hero.y,bomb.x,bomb.y);
+                                
+                            }
+                            
                         }
                     }, 10);
                 }

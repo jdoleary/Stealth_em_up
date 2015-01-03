@@ -118,13 +118,14 @@ function jo_grid(map){
     tile_container_purple = new PIXI.SpriteBatch();//for efficiency!
     tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
 
-    /*Debug lines for shortcut pathing
+    //Debug lines for shortcut pathing
+    /*
     this.debug3 = new debug_line();
     this.debug3.color = 0xff0000;
     this.debug4 = new debug_line();
     this.debug4.color = 0xff0000;
-    this.debugbounds = new debug_circle();
-    */
+    this.debugbounds = new debug_circle();*/
+    
     //2d array:
     this.width = map.width;
     this.height = map.height;

@@ -18,6 +18,7 @@ var img_blood_splatter2 = PIXI.Texture.fromImage("blood_splatter2.png");
 var img_door_open = PIXI.Texture.fromImage("door_open.png");
 var img_door_closed = PIXI.Texture.fromImage("door_closed.png");
 var img_bomb = PIXI.Texture.fromImage("c4.png");
+//var img_burn_mark = PIXI.Texture.fromImage("burn_mark.png");
 
 
 

@@ -59,7 +59,7 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
                 sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_lamp);
             }
             
-            if(display_actors && sprite_doodad)new jo_doodad(sprite_doodad,display_actors,this.x,this.y);
+            //if(display_actors && sprite_doodad)new jo_doodad(sprite_doodad,display_actors,this.x,this.y);
             /*var random_rot = Math.round(Math.random() * (4 - 1) + 1);
             sprite.anchor.x = 0.5;
             sprite.anchor.y = 0.5;
