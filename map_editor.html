@@ -19,37 +19,38 @@
         }
 	</style>
 
+    <link rel="stylesheet" type="text/css" href="buttons.css">
 	<script src="bin/pixi.dev.js"></script>
 	
 </head>
     <body>
     
-    <div id="buttons"  style="position:absolute;top:20px;left:20px;background-color:green;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
-        <button onclick="changePaletteNum(0);" style="width:100%">Wall</button>
+    <div id="buttons"  style="position:absolute;top:20px;right:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
+        <button id="button0" class="pure-button pure-button-active" onclick="changePaletteNum(0);" style="width:100%">Wall</button>
         <br>    
-        <button onclick="changePaletteNum(1);" style="width:100%">Floor</button>
+        <button id="button1"  class="pure-button" onclick="changePaletteNum(1);" style="width:100%">Floor</button>
+        <br>  
+        <button id="button2"  class="pure-button" onclick="changePaletteNum(2);" style="width:100%">Desk</button>
+        <br>  
+        <button id="button4"  class="pure-button" onclick="changePaletteNum(4);" style="width:100%">Floor(Restricted)</button>
+        <br>  
+        <button id="button5"  class="pure-button" onclick="changePaletteNum(5);"  style="width:100%">Door (Vert)</button>
         <br>    
-        <button onclick="changePaletteNum(2);" style="width:100%">Desk</button>
+        <button id="button6"  class="pure-button" onclick="changePaletteNum(6);"  style="width:100%">Door (Horiz)</button>
         <br>    
-        <button onclick="changePaletteNum(4);" style="width:100%">Floor(Restricted)</button>
+        <button id="button7"  class="pure-button" onclick="changePaletteNum(7);" style="width:100%">Money</button>
+        <br>  
+        <button id="button8"  class="pure-button" onclick="changePaletteNum(8);" style="width:100%">Escape Car</button>
         <br>    
-        <button onclick="changePaletteNum(5);"  style="width:100%">Door (Vert)</button>
-        <br>    
-        <button onclick="changePaletteNum(6);"  style="width:100%">Door (Horiz)</button>
-        <br>    
-        <button onclick="changePaletteNum(7);" style="width:100%">Money</button>
-        <br>    
-        <button onclick="changePaletteNum(8);" style="width:100%">Escape Car</button>
-        <br>    
-        <button onclick="changePaletteNum(9);"  style="width:100%">Computer</button> 
-        <br>    
-        <button onclick="changePaletteNum(10);"  style="width:100%">Player Spawn</button>
-        <br>    
-        <button onclick="changePaletteNum(11);"  style="width:100%">Guard Backup Spawn</button>
-        <br>    
-        <button onclick="changePaletteNum(12);"  style="width:100%">Security Camera</button>
-        <br>    
-        <button onclick="changePaletteNum(13);"  style="width:100%">Guard</button>
+        <button id="button9"  class="pure-button" onclick="changePaletteNum(9);"  style="width:100%">Computer</button> 
+        <br>   
+        <button id="button10"  class="pure-button" onclick="changePaletteNum(10);"  style="width:100%">Player Spawn</button>
+        <br>   
+        <button id="button11"  class="pure-button" onclick="changePaletteNum(11);"  style="width:100%">Guard Backup Spawn</button>
+        <br>   
+        <button id="button12"  class="pure-button" onclick="changePaletteNum(12);"  style="width:100%">Security Camera</button>
+        <br>   
+        <button id="button13"  class="pure-button" onclick="changePaletteNum(13);"  style="width:100%">Guard</button>
     
     </div>
     
@@ -77,11 +78,13 @@
     <script src="map_editor_js/me_jo_progress_bar.js"></script>
     <script src="map_editor_js/me_jo_local_storage.js"></script>
     <script src="map_editor_js/me_main.js"></script>
-    <!--<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>-->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script>
         //the number type of tile to place when clicking
         var palette_number = 0;
         function changePaletteNum(num){
+            $(".pure-button").removeClass("pure-button-active");
+            $("#button" + num).addClass("pure-button-active");
             console.log("change palette: " + num);
             palette_number = num;
         }

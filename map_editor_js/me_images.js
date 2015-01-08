@@ -19,6 +19,9 @@ var img_door_open = PIXI.Texture.fromImage("door_open.png");
 var img_door_closed = PIXI.Texture.fromImage("door_closed.png");
 var img_bomb = PIXI.Texture.fromImage("c4.png");
 var img_burn_mark = PIXI.Texture.fromImage("burn_mark.png");
+var img_selector = PIXI.Texture.fromImage("selector.png");
+var img_guard_spawn_icon = PIXI.Texture.fromImage("guard_spawn_icon.png");
+var img_player_spawn_icon = PIXI.Texture.fromImage("player_spawn_icon.png");
 
 
 

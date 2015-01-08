@@ -96,6 +96,10 @@ Map / Game Object Setup
 //doodads
 var doodads;
 
+var editor_selector;
+var guard_spawn_icon;
+var hero_spawn_icon;
+
 //bomb
 var bomb;
 var bombs_left;
@@ -332,6 +336,9 @@ function startGame(){
     
     doodads = [];
     
+    editor_selector = new jo_sprite(new PIXI.Sprite(img_selector));
+    guard_spawn_icon = new jo_sprite(new PIXI.Sprite(img_guard_spawn_icon));
+    hero_spawn_icon = new jo_sprite(new PIXI.Sprite(img_player_spawn_icon));
     
     bomb = new jo_sprite(new PIXI.Sprite(img_bomb));
     bomb.sprite.visible = false;
@@ -993,7 +1000,7 @@ function gameloop_doors(deltaTime){
             door_center_x_offset = -32;
         }
         door_inst.openerNear = false; 
-        for(var g = 0; g < guards.length; g++){
+        /*for(var g = 0; g < guards.length; g++){
         //check if any guard is near door_inst, open door_inst:
             //this radius is very important!  If door_inst doesn't detect unit close enough, the "wall" tile that it is on will be solid and unit won't be able to get close enough
             if(get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,guards[g].x,guards[g].y) <= guards[g].radius*4){
@@ -1021,7 +1028,7 @@ function gameloop_doors(deltaTime){
         }else{
             door_inst.close();
         
-        }
+        }*/
     }
 }
 function gameloop_dragtarget(deltaTime){
@@ -1239,7 +1246,6 @@ function gameloop(deltaTime){
         
         //only overwrite non border grid cells
         if(grid_pos.x != 0 && grid_pos.x != grid.width-1 && grid_pos.y != 0 && grid_pos.y != grid.height-1){
-            console.log('dasfasdf' + grid_pos.x + " " + grid_pos.y);
             if(palette_number <5){
                 //for "palette_number" see map_editor.html
                 if(cell)cell.changeImage(palette_number);
@@ -1262,30 +1268,35 @@ function gameloop(deltaTime){
                             break;
                         case 7:
                             //money:
-                            loot[0].x = mouse.x;
-                            loot[0].y = mouse.y;
+                            loot[0].x = editor_selector.x;
+                            loot[0].y = editor_selector.y;
                             break;
                         case 8:
                             //getawaycar
-                            getawaycar.x = mouse.x - (mouse.x%grid.cell_size);
-                            getawaycar.y = mouse.y - (mouse.y%grid.cell_size);
+                            getawaycar.x = editor_selector.x-32;
+                            getawaycar.y = editor_selector.y-32;
                             break;
                         case 9:
                             //computer
                             //restrict to grid cell bounds
-                            computer_for_security_cameras.x = mouse.x - (mouse.x%grid.cell_size) + 32;
-                            computer_for_security_cameras.y = mouse.y - (mouse.y%grid.cell_size) + 32;
+                            computer_for_security_cameras.x = editor_selector.x;
+                            computer_for_security_cameras.y = editor_selector.y;
                             break;
                         case 10:
                             //player spawn
+                            hero_spawn_icon.x = editor_selector.x;
+                            hero_spawn_icon.y = editor_selector.y;
                             break;
                         case 11:
                             //guard backup spawn
-                            //restrict to grid cell bounds
+                            guard_spawn_icon.x = editor_selector.x;
+                            guard_spawn_icon.y = editor_selector.y;
                             break;
                         case 12:
                             //security cam
-                            //restrict to grid cell bounds
+                            var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),editor_selector.x,editor_selector.y,Math.PI,Math.PI/2);
+                            security_cameras.push(cam_inst);
+                            mouseDown = false;//make it so this can only be placed once per mousedown
                             break;
                         case 13:
                             //guard
@@ -1396,12 +1407,12 @@ function gameloop(deltaTime){
         hero.rotate_to(mouse.x,mouse.y);
     }else hero.target_rotate = null;
     hero.prepare_for_draw();
+    editor_selector.prepare_for_draw();
+    hero_spawn_icon.prepare_for_draw();
+    guard_spawn_icon.prepare_for_draw();
     bomb.prepare_for_draw();
     if(bomb.sprite.visible)bomb_radius_debug.draw_obj(bomb.x,bomb.y,bomb_radius);
     else bomb_radius_debug.graphics.clear();
-    //test
-    //bomb_radius_debug.draw_obj(mouse.x,mouse.y,30);
-    bomb_radius_debug.draw_obj(mouse.x,mouse.y,60);
     
     //don't show hero_last_seen if it is too close to hero:
     if(backupCalled){
@@ -1443,6 +1454,25 @@ function gameloop(deltaTime){
         doodads[i].prepare_for_draw();
     }
     updateMessage();//show mouse info
+    //snap selector to grid:
+    switch(palette_number){
+        case 7:
+            editor_selector.x = mouse.x;
+            editor_selector.y = mouse.y;
+        case 8:
+            editor_selector.x = mouse.x - (mouse.x%grid.cell_size) +32;
+            editor_selector.y = mouse.y - (mouse.y%grid.cell_size) +32;
+            break;
+        case 12:
+            editor_selector.x = mouse.x - ((mouse.x+32)%(grid.cell_size)) + 32;
+            editor_selector.y = mouse.y - ((mouse.y+32)%(grid.cell_size)) + 32;
+            break;
+        default:
+            editor_selector.x = mouse.x - (mouse.x%grid.cell_size) +32;
+            editor_selector.y = mouse.y - (mouse.y%grid.cell_size) +32;
+            break;
+    }
+    
     gameloop_zoom_and_camera(deltaTime);
 
 }
