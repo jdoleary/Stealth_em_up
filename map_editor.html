@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+	<title>STEALTH 'em UP</title>
+	<style>
+
+        body{
+            margin: 0px;
+        }
+        canvas {
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        
+        }
+	</style>
+
+	<script src="bin/pixi.dev.js"></script>
+	
+</head>
+    <body>
+    
+    <div id="buttons"  style="position:absolute;top:0px;left:20px">
+        <br>    
+        <br>    
+        <br>    
+        <button>Wall</button>
+        <br>    
+        <button>Floor</button>
+        <br>    
+        <button>Desk</button>
+        <br>    
+        <button>Floor(Restricted)</button>
+        <br>    
+        <button>Money</button>
+        <br>    
+        <button>Getaway</button>
+        <br>    
+        <button>Computer</button>
+        <br>    
+        <button>Door</button>
+        <br>    
+        <button>Player Spawn</button>
+        <br>    
+        <button>Guard Spawn</button>
+        <br>    
+        <button>Security Camera</button>
+    
+    </div>
+    
+    <div id="canvas_holder"></div>
+    
+    <script src="map_editor_js/me_images.js"></script>
+    <script src="map_editor_js/me_menu_button_manager.js"></script>
+    <script src="map_editor_js/me_jo_debug.js"></script>
+    <script src="map_editor_js/me_jo_door.js"></script>
+    <script src="map_editor_js/me_jo_math.js"></script>
+	<script src="map_editor_js/me_jo_sprite.js"></script>
+	<script src="map_editor_js/me_jo_cam.js"></script>
+	<script src="map_editor_js/me_jo_utility.js"></script>
+    <script src="map_editor_js/me_jo_doodad.js"></script>
+	<script src="map_editor_js/me_jo_wall.js"></script>
+	<script src="map_editor_js/me_jo_grid.js"></script>
+	<script src="map_editor_js/me_astar.js"></script>
+	<script src="map_editor_js/me_jo_raycast.js"></script>
+	<script src="map_editor_js/me_jo_security_camera.js"></script>
+	<script src="map_editor_js/me_sprite_hero.js"></script>
+	<script src="map_editor_js/me_sprite_guard.js"></script>
+	<script src="map_editor_js/me_sprite_civ.js"></script>
+    <script src="map_editor_js/me_jo_movie_clip.js"></script>
+    <script src="map_editor_js/me_sound_manager.js"></script>
+    <script src="map_editor_js/me_jo_progress_bar.js"></script>
+    <script src="map_editor_js/me_jo_local_storage.js"></script>
+    <script src="map_editor_js/me_main.js"></script>
+    <!--<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>-->
+
+    
+	</body>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-56798370-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+</html>
