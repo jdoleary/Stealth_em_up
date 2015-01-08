@@ -22,6 +22,16 @@ function jo_cam(window_properties){
         var screenCorner = this.objScreenCorner();
         return {x: relativePoint.x + screenCorner.x, y: relativePoint.y + screenCorner.y};
     }
+    this.objScreenCornerWithZoom = function(){
+        return {x: this.x-(window_properties.width/stage_child.scale.x)/2,y: this.y-(window_properties.height/stage_child.scale.y)/2};
+    
+    };
+    
+    this.objectivePointWithZoom = function(relativePoint){
+        //used for mouse translating to obj coords:
+        var screenCorner = this.objScreenCornerWithZoom();
+        return {x: relativePoint.x/stage_child.scale.x + screenCorner.x, y: relativePoint.y/stage_child.scale.y + screenCorner.y};
+    }
     
     this.speed = 20;
     this.stop_distance = 10; //Distance to stop from target.

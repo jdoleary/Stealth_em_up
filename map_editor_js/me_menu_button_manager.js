@@ -59,7 +59,7 @@ function addButton(text,x,y, clickFunction){
     button.click = function(data){
         clickFunction();
     }
-    
+    buttons.push(button);
     stage.addChild(button);
 
 }

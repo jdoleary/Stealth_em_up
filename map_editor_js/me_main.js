@@ -63,6 +63,7 @@ function fullscreen() {
 
 
 var mouse;
+var mouse_down;
 var keys;
 
 var stage_child;
@@ -158,7 +159,7 @@ var alarmingObjects;//guards will sound alarm if they see an alarming object (de
   
 //UI text.  Use newMessage() to add a message.
 var message;
-var messageText;
+//var messageText;
 var messageGameOver;
 
 //floating messages:
@@ -192,6 +193,7 @@ var circProgBar;
 var notifyGuardsOfHeroLocation = false;
 
 
+var buttons = [];//menu button
 
 function getUrlVars()
 {
@@ -235,11 +237,16 @@ function removeAllChildren(obj){
 }
 function clearStage(){
     //for menu:
-    if(button){
-        button.interactive = false;
-        button.click = null;
-        button = null;
+    for(var i = 0; i < buttons.length; i++){
+        if(buttons[i]){
+            stage.removeChild(buttons[i]);
+            buttons[i].interactive = false;
+            buttons[i].click = null;
+            buttons[i] = null;
+        }
+    
     }
+    buttons = [];
     //clear all timeouts
     var id = window.setTimeout(function() {}, 0);
     while (id--) {
@@ -259,7 +266,6 @@ function clearStage(){
     removeAllChildren(stage);
     stage = new PIXI.Stage(0xEEEEEE, interactive);
 }
-var button;//menu button
 
 
 function startMenu(){
@@ -287,6 +293,7 @@ function startGame(){
     
     //initialize variables:
     keys = {w: false, a: false, s: false, d: false, f: false, v: false, space:false, shift:false};
+    mouse_down = false;
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
     
@@ -386,7 +393,7 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             message.position.x = 0;
             message.position.y = window_properties.height;
             message.anchor.y = 1;
-            messageText = [];
+            //messageText = [];
             stage.addChild(message);
             
             messageGameOver = new PIXI.Text("", { font: "30px Arial", fill: "#000000", align: "left", stroke: "#FFFFFF", strokeThickness: 2 });
@@ -446,7 +453,7 @@ function setup_map(map){
             feet_clip.sprite.animationSpeed = 0.2;//slow it down
     
             //make sprites:
-			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue),4,8);
+			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue),10,10);
 			hero_end_aim_coord;
             hero.x = map.objects.hero[0];
             hero.y = map.objects.hero[1];
@@ -1223,9 +1230,19 @@ function gameloop(deltaTime){
     //update Mouse
     //////////////////////
     mouse_rel = stage.getMousePosition();//gets relative mouse position
-    if(mouse_rel.x != -10000)mouse = camera.objectivePoint(mouse_rel);//only set mouse position if the mouse is on the stage
+    if(mouse_rel.x != -10000)mouse = camera.objectivePointWithZoom(mouse_rel);//only set mouse position if the mouse is on the stage
     
-
+    //[mapeditor]change tile if mouse down
+    if(mouseDown && gridClickEnabled){
+        var grid_pos = grid.getIndexFromCoords_2d(mouse.x,mouse.y);
+        var cell = grid.getCellFromIndex(grid_pos.x,grid_pos.y);
+        
+        //only overwrite non border grid cells
+        if((grid_pos.x_index != 0 && grid_pos.x_index != grid.width-1 && grid_pos.y_index != 0 && grid_pos.y_index != grid.height-1)){
+            //for "palette_number" see map_editor.html
+            if(cell)cell.changeImage(palette_number);
+        }
+    }
 
       
     //////////////////////
@@ -1302,7 +1319,9 @@ function gameloop(deltaTime){
     
     //check collisions and prepare to draw walls:
     for(var i = 0; i < grid.cells.length; i++){
-        if(grid.cells[i].solid){
+        var grid_info = grid.getInfoFromIndex(i);
+        //only collide with border grid cells
+        if(grid.cells[i].solid && (grid_info.x_index == 0 || grid_info.x_index == grid.width-1 || grid_info.y_index == 0 || grid_info.y_index == grid.height-1)){
             hero.collide(grid.cells[i].v2);
             hero.collide(grid.cells[i].v4);
             hero.collide(grid.cells[i].v6);
@@ -1319,10 +1338,12 @@ function gameloop(deltaTime){
         hero.rotate_to(mouse.x,mouse.y);
     }else hero.target_rotate = null;
     hero.prepare_for_draw();
-    
     bomb.prepare_for_draw();
     if(bomb.sprite.visible)bomb_radius_debug.draw_obj(bomb.x,bomb.y,bomb_radius);
     else bomb_radius_debug.graphics.clear();
+    //test
+    //bomb_radius_debug.draw_obj(mouse.x,mouse.y,30);
+    bomb_radius_debug.draw_obj(mouse.x,mouse.y,60);
     
     //don't show hero_last_seen if it is too close to hero:
     if(backupCalled){
@@ -1336,9 +1357,9 @@ function gameloop(deltaTime){
     
     if(hero_drag_target)hero.sprite.rotation += Math.PI;//reverse the hero's rotation because he is dragging something.
     
-    gameloop_civs(deltaTime);
+    //gameloop_civs(deltaTime);
     
-    gameloop_guards(deltaTime);
+    //gameloop_guards(deltaTime);
     
     if(notifyGuardsOfHeroLocation)console.log("Repath all guards to hero last seen");
     notifyGuardsOfHeroLocation = false;
@@ -1346,24 +1367,24 @@ function gameloop(deltaTime){
     //prepare blood layer for draw:
     prepare_for_draw_blood(); 
 
-    gameloop_security_cams(deltaTime);
+    //gameloop_security_cams(deltaTime);
     
-    gameloop_alert_animation(deltaTime);
+    //gameloop_alert_animation(deltaTime);
     
-    gameloop_bullets(deltaTime);
+    //gameloop_bullets(deltaTime);
     
-    gameloop_getawaycar_and_loot(deltaTime);
+    //gameloop_getawaycar_and_loot(deltaTime);
 
     gameloop_doors(deltaTime);
     
-    gameloop_dragtarget(deltaTime);
+    //gameloop_dragtarget(deltaTime);
     
     gameloop_messages_and_tooltip(deltaTime);
     
     for(var i = 0; i < doodads.length; i++){
         doodads[i].prepare_for_draw();
     }
-    
+    updateMessage();//show mouse info
     gameloop_zoom_and_camera(deltaTime);
 
 }
@@ -1572,25 +1593,10 @@ function addKeyHandlers(){
     window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
 
     onmousedown = function(e){
-        //you can only shoot if hero is masked
-        if(hero.masked && ammo > 0){
-            //very minor camera shake:
-            camera.startShake(5,1.5);
-        
-            ammo--;
-            //newMessage("Ammo: " + ammo + "/6");
-            newFloatingMessage("Ammo: " + ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
-            doGunShotEffects(hero, hero.silenced);//plays sound and shows affects
-            
-            //toggles on the visiblity of .draw_gun_shot's line
-            hero.shoot();
-            if(!hero.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
-            mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
-            
-            
-        }
-        if(ammo<=0)play_sound(sound_dry_fire);
-
+        mouseDown = true;
+    }
+    onmouseup = function(e){
+        mouseDown = false;
     }
 }
 function mouseWheelHandler(e){
@@ -1624,13 +1630,13 @@ Other
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 function newMessage(mess){
-    //console.log(mess);
+    /*//console.log(mess);
     messageText.push(mess);
     setTimeout(function(){
         messageText.shift();
         updateMessage();
     },7000);
-    updateMessage();
+    updateMessage();*/
 }
 function newFloatingMessage(mess,pos,color){
     //Color in format of "#000000"
@@ -1643,9 +1649,13 @@ function newFloatingMessage(mess,pos,color){
 }
 function updateMessage(){
     var textForMessage = "";
-    for(var i = 0; i < messageText.length; i++){
+    var grid_pos = grid.getIndexFromCoords_2d(mouse.x/stage_child.scale.x,mouse.y/stage_child.scale.y);
+    textForMessage = "Grid: " + grid_pos.x + "," + grid_pos.y + "\n";
+    textForMessage += "Scale: " + stage_child.scale.x + "," + stage_child.scale.y + "\n";
+    textForMessage += "Mouse: " + mouse.x + "," + mouse.y + "\n";
+    /*for(var i = 0; i < messageText.length; i++){
         textForMessage += messageText[i] + "\n";
-    }
+    }*/
     message.setText(textForMessage);
 };
 function spawn_backup(){

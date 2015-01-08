@@ -24,17 +24,17 @@
 </head>
     <body>
     
-    <div id="buttons"  style="position:absolute;top:0px;left:20px">
+    <div id="buttons"  style="position:absolute;top:0px;left:20px;background-color:white;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
         <br>    
         <br>    
         <br>    
-        <button>Wall</button>
+        <button onclick="changePaletteNum(0);">Wall</button>
         <br>    
-        <button>Floor</button>
+        <button onclick="changePaletteNum(1);">Floor</button>
         <br>    
-        <button>Desk</button>
+        <button onclick="changePaletteNum(2);">Desk</button>
         <br>    
-        <button>Floor(Restricted)</button>
+        <button onclick="changePaletteNum(4);">Floor(Restricted)</button>
         <br>    
         <button>Money</button>
         <br>    
@@ -77,7 +77,22 @@
     <script src="map_editor_js/me_jo_local_storage.js"></script>
     <script src="map_editor_js/me_main.js"></script>
     <!--<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>-->
-
+    <script>
+        //the number type of tile to place when clicking
+        var palette_number = 0;
+        function changePaletteNum(num){
+            console.log("change palette: " + num);
+            palette_number = num;
+        }
+        var gridClickEnabled = true;
+        function disableGridClick(){
+            gridClickEnabled=false;
+        }
+        function enableGridClick(){
+            gridClickEnabled=true;
+        
+        }
+    </script>
     
 	</body>
     <script>
