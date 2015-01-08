@@ -566,7 +566,7 @@ function gameloop_guards(deltaTime){
     
     
     for(var i = 0; i < guards.length; i++){
-        if(guards[i].alive){
+        /*if(guards[i].alive){
         
         
                 //shooting
@@ -728,9 +728,9 @@ function gameloop_guards(deltaTime){
                     newMessage("Dead guard's remaining ammo: " + guards[i].ammo + "/6");
                 }
             }
-        }
+        }*/
         guards[i].prepare_for_draw();
-        
+        /*
         //draw blood trails.
         if(guards[i].blood_trail){
             for(var z = 20, j = 1; j > 0; z += 20, j -= 0.04){
@@ -748,7 +748,7 @@ function gameloop_guards(deltaTime){
             if(guards[i].alive && guards[other_guard_index].alive){
                 guards[i].unit_to_unit_collide({x:guards[other_guard_index].x-1,y:guards[other_guard_index].y-1},10);
             }
-        }
+        }*/
     }
 }
 function gameloop_civs(deltaTime){
@@ -809,7 +809,7 @@ function gameloop_security_cams(deltaTime){
     //Security Cameras
     //////////////////////
     for(var i = 0; i < security_cameras.length; i++){
-        
+        /*
         if(!cameras_disabled && security_cameras[i].alive){
             security_cameras[i].swivel();
             
@@ -857,7 +857,7 @@ function gameloop_security_cams(deltaTime){
                     }
                 }
             }
-        }
+        }*/
         security_cameras[i].prepare_for_draw();
     }
     
@@ -1165,7 +1165,7 @@ function gameloop_getawaycar_and_loot(deltaTime){
     for(var i = 0; i < loot.length; i++){
         loot[i].prepare_for_draw();
     }
-    
+    /*
     //pickup loot if close enough
     if(!hero.carry){
         //check if hero is close enough to the loot to pick it up
@@ -1197,7 +1197,7 @@ function gameloop_getawaycar_and_loot(deltaTime){
             hero.sprite.setTexture(img_masked);
             
         }
-    }
+    }*/
 }
 function gameloop_alert_animation(deltaTime){
     //////////////////////
@@ -1238,9 +1238,67 @@ function gameloop(deltaTime){
         var cell = grid.getCellFromIndex(grid_pos.x,grid_pos.y);
         
         //only overwrite non border grid cells
-        if((grid_pos.x_index != 0 && grid_pos.x_index != grid.width-1 && grid_pos.y_index != 0 && grid_pos.y_index != grid.height-1)){
-            //for "palette_number" see map_editor.html
-            if(cell)cell.changeImage(palette_number);
+        if(grid_pos.x != 0 && grid_pos.x != grid.width-1 && grid_pos.y != 0 && grid_pos.y != grid.height-1){
+            console.log('dasfasdf' + grid_pos.x + " " + grid_pos.y);
+            if(palette_number <5){
+                //for "palette_number" see map_editor.html
+                if(cell)cell.changeImage(palette_number);
+            }else{
+                    //can't build outside of map bounds
+                if(cell){
+                
+                    switch(palette_number){
+                        case 5:
+                            cell.changeImage(4);
+                            grid.make_door(cell,false);
+                            
+                            mouseDown = false;//make it so this can only be placed once per mousedown
+                            break;
+                        case 6:
+                            cell.changeImage(4);
+                            grid.make_door(cell,true);
+                            
+                            mouseDown = false;//make it so this can only be placed once per mousedown
+                            break;
+                        case 7:
+                            //money:
+                            loot[0].x = mouse.x;
+                            loot[0].y = mouse.y;
+                            break;
+                        case 8:
+                            //getawaycar
+                            getawaycar.x = mouse.x - (mouse.x%grid.cell_size);
+                            getawaycar.y = mouse.y - (mouse.y%grid.cell_size);
+                            break;
+                        case 9:
+                            //computer
+                            //restrict to grid cell bounds
+                            computer_for_security_cameras.x = mouse.x - (mouse.x%grid.cell_size) + 32;
+                            computer_for_security_cameras.y = mouse.y - (mouse.y%grid.cell_size) + 32;
+                            break;
+                        case 10:
+                            //player spawn
+                            break;
+                        case 11:
+                            //guard backup spawn
+                            //restrict to grid cell bounds
+                            break;
+                        case 12:
+                            //security cam
+                            //restrict to grid cell bounds
+                            break;
+                        case 13:
+                            //guard
+                            var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg));
+                            guard_inst.x = mouse.x;
+                            guard_inst.y = mouse.y;
+                            guards.push(guard_inst);
+                            mouseDown = false;//make it so this can only be placed once per mousedown
+                            break;
+                            
+                    }
+                }
+            }
         }
     }
 
@@ -1359,7 +1417,7 @@ function gameloop(deltaTime){
     
     //gameloop_civs(deltaTime);
     
-    //gameloop_guards(deltaTime);
+    gameloop_guards(deltaTime);
     
     if(notifyGuardsOfHeroLocation)console.log("Repath all guards to hero last seen");
     notifyGuardsOfHeroLocation = false;
@@ -1367,13 +1425,13 @@ function gameloop(deltaTime){
     //prepare blood layer for draw:
     prepare_for_draw_blood(); 
 
-    //gameloop_security_cams(deltaTime);
+    gameloop_security_cams(deltaTime);
     
     //gameloop_alert_animation(deltaTime);
     
     //gameloop_bullets(deltaTime);
     
-    //gameloop_getawaycar_and_loot(deltaTime);
+    gameloop_getawaycar_and_loot(deltaTime);
 
     gameloop_doors(deltaTime);
     
@@ -1408,7 +1466,7 @@ function addKeyHandlers(){
             if(code == 65){keys['a'] = true;}
             if(code == 83){keys['s'] = true;}
             if(code == 68){keys['d'] = true;}
-            if(code == 70){
+            /*if(code == 70){
                 if(!keys['f'] && !bomb.sprite.visible && hero.masked){
                     //if f isn't already pressed and bomb isn't already set
                     if(bombs_left>0){
@@ -1541,13 +1599,13 @@ function addKeyHandlers(){
                     
                 }
                 
-            }
+            }*/
         }
         
-        if(code == 27){
+        /*if(code == 27){
             //esc
             startMenu();
-        }
+        }*/
         
         hero_move_animation_check();
     };
