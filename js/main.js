@@ -1929,6 +1929,8 @@ function getMapInfo(subdir, fileName){
             windowSetup();
             //mapData.push(map);
         }
+    }).fail(function(){
+        alert("Map file " + fileName + " was not found.");
     });
 }
     /*

@@ -317,14 +317,17 @@
  
 
     </div>
-    <div id="levelSelect" align="right">
-    
-        <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='./game.html?volume=1.0&level=diamondStore'">
+    <!--
+    <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='./game.html?volume=1.0&level=diamondStore'">
             <h1 class="levelSelect" align="center">Diamond Store</h1>
         </div>
         <div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href='./game.html?volume=1.0&level=bank1'">
             <h1 class="levelSelect" align="center">International Bank</h1>
         </div>
+    -->
+    <div id="levelSelect" align="right">
+    
+        
     </div>
     <div id="achievements" align="right">
         
@@ -416,6 +419,33 @@
     
     </div>
     <script>
+        
+        //fill level select with names of all maps:
+        //get info from php:
+        function getListOfMapNames(){
+            var fileNames;
+            var mapData = [];
+            var oReq = new XMLHttpRequest(); //New request object
+            oReq.onload = function() {
+                //This is where you handle what to do with the response.
+                //The actual data is found on this.responseText
+                console.log(this.responseText); 
+                fileNames = JSON.parse(this.responseText);
+                for(var i = 0; i < fileNames.length; i++){
+                    fileNames[i] = fileNames[i].slice(0,-6);
+                    console.log("get file: " + fileNames[i]);
+                    //SECURITY
+                    $("#levelSelect")[0].innerHTML += '<div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href=' + '\'./game.html?volume=1.0&level=' + fileNames[i] +'\'"><h1 class="levelSelect" align="center"> ' + fileNames[i] + '</h1></div>';
+                    //getMapInfo(fileNames[i]);
+                }
+            };
+            oReq.open("get", "maps/get-data.php", true);
+            //                               ^ Don't block the rest of the execution.
+            //                                 Don't wait until the request finishes to 
+            //                                 continue.
+            oReq.send();
+        }
+        getListOfMapNames();
         function updateStats(){
             var wins = jo_store_get("wins");
             var loses = jo_store_get("loses");
