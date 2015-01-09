@@ -320,7 +320,6 @@ function jo_grid(map){
         var info = this.getInfoFromIndex(i);
         var x_index = info.x_index;
         var y_index = info.y_index;
-        console.log('map: ' + i);
         switch(tile_type) {
         case 1:
             //black

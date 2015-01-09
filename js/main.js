@@ -111,8 +111,8 @@ var bomb_tooltip;
 var bomb_radius_debug;
 var bomb_radius;
 
-//
-var mapData;
+//todo test to be removed
+//var mapData;
 
 //grid/map
 var grid;
@@ -229,8 +229,12 @@ if(url_queryString["volume"]){
 var mapName;
 if(url_queryString["level"]){
     mapName = url_queryString["level"];
+    getMapInfo("maps", mapName + ".jomap");
+}else{
+    alert('No level selected');
 }
-windowSetup();
+//test:
+//windowSetup();
 
         
 function removeAllChildren(obj){
@@ -356,9 +360,9 @@ function startGame(){
     bomb_radius = 200;
     
     //store string references to maps here so that query string can choose maps:
-    mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
+    //mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
     //test temp todo
-        setup_map(test_map);
+    setup_map(map_json);
     /*if(mapName){
         setup_map(mapData[mapName]);
     }else{
@@ -1909,6 +1913,44 @@ window.onresize = function (event){
 
 
 }
+/*Get map from server:*/
+var map_json = "";
+function getMapInfo(subdir, fileName){
+    $.get(subdir + "/" + fileName, function(result) {
+        if (result == 'ON') {
+            console.log('ON');
+        } else if (result == 'OFF') {
+            console.log('OFF');
+        } else {
+            //you will have "Uncaught SyntaxError: Unexpected token e" here if the JSON does not parse correctly.
+            var map = JSON.parse(result);
+            map_json = map;
+            console.log("map loaded from server: " + map_json);
+            windowSetup();
+            //mapData.push(map);
+        }
+    });
+}
+    /*
+    //get info from php:
+    var fileNames;
+    var mapData = [];
+    var oReq = new XMLHttpRequest(); //New request object
+    oReq.onload = function() {
+        //This is where you handle what to do with the response.
+        //The actual data is found on this.responseText
+        console.log(this.responseText); 
+        fileNames = JSON.parse(this.responseText);
+        for(var i = 0; i < fileNames.length; i++){
+            console.log("get file: " + fileNames[i]);
+            //getMapInfo("community_maps", fileNames[i]);
+        }
+    };
+    oReq.open("get", "community_maps/get-data.php", true);
+    //                                              ^ Don't block the rest of the execution.
+    //                                 Don't wait until the request finishes to 
+    //                                 continue.
+    oReq.send();*/
 
 
 
