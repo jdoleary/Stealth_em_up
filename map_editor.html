@@ -51,6 +51,13 @@
         <button id="button12"  class="pure-button" onclick="changePaletteNum(12);"  style="width:100%">Security Camera</button>
         <br>   
         <button id="button13"  class="pure-button" onclick="changePaletteNum(13);"  style="width:100%">Guard</button>
+        <br>   
+        <button id="button14"  class="pure-button" onclick="changePaletteNum(14);"  style="width:100%">Erase Objects</button>
+        <br><br>
+        <button id="button_publish" class="pure-button" onclick="publish();" style="width:100%">Publish Map</button>
+    
+    </div>
+    <div id="buttons"  style="position:absolute;top:20px;left:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
     
     </div>
     
@@ -94,6 +101,59 @@
         }
         function enableGridClick(){
             gridClickEnabled=true;
+        
+        }
+        var map_data_to_save;
+        function publish(){
+            //if anything is in this list give error
+            var fail_list = [];
+            if(computer_for_security_cameras.x == 0 || computer_for_security_cameras.y == 0){
+                fail_list.push("Computer");
+            }
+            if(loot[0].x == 0 || loot[0].y == 0){
+                fail_list.push("Money");
+            }
+            if(getawaycar.x == 0 || getawaycar.y == 0){
+                fail_list.push("Escape Car");
+            }
+            if(hero_spawn_icon.x == 0 || hero_spawn_icon.y == 0){
+                fail_list.push("Player Spawn");
+            }
+            if(guard_spawn_icon.x == 0 || guard_spawn_icon.y == 0){
+                fail_list.push("Guard Backup Spawn");
+            }
+            console.log('fail: ' + fail_list.length);
+            if(fail_list.length != 0){
+                fail_to_publish(fail_list);
+            }else{
+                map_data_to_save = {};
+                map_data_to_save["data"] = [];
+                //fill data:
+                for(var i = 0; i < grid.cells.length; i++){
+                    map_data_to_save["data"].push(grid.cells[i].image_number);
+                }
+                map_data_to_save["height"] = grid.height;
+                map_data_to_save["width"] = grid.width;
+                map_data_to_save["objects"] ={};
+                map_data_to_save["objects"]["hero"] = [hero_spawn_icon.x,hero_spawn_icon.y];
+                map_data_to_save["objects"]["guards"] = [];
+                for(var g = 0; i < guards.length; g++){
+                    map_data_to_save["objects"]["guards"].push([guards[g].x,guards[g].y]);
+                }
+                map_data_to_save["objects"]["guard_backup_spawn"] = [guard_spawn_icon.x,guard_spawn_icon.y];
+                map_data_to_save["objects"]["computer"] = [computer_for_security_cameras.x,computer_for_security_cameras.y];
+                map_data_to_save["objects"]["van"] = [getawaycar.x,getawaycar.y];
+                map_data_to_save["objects"]["loot"] = [loot[0].x,loot[0].y];
+            }
+        
+        }
+        function fail_to_publish(list){
+            var message = "Your map is missing: ";
+            for(var i = 0; i < list.length; i++){
+                if(i!=0)message += ",";
+                message += list[i];
+            }
+            alert(message);
         
         }
     </script>

@@ -464,7 +464,9 @@ function setup_map(map){
 			hero_end_aim_coord;
             hero.x = map.objects.hero[0];
             hero.y = map.objects.hero[1];
+            hero.sprite.visible = false;
 			hero.speed = hero.speed_walk;
+            feet_clip.sprite.visible = false;
             feet_clip.speed = hero.speed;
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
             //put feet under hero
@@ -1117,10 +1119,14 @@ function gameloop_zoom_and_camera(deltaTime){
     //Camera
     //////////////////////
     
+    //stick to hero
+    camera.x = hero.x; 
+    camera.y = hero.y;
+    /*
     //loose camera
     camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
     camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
-    camera.shake();
+    camera.shake();*/
     /*
     //The below commented block is for smooth camera
     //press space to look around
@@ -1270,6 +1276,7 @@ function gameloop(deltaTime){
                             //money:
                             loot[0].x = editor_selector.x;
                             loot[0].y = editor_selector.y;
+                            if(cell)cell.changeImage(1);//make floor
                             break;
                         case 8:
                             //getawaycar
@@ -1286,11 +1293,13 @@ function gameloop(deltaTime){
                             //player spawn
                             hero_spawn_icon.x = editor_selector.x;
                             hero_spawn_icon.y = editor_selector.y;
+                            if(cell)cell.changeImage(1);//make floor
                             break;
                         case 11:
                             //guard backup spawn
                             guard_spawn_icon.x = editor_selector.x;
                             guard_spawn_icon.y = editor_selector.y;
+                            if(cell)cell.changeImage(1);//make floor
                             break;
                         case 12:
                             //security cam
@@ -1305,6 +1314,59 @@ function gameloop(deltaTime){
                             guard_inst.y = mouse.y;
                             guards.push(guard_inst);
                             mouseDown = false;//make it so this can only be placed once per mousedown
+                            if(cell)cell.changeImage(1);//make floor
+                            break;
+                        case 14:
+                            //eraser
+                            i = security_cameras.length;
+                            while(i--){
+                                if(get_distance(editor_selector.x,editor_selector.y, security_cameras[i].x, security_cameras[i].y)<=grid.cell_size/2){
+                                    display_actors.removeChild(security_cameras[i].sprite);
+                                    security_cameras.splice(i,1);
+                                }
+                            }
+                            if(get_distance(editor_selector.x,editor_selector.y, guard_spawn_icon.x, guard_spawn_icon.y)<=grid.cell_size/2){
+                                //don't allow a guard_spawn_icon with 0,0 pos
+                                guard_spawn_icon.x = 0;
+                                guard_spawn_icon.y = 0;
+                            }
+                            if(get_distance(editor_selector.x,editor_selector.y, hero_spawn_icon.x, hero_spawn_icon.y)<=grid.cell_size/2){
+                                //don't allow a hero_spawn_icon with 0,0 pos
+                                hero_spawn_icon.x = 0;
+                                hero_spawn_icon.y = 0;
+                            }
+                            if(get_distance(editor_selector.x,editor_selector.y, getawaycar.x, getawaycar.y)<=grid.cell_size/2){
+                                //don't allow a getawaycar with 0,0 pos
+                                getawaycar.x = 0;
+                                getawaycar.y = 0;
+                            }
+                            if(get_distance(editor_selector.x,editor_selector.y, loot[0].x, loot[0].y)<=grid.cell_size/2){
+                                //don't allow a loot[0] with 0,0 pos
+                                loot[0].x = 0;
+                                loot[0].y = 0;
+                            }
+                            if(get_distance(editor_selector.x,editor_selector.y, computer_for_security_cameras.x, computer_for_security_cameras.y)<=grid.cell_size/2){
+                                //don't allow a loot[0] with 0,0 pos
+                                computer_for_security_cameras.x = 0;
+                                computer_for_security_cameras.y = 0;
+                            }
+                            i = grid.door_sprites.length;
+                            while(i--){
+                                if(get_distance(editor_selector.x,editor_selector.y, grid.door_sprites[i].x, grid.door_sprites[i].y)<=grid.cell_size){
+                                    display_actors.removeChild(grid.door_sprites[i].sprite);
+                                    grid.door_sprites.splice(i,1);
+                                }
+                            
+                            }
+                            i = guards.length;
+                            while(i--){
+                                if(get_distance(editor_selector.x,editor_selector.y, guards[i].x, guards[i].y)<=grid.cell_size){
+                                    display_actors.removeChild(guards[i].sprite);
+                                    guards.splice(i,1);
+                                }
+                            
+                            }
+                            
                             break;
                             
                     }
@@ -1351,7 +1413,7 @@ function gameloop(deltaTime){
         static_effect_sprites[i].prepare_for_draw();
     }
     spark_clip.prepare_for_draw();
-    feet_clip.prepare_for_draw();
+    //feet_clip.prepare_for_draw();
     alert_clip.prepare_for_draw();
     
     //update circularProgressBar:
@@ -1406,7 +1468,7 @@ function gameloop(deltaTime){
         hero.target_rotate = mouse;
         hero.rotate_to(mouse.x,mouse.y);
     }else hero.target_rotate = null;
-    hero.prepare_for_draw();
+    //hero.prepare_for_draw();
     editor_selector.prepare_for_draw();
     hero_spawn_icon.prepare_for_draw();
     guard_spawn_icon.prepare_for_draw();
@@ -1451,7 +1513,7 @@ function gameloop(deltaTime){
     gameloop_messages_and_tooltip(deltaTime);
     
     for(var i = 0; i < doodads.length; i++){
-        doodads[i].prepare_for_draw();
+        //doodads[i].prepare_for_draw();
     }
     updateMessage();//show mouse info
     //snap selector to grid:
@@ -1459,6 +1521,7 @@ function gameloop(deltaTime){
         case 7:
             editor_selector.x = mouse.x;
             editor_selector.y = mouse.y;
+            break;
         case 8:
             editor_selector.x = mouse.x - (mouse.x%grid.cell_size) +32;
             editor_selector.y = mouse.y - (mouse.y%grid.cell_size) +32;
@@ -1466,6 +1529,14 @@ function gameloop(deltaTime){
         case 12:
             editor_selector.x = mouse.x - ((mouse.x+32)%(grid.cell_size)) + 32;
             editor_selector.y = mouse.y - ((mouse.y+32)%(grid.cell_size)) + 32;
+            break;
+        case 13:
+            editor_selector.x = mouse.x;
+            editor_selector.y = mouse.y;
+            break;
+        case 14:
+            editor_selector.x = mouse.x;
+            editor_selector.y = mouse.y;
             break;
         default:
             editor_selector.x = mouse.x - (mouse.x%grid.cell_size) +32;

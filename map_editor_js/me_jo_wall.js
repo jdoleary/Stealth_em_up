@@ -59,7 +59,7 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             break;
         case 2:
             var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
-            var random_tile = Math.round(Math.random() * (10 - 1) + 1);
+            /*var random_tile = Math.round(Math.random() * (10 - 1) + 1);
             var sprite_doodad;
             if(random_tile==1 || random_tile==3){
                 sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_paper);
