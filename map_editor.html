@@ -130,20 +130,36 @@
                 map_data_to_save["data"] = [];
                 //fill data:
                 for(var i = 0; i < grid.cells.length; i++){
-                    map_data_to_save["data"].push(grid.cells[i].image_number);
+                    var origNum = grid.cells[i].image_number;
+                    //note: because of the silly way that I made the grid logic, I have to change these numbers:
+                    var newNum = origNum;
+                    switch(origNum){
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                            newNum = origNum+1;
+                            break;
+                            
+                    }
+                    map_data_to_save["data"].push(newNum);
                 }
                 map_data_to_save["height"] = grid.height;
                 map_data_to_save["width"] = grid.width;
                 map_data_to_save["objects"] ={};
-                map_data_to_save["objects"]["hero"] = [hero_spawn_icon.x,hero_spawn_icon.y];
+                map_data_to_save["objects"]["hero"] = [Math.round(hero_spawn_icon.x),Math.round(hero_spawn_icon.y)];
                 map_data_to_save["objects"]["guards"] = [];
-                for(var g = 0; i < guards.length; g++){
-                    map_data_to_save["objects"]["guards"].push([guards[g].x,guards[g].y]);
+                for(var g = 0; g < guards.length; g++){
+                    map_data_to_save["objects"]["guards"].push([Math.round(guards[g].x),Math.round(guards[g].y)]);
                 }
-                map_data_to_save["objects"]["guard_backup_spawn"] = [guard_spawn_icon.x,guard_spawn_icon.y];
-                map_data_to_save["objects"]["computer"] = [computer_for_security_cameras.x,computer_for_security_cameras.y];
-                map_data_to_save["objects"]["van"] = [getawaycar.x,getawaycar.y];
-                map_data_to_save["objects"]["loot"] = [loot[0].x,loot[0].y];
+                map_data_to_save["objects"]["guard_backup_spawn"] = [Math.round(guard_spawn_icon.x),Math.round(guard_spawn_icon.y)];
+                map_data_to_save["objects"]["security_cams"] = [];
+                for(var s = 0; s < security_cameras.length; s++){
+                    map_data_to_save["objects"]["security_cams"].push({"swivel_max":security_cameras[s].max,"swivel_min":security_cameras[s].min,"pos":[Math.round(security_cameras[s].x),Math.round(security_cameras[s].y)]});
+                }
+                map_data_to_save["objects"]["computer"] = [Math.round(computer_for_security_cameras.x),Math.round(computer_for_security_cameras.y)];
+                map_data_to_save["objects"]["van"] = [Math.round(getawaycar.x),Math.round(getawaycar.y)];
+                map_data_to_save["objects"]["loot"] = [Math.round(loot[0].x),Math.round(loot[0].y)];
             }
         
         }

@@ -357,12 +357,14 @@ function startGame(){
     
     //store string references to maps here so that query string can choose maps:
     mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
-    if(mapName){
+    //test temp todo
+        setup_map(test_map);
+    /*if(mapName){
         setup_map(mapData[mapName]);
     }else{
         //if no map is in query string, default to bank 1
         setup_map(map_bank_1);
-    }
+    }*/
 
     //camera/debug
     camera = new jo_cam(window_properties);

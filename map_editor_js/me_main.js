@@ -302,8 +302,8 @@ function startGame(){
     stage.addChild(stage_child);
     
     //zoom:
-    zoom = 1;
-    zoom_magnitude = 0.01;
+    zoom = 0.25;
+    zoom_magnitude = 0.1;
     
     //look sensitivity: This affects how far the camera stretches when the player moves the mouse around;
     //1.5: very far, all the way to the mouse
@@ -368,7 +368,7 @@ function startGame(){
         setup_map(mapData[mapName]);
     }else{
         //if no map is in query string, default to bank 1
-        setup_map(map_bank_1);
+        setup_map(map_blank);
     }
 
     //camera/debug
@@ -1261,13 +1261,15 @@ function gameloop(deltaTime){
                 
                     switch(palette_number){
                         case 5:
-                            cell.changeImage(4);
+                            cell.changeImage(4);//show off limits
+                            cell.image_number = 5;//but actually be, door
                             grid.make_door(cell,false);
                             
                             mouseDown = false;//make it so this can only be placed once per mousedown
                             break;
                         case 6:
-                            cell.changeImage(4);
+                            cell.changeImage(4);//show off limits
+                            cell.image_number = 6;//but actually be, door
                             grid.make_door(cell,true);
                             
                             mouseDown = false;//make it so this can only be placed once per mousedown
@@ -1810,8 +1812,8 @@ function updateMessage(){
     var textForMessage = "";
     var grid_pos = grid.getIndexFromCoords_2d(mouse.x/stage_child.scale.x,mouse.y/stage_child.scale.y);
     textForMessage = "Grid: " + grid_pos.x + "," + grid_pos.y + "\n";
-    textForMessage += "Scale: " + stage_child.scale.x + "," + stage_child.scale.y + "\n";
-    textForMessage += "Mouse: " + mouse.x + "," + mouse.y + "\n";
+    textForMessage += "Use Mouse Wheel to zoom";
+    textForMessage += "\nUse WASD to move";
     /*for(var i = 0; i < messageText.length; i++){
         textForMessage += messageText[i] + "\n";
     }*/
