@@ -372,7 +372,7 @@ function startGame(){
     }
 
     //camera/debug
-    camera = new jo_cam(window_properties);
+    camera = new jo_cam();
     cameras_disabled = false;
     test_cone = new debug_line();
     hero_cir = new debug_circle();
@@ -2064,6 +2064,11 @@ window.onresize = function (event){
     //this part resizes the canvas but keeps ratio the same
     renderer.view.style.width = w + "px";
     renderer.view.style.height = h + "px";
+    
+    //reset the stage position:
+    stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
+    stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
+    
     //this part adjusts the ratio:
     renderer.resize(w,h);
 

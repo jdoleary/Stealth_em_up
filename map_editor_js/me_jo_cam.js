@@ -4,7 +4,7 @@ If you would like to copy or use my code, you may contact
 me at jdoleary@gmail.com
 /*******************************************************/
 
-function jo_cam(window_properties){
+function jo_cam(){
     this.x = 0;
     this.y = 0;
     this.following = false;
@@ -28,6 +28,7 @@ function jo_cam(window_properties){
     };
     
     this.objectivePointWithZoom = function(relativePoint){
+        
         //used for mouse translating to obj coords:
         var screenCorner = this.objScreenCornerWithZoom();
         return {x: relativePoint.x/stage_child.scale.x + screenCorner.x, y: relativePoint.y/stage_child.scale.y + screenCorner.y};
