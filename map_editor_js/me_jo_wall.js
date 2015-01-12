@@ -47,7 +47,7 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     this.changeImage = function(image_number_p){
         if(this.image_sprite && this.image_number == image_number_p)return;
         //remove previous sprite
-        if(this.image_sprite!=undefined)tile_containers[this.image_number].removeChild(this.image_sprite);
+        if(this.image_sprite!=undefined && tile_containers[this.image_number] != undefined)tile_containers[this.image_number].removeChild(this.image_sprite);
         this.image_number = image_number_p;
         
         switch(image_number_p) {
