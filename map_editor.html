@@ -160,6 +160,29 @@
                 map_data_to_save["objects"]["computer"] = [Math.round(computer_for_security_cameras.x),Math.round(computer_for_security_cameras.y)];
                 map_data_to_save["objects"]["van"] = [Math.round(getawaycar.x),Math.round(getawaycar.y)];
                 map_data_to_save["objects"]["loot"] = [Math.round(loot[0].x),Math.round(loot[0].y)];
+                var string_map_data = JSON.stringify(map_data_to_save);
+                //push data to server
+                //map name is uniquified with date time later
+                var map_name = prompt("Enter the name of your level");
+                if(map_name != null){
+                    $.ajax({
+                      type: "POST",
+                      dataType: "json",
+                      url: "maps/r2015.php", //Relative or absolute path to response.php file
+                      data: {"filename":map_name + "_" + Date().getTime(),"map_data":string_map_data},
+                      success: function(data) {
+                        test = data;
+                        console.log(data);
+                        console.log("Push data to server worked.");
+
+                      },
+                      fail: function(){
+                        console.log("Push data to server failed.");
+                      }
+                    });
+                }else{
+                    alert("Map not published, please try again.");
+                }
             }
         
         }
