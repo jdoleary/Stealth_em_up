@@ -72,14 +72,20 @@
         .levelSelect{
             margin-bottom: 0px; 
         }
+        #datatablesdiv tr { cursor: pointer; cursor: hand; }
         
 
         
         #mc_embed_signup{background:#fff; font:14px Helvetica,Arial,sans-serif;  width:390px;}
         
 	</style>
-
-	<script src="bin/pixi.dev.js"></script>
+    
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    
+    <link href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+    <script src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+    
+    <script src="bin/pixi.dev.js"></script>
 	
 </head>
     <script>
@@ -103,7 +109,6 @@
     </script>
     <body onload="finishedloading('body');">
     <div id="canvas_holder"></div>
-    <script onload="finishedloading('script1');" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script onload="finishedloading('script2');" src="js/menu_button_manager.js"></script>
     <script onload="finishedloading('script3');" src="js/jo_debug.js"></script>
     <script onload="finishedloading('script4');" src="js/jo_door.js"></script>
@@ -326,7 +331,8 @@
         </div>
     -->
     <div id="levelSelect" align="right">
-    
+        <div id="datatablesdiv" style="max-width:70%;margin:50px;background-color: rgba(255,255,255,0.9);">
+        </div>
         
     </div>
     <div id="achievements" align="right">
@@ -430,6 +436,7 @@
                 //This is where you handle what to do with the response.
                 //The actual data is found on this.responseText
                 console.log(this.responseText); 
+                console.log("NOTE: " + "\"Uncaught SyntaxError: Unexpected token <\" will result if I run this on server without php");
                 fileNames = JSON.parse(this.responseText);
                 for(var i = 0; i < fileNames.length; i++){
                     fileNames[i] = fileNames[i].slice(0,-6);
@@ -494,6 +501,45 @@
             //start out only showing startscreen
             showMenuScreen("startScreen");
         }*/
+        //todo test:
+        var dataSet = [
+        ['BANK_1','...','...','...','...'],
+        ['DIAMOND_STORE','...','...','...','...'],
+        ['Level3','...','...','...','...'],
+        ['Level4','...','...','...','...'],
+        ['Level5','...','...','...','...'],
+        ['Level6','...','...','...','...'],
+        ['Level7','...','...','...','...'],
+        ['Level8','...','...','...','...'],
+        ['Level9','...','...','...','...'],
+        ['Level10','...','...','...','...'],
+        ['Level11','...','...','...','...'],
+        ['Level12','...','...','...','...'],
+        ['Level13','...','...','...','...'],
+        ['Level14','...','...','...','...'],
+        ['Level15','...','...','...','...'],
+        ['Level16','...','...','...','...'],
+    ];
+     
+    $(document).ready(function() {
+        $('#datatablesdiv').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="example"></table>' );
+     
+        $('#example').dataTable( {
+            "data": dataSet,
+            "columns": [
+                { "title": "Level Name" },
+                { "title": "Rating" },
+                { "title": "Achievements" },
+                { "title": "Other", "class": "center" },
+                { "title": "Other", "class": "center" }
+            ]
+        } ); 
+        
+        //set each datatable row to link to the map
+        $("#datatablesdiv tr").click(function(){
+            location.href = './game.html?volume=1.0&level=' + $(this).find(".sorting_1")[0].innerText;
+        });
+    } );
     </script>
 	</body>
 </html>
