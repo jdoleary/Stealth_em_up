@@ -1,4 +1,47 @@
-<!DOCTYPE HTML>
+<?php
+/**
+ * Sample PHP code to use reCAPTCHA V2.
+ *
+ * @copyright Copyright (c) 2014, Google Inc.
+ * @link      http://www.google.com/recaptcha
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+require_once "recaptchalib.php";
+// Register API keys at https://www.google.com/recaptcha/admin
+$siteKey = "6LdYuwITAAAAAMiYItyy2FZxM9RkKopkt_edj647";
+$secret = "6LdYuwITAAAAAFJC0pMbDFr4ulPkt4VSRxpV49S8";
+// reCAPTCHA supported 40+ languages listed here: https://developers.google.com/recaptcha/docs/language
+$lang = "en";
+// The response from reCAPTCHA
+$resp = null;
+// The error code from reCAPTCHA, if any
+$error = null;
+$reCaptcha = new ReCaptcha($secret);
+// Was there a reCAPTCHA response?
+if ($_POST["g-recaptcha-response"]) {
+    $resp = $reCaptcha->verifyResponse(
+        $_SERVER["REMOTE_ADDR"],
+        $_POST["g-recaptcha-response"]
+    );
+}
+?>
 <html>
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
@@ -17,6 +60,15 @@
             display: block;
         
         }
+        .captcha{
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          margin-top: -50px;
+          margin-left: -100px;
+          border:5px solid black;
+          border-radius: 5px;
+        }
 	</style>
 
     <link rel="stylesheet" type="text/css" href="buttons.css">
@@ -24,6 +76,34 @@
 	
 </head>
     <body>
+    
+    <?php
+
+
+
+    function super_sanitize($data) {
+      $data = trim($data);
+      $data = stripslashes($data);
+      $data = htmlspecialchars($data);
+      return $data;
+    }
+
+    if ($resp != null && $resp->success) {
+        echo "You got it!";
+
+        $myfile = fopen("maps/".$_POST['filename'].".jomap", "w") or die("Unable to open file!");
+        $map_data = super_sanitize($_POST['map_data']);
+        echo "MAP DATA: " . $map_data;
+        fwrite($myfile, $map_data);
+        
+        fclose($myfile);
+        
+        echo json_encode($_POST);
+        
+    }else{
+        echo "Fail to send to server";
+    }
+    ?>
     
     <div id="buttons"  style="position:absolute;top:20px;right:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
         <button id="button0" class="pure-button pure-button-active" onclick="changePaletteNum(0);" style="width:100%">Wall</button>
@@ -53,8 +133,23 @@
         <button id="button13"  class="pure-button" onclick="changePaletteNum(13);"  style="width:100%">Guard</button>
         <br>   
         <button id="button14"  class="pure-button" onclick="changePaletteNum(14);"  style="width:100%">Erase Objects</button>
+        <br>
+        <button id="button_publish" class="pure-button" onclick="publish();" style="width:100%">Publish</button>
         <br><br>
-        <button id="button_publish" class="pure-button" onclick="publish();" style="width:100%">Publish Map</button>
+        <button id="button_captcha" class="captcha">
+            <h2>Please verify that you are not a robot in order to publish your map to the server.</h2>
+            <form method="post">
+                <input id="input_filename" name="filename">
+                <input id="input_map_data" name="map_data">
+              <div class="g-recaptcha" data-sitekey="<?php echo $siteKey;?>"></div>
+              <script type="text/javascript"
+                  src="https://www.google.com/recaptcha/api.js?hl=<?php echo $lang;?>">
+              </script>
+              <br/>
+              <input type="submit" value="submit" />
+            </form>
+        </button>
+        
     
     </div>
     <div id="buttons"  style="position:absolute;top:20px;left:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
@@ -87,6 +182,11 @@
     <script src="map_editor_js/me_main.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script>
+
+        $('#input_filename').hide();
+        $('#input_map_data').hide();
+        $('#button_captcha').hide();
+    
         //the number type of tile to place when clicking
         var palette_number = 0;
         function changePaletteNum(num){
@@ -104,10 +204,11 @@
         
         }
         var map_data_to_save;
+        //save, submit, publish
         function publish(){
             //if anything is in this list give error
             var fail_list = [];
-            if(computer_for_security_cameras.x == 0 || computer_for_security_cameras.y == 0){
+            /*if(computer_for_security_cameras.x == 0 || computer_for_security_cameras.y == 0){
                 fail_list.push("Computer");
             }
             if(loot[0].x == 0 || loot[0].y == 0){
@@ -122,7 +223,7 @@
             if(guard_spawn_icon.x == 0 || guard_spawn_icon.y == 0){
                 fail_list.push("Guard Backup Spawn");
             }
-            console.log('fail: ' + fail_list.length);
+            console.log('fail: ' + fail_list.length);*/
             if(fail_list.length != 0){
                 fail_to_publish(fail_list);
             }else{
@@ -164,15 +265,21 @@
                 //push data to server
                 //map name is uniquified with date time later
                 var map_name = prompt("Enter the name of your level");
-                if(map_name != null){
+                //Show the captcha:
+                $('#button_captcha').show();
+                var date = new Date();
+                $('#input_filename').val(map_name + "_" + date.getTime());
+                $('#input_map_data').val(string_map_data);
+                //OLD
+                /*if(map_name != null){
                     $.ajax({
                       type: "POST",
                       dataType: "json",
-                      url: "maps/r2015.php", //Relative or absolute path to response.php file
+                      url: "maps/map_editor.php", //Relative or absolute path to response.php file
                       data: {"filename":map_name + "_" + Date().getTime(),"map_data":string_map_data},
                       success: function(data) {
                         test = data;
-                        console.log(data);
+                        console.log(data);//prints the echo from r2015.php
                         console.log("Push data to server worked.");
 
                       },
@@ -182,7 +289,7 @@
                     });
                 }else{
                     alert("Map not published, please try again.");
-                }
+                }*/
             }
         
         }
@@ -196,7 +303,6 @@
         
         }
     </script>
-    
 	</body>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

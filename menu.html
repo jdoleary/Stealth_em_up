@@ -425,7 +425,8 @@
     
     </div>
     <script>
-        
+        var test;
+        //pull level maps from server
         //fill level select with names of all maps:
         //get info from php:
         function getListOfMapNames(){
@@ -438,13 +439,34 @@
                 console.log(this.responseText); 
                 console.log("NOTE: " + "\"Uncaught SyntaxError: Unexpected token <\" will result if I run this on server without php");
                 fileNames = JSON.parse(this.responseText);
+                dataSet = [];
                 for(var i = 0; i < fileNames.length; i++){
                     fileNames[i] = fileNames[i].slice(0,-6);
+                    dataSet[i] = [fileNames[i],'...','...','...','...'];
                     console.log("get file: " + fileNames[i]);
                     //SECURITY
-                    $("#levelSelect")[0].innerHTML += '<div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href=' + '\'./game.html?volume=1.0&level=' + fileNames[i] +'\'"><h1 class="levelSelect" align="center"> ' + fileNames[i] + '</h1></div>';
+                    //$("#levelSelect")[0].innerHTML += '<div class="btn btn-1 btn-1a" style="display: block; width: 300px; height: 120px;" onclick="location.href=' + '\'./game.html?volume=1.0&level=' + fileNames[i] +'\'"><h1 class="levelSelect" align="center"> ' + fileNames[i] + '</h1></div>';
                     //getMapInfo(fileNames[i]);
                 }
+                
+                //Make and fill datatable
+                $('#datatablesdiv').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="example"></table>' );
+             
+                $('#example').dataTable( {
+                    "data": dataSet,
+                    "columns": [
+                        { "title": "Level Name" },
+                        { "title": "Rating" },
+                        { "title": "Achievements" },
+                        { "title": "Other", "class": "center" },
+                        { "title": "Other", "class": "center" }
+                    ]
+                } ); 
+                
+                //set each datatable row to link to the map
+                $("#datatablesdiv tr").click(function(){
+                    location.href = './game.html?volume=1.0&level=' + $(this).find(".sorting_1")[0].innerText;
+                });
             };
             oReq.open("get", "maps/get-data.php", true);
             //                               ^ Don't block the rest of the execution.
@@ -505,41 +527,15 @@
         var dataSet = [
         ['BANK_1','...','...','...','...'],
         ['DIAMOND_STORE','...','...','...','...'],
-        ['Level3','...','...','...','...'],
+        ['aPrefilled without php','...','...','...','...'],
         ['Level4','...','...','...','...'],
         ['Level5','...','...','...','...'],
         ['Level6','...','...','...','...'],
         ['Level7','...','...','...','...'],
         ['Level8','...','...','...','...'],
         ['Level9','...','...','...','...'],
-        ['Level10','...','...','...','...'],
-        ['Level11','...','...','...','...'],
-        ['Level12','...','...','...','...'],
-        ['Level13','...','...','...','...'],
-        ['Level14','...','...','...','...'],
-        ['Level15','...','...','...','...'],
-        ['Level16','...','...','...','...'],
     ];
      
-    $(document).ready(function() {
-        $('#datatablesdiv').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="example"></table>' );
-     
-        $('#example').dataTable( {
-            "data": dataSet,
-            "columns": [
-                { "title": "Level Name" },
-                { "title": "Rating" },
-                { "title": "Achievements" },
-                { "title": "Other", "class": "center" },
-                { "title": "Other", "class": "center" }
-            ]
-        } ); 
-        
-        //set each datatable row to link to the map
-        $("#datatablesdiv tr").click(function(){
-            location.href = './game.html?volume=1.0&level=' + $(this).find(".sorting_1")[0].innerText;
-        });
-    } );
     </script>
 	</body>
 </html>
