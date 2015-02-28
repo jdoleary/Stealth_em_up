@@ -124,11 +124,6 @@ var cameras_disabled;
 var test_cone;
 var hero_cir;
 
-
-
-//ammo
-var ammo;
-
 //visible bullets:
 var bullets;
 
@@ -297,7 +292,7 @@ function startGame(){
     state = states["Gameplay"];
     
     //initialize variables:
-    keys = {w: false, a: false, s: false, d: false, f: false, v: false, space:false, shift:false};
+    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, space:false, shift:false};
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
     
@@ -375,9 +370,6 @@ function startGame(){
     cameras_disabled = false;
     test_cone = new debug_line();
     hero_cir = new debug_circle();
-    
-
-    ammo = 6;
 
     //make a new bullet with: new jo_sprite(new PIXI.Sprite(img_bullet));
     bullets = [];
@@ -725,15 +717,15 @@ function gameloop_guards(deltaTime){
             if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
             
                 //if hero is out of ammo (or has a guards gun), pick up guards gun/ammo:
-                if((ammo <= 0 || !hero.silenced) && guards[i].ammo > 0 && ammo != 6){
-                    hero.silenced = false;
-                    var max = 6- ammo;
+                if((hero.gun.ammo <= 0 || !hero.silenced) && guards[i].ammo > 0 && hero.gun.ammo != 6){
+                    hero.gun.silenced = false;
+                    var max = hero.gun.clip_size - hero.gun.ammo;
                     guards[i].ammo -= max;
-                    ammo += max;
+                    hero.gun.ammo += max;
                     
                     newMessage('You pick up a regular pistol from a guard, careful, this one is not silenced!');
                     //newMessage("Ammo: " + ammo + "/6");
-                    newFloatingMessage("Ammo: " + ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
+                    newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
                     newMessage("Dead guard's remaining ammo: " + guards[i].ammo + "/6");
                 }
             }
@@ -1354,7 +1346,7 @@ function gameloop(deltaTime){
     
     gameloop_civs(deltaTime);
     
-    gameloop_guards(deltaTime);
+    //gameloop_guards(deltaTime);
     
     if(notifyGuardsOfHeroLocation)console.log("Repath all guards to hero last seen");
     notifyGuardsOfHeroLocation = false;
@@ -1381,9 +1373,19 @@ function gameloop(deltaTime){
     }
     
     gameloop_zoom_and_camera(deltaTime);
+    
+    updateDebugInfo();
 
 }
-
+function updateDebugInfo(){
+    var all_hero_clips = hero.clips.join();
+    $('#debug_info').html(
+        "Hero Ammo: " + hero.gun.ammo + "<br>" +
+        "Clip Size: " + hero.gun.clip_size +  "<br>" +
+        "Ammo Type: " + hero.gun.ammo_type + "<br>" +
+        "Clips: " + all_hero_clips
+    );
+}
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 /*
@@ -1403,6 +1405,10 @@ function addKeyHandlers(){
             if(code == 65){keys['a'] = true;}
             if(code == 83){keys['s'] = true;}
             if(code == 68){keys['d'] = true;}
+            if(code == 82){
+                keys['r'] = true;
+                hero.reload();
+            }
             if(code == 70){
                 if(!keys['f'] && !bomb.sprite.visible && hero.masked){
                     //if f isn't already pressed and bomb isn't already set
@@ -1553,6 +1559,7 @@ function addKeyHandlers(){
         if(code == 83){keys['s'] = false;}
         if(code == 68){keys['d'] = false;}
         if(code == 70){keys['f'] = false;}
+        if(code == 82){keys['r'] = false;}
         if(code == 86){
             //on release of key only
             if(keys['v'])circProgBar.stop();//stop putting on mask
@@ -1589,23 +1596,26 @@ function addKeyHandlers(){
 
     onmousedown = function(e){
         //you can only shoot if hero is masked
-        if(hero.masked && ammo > 0){
+        if(hero.masked && hero.gun.ammo > 0){
             //very minor camera shake:
             camera.startShake(5,1.5);
         
-            ammo--;
+            hero.gun.ammo--;
             //newMessage("Ammo: " + ammo + "/6");
-            newFloatingMessage("Ammo: " + ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
-            doGunShotEffects(hero, hero.silenced);//plays sound and shows affects
+            newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
+            doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
             
             //toggles on the visiblity of .draw_gun_shot's line
             hero.shoot();
-            if(!hero.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
+            if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
             mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
             
             
         }
-        if(ammo<=0)play_sound(sound_dry_fire);
+        if(hero.gun.ammo<=0){
+            newFloatingMessage("Press 'r' to reload!",{x:hero.x,y:hero.y},"#FF0000");
+            play_sound(sound_dry_fire);
+        }
 
     }
 }

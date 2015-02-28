@@ -17,15 +17,29 @@
             display: block;
         
         }
+        #debug_info{
+            height: 600px;
+            width: 200px;
+            position: fixed;
+            left: 8px;
+            top: 62px;
+            z-index: 100;
+            border:solid;
+            color: #aa0000;
+            pointer-events:none;
+        
+        }
 	</style>
 
 	<script src="bin/pixi.dev.js"></script>
 	
 </head>
     <body>
+    <div id="debug_info"></div>
     <div id="canvas_holder"></div>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="js/images.js"></script>
+    <script src="js/jo_gun.js"></script>
     <script src="js/menu_button_manager.js"></script>
     <script src="js/jo_debug.js"></script>
     <script src="js/jo_door.js"></script>

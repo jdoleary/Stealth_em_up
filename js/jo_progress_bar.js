@@ -18,6 +18,8 @@ function circularProgressBar(posx,posy,size,lineWidth){
     this.percent = 0;//1.00 is 100%
     this.lineWidth = lineWidth;
     
+    this.follow = null;//unit to follow
+    
     this.visible = false;
     this.timePassedSinceStart = 0;
     this.timeToFinish;//The amount of millis that it takes to finish
@@ -69,6 +71,8 @@ function circularProgressBar(posx,posy,size,lineWidth){
         
     }
     this.reset = function(posx,posy,timeToFinish,callback){
+        //clear follow
+        this.follow = null;
         //move the position
         this.x = posx;
         this.y = posy;
@@ -97,6 +101,10 @@ function circularProgressBar(posx,posy,size,lineWidth){
         }
     };
     this.prepare_for_draw = function(){
+        if(this.follow){
+            this.x = this.follow.x;
+            this.y = this.follow.y;
+        }
         var draw_coords = camera.relativePoint(this);
         this.drawX = draw_coords.x;
         this.drawY = draw_coords.y;

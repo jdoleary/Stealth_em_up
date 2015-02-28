@@ -15,6 +15,10 @@ function jo_sprite(pixiSprite, parent){
     this.radius = 19;
     this.carry = null;//object hero is carrying (loot)
     
+    
+    this.gun = gun_pistol.make_copy();//default to pistol
+    this.clips = [];//List of strings of ammo_types
+    
     this.gun_shot_line = new debug_line();
     this.gun_shot_line.graphics.visible = false;
     this.aim = new Ray(0,0,0,0);
@@ -34,24 +38,12 @@ function jo_sprite(pixiSprite, parent){
         this.alive = false;
         this.target = {x: null, y:null};
     }
+    this.reload = function(){
+        this.gun.reload(this);
+    }
     
     this.shoot = function(){
-        //make bullet (all assets in main.js):
-        var bullet = new jo_sprite(new PIXI.Sprite(img_bullet));
-        bullet.ignore = this;//don't kill the shooter with own bullet
-        bullet.x = this.x;
-        bullet.y = this.y;
-        bullet.target = getRaycastPoint(this.x,this.y,this.aim.end.x,this.aim.end.y);
-        bullet.rotate_to_instant(bullet.target.x,bullet.target.y);
-        bullet.speed = 75;
-        //bullet.speed = 10;//slow motion bullets!
-        bullet.stop_distance = bullet.speed;
-        bullets.push(bullet);
-        
-        //end make bullet
-        
-        
-        this.rotate_to_instant(bullet.target.x,bullet.target.y);
+        this.gun.shoot(this);
         //shows gun_shot_line
         //this.gun_shot_line.graphics.visible = true;
         this.can_shoot = false; //so the guards don't shoot way too fast

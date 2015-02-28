@@ -9,7 +9,8 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.speed_sprint = speed_sprint;
         this.radius = 14;
         this.masked = false;
-        this.silenced = true;
+        this.gun = gun_shotgun.make_copy();
+        this.clips = ["pistol","shells","shells"];
         //this.currentlySeen = false;
         
         //pos where hero was last seen by guards or camera
