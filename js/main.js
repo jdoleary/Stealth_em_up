@@ -667,7 +667,8 @@ function gameloop_guards(deltaTime){
                     
                     //if guard is alarmed rotate to the next waypoint so they peer around corners.
                     //~guard doesn't see hero so set target_rotate to null so guard can rotate where he moves again
-                    guards[i].target_rotate = guards[i].path[0];
+                    //don't change rotation unless the guard is close to the point (this keeps them from walking backwards [bug])
+                    if(guards[i].path[0] && get_distance(guards[i].x,guards[i].y,guards[i].path[0].x,guards[i].path[0].y < 100))guards[i].target_rotate = guards[i].path[0];
                 
                     //if alarmed move to last place hero was seen
                     if(notifyGuardsOfHeroLocation || !guards[i].chasingHero && hero.lastSeenX && hero.lastSeenY){
@@ -1329,7 +1330,7 @@ function gameloop(deltaTime){
         //grid.cells[i].draw();//debug
         grid.cells[i].prepare_for_draw();
     }
-    if(hero.masked && hero.alive){
+    if(hero.masked && hero.alive && !hero_drag_target){
         hero.target_rotate = mouse;
         hero.rotate_to(mouse.x,mouse.y);
     }else hero.target_rotate = null;
