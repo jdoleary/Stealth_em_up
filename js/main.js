@@ -1115,6 +1115,10 @@ function gameloop_zoom_and_camera(deltaTime){
     //loose camera
     camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
     camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
+    if(camera.shaking){
+        camera.posBeforeShakex = hero.x + (mouse.x - hero.x)/look_sensitivity;
+        camera.posBeforeShakey = hero.y + (mouse.y - hero.y)/look_sensitivity;    
+    }
     camera.shake();
     /*
     //The below commented block is for smooth camera
@@ -1270,6 +1274,9 @@ function gameloop(deltaTime){
             mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
             
             
+        }else{
+            //set shake decay if out of bullets
+            camera.shakeDecay = 1.5;
         }
     }
  
@@ -1364,7 +1371,7 @@ function gameloop(deltaTime){
     
     gameloop_civs(deltaTime);
     
-    //gameloop_guards(deltaTime);
+    gameloop_guards(deltaTime);
     
     if(notifyGuardsOfHeroLocation)console.log("Repath all guards to hero last seen");
     notifyGuardsOfHeroLocation = false;

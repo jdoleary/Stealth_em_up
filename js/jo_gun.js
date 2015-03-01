@@ -73,7 +73,7 @@ var gun_shotgun = new jo_gun(6,'shells',false,false,8,30);
 var gun_shotgun_sawed_off = new jo_gun(6,'shells',false,false,8,90);
 var gun_pistol = new jo_gun(8,'pistol',false,false,1,0);
 var gun_pistol_silenced = new jo_gun(8,'pistol',true,false,1,0);
-var gun_machine = new jo_gun(300,'machine',false,true,1,10);
+var gun_machine = new jo_gun(60,'machine',false,true,1,10);
 var ammo_types = [
     'shells',
     'pistol',
