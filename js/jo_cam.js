@@ -23,6 +23,15 @@ function jo_cam(window_properties){
         return {x: relativePoint.x + screenCorner.x, y: relativePoint.y + screenCorner.y};
     }
     
+    this.objScreenCorner_ignore_shake = function(){
+        return {x: this.posBeforeShakex-window_properties.width/2,y: this.posBeforeShakey-window_properties.height/2};
+    }
+    this.objectivePoint_ignore_shake = function(relativePoint){
+        //used for mouse translating to obj coords:
+        var screenCorner = this.objScreenCorner_ignore_shake();
+        return {x: relativePoint.x + screenCorner.x, y: relativePoint.y + screenCorner.y};
+    }
+    
     this.speed = 20;
     this.stop_distance = 10; //Distance to stop from target.
     this.target = {x: null, y:null};//the target that this camera moves twords

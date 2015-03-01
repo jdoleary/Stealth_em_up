@@ -71,6 +71,7 @@ function fullscreen() {
 
 var mouse;
 var keys;
+var clickEvent;
 
 var stage_child;
 
@@ -292,7 +293,7 @@ function startGame(){
     state = states["Gameplay"];
     
     //initialize variables:
-    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, space:false, shift:false};
+    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, space:false, shift:false, LMB:false};
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
     
@@ -1254,6 +1255,23 @@ function gameloop(deltaTime){
     }else if(keys.a){
         hero.target.x = hero.x - 100;
     }else hero.target.x = hero.x;
+    
+    //Shoot if LMB is down:
+    if(keys['LMB'] && hero.gun.automatic){
+        //you can only shoot if hero is masked
+        if(hero.masked && hero.gun.ammo > 0){
+        
+            hero.gun.ammo--;
+            doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
+            
+            //toggles on the visiblity of .draw_gun_shot's line
+            hero.shoot();
+            if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
+            mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
+            
+            
+        }
+    }
  
  
     
@@ -1595,28 +1613,41 @@ function addKeyHandlers(){
     window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
 
     onmousedown = function(e){
-        //you can only shoot if hero is masked
-        if(hero.masked && hero.gun.ammo > 0){
-            //very minor camera shake:
-            camera.startShake(5,1.5);
+        keys['LMB'] = true;
+        clickEvent = e;
         
-            hero.gun.ammo--;
-            //newMessage("Ammo: " + ammo + "/6");
-            newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
-            doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
+            //very minor camera shake:
+        if(hero.masked && hero.gun.ammo > 0)camera.startShake(5,0);
+        
+        if(!hero.gun.automatic){
+            //you can only shoot if hero is masked
+            if(hero.masked && hero.gun.ammo > 0){
+                //very minor camera shake:
+                camera.shakeDecay = 1.5;
             
-            //toggles on the visiblity of .draw_gun_shot's line
-            hero.shoot();
-            if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
-            mouse_click_obj = camera.objectivePoint(e);  //uses e's .x and .y to find objective click
-            
-            
+                hero.gun.ammo--;
+                //newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
+                doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
+                
+                //toggles on the visiblity of .draw_gun_shot's line
+                hero.shoot();
+                if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
+                mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
+                
+                
+            }
         }
         if(hero.gun.ammo<=0){
             newFloatingMessage("Press 'r' to reload!",{x:hero.x,y:hero.y},"#FF0000");
             play_sound(sound_dry_fire);
         }
 
+    }
+    onmouseup = function(e){
+        keys['LMB'] = false;
+        clickEvent = e;
+        //set shakeDecay so that when automatic gun is done firing it will stop the shake.
+        camera.shakeDecay = 1.5;
     }
 }
 function mouseWheelHandler(e){
