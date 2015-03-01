@@ -14,6 +14,7 @@ function moveToTarget(x,y,targx,targy,speed){
     return movement;
 
 }
+//used for guns to randomize angle of fire
 function rotate_point_about_axis(axis,angle,p)
 {
     //angle is in degrees
@@ -36,7 +37,7 @@ function rotate_point_about_axis(axis,angle,p)
     // translate point back:
     p.x = xnew + axis.x;
     p.y = ynew + axis.y;
-    console.log('rotation change: ' + (180/Math.PI)*Math.atan2(get_distance(orig.x,orig.y,p.x,p.y),get_distance(orig.x,orig.y,axis.x,axis.y)));
+    //console.log('rotation change: ' + (180/Math.PI)*Math.atan2(get_distance(orig.x,orig.y,p.x,p.y),get_distance(orig.x,orig.y,axis.x,axis.y)));
     //console.log('end: ' + p.x + "," + p.y);
     return p;
 }

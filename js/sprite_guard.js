@@ -31,6 +31,9 @@ function sprite_guard_wrapper(pixiSprite){
             //make sure the dead body sprite is on top of the blood trail and below other people
             display_actors.removeChild(this.sprite);
             display_effects.addChild(this.sprite);
+            
+            //drop gun
+            drop_gun(this.gun,this.x,this.y);
                 
         }
         

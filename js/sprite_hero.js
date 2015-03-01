@@ -9,8 +9,16 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.speed_sprint = speed_sprint;
         this.radius = 14;
         this.masked = false;
-        this.gun = gun_machine.make_copy();
+        this.guns = [
+            gun_pistol_silenced.make_copy(),
+            gun_shotgun.make_copy(),
+            gun_shotgun_sawed_off.make_copy(),
+            gun_machine.make_copy()
+        ];
+        this.gun_index = 0;
+        this.gun = this.guns[this.gun_index];
         this.clips = ["pistol","shells","shells","machine"];
+        this.health = 100;
         //this.currentlySeen = false;
         
         //pos where hero was last seen by guards or camera
@@ -46,6 +54,20 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             }
             
         }
+        
+        this.changeGun = function(index){
+            if(this.gun_index === index)return;
+            if(index >= this.guns.length)return;
+            this.gun_index = index;
+            this.gun = this.guns[this.gun_index];
+        }
+        
+        this.hurt = function(fromX,fromY){
+            this.health--;
+            if(this.health <= 0)this.kill();
+            //make blood splatter:
+            makeBloodSplatter(this.x,this.y,fromX,fromY);
+        }
         this.kill = function(){
             hero_is_dead();
         
@@ -57,6 +79,13 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             
             console.log('||||||||||||||||||||||||change hero texture to dead hero');
             this.sprite.setTexture(img_hero_dead);
+            
+            messageGameOver.setText('Press [Esc] to restart!');
+            
+            //remove key handlers so hero can no longer move around
+            removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
+            //add to stats:
+            jo_store_inc("loses");
             
             
             addButton("menu.png","menu2.png",startMenu);

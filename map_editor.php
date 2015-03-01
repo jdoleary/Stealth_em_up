@@ -84,7 +84,7 @@ if ($_POST["g-recaptcha-response"]) {
     function super_sanitize($data) {
       $data = trim($data);
       $data = stripslashes($data);
-      $data = htmlspecialchars($data);
+      $data = htmlspecialchars($data,ENT_NOQUOTES);
       return $data;
     }
 

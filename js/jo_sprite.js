@@ -14,10 +14,13 @@ function jo_sprite(pixiSprite, parent){
     this.alive = true;
     this.radius = 19;
     this.carry = null;//object hero is carrying (loot)
+    this.health = 1;
     
+    var rand_gun = all_gun_prefabs[Math.floor(Math.random() * all_gun_prefabs.length)];
+    this.gun = rand_gun.make_copy();//give random gun
     
-    this.gun = gun_pistol.make_copy();//default to pistol
     this.clips = [];//List of strings of ammo_types
+    this.reloading = false;
     
     this.gun_shot_line = new debug_line();
     this.gun_shot_line.graphics.visible = false;
@@ -38,8 +41,15 @@ function jo_sprite(pixiSprite, parent){
         this.alive = false;
         this.target = {x: null, y:null};
     }
+    this.hurt = function(fromX,fromY){
+        this.health--;
+        if(this.health <= 0)this.kill();
+        //make blood splatter:
+        makeBloodSplatter(this.x,this.y,fromX,fromY);
+    }
+    
     this.reload = function(){
-        this.gun.reload(this);
+        if(!this.reloading)this.gun.reload(this);
     }
     
     this.shoot = function(){

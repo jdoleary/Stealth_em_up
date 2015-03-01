@@ -75,6 +75,7 @@ var clickEvent;
 
 var stage_child;
 
+var gun_drops = [];
 
 //zoom:
 var zoom;
@@ -559,7 +560,11 @@ Game Loop
 */
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
-
+function reactionTimeout(){
+    //allow sprite to shoot again if he still sees hero
+    if(this.doesSpriteSeeSprite(hero))this.can_shoot = true;
+    this.reacting = false;
+}
 function gameloop_guards(deltaTime){
     //////////////////////
     //update Guards
@@ -641,11 +646,7 @@ function gameloop_guards(deltaTime){
                             //if guard can't shoot yet (reaction time)
                             if(!guards[i].reacting){
                                 guards[i].reacting = true;
-                                setTimeout(function(){
-                                    //allow sprite to shoot again if he still sees hero
-                                    if(this.doesSpriteSeeSprite(hero))this.can_shoot = true;
-                                    this.reacting = false;
-                                }.bind( guards[i]), guards[i].shoot_speed);
+                                setTimeout(reactionTimeout.bind(guards[i]), guards[i].shoot_speed);
                             }
                         }
                         
@@ -693,12 +694,7 @@ function gameloop_guards(deltaTime){
                 if(!guards[i].idling){
                     var random_idle = Math.random() * (wait_max - wait_min) + wait_min;
                     //console.log('random idle: ' + random_idle);
-                    setTimeout(function(){
-                        
-                        this.getRandomPatrolPath();
-                        //console.log('stop idle');
-     
-                    }.bind(guards[i]), random_idle);
+                    setTimeout(this.getRandomPatrolPath, random_idle);
                 }else{
                     //note: if a path is not found and this.path == [], the guard will idle again.
                     //guard idling
@@ -713,23 +709,6 @@ function gameloop_guards(deltaTime){
                 guards[i].target.y = null;
             }
             
-        }else{
-            //if guard dead:
-            if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
-            
-                //if hero is out of ammo (or has a guards gun), pick up guards gun/ammo:
-                if((hero.gun.ammo <= 0 || !hero.silenced) && guards[i].ammo > 0 && hero.gun.ammo != 6){
-                    hero.gun.silenced = false;
-                    var max = hero.gun.clip_size - hero.gun.ammo;
-                    guards[i].ammo -= max;
-                    hero.gun.ammo += max;
-                    
-                    newMessage('You pick up a regular pistol from a guard, careful, this one is not silenced!');
-                    //newMessage("Ammo: " + ammo + "/6");
-                    newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
-                    newMessage("Dead guard's remaining ammo: " + guards[i].ammo + "/6");
-                }
-            }
         }
         guards[i].prepare_for_draw();
         
@@ -953,7 +932,7 @@ function gameloop_bullets(deltaTime){
             //check if bullet intersects with hero
                 //ignore:: //don't kill the shooter with his own bullet
             if(bullets[b].ignore != hero && hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
-                killHero(bullets[b].ignore.x,bullets[b].ignore.y);
+                hero.hurt(bullets[b].ignore.x,bullets[b].ignore.y);
                 
                 //destroy bullet
                 display_actors.removeChild(bullets[b].sprite);
@@ -1396,9 +1375,37 @@ function gameloop(deltaTime){
     for(var i = 0; i < doodads.length; i++){
         doodads[i].prepare_for_draw();
     }
+    for(var i = 0; i < gun_drops.length; i++){
+        gun_drops[i].prepare_for_draw();
+        //check if hero is close enough to pick up:
+        if(get_distance(hero.x,hero.y,gun_drops[i].x,gun_drops[i].y) <= hero.radius*dragDistance){
+            //add clip to hero's inventory (hero should already have all guns even if some are empty:
+            hero.clips.push(gun_drops[i].gun.ammo_type);
+            newFloatingMessage("You picked up: " + gun_drops[i].gun.name + "!",{x:hero.x,y:hero.y},"#FFaa00");
+            //remove gun drop
+            gun_drops[i].remove_from_parent();//remove from parent
+            gun_drops.splice(i,1);
+            i--;
+            /*
+            //if hero is out of ammo (or has a guards gun), pick up guards gun/ammo:
+            if((hero.gun.ammo <= 0 || !hero.silenced) && guards[i].ammo > 0 && hero.gun.ammo != 6){
+                hero.gun.silenced = false;
+                var max = hero.gun.clip_size - hero.gun.ammo;
+                guards[i].ammo -= max;
+                hero.gun.ammo += max;
+                
+                newMessage('You pick up a regular pistol from a guard, careful, this one is not silenced!');
+                //newMessage("Ammo: " + ammo + "/6");
+                newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
+                newMessage("Dead guard's remaining ammo: " + guards[i].ammo + "/6");
+            }*/
+        }
+        
+    }
     
     gameloop_zoom_and_camera(deltaTime);
     
+    //causing slowdown?
     updateDebugInfo();
 
 }
@@ -1408,7 +1415,9 @@ function updateDebugInfo(){
         "Hero Ammo: " + hero.gun.ammo + "<br>" +
         "Clip Size: " + hero.gun.clip_size +  "<br>" +
         "Ammo Type: " + hero.gun.ammo_type + "<br>" +
-        "Clips: " + all_hero_clips
+        "Clips: " + all_hero_clips + "<br>" +
+        "Health: " + hero.health + "<br>" +
+        "Gun: " + hero.gun.name
     );
 }
 ////////////////////////////////////////////////////////////
@@ -1426,6 +1435,12 @@ function addKeyHandlers(){
         var code = e.keyCode ? e.keyCode : e.which;
         //keyinfo[code] = String.fromCharCode(code);
         if(hero.alive){
+            if(code == 49){hero.changeGun(0);}//key 1
+            if(code == 50){hero.changeGun(1);}//key 2
+            if(code == 51){hero.changeGun(2);}//key 3
+            if(code == 52){hero.changeGun(3);}//key 4
+            if(code == 53){hero.changeGun(4);}//key 5
+            if(code == 54){hero.changeGun(5);}//key 6
             if(code == 87){keys['w'] = true;}
             if(code == 65){keys['a'] = true;}
             if(code == 83){keys['s'] = true;}
@@ -1716,14 +1731,16 @@ function spawn_backup(){
     newMessage("The police have arrived!");
     
     for(var backup = 0; backup < numOfBackupGuards; backup++){
-        setTimeout(function(){
-            var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert));
-            newGuard.x = guard_backup_spawn.x;
-            newGuard.y = guard_backup_spawn.y;
-            if(newGuard.alive)newGuard.hearAlarm();
-            guards.push(newGuard);
-        },1000*backup);//wait an extra second for each guard
+        setTimeout(spawn_individual_backup,1000*backup);//wait an extra second for each guard
     }
+}
+function spawn_individual_backup(){
+    var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert));
+    newGuard.x = guard_backup_spawn.x;
+    newGuard.y = guard_backup_spawn.y;
+    if(newGuard.alive)newGuard.hearAlarm();
+    guards.push(newGuard);
+
 }
 function alert_all_guards(){
     for(var z = 0; z < guards.length; z++){
@@ -1920,7 +1937,8 @@ function setBomb(){
             for(var d = 0; d < doodads.length; d++){
                 if(get_distance(bomb.x,bomb.y,doodads[d].x,doodads[d].y) < bomb_radius+32){
                     doodads[d].parent.removeChild(doodads[d].sprite);
-                    //doodads.splice(1,d);
+                    doodads.splice(d,1);
+                    d--;
                 
                 }
             
@@ -1937,16 +1955,31 @@ function setBomb(){
         }
     }, 10);
 }
+function drop_gun(gun,x,y){
+    var image;
+    switch(gun.name){
+        case "Shotgun":
+            image = img_gun_shotgun;
+            break;
+        case "Handgun":
+            image = img_gun_pistol;
+            break;
+        case "Sawed-Off Shotty":
+            image = img_gun_shotgun_sawed;
+            break;
+        case "Silenced Handgun":
+            image = img_gun_pistol_silenced;
+            break;
+        case "Machine Gun":
+            image = img_gun_machine;
+            break;
+    }
+    gun_drops.push(new jo_gun_drop(new PIXI.Sprite(image),display_effects,x,y,gun));
+}
 function killHero(fromX,fromY){
     hero.kill();
     //make blood splatter:
     makeBloodSplatter(hero.x,hero.y,fromX,fromY);
-    //remove key handlers so hero can no longer move around
-    console.log('you died');
-    messageGameOver.setText('Press [Esc] to restart!');
-    removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
-    //add to stats:
-    jo_store_inc("loses");
 }
 window.onresize = function (event){
     var w = window.innerWidth;
