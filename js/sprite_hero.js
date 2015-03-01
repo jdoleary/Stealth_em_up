@@ -7,6 +7,8 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
     function sprite_hero(){
         this.speed_walk = speed_walk;
         this.speed_sprint = speed_sprint;
+        
+        
         this.radius = 14;
         this.masked = false;
         this.guns = [
@@ -18,7 +20,20 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.gun_index = 0;
         this.gun = this.guns[this.gun_index];
         this.clips = ["pistol","shells","shells","machine"];
-        this.health = 100;
+        this.health = upgrades["hero_health"];
+        this.ability_kick_doors = upgrades["kick_doors"];
+        this.ability_auto_pickup_ammo = upgrades["auto_pickup_ammo"];
+        this.ability_num_guns_hold = upgrades["NumOfGunsHold"];//how many guns the player can hold
+        this.ability_remote_lockpick = upgrades["RemoteLockpick"];
+        if(upgrades["Run_speed"])this.speed_sprint = upgrades["Run_speed"];
+        if(upgrades["Drag_body_speed"])this.speed_walk = upgrades["Drag_body_speed"];
+        this.lockpick_speed = upgrades["Lockpick_speed"];
+        this.reload_speed = upgrades["Reload_speed"];
+        this.ability_toggle_mask_speed = upgrades["Toggle_mask"];
+        this.ability_choke_speed = upgrades["Choke_speed"];
+        this.ability_timed_bomb = upgrades["Timed_bomb"];
+        this.ability_remote_bomb = upgrades["Remote_bomb"];
+        
         //this.currentlySeen = false;
         
         //pos where hero was last seen by guards or camera

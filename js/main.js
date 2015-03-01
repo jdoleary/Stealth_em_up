@@ -1471,7 +1471,7 @@ function addKeyHandlers(){
                         newMessage("You cannot remove your mask while in a restricted area, or while carrying loot!");
                     }else{
                         //hero cannot remove mask while carrying loot
-                        circProgBar.heroMaskProg(500,useMask,!hero.masked);
+                        circProgBar.heroMaskProg(hero.ability_toggle_mask_speed,useMask,!hero.masked);
                     }
                 }
                 keys['v'] = true;
@@ -1499,7 +1499,7 @@ function addKeyHandlers(){
                                     grid.a_door_is_being_unlocked = true;
                                     
                                     //timer
-                                    var unlockTimeRemaining = 5000;
+                                    var unlockTimeRemaining = hero.lockpick_speed;
                                     circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
                                     
                                     return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
@@ -1556,7 +1556,7 @@ function addKeyHandlers(){
                                                     feet_clip.speed = hero.speed;
                                                 }
                                             }
-                                        }.bind(guards[i]), 3000);
+                                        }.bind(guards[i]), hero.ability_choke_speed);
                                         return;
                                     }
 

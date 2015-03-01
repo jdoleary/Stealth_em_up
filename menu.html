@@ -674,7 +674,8 @@
         for(var key in upgrades){
            $('#upgrades').append('<div class="button2 upgrade_button" onclick="upgrade(\''+key+'\');"><img class="upgradeImage" src="images/tile_red.png"></img><span class="upgradeText">' + key + '</span><span class="upgradeCost">' + upgrades[key].cost + '</span></div>');
         }
-    
+        
+        console.log('RESTART GAME, RESET UPGRADES');
         //add start money:
         jo_store("money",100000);
         //update stats:
@@ -689,8 +690,8 @@
         jo_store("Toggle_mask",500);
         jo_store("Choke_speed",3000);
         jo_store("Drag_body_speed",4);
-        jo_store("Timed_bomb",true);
-        jo_store("Remote_bomb",true);
+        jo_store("Timed_bomb",false);
+        jo_store("Remote_bomb",false);
         jo_store("Plastic_surgery",0);
         update_stats();
     

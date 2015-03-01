@@ -28,8 +28,10 @@ function jo_gun(name,clip_size, ammo_type, silenced, automatic, bullets_per_shot
         var indexOfClipUsed = unit.clips.indexOf(this.ammo_type);
         if(indexOfClipUsed >= 0){
             unit.reloading = true;
+            var reload_speed = 2000;
+            if(unit.reload_speed)reload_speed = unit.reload_speed;
             //reload the gun in 2 seconds
-            circProgBar.reset(hero.x,hero.y,2000,function(){ 
+            circProgBar.reset(hero.x,hero.y,reload_speed,function(){ 
                 //add ammo to gun's ammo
                 this.ammo = this.clip_size;
                 //remove clip from unit.clips
