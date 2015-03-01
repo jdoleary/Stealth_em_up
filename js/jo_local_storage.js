@@ -16,14 +16,16 @@ function supports_html5_storage() {
   }
 }
 var storageEnabled = supports_html5_storage();
-console.log("Supports HTML5 Storage: " + storageEnabled);
+console.log("\t\t\t\t\t\t\t\t\t\t\tSupports HTML5 Storage: " + storageEnabled);
 function jo_store(name,value){
     if(storageEnabled){
         if(localStorage[name]){
             localStorage[name] = value;
             console.log("localStorage: " + name + " is now " + value);
         }else{
-            console.log("localStorage " + name + " not found.");
+            console.log("localStorage " + name + " not found. Making new entry.");
+            console.log("localStorage: " + name + " is now " + value);
+            localStorage[name] = value;
         }
     }
 }
@@ -33,7 +35,7 @@ function jo_store_inc(name){
         //increment
         if(localStorage[name]){
             localStorage[name]++;
-            console.log("localStorage: " + name + " is now " + localStorage[name]);
+            console.log("inc localStorage: " + name + " is now " + localStorage[name]);
         }else {
                 localStorage[name] = 1;
         }

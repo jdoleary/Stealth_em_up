@@ -61,11 +61,6 @@
         }
         .button2:hover {
             background: #3cb0fd;
-            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
             text-decoration: none;
         }
         .button2:active {
@@ -146,7 +141,6 @@
             width: 700px;
             margin-top: -350px;
             margin-left: -350px;
-            background-color:green;
         
         }
         #upgradeInfo{
@@ -162,7 +156,6 @@
         
             width: 500px;
             height: 100%;
-            background-color:blue;
             overflow:auto;
         
         }
@@ -231,16 +224,16 @@
         <div class="headerButton button2">
             <span>Missions Remaining:</span>
         </div>
-        <div class="headerButton button2">
+        <div class="headerButton button2" onclick="showMenuScreen('upgradeScreen');">
             <span>Upgrade</span>
             
         </div>
-        <div class="headerButton button2">
+        <div class="headerButton button2" onclick="showMenuScreen('levelSelect');">
             <span>Mission Select</span>
             
         </div>
         <div style="position:fixed; right:0;" class="headerButton button2">
-            <span>Money</span>
+            <span id="HeaderMoney">Money</span>
             
         </div>
     </div>
@@ -282,7 +275,12 @@
     </script>
         
     <div id="upgradeScreen" class="body_content">
-        <div id="upgradeInfo"></div>
+        <div id="upgradeInfo">
+            
+            <div id="hero_stats">
+                
+            </div>
+        </div>
         <div id="upgrades">
             <!--
             <div class="button2 upgrade_button">
@@ -292,6 +290,7 @@
             </div>-->
             
         </div>
+        <!--Show effect of upgrades-->
     </div>
     <div id="startScreen" class="body_content" align="right">
         
@@ -575,27 +574,125 @@
     
     </div>
     <script>
-        var upgrades = [
-            {"cost": 100,"name": "More Health"},
-            {"cost": 100,"name": "Kick Doors Open [Ability]"},
-            {"cost": 100,"name": "Automatically Pick Up Ammo"},
-            {"cost": 100,"name": "Hold More Guns"},
-            {"cost": 100,"name": "Remote Lockpick"},
-            {"cost": 100,"name": "Increase Run Speed"},
-            {"cost": 100,"name": "Increase Lockpick Speed"},
-            {"cost": 100,"name": "Increase Reload Speed"},
-            {"cost": 100,"name": "Increase Toggling Mask Speed"},
-            {"cost": 100,"name": "Increase Choke Out Speed"},
-            {"cost": 100,"name": "Increase Drag Body Speed"},
-            {"cost": 100,"name": "Timed Bomb"},
-            {"cost": 100,"name": "Remote Bomb"},
-            {"cost": 100,"name": "Plastic Surgery"}
-        ];
-        //add upgrades:
-        for(var i = 0; i < upgrades.length; i++){
+        function update_stats(){
             
-           $('#upgrades').append('<div class="button2 upgrade_button"><img class="upgradeImage" src="images/tile_red.png"></img><span class="upgradeText">' + upgrades[i].name + '</span><span class="upgradeCost">' + upgrades[i].cost + '</span></div>');
+            var hero_stats = "";
+            hero_stats += "Health: " + jo_store_get('hero_health') + "<br>";
+            hero_stats += "Kick Doors: " + jo_store_get('kick_doors') + "<br>";
+            hero_stats += "Automatically Pick Up Guns: " + jo_store_get('auto_pickup_ammo') + "<br>";
+            hero_stats += "Number of Guns you can hold: " + jo_store_get('NumOfGunsHold') + "<br>";
+            hero_stats += "Remote Lockpick: " + jo_store_get('RemoteLockpick') + "<br>";
+            hero_stats += "Run Speed: " + jo_store_get('Run_speed') + "<br>";
+            hero_stats += "Lockpick Speed: " + jo_store_get('Lockpick_speed') + "<br>";
+            hero_stats += "Reload Speed: " + jo_store_get('Reload_speed') + "<br>";
+            hero_stats += "Toggle Mask Speed: " + jo_store_get('Toggle_mask') + "<br>";
+            hero_stats += "Choke Out Speed: " + jo_store_get('Choke_speed') + "<br>";
+            hero_stats += "Drag Body Speed: " + jo_store_get('Drag_body_speed') + "<br>";
+            hero_stats += "Timed Bomb: " + jo_store_get('Timed_bomb') + "<br>";
+            hero_stats += "Remote Bomb: " + jo_store_get('Remote_bomb') + "<br>";
+            hero_stats += "Plastic Surgery: " + jo_store_get('Plastic_surgery') + "<br>";
+            $('#hero_stats').html(hero_stats);
+            
+            //update money:
+            $('#HeaderMoney').text("Money: $"+jo_store_get('money'));
         }
+        function upgrade(key){
+            console.log('upgrade: ' + key);
+        
+            switch(key){
+                case "More Health":
+                    jo_store_inc("hero_health");
+                    break;
+                case "Kick Doors Open":
+                    jo_store("kick_doors",true);
+                    break;
+                case "Automatically Pick Up Ammo":
+                    jo_store("auto_pickup_ammo",true);
+                    break;
+                case "Hold More Guns":
+                    jo_store_inc("NumOfGunsHold");
+                    break;
+                case "Remote Lockpick":
+                    jo_store("RemoteLockpick",true);
+                    break;
+                case "Increase Run Speed":
+                    jo_store_inc("Run_speed");
+                    break;
+                case "Increase Lockpick Speed":
+                    jo_store("Lockpick_speed",jo_store_get("Lockpick_speed")*0.9);
+                    break;
+                case "Increase Reload Speed":
+                    jo_store("Reload_speed",jo_store_get("Reload_speed")*0.9);
+                    break;
+                case "Increase Toggling Mask Speed":
+                    jo_store("Toggle_mask",jo_store_get("Toggle_mask")*0.9);
+                    break;
+                case "Increase Choke Out Speed":
+                    jo_store("Choke_speed",jo_store_get("Choke_speed")*0.9);
+                    break;
+                case "Increase Drag Body Speed":
+                    jo_store_inc("Drag_body_speed");
+                    break;
+                case "Timed Bomb":
+                    jo_store("Timed_bomb",true);
+                    break;
+                case "Remote Bomb":
+                    jo_store("Remote_bomb",true);
+                    break;
+                case "Plastic Surgery":
+                    jo_store_inc("Plastic_surgery");
+                    break;    
+                default:
+                    console.log('Error: No key match found in upgrade()');
+                    break;
+            }
+            //cost
+            var money = jo_store_get("money",100000);
+            money -= upgrades[key].cost;
+            jo_store("money",money);
+            update_stats();
+            console.log('---');
+            
+        }
+        var upgrades = {
+            "More Health":{"cost": 100},
+            "Kick Doors Open":{"cost": 100},
+            "Automatically Pick Up Ammo":{"cost": 100},
+            "Hold More Guns":{"cost": 100},
+            "Remote Lockpick":{"cost": 100,},
+            "Increase Run Speed":{"cost": 100},
+            "Increase Lockpick Speed":{"cost": 100,},
+            "Increase Reload Speed":{"cost": 100},
+            "Increase Toggling Mask Speed":{"cost": 100},
+            "Increase Choke Out Speed":{"cost": 100},
+            "Increase Drag Body Speed":{"cost": 100},
+            "Timed Bomb":{"cost": 100},
+            "Remote Bomb":{"cost": 100},
+            "Plastic Surgery":{"cost": 100}
+        };
+        //add upgrade buttons to upgrade menu:
+        for(var key in upgrades){
+           $('#upgrades').append('<div class="button2 upgrade_button" onclick="upgrade(\''+key+'\');"><img class="upgradeImage" src="images/tile_red.png"></img><span class="upgradeText">' + key + '</span><span class="upgradeCost">' + upgrades[key].cost + '</span></div>');
+        }
+    
+        //add start money:
+        jo_store("money",100000);
+        //update stats:
+        jo_store("hero_health",1);
+        jo_store("kick_doors",false);
+        jo_store("auto_pickup_ammo",false);
+        jo_store("NumOfGunsHold",1);
+        jo_store("RemoteLockpick",false);
+        jo_store("Run_speed",8);
+        jo_store("Lockpick_speed",5000);
+        jo_store("Reload_speed",2000);
+        jo_store("Toggle_mask",500);
+        jo_store("Choke_speed",3000);
+        jo_store("Drag_body_speed",4);
+        jo_store("Timed_bomb",true);
+        jo_store("Remote_bomb",true);
+        jo_store("Plastic_surgery",0);
+        update_stats();
     
         var test;
         //pull level maps from server
@@ -664,6 +761,7 @@
             $("#achievements").hide();
             $("#mailingList").hide();
             $("#feedback").hide();
+            $("#upgradeScreen").hide();
             
             $("#"+id).show();
             
