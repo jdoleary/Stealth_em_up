@@ -5,12 +5,12 @@ me at jdoleary@gmail.com
 /*******************************************************/
 //also referred to as "cell"
 
-var img_tile_black = "tile_black.png";
-var img_tile_white = "tile_white.png";
-var img_tile_brown = "tile_brown.png";
-var img_doodad_paper = "papers.png";
-var img_doodad_lamp = "lamp.png";
-var img_tile_red = "tile_red.png";
+var img_tile_black = "images/tile_black.png";
+var img_tile_white = "images/tile_white.png";
+var img_tile_brown = "images/tile_brown.png";
+var img_doodad_paper = "images/papers.png";
+var img_doodad_lamp = "images/lamp.png";
+var img_tile_red = "images/tile_red.png";
 
 function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     /*

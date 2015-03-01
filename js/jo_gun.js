@@ -59,7 +59,8 @@ function jo_gun(name,clip_size, ammo_type, silenced, automatic, bullets_per_shot
             var endPoint = rotate_point_about_axis({x:unit.x,y:unit.y},randomRot,{x:unit.aim.end.x,y:unit.aim.end.y});
             bullet.target = getRaycastPoint(unit.x,unit.y,endPoint.x,endPoint.y);
             bullet.rotate_to_instant(bullet.target.x,bullet.target.y);
-            bullet.speed = 75;
+            if(this.automatic == true)bullet.speed = randomIntFromInterval(30,80);
+            else bullet.speed = 75;
             //bullet.speed = 10;//slow motion bullets!
             bullet.stop_distance = bullet.speed;
             bullets.push(bullet);
@@ -78,7 +79,7 @@ var gun_shotgun = new jo_gun("Shotgun", 6,'shells',false,false,8,30);
 var gun_shotgun_sawed_off = new jo_gun("Sawed-Off Shotty", 6,'shells',false,false,8,90);
 var gun_pistol = new jo_gun("Handgun",8,'pistol',false,false,1,0);
 var gun_pistol_silenced = new jo_gun("Silenced Handgun",8,'pistol',true,false,1,0);
-var gun_machine = new jo_gun("Machine Gun", 60,'machine',false,true,1,10);
+var gun_machine = new jo_gun("Machine Gun", 60,'machine',false,true,1,3);
 var ammo_types = [
     'shells',
     'pistol',
