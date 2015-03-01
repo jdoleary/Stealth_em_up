@@ -5,7 +5,9 @@
     <meta content="utf-8" http-equiv="encoding">
 	<title>STEALTH 'em UP</title>
 	<style>
-
+        *{
+        font-family: 'Roboto', sans-serif;
+        }
         body{
             margin: 0px;
             background-image: url("icons/grimly.png");
@@ -21,6 +23,69 @@
             display: block;
         
         }
+        #stickyHeader{
+            position:fixed;
+            left:0px;
+            top:0px;
+            width:100%;
+            height:40px;
+            background:#afbcec;
+        
+        }
+        .headerButton {
+            height:inherit;
+            float:left;
+            padding: 0 20px 0 20px;
+        }
+        .button2{
+            cursor:pointer;
+            /*disable drag to select text*/
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+
+            background: #3498db;
+            background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+            background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+            background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+            background-image: -o-linear-gradient(top, #3498db, #2980b9);
+            background-image: linear-gradient(to bottom, #3498db, #2980b9);
+            font-family: Arial;
+            color: #ffffff;
+            font-size: 20px;
+            text-decoration: none;
+        
+        }
+        .button2:hover {
+            background: #3cb0fd;
+            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            text-decoration: none;
+        }
+        .button2:active {
+            background: #3cb0fd;
+            background-image: -webkit-linear-gradient(top, #3498db, #3cb0fd);
+            background-image: -moz-linear-gradient(top, #3498db, #3cb0fd);
+            background-image: -ms-linear-gradient(top, #3498db, #3cb0fd);
+            background-image: -o-linear-gradient(top, #3498db, #3cb0fd);
+            background-image: linear-gradient(to bottom, #3498db, #3cb0fd);
+            text-decoration: none;
+        }
+        .headerButton>span{
+            display: table-cell;
+            height: 40px;
+            vertical-align: middle; 
+        }
+        .body_content{
+            margin-top:40px;
+        }
+        
         #footer{
             position:fixed;
             left:0px;
@@ -73,12 +138,65 @@
             margin-bottom: 0px; 
         }
         #datatablesdiv tr { cursor: pointer; cursor: hand; }
+        #upgradeScreen{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            height: 700px;
+            width: 700px;
+            margin-top: -350px;
+            margin-left: -350px;
+            background-color:green;
         
+        }
+        #upgradeInfo{
+            width: 200px;
+            height: 100%;
+            background-color:red;
+        
+        }
+        #upgrades{
+            position:absolute;
+            top:0;
+            left:200px;
+        
+            width: 500px;
+            height: 100%;
+            background-color:blue;
+            overflow:auto;
+        
+        }
+        .upgrade_button{
+            height:60px;
+        
+        }
+        .upgradeImage{
+            padding: 10px;
+            width: 40px;
+            height: 40px;
+        }
+        .upgradeText{
+            position:absolute;
+            padding: 10px;
+            padding-left:0;
+            width: 400px;
+            height: 40px;
+            line-height:40px;
+        }
+        .upgradeCost{
+            position:absolute;
+            padding: 10px;
+            height: 40px;
+            line-height:40px;
+            right: 0;
+        
+        }
 
         
         #mc_embed_signup{background:#fff; font:14px Helvetica,Arial,sans-serif;  width:390px;}
         
 	</style>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     
@@ -108,6 +226,25 @@
         }
     </script>
     <body onload="finishedloading('body');">
+    
+    <div id="stickyHeader">
+        <div class="headerButton button2">
+            <span>Missions Remaining:</span>
+        </div>
+        <div class="headerButton button2">
+            <span>Upgrade</span>
+            
+        </div>
+        <div class="headerButton button2">
+            <span>Mission Select</span>
+            
+        </div>
+        <div style="position:fixed; right:0;" class="headerButton button2">
+            <span>Money</span>
+            
+        </div>
+    </div>
+    
     <div id="canvas_holder"></div>
     <script onload="finishedloading('script1');" src="js/jo_gun.js"></script>
     <script onload="finishedloading('script1b');" src="js/jo_gun_drop.js"></script>
@@ -144,8 +281,19 @@
 
     </script>
         
-
-    <div id="startScreen" align="right">
+    <div id="upgradeScreen" class="body_content">
+        <div id="upgradeInfo"></div>
+        <div id="upgrades">
+            <!--
+            <div class="button2 upgrade_button">
+                <img class="upgradeImage" src="images/tile_red.png"></img>
+                <span class="upgradeText">More Health</span>
+                <span class="upgradeCost">100</span>
+            </div>-->
+            
+        </div>
+    </div>
+    <div id="startScreen" class="body_content" align="right">
         
         <div><button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Start Game</button></div>
         <!--<div><button type="button" class="btn btn-1 btn-1a" onclick="location.href='/game.html?volume=0.0'">Start Game (Muted)</button></div>-->
@@ -332,12 +480,12 @@
             <h1 class="levelSelect" align="center">International Bank</h1>
         </div>
     -->
-    <div id="levelSelect" align="right">
+    <div id="levelSelect" class="body_content" align="right">
         <div id="datatablesdiv" style="max-width:70%;margin:50px;background-color: rgba(255,255,255,0.9);">
         </div>
         
     </div>
-    <div id="achievements" align="right">
+    <div id="achievements" class="body_content" align="right">
         
         <table>
         <tr>
@@ -389,7 +537,7 @@
         </tr>
         </table>
     </div>
-    <div align="right" id="mailingList">
+    <div align="right" id="mailingList"class="body_content" >
         <!-- Begin MailChimp Signup Form -->
         <link href="//cdn-images.mailchimp.com/embedcode/classic-081711.css" rel="stylesheet" type="text/css">
 
@@ -414,7 +562,7 @@
         <!--End mc_embed_signup-->
        
     </div>
-    <div id="feedback" align="right">
+    <div id="feedback" class="body_content" align="right">
         <iframe src="https://docs.google.com/forms/d/1g9iHmcgLgr4Ob_XtQXY8P5cIKpV4QaSOcXAFXrAADvs/viewform?embedded=true" width="760" height="1000" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
     </div>
     
@@ -427,6 +575,28 @@
     
     </div>
     <script>
+        var upgrades = [
+            {"cost": 100,"name": "More Health"},
+            {"cost": 100,"name": "Kick Doors Open [Ability]"},
+            {"cost": 100,"name": "Automatically Pick Up Ammo"},
+            {"cost": 100,"name": "Hold More Guns"},
+            {"cost": 100,"name": "Remote Lockpick"},
+            {"cost": 100,"name": "Increase Run Speed"},
+            {"cost": 100,"name": "Increase Lockpick Speed"},
+            {"cost": 100,"name": "Increase Reload Speed"},
+            {"cost": 100,"name": "Increase Toggling Mask Speed"},
+            {"cost": 100,"name": "Increase Choke Out Speed"},
+            {"cost": 100,"name": "Increase Drag Body Speed"},
+            {"cost": 100,"name": "Timed Bomb"},
+            {"cost": 100,"name": "Remote Bomb"},
+            {"cost": 100,"name": "Plastic Surgery"}
+        ];
+        //add upgrades:
+        for(var i = 0; i < upgrades.length; i++){
+            
+           $('#upgrades').append('<div class="button2 upgrade_button"><img class="upgradeImage" src="images/tile_red.png"></img><span class="upgradeText">' + upgrades[i].name + '</span><span class="upgradeCost">' + upgrades[i].cost + '</span></div>');
+        }
+    
         var test;
         //pull level maps from server
         //fill level select with names of all maps:
