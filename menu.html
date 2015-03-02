@@ -30,6 +30,7 @@
             width:100%;
             height:40px;
             background:#afbcec;
+
         
         }
         .headerButton {
@@ -137,31 +138,36 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            height: 700px;
-            width: 700px;
-            margin-top: -350px;
-            margin-left: -350px;
+            height: 900px;
+            width: 720px;
+            margin-top: -450px;
+            margin-left: -360px;
         
         }
         #upgradeInfo{
             width: 200px;
             height: 100%;
-            background-color:red;
         
         }
         #upgrades{
             position:absolute;
             top:0;
-            left:200px;
+            left:220px;
         
             width: 500px;
             height: 100%;
             overflow:auto;
+            border-radius:10px;
+            border: 2px solid;
         
         }
         .upgrade_button{
             height:60px;
         
+        }
+        .upgrade_button:hover{
+            background: #3cb0fd;
+            text-decoration: none;
         }
         .upgradeImage{
             padding: 10px;
@@ -184,7 +190,19 @@
             right: 0;
         
         }
-
+        #tooltip{
+            padding: 5px;
+            min-height: 80px;
+            background-color:white;
+            border-radius:10px;
+            border: 2px solid;
+        }
+        #hero_stats{
+            padding:5px;
+            background-color:white;
+            border-radius:10px;
+            border: 2px solid;
+        }
         
         #mc_embed_signup{background:#fff; font:14px Helvetica,Arial,sans-serif;  width:390px;}
         
@@ -272,10 +290,11 @@
       ga('send', 'pageview');
 
     </script>
-        
+            
     <div id="upgradeScreen" class="body_content">
         <div id="upgradeInfo">
-            
+            <div id="tooltip">Upgrade Tooltip:  <br>Hover over an upgrade for more info.</div>
+            <br>
             <div id="hero_stats">
                 
             </div>
@@ -662,24 +681,28 @@
             $('#upgrades').html('');
             //add upgrade buttons to upgrade menu:
             for(var key in upgrades){
-               $('#upgrades').append('<div class="button2 upgrade_button" onclick="upgrade(\''+key+'\');"><img class="upgradeImage" src="images/tile_red.png"></img><span class="upgradeText">' + key + '</span><span class="upgradeCost">' + upgrades[key].cost + '</span></div>');
+               $('#upgrades').append('<div class="button2 upgrade_button" data-key="'+key+'" onclick="upgrade(\''+key+'\');"><img class="upgradeImage" src="images/icons/'+upgrades[key].image+'.png"></img><span class="upgradeText">' + key + '</span><span class="upgradeCost">' + upgrades[key].cost + '</span></div>');
             }
+            
+            $('.upgrade_button').hover(function(){
+                $('#tooltip').text(upgrades[$(this).data('key')].description);
+            });
         }
         var upgrades = {
-            "More Health":{"cost": 2},
-            "Kick Doors Open":{"cost": 5},
-            "Automatically Pick Up Ammo":{"cost": 3},
-            "Hold More Guns":{"cost": 5},
-            "Remote Lockpick":{"cost": 4,},
-            "Increase Run Speed":{"cost": 2},
-            "Increase Lockpick Speed":{"cost": 2,},
-            "Increase Reload Speed":{"cost": 2},
-            "Increase Toggling Mask Speed":{"cost": 1},
-            "Increase Choke Out Speed":{"cost": 2},
-            "Increase Drag Body Speed":{"cost": 2},
-            "Timed Bomb":{"cost": 5},
-            "Remote Bomb":{"cost": 7},
-            "Plastic Surgery":{"cost": 10}
+            "More Health":{"cost": 2, "description":"You can survive being shot more.", "image": "S_Holy03"},
+            "Kick Doors Open":{"cost": 5, "description":"Sprinting twords a door kicks it open.", "image": "E_Wood04"},
+            "Automatically Pick Up Ammo":{"cost": 3, "description":"Walking over guns automatically and instantly picks up their ammo.", "image": "I_Chest02"},
+            "Hold More Guns":{"cost": 5, "description":"Hold more guns.", "image": "W_Gun001"},
+            "Remote Lockpick":{"cost": 4, "description":"While lockpicking, you can walk away, and the door will continue to unlock.", "image": "I_Key01"},
+            "Increase Run Speed":{"cost": 2, "description":"Run Faster!", "image": "S_Buff04"},
+            "Increase Lockpick Speed":{"cost": 2, "description":"Pick Faster!", "image": "I_Key02"},
+            "Increase Reload Speed":{"cost": 2, "description":"Reload Faster!", "image": "W_Gun002"},
+            "Increase Toggling Mask Speed":{"cost": 1, "description":"Remove/Put on your mask faster!", "image": "S_Death01"},
+            "Increase Choke Out Speed":{"cost": 2, "description":"Coke out enemies faster!", "image": "S_Death02"},
+            "Increase Drag Body Speed":{"cost": 2, "description":"Drag bodies all around! (with great speed)", "image": "W_Fist001"},
+            "Timed Bomb":{"cost": 5, "description":"Plant a bomb on a timer.", "image": "S_Fire02"},
+            "Remote Bomb":{"cost": 7, "description":"Plant a remotely detonated bomb.", "image": "S_Fire06"},
+            "Plastic Surgery":{"cost": 10, "description":"Everyone forgets what you look like.", "image": "I_Mirror"}
         };
         refreshAvaliableUpgrades();
         

@@ -1674,7 +1674,7 @@ function addKeyHandlers(){
                 feet_clip.speed = hero.speed;
             }
             //allow user to abort unlocking door:
-            if(grid.a_door_is_being_unlocked)circProgBar.stop();
+            if(grid.a_door_is_being_unlocked && !hero.ability_remote_lockpick)circProgBar.stop();
             
             grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
         }
@@ -1834,6 +1834,31 @@ function makeBloodSplatter(atX,atY,pointAtX,pointAtY){
     static_effect_sprites.push(blood_splatter);//add to array of still effects
     alarmingObjects.push(blood_splatter);//add bloodsplatter to alarming objects so if it is see they will sound alarm
 }
+function setHeroImage(){
+    //put on mask
+    switch(hero.gun.name){
+        case "Shotgun":
+            hero.sprite.setTexture(img_hero_with_shotty);
+            break;
+        case "Sawed-Off Shotty":
+            hero.sprite.setTexture(img_hero_with_shotty_sawed);
+            break;
+        case "Handgun":
+            hero.sprite.setTexture(img_hero_with_pistol);
+            break;
+        case "Silenced Handgun":
+            hero.sprite.setTexture(img_hero_with_pistol_silenced);
+            break;
+        case "Machine Gun":
+            hero.sprite.setTexture(img_hero_with_machine_gun);
+            break;
+        default:
+            hero.sprite.setTexture(img_masked);
+            break;
+        
+    }
+
+}
 function useMask(toggle){
     hero.masked = toggle;
     if(toggle){
@@ -1841,8 +1866,7 @@ function useMask(toggle){
             //mask and bag of money
             hero.sprite.setTexture(img_hero_with_money);
         }else{
-            //put on mask
-            hero.sprite.setTexture(img_masked);
+            setHeroImage();
         }
         //switch music
         if(music_masked && music_unmasked){

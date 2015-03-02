@@ -12,6 +12,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.radius = 14;
         this.masked = false;
         this.guns = [
+            gun_pistol.make_copy(),
             gun_pistol_silenced.make_copy(),
             gun_shotgun.make_copy(),
             gun_shotgun_sawed_off.make_copy(),
@@ -75,6 +76,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             if(index >= this.guns.length)return;
             this.gun_index = index;
             this.gun = this.guns[this.gun_index];
+            setHeroImage();
         }
         
         this.hurt = function(fromX,fromY){
