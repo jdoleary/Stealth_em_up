@@ -59,11 +59,11 @@
             text-decoration: none;
         
         }
-        .button2:hover {
+        .button2.button2clickable:hover {
             background: #3cb0fd;
             text-decoration: none;
         }
-        .button2:active {
+        .button2.button2clickable:active {
             background: #3cb0fd;
             background-image: -webkit-linear-gradient(top, #3498db, #3cb0fd);
             background-image: -moz-linear-gradient(top, #3498db, #3cb0fd);
@@ -219,16 +219,15 @@
         }
     </script>
     <body onload="finishedloading('body');">
-    
     <div id="stickyHeader">
         <div class="headerButton button2">
             <span>Missions Remaining:</span>
         </div>
-        <div class="headerButton button2" onclick="showMenuScreen('upgradeScreen');">
+        <div class="headerButton button2 button2clickable" onclick="showMenuScreen('upgradeScreen');">
             <span>Upgrade</span>
             
         </div>
-        <div class="headerButton button2" onclick="showMenuScreen('levelSelect');">
+        <div class="headerButton button2 button2clickable" onclick="showMenuScreen('levelSelect');">
             <span>Mission Select</span>
             
         </div>
@@ -293,7 +292,6 @@
         <!--Show effect of upgrades-->
     </div>
     <div id="startScreen" class="body_content" align="right">
-        
         <div><button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Start Game</button></div>
         <!--<div><button type="button" class="btn btn-1 btn-1a" onclick="location.href='/game.html?volume=0.0'">Start Game (Muted)</button></div>-->
 
@@ -575,7 +573,6 @@
     </div>
     <script>
         function update_stats(){
-            
             var hero_stats = "";
             hero_stats += "Health: " + jo_store_get('hero_health') + "<br>";
             hero_stats += "Kick Doors: " + jo_store_get('kick_doors') + "<br>";
@@ -592,6 +589,8 @@
             hero_stats += "Remote Bomb: " + jo_store_get('Remote_bomb') + "<br>";
             hero_stats += "Plastic Surgery: " + jo_store_get('Plastic_surgery') + "<br>";
             $('#hero_stats').html(hero_stats);
+            
+            refreshAvaliableUpgrades();
             
             //update money:
             $('#HeaderMoney').text("Money: $"+jo_store_get('money'));
@@ -647,37 +646,46 @@
                     break;
             }
             //cost
-            var money = jo_store_get("money",100000);
+            var money = jo_store_get("money");
             money -= upgrades[key].cost;
             jo_store("money",money);
+            
+            //remove from upgrades list:
+            delete upgrades[key];
+            //refresh upgrades and stats
             update_stats();
             console.log('---');
             
         }
-        var upgrades = {
-            "More Health":{"cost": 100},
-            "Kick Doors Open":{"cost": 100},
-            "Automatically Pick Up Ammo":{"cost": 100},
-            "Hold More Guns":{"cost": 100},
-            "Remote Lockpick":{"cost": 100,},
-            "Increase Run Speed":{"cost": 100},
-            "Increase Lockpick Speed":{"cost": 100,},
-            "Increase Reload Speed":{"cost": 100},
-            "Increase Toggling Mask Speed":{"cost": 100},
-            "Increase Choke Out Speed":{"cost": 100},
-            "Increase Drag Body Speed":{"cost": 100},
-            "Timed Bomb":{"cost": 100},
-            "Remote Bomb":{"cost": 100},
-            "Plastic Surgery":{"cost": 100}
-        };
-        //add upgrade buttons to upgrade menu:
-        for(var key in upgrades){
-           $('#upgrades').append('<div class="button2 upgrade_button" onclick="upgrade(\''+key+'\');"><img class="upgradeImage" src="images/tile_red.png"></img><span class="upgradeText">' + key + '</span><span class="upgradeCost">' + upgrades[key].cost + '</span></div>');
+        function refreshAvaliableUpgrades(){
+            //clear previous
+            $('#upgrades').html('');
+            //add upgrade buttons to upgrade menu:
+            for(var key in upgrades){
+               $('#upgrades').append('<div class="button2 upgrade_button" onclick="upgrade(\''+key+'\');"><img class="upgradeImage" src="images/tile_red.png"></img><span class="upgradeText">' + key + '</span><span class="upgradeCost">' + upgrades[key].cost + '</span></div>');
+            }
         }
+        var upgrades = {
+            "More Health":{"cost": 2},
+            "Kick Doors Open":{"cost": 5},
+            "Automatically Pick Up Ammo":{"cost": 3},
+            "Hold More Guns":{"cost": 5},
+            "Remote Lockpick":{"cost": 4,},
+            "Increase Run Speed":{"cost": 2},
+            "Increase Lockpick Speed":{"cost": 2,},
+            "Increase Reload Speed":{"cost": 2},
+            "Increase Toggling Mask Speed":{"cost": 1},
+            "Increase Choke Out Speed":{"cost": 2},
+            "Increase Drag Body Speed":{"cost": 2},
+            "Timed Bomb":{"cost": 5},
+            "Remote Bomb":{"cost": 7},
+            "Plastic Surgery":{"cost": 10}
+        };
+        refreshAvaliableUpgrades();
         
         console.log('RESTART GAME, RESET UPGRADES');
         //add start money:
-        jo_store("money",100000);
+        jo_store("money",100);
         //update stats:
         jo_store("hero_health",1);
         jo_store("kick_doors",false);

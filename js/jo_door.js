@@ -7,6 +7,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
         this.relatedDoorWall = doorwall;//a reference to the door wall object for changing "solidness" and line of sight
         this.opened = false;
         this.openerNear = false;//true if a person able to open it is near
+        this.broken = false;
         
         this.horizontal = horizontal;
         this.rotClosed;
@@ -25,6 +26,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
         this.rad = this.rotClosed;
         
         this.open = function(){
+            if(this.broken)return;
             if(!this.opened){
                 this.opened = true;
                 play_sound(sound_door_open);
@@ -37,6 +39,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
         
         }
         this.close = function(){
+            if(this.broken)return;
             if(this.opened){
                 play_sound(sound_door_close);
                 this.opened = false;
@@ -50,6 +53,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
         
         }
         this.unlock = function(){
+            if(this.broken)return;
             this.unlocked = true;
             //change color:
             this.sprite.setTexture(img_door_open);

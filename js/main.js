@@ -342,7 +342,7 @@ function startGame(){
     
     bombs_left = 1;
     
-    bomb_fuse_start = 5000;
+    bomb_fuse_start = 5000;//this is now set inside of setBomb
     bomb_fuse = bomb_fuse_start;
     //bomb_tooltip text:
     bomb_tooltip = new PIXI.Text("Bomb Tooltip", { font: "45px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 2 });
@@ -985,6 +985,11 @@ function gameloop_doors(deltaTime){
         //this radius is very important!  If door_inst doesn't detect unit close enough, the "wall" tile that it is on will be solid and unit won't be able to get close enough
         if(get_distance(door_inst.x+door_center_x_offset,door_inst.y+door_center_y_offset,hero.x,hero.y) <= hero.radius*4){
             if(door_inst.unlocked)door_inst.openerNear = true;
+            //if hero is sprinting and able to kick down doors:
+            if(hero.ability_kick_doors && keys['shift']){
+                door_inst.open();
+                door_inst.broken = true;
+            }
             
             
             //if hero is near a door and masked, show tooltip to open door
@@ -1208,6 +1213,16 @@ function gameloop_alert_animation(deltaTime){
         }
     }
 }
+function pickUpGunDrop(gunDrop){
+
+    //add clip to hero's inventory (hero should already have all guns even if some are empty:
+    hero.clips.push(gunDrop.gun.ammo_type);
+    newFloatingMessage("You picked up: " + gunDrop.gun.name + "!",{x:hero.x,y:hero.y},"#FFaa00");
+    //remove gun drop
+    gunDrop.remove_from_parent();//remove from parent
+    gunDrop.flag_for_removal = true;
+
+}
 var mousetest;
 function gameloop(deltaTime){
     
@@ -1376,16 +1391,30 @@ function gameloop(deltaTime){
         doodads[i].prepare_for_draw();
     }
     for(var i = 0; i < gun_drops.length; i++){
+        if(gun_drops[i].flag_for_removal){            
+            gun_drops.splice(i,1);
+            i--;
+            continue;
+        }
         gun_drops[i].prepare_for_draw();
         //check if hero is close enough to pick up:
         if(get_distance(hero.x,hero.y,gun_drops[i].x,gun_drops[i].y) <= hero.radius*dragDistance){
-            //add clip to hero's inventory (hero should already have all guns even if some are empty:
-            hero.clips.push(gun_drops[i].gun.ammo_type);
-            newFloatingMessage("You picked up: " + gun_drops[i].gun.name + "!",{x:hero.x,y:hero.y},"#FFaa00");
-            //remove gun drop
-            gun_drops[i].remove_from_parent();//remove from parent
-            gun_drops.splice(i,1);
-            i--;
+            if(hero.ability_auto_pickup_ammo){
+                pickUpGunDrop(gun_drops[i]);
+            }else{
+                //show tooltip
+                tooltip.visible = true;
+                tooltipshown = true;
+                tooltip.setText("[Space] pick up gun.");
+                tooltip.objX = gun_drops[i].x;
+                tooltip.objY = gun_drops[i].y;
+                if(keys['space']){
+                    circProgBar.reset(hero.x,hero.y,600,function(){
+                        pickUpGunDrop(this);
+                    }.bind(gun_drops[i]));
+                    circProgBar.distanceCancelTarget = {x:gun_drops[i].x,y:gun_drops[i].y};
+                }
+            }
             /*
             //if hero is out of ammo (or has a guards gun), pick up guards gun/ammo:
             if((hero.gun.ammo <= 0 || !hero.silenced) && guards[i].ammo > 0 && hero.gun.ammo != 6){
@@ -1451,15 +1480,33 @@ function addKeyHandlers(){
             }
             if(code == 70){
                 if(!keys['f'] && !bomb.sprite.visible && hero.masked){
-                    //if f isn't already pressed and bomb isn't already set
-                    if(bombs_left>0){
+                
+                    if(hero.ability_remote_bomb){
+                        //remote bomb
                         hero.moving = false;
-                        circProgBar.reset(hero.x,hero.y,1500,setBomb);
+                        circProgBar.reset(hero.x,hero.y,1500,function(){
+                            plantBomb();
+                            bomb_tooltip.setText("Press 'f' to detonate");
+                        });
                         bombs_left--;
                     }else{
-                        newFloatingMessage("No Bombs Left",{x:hero.x,y:hero.y},"#FFaa00");
+                        //timed bomb
+                        //if f isn't already pressed and bomb isn't already set
+                        if(bombs_left>0){
+                            hero.moving = false;
+                            circProgBar.reset(hero.x,hero.y,1500,function(){plantBomb();setBomb(5000);});
+                            bombs_left--;
+                        }else{
+                            newFloatingMessage("No Bombs Left",{x:hero.x,y:hero.y},"#FFaa00");
+                        }
                     }
                      
+                }
+                if(!keys['f'] && bomb.sprite.visible){
+                    if(hero.ability_remote_bomb){
+                        //set remote bomb
+                        setBomb(500);
+                    }
                 }
                 keys['f'] = true;
             
@@ -1500,7 +1547,10 @@ function addKeyHandlers(){
                                     
                                     //timer
                                     var unlockTimeRemaining = hero.lockpick_speed;
+                                    
                                     circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
+                                    //cancel unlocking if hero moves away from door, unless hero has unlocked remote unlock
+                                    if(!hero.ability_remote_lockpick)circProgBar.distanceCancelTarget = {x:grid.doors[i].x,y:grid.doors[i].y};
                                     
                                     return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                                 }
@@ -1623,8 +1673,10 @@ function addKeyHandlers(){
                 hero.speed = hero.speed_walk;
                 feet_clip.speed = hero.speed;
             }
+            //allow user to abort unlocking door:
+            if(grid.a_door_is_being_unlocked)circProgBar.stop();
+            
             grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
-            circProgBar.stop();
         }
         hero_move_animation_check();
         
@@ -1686,7 +1738,7 @@ function mouseWheelHandler(e){
 }
 function removeHandlers(excludeKeyHandlers){
     console.log('remove key handlers');
-    keys = {w: false, a: false, s: false, d: false, v: false, space:false, shift:false};
+    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, space:false, shift:false, LMB:false};
     
     //if excludeKeyDown is true, don't remove the onkeydown and onkeyup listeners
     if(!excludeKeyHandlers)window.onkeydown = null;
@@ -1854,17 +1906,9 @@ function set_latestAlert(unit){
     
 }
 //blow up bomb
-function setBomb(){
-    //allow hero to move again:
-    hero.moving = true;
+function setBomb(fuseStart){
     
-    bomb.sprite.visible = true;
-    bomb.x = hero.x;
-    bomb.y = hero.y;
-    bomb_tooltip.objX = bomb.x;
-    bomb_tooltip.objY = bomb.y-32;
-    bomb_tooltip.visible = true;
-    
+    bomb_fuse_start = fuseStart;
     bomb_fuse = bomb_fuse_start;
     var bomb_scale_variety = 0;
     var bomb_tooltip_interval = setInterval(function(){
@@ -1879,7 +1923,7 @@ function setBomb(){
         if(bomb_fuse<=0){
             play_sound(sound_explosion);
         
-            camera.startShake(1000,30);
+            camera.startShake(300,12);
             bomb.sprite.visible = false;
             bomb_tooltip.visible = false;
             
@@ -1954,6 +1998,19 @@ function setBomb(){
             
         }
     }, 10);
+}
+function plantBomb(){
+    //like set bomb, but doesn't start the fuse
+    
+    //allow hero to move again:
+    hero.moving = true;
+    
+    bomb.sprite.visible = true;
+    bomb.x = hero.x;
+    bomb.y = hero.y;
+    bomb_tooltip.objX = bomb.x;
+    bomb_tooltip.objY = bomb.y-32;
+    bomb_tooltip.visible = true;
 }
 function drop_gun(gun,x,y){
     var image;

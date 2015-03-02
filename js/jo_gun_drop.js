@@ -15,6 +15,8 @@ function jo_gun_drop(pixiSprite, parent, xx, yy, gun){
     this.sprite.scale.x = 0.5;
     this.sprite.scale.y = 0.5;
     
+    this.flag_for_removal = false;
+    
     if(parent){
         parent.addChild(this.sprite);
         this.parent = parent;

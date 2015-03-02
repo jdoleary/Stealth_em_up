@@ -23,8 +23,16 @@ function circularProgressBar(posx,posy,size,lineWidth){
     this.visible = false;
     this.timePassedSinceStart = 0;
     this.timeToFinish;//The amount of millis that it takes to finish
+    
+    //be careful to set this after the reset function or else it will be cleared!
+    this.distanceCancelTarget;//if player moves away from this target while the prog bar is incrementing, it self cancels
     this.callback;
     this.increment = function(deltaTime){
+        //abort progressbar if hero moves too far away from distanceCancelTarget
+        if(this.distanceCancelTarget && get_distance(hero.x,hero.y,this.distanceCancelTarget.x,this.distanceCancelTarget.y) > hero.radius*dragDistance*(3/2)){
+            console.log("cancel: " + get_distance(hero.x,hero.y,this.distanceCancelTarget.x,this.distanceCancelTarget.y) + " " + hero.radius*dragDistance);
+            this.stop();
+        }
         if(this.targetFollow){
             //if the progress bar should follow an object:
             this.x = this.targetFollow.x;
@@ -71,6 +79,8 @@ function circularProgressBar(posx,posy,size,lineWidth){
         
     }
     this.reset = function(posx,posy,timeToFinish,callback){
+        //clear distanceCancelTarget
+        this.distanceCancelTarget = null;
         //clear follow
         this.follow = null;
         //move the position

@@ -16,4 +16,8 @@ var upgrades = {
     "Remote_bomb":jo_store_get("Remote_bomb"),
     "Plastic_surgery":jo_store_get("Plastic_surgery")
 }
-alert('upgrades loaded');
+//convert sting to bool if bool string
+for(var key in upgrades){
+    if(upgrades[key]==="false")upgrades[key]=false;
+    if(upgrades[key]==="true")upgrades[key]=true;
+}
