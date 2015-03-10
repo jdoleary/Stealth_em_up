@@ -683,9 +683,10 @@ function gameloop_guards(deltaTime){
                 }
                 
             }else{
-                //set the rotation point when guard first starts idling
+                guards[i].getRandomPatrolPath();
+               /* //set the rotation point when guard first starts idling
                 if(!guards[i].startedIdling){
-                    guards[i].idleRotateRad = guards[i].rad+Math.PI
+                    guards[i].idleRotateRad = guards[i].rad+Math.PI;
                     guards[i].startedIdling = true;
                 }
                 //if guard does not have a path, wait a little while, then move
@@ -693,18 +694,19 @@ function gameloop_guards(deltaTime){
                 var wait_min = 300;
                 if(!guards[i].idling){
                     var random_idle = Math.random() * (wait_max - wait_min) + wait_min;
-                    //console.log('random idle: ' + random_idle);
+                    console.log('random idle: ' + random_idle);
                     setTimeout(this.getRandomPatrolPath, random_idle);
+                    guards[i].idling = true;
                 }else{
                     //note: if a path is not found and this.path == [], the guard will idle again.
                     //guard idling
                     if(!guards[i].target_rotate){
-                        if(guards[i].rotate_to_rad(guards[i].idleRotateRad))guards[i].idling = false;
-                    }else{
-                        guards[i].idling = false;
+                        if(guards[i].rotate_to_rad(guards[i].idleRotateRad+Math.PI)){
+                            guards[i].idling = false;
+                        }
                     }
                 }
-                guards[i].idling = true;
+                guards[i].idling = true;*/
                 
             }
             //call move to target, if target is reached, it will return true and set target to null
