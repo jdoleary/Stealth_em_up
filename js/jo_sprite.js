@@ -140,7 +140,11 @@ function jo_sprite(pixiSprite, parent){
         //rotate to face direction of movement
         var diff = rad - this.rad;
         var rotSpeed = 0.03;
-        if(Math.abs(diff) <= rotSpeed*3)this.rad = rad;
+        if(Math.abs(diff) <= rotSpeed*3){
+            this.rad = rad;
+            console.log('finished rotate to rad');
+            return true;
+        }
         else if(diff > Math.PI)this.rad -= rotSpeed;
         else if(diff < -Math.PI)this.rad += rotSpeed;
         else if(diff < 0)this.rad -= rotSpeed;

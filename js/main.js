@@ -698,7 +698,11 @@ function gameloop_guards(deltaTime){
                 }else{
                     //note: if a path is not found and this.path == [], the guard will idle again.
                     //guard idling
-                    if(!guards[i].target_rotate)guards[i].rotate_to_rad(guards[i].idleRotateRad);
+                    if(!guards[i].target_rotate){
+                        if(guards[i].rotate_to_rad(guards[i].idleRotateRad))guards[i].idling = false;
+                    }else{
+                        guards[i].idling = false;
+                    }
                 }
                 guards[i].idling = true;
                 
@@ -1257,7 +1261,8 @@ function gameloop(deltaTime){
     //Shoot if LMB is down:
     if(keys['LMB'] && hero.gun.automatic){
         //you can only shoot if hero is masked
-        if(hero.gunDrawn && hero.gun.ammo > 0){
+        //if(hero.gunDrawn && hero.gun.ammo > 0){
+        if(hero.gun.ammo > 0){
         
             hero.gun.ammo--;
             doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
@@ -1318,6 +1323,7 @@ function gameloop(deltaTime){
     //keep feet under hero:
     feet_clip.target.x = hero.x;
     feet_clip.target.y = hero.y;
+    feet_clip.rotate_to_instant(hero.x,hero.y);
     feet_clip.move_to_target();
     /*feet_clip.x = hero.x;
     feet_clip.y = hero.y;
@@ -1390,6 +1396,7 @@ function gameloop(deltaTime){
     for(var i = 0; i < doodads.length; i++){
         doodads[i].prepare_for_draw();
     }
+    //dropped guns:
     for(var i = 0; i < gun_drops.length; i++){
         if(gun_drops[i].flag_for_removal){            
             gun_drops.splice(i,1);
@@ -1398,7 +1405,7 @@ function gameloop(deltaTime){
         }
         gun_drops[i].prepare_for_draw();
         //check if hero is close enough to pick up:
-        if(get_distance(hero.x,hero.y,gun_drops[i].x,gun_drops[i].y) <= hero.radius*dragDistance){
+        if(!hero_drag_target && get_distance(hero.x,hero.y,gun_drops[i].x,gun_drops[i].y) <= hero.radius*dragDistance){
             if(hero.ability_auto_pickup_ammo){
                 pickUpGunDrop(gun_drops[i]);
             }else{
@@ -1563,6 +1570,8 @@ function addKeyHandlers(){
                                     hero.speed = hero.speed/2;
                                     feet_clip.speed = hero.speed;
                                     hero_drag_target = guards[i];
+                                    hero.rotate_to_instant(guards[i].x,guards[i].y);
+                                    hero.rad += Math.PI;//reverse rotation because hero is dragging something
                                     hero_drag_target.speed = hero.speed;
                                     hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                                     //return;//don't return, this allows choking out a guard to have higher precedence than dragging a body
@@ -1682,6 +1691,10 @@ function addKeyHandlers(){
     window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
 
     onmousedown = function(e){
+        if(hero_drag_target){
+            newFloatingMessage("You cannot shoot while dragging a body!",{x:hero.x,y:hero.y},"#FFaa00");
+            return;
+        }
         keys['LMB'] = true;
         clickEvent = e;
         

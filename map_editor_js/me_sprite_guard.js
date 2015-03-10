@@ -48,6 +48,8 @@ function sprite_guard_wrapper(pixiSprite){
                 //note: if a path is not found and this.path == [], the guard will idle again.
                 //console.log('path:');
                 //console.log(this.path);
+                if(this.path == [])console.log('path not found');
+                else console.log('path found');
             }
             this.idling = false;
             this.startedIdling = false;
