@@ -23,30 +23,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-require_once "recaptchalib.php";
-// Register API keys at https://www.google.com/recaptcha/admin
-$siteKey = "6LdYuwITAAAAAMiYItyy2FZxM9RkKopkt_edj647";
-$secret = "6LdYuwITAAAAAFJC0pMbDFr4ulPkt4VSRxpV49S8";
-// reCAPTCHA supported 40+ languages listed here: https://developers.google.com/recaptcha/docs/language
-$lang = "en";
-// The response from reCAPTCHA
-$resp = null;
-// The error code from reCAPTCHA, if any
-$error = null;
-$reCaptcha = new ReCaptcha($secret);
-// Was there a reCAPTCHA response?
-if ($_POST["g-recaptcha-response"]) {
-    $resp = $reCaptcha->verifyResponse(
-        $_SERVER["REMOTE_ADDR"],
-        $_POST["g-recaptcha-response"]
-    );
+ 
+try {
+	require_once "recaptchalib.php";
+	// Register API keys at https://www.google.com/recaptcha/admin
+	$siteKey = "6LdYuwITAAAAAMiYItyy2FZxM9RkKopkt_edj647";
+	$secret = "6LdYuwITAAAAAFJC0pMbDFr4ulPkt4VSRxpV49S8";
+	// reCAPTCHA supported 40+ languages listed here: https://developers.google.com/recaptcha/docs/language
+	$lang = "en";
+	// The response from reCAPTCHA
+	$resp = null;
+	// The error code from reCAPTCHA, if any
+	$error = null;
+	$reCaptcha = new ReCaptcha($secret);
+	// Was there a reCAPTCHA response?
+	if ($_POST["g-recaptcha-response"]) {
+	    $resp = $reCaptcha->verifyResponse(
+	        $_SERVER["REMOTE_ADDR"],
+	        $_POST["g-recaptcha-response"]
+	    );
+	}
+} catch (Exception $e) {
+    echo 'Caught exception: ',  $e->getMessage(), "\n";
 }
 ?>
 <html>
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
-	<title>STEALTH 'em UP</title>
+	<title>STEALTH em UP</title>
 	<style>
 
         body{
