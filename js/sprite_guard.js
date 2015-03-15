@@ -16,6 +16,7 @@ function sprite_guard_wrapper(pixiSprite){
         this.ammo = 6;
         this.sawHeroLastAt = {x:null,y:null};
         this.accuracy = 50;
+        this.knowsHerosFace = false;//if guard knows hero's face, mask becomes irrelevant
         
         this.kill = function(){
             //play_sound(sound_unit_die);
@@ -77,7 +78,10 @@ function sprite_guard_wrapper(pixiSprite){
             if(!this.alarmed){
                 this.alarmed = true;
                 //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-                this.sprite.setTexture(img_guard_alert);
+                console.log('here');
+                if(this.knowsHerosFace)this.sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
+                else this.sprite.setTexture(img_guard_alert);
+                
                 this.path = [];//empty path
                 this.moving = false;//this sprite stop in their tracks when they see otherSprite.
                 
@@ -96,7 +100,9 @@ function sprite_guard_wrapper(pixiSprite){
         this.hearAlarm = function(){
             if(this.alive){
                 //when a guard is told of an alarming event.
-                this.sprite.setTexture(img_guard_alert)
+                console.log('here1');
+                if(this.knowsHerosFace)this.sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
+                else this.sprite.setTexture(img_guard_alert);
                 this.speed = 3;//speed up when alarmed.
                 this.alarmed = true;
             }

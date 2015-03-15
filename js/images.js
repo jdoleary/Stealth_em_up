@@ -44,3 +44,11 @@ var img_hero_with_shotty_sawed = PIXI.Texture.fromImage("images/hero_body_1_mask
 var img_hero_with_pistol = PIXI.Texture.fromImage("images/hero_body_1_masked.png");
 var img_hero_with_pistol_silenced = PIXI.Texture.fromImage("images/hero_body_1_masked_handgun_silenced.png");
 var img_hero_with_machine_gun = PIXI.Texture.fromImage("images/hero_body_1_masked_machine.png");
+
+//new hero images:
+var img_hero_head = PIXI.Texture.fromImage("images/new_hero/head.png");
+var img_hero_head_masked = PIXI.Texture.fromImage("images/new_hero/head_masked.png");
+var img_hero_body = PIXI.Texture.fromImage("images/new_hero/body.png");
+
+
+var img_guard_knows_hero_face = PIXI.Texture.fromImage("images/guard_alert_knows_face.png");

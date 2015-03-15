@@ -53,6 +53,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
         
         }
         this.unlock = function(){
+            hero.lockpicking = false;
             if(this.broken)return;
             this.unlocked = true;
             //change color:

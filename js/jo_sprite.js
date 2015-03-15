@@ -13,7 +13,7 @@ function jo_sprite(pixiSprite, parent){
     this.moving = true;
     this.alive = true;
     this.radius = 19;
-    this.carry = null;//object hero is carrying (loot)
+    //moved to sprite_hero.js:://this.carry = null;//object hero is carrying (loot)
     this.health = 1;
     
     var rand_gun = all_gun_prefabs[Math.floor(Math.random() * all_gun_prefabs.length)];

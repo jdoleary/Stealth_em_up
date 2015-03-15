@@ -32,6 +32,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
         if(this.distanceCancelTarget && get_distance(hero.x,hero.y,this.distanceCancelTarget.x,this.distanceCancelTarget.y) > hero.radius*dragDistance*(3/2)){
             console.log("cancel: " + get_distance(hero.x,hero.y,this.distanceCancelTarget.x,this.distanceCancelTarget.y) + " " + hero.radius*dragDistance);
             this.stop();
+            if(hero.lockpicking)hero.lockpicking = false;
         }
         if(this.targetFollow){
             //if the progress bar should follow an object:

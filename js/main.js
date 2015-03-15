@@ -294,7 +294,7 @@ function startGame(){
     state = states["Gameplay"];
     
     //initialize variables:
-    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, space:false, shift:false, LMB:false};
+    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, g:false, space:false, shift:false, LMB:false};
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
     
@@ -453,7 +453,7 @@ function setup_map(map){
             feet_clip.sprite.animationSpeed = 0.2;//slow it down
     
             //make sprites:
-			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_blue),4,8);
+			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_hero_body),new PIXI.Sprite(img_hero_head),4,8);
 			hero_end_aim_coord;
             hero.x = map.objects.hero[0];
             hero.y = map.objects.hero[1];
@@ -601,8 +601,9 @@ function gameloop_guards(deltaTime){
                 }
                 //check if guard sees hero:
                 if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
-                    if(hero.masked){
-                        newMessage('A guard has seen you wearing a mask!');
+                    if(hero.willCauseAlert() || guards[i].knowsHerosFace){
+                        guards[i].knowsHerosFace = true;
+                        newMessage('A guard has seen you being suspicious!');
                         //alarm if hero is seen masked
                         guards[i].becomeAlarmed(hero);
                         
@@ -625,7 +626,8 @@ function gameloop_guards(deltaTime){
                 //guard is alarmed:
                 if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
                     //guard is not being choked out and sees hero
-                    if(hero.masked && hero.alive){
+                    if((hero.willCauseAlert() || guards[i].knowsHerosFace) && hero.alive){
+                        guards[i].knowsHerosFace = true;
                         //reset target
                         guards[i].moving = false;
                         guards[i].target_rotate = hero;
@@ -755,7 +757,7 @@ function gameloop_civs(deltaTime){
                 }
                 //check if civs sees hero:
                 if(civs[i].doesSpriteSeeSprite(hero)){
-                    if(hero.masked){
+                    if(hero.wilLCauseAlert()){
                         newMessage('A civs has seen you wearing a mask!');
                         //alarm if hero is seen masked
                         civs[i].becomeAlarmed(hero);
@@ -813,7 +815,7 @@ function gameloop_security_cams(deltaTime){
                 //check if security_camera sees hero:
                 if(security_cameras[i].doesSpriteSeeSprite(hero)){
                     //alarm if hero is seen masked
-                    if(hero.masked){
+                    if(hero.willCauseAlert()){
                         newMessage('A security camera has seen you wearing a mask!');
                         security_cameras[i].becomeAlarmed(hero);
                         
@@ -1260,8 +1262,8 @@ function gameloop(deltaTime){
         hero.target.x = hero.x - 100;
     }else hero.target.x = hero.x;
     
-    //Shoot if LMB is down:
-    if(keys['LMB'] && hero.gun.automatic){
+    //Shoot if LMB is held down:
+    if(hero.gunOut && keys['LMB'] && hero.gun.automatic){
         //you can only shoot if hero is masked
         //if(hero.gunDrawn && hero.gun.ammo > 0){
         if(hero.gun.ammo > 0){
@@ -1325,14 +1327,17 @@ function gameloop(deltaTime){
     //keep feet under hero:
     feet_clip.target.x = hero.x;
     feet_clip.target.y = hero.y;
-    feet_clip.rotate_to_instant(hero.x,hero.y);
+    //feet_clip.rotate_to_instant(hero.x,hero.y);
+    feet_clip.rad = hero.rad;
     feet_clip.move_to_target();
     /*feet_clip.x = hero.x;
     feet_clip.y = hero.y;
     feet_clip.rad = hero.rad;*/
     
     if(grid.isTileRestricted_coords(hero.x,hero.y)){
-        if(hero.alive)useMask(true);
+        if(hero.alive)hero.inOffLimits = true;
+    }else{
+        hero.inOffLimits = false;
     }
     
     //check collisions and prepare to draw walls:
@@ -1352,7 +1357,11 @@ function gameloop(deltaTime){
     if(hero.alive && !hero_drag_target){
         hero.target_rotate = mouse;
         hero.rotate_to(mouse.x,mouse.y);
-    }else hero.target_rotate = null;
+    }else if(hero_drag_target){
+        hero.target_rotate = hero_drag_target;
+    }else{
+        hero.target_rotate = null;
+    }
     hero.prepare_for_draw();
     
     bomb.prepare_for_draw();
@@ -1368,8 +1377,6 @@ function gameloop(deltaTime){
         }
     }
     hero_last_seen.prepare_for_draw();
-    
-    if(hero_drag_target)hero.sprite.rotation += Math.PI;//reverse the hero's rotation because he is dragging something.
     
     gameloop_civs(deltaTime);
     
@@ -1449,13 +1456,22 @@ function gameloop(deltaTime){
 }
 function updateDebugInfo(){
     var all_hero_clips = hero.clips.join();
+    if(hero.willCauseAlert())$('#debug_info').css('color', 'red');
+    else $('#debug_info').css('color', 'green');
     $('#debug_info').html(
         "Hero Ammo: " + hero.gun.ammo + "<br>" +
         "Clip Size: " + hero.gun.clip_size +  "<br>" +
         "Ammo Type: " + hero.gun.ammo_type + "<br>" +
         "Clips: " + all_hero_clips + "<br>" +
         "Health: " + hero.health + "<br>" +
-        "Gun: " + hero.gun.name
+        "Gun: " + hero.gun.name + "<br>" +
+        "Alert Causes: " + "<br>" +
+        "Masked: " + hero.masked + "<br>" +
+        "gunOut: " + hero.gunOut + "<br>" +
+        "inOffLimits: " + hero.inOffLimits + "<br>" +
+        "lockpicking: " + hero.lockpicking + "<br>" +
+        "Dragging: " + hero_drag_target + "<br>" +
+        "gotMoney: " + hero.carry + "<br>"
     );
 }
 ////////////////////////////////////////////////////////////
@@ -1483,6 +1499,11 @@ function addKeyHandlers(){
             if(code == 65){keys['a'] = true;}
             if(code == 83){keys['s'] = true;}
             if(code == 68){keys['d'] = true;}
+            if(code == 71){
+                keys['g'] = true;
+                hero.gunOut = !hero.gunOut;
+                setHeroImage();
+            }
             if(code == 82){
                 keys['r'] = true;
                 hero.reload();
@@ -1551,7 +1572,7 @@ function addKeyHandlers(){
                                 
                                 //timer
                                 var unlockTimeRemaining = hero.lockpick_speed;
-                                
+                                hero.lockpicking = true;
                                 circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
                                 //cancel unlocking if hero moves away from door, unless hero has unlocked remote unlock
                                 if(!hero.ability_remote_lockpick)circProgBar.distanceCancelTarget = {x:grid.doors[i].x,y:grid.doors[i].y};
@@ -1572,12 +1593,10 @@ function addKeyHandlers(){
                                     hero.speed = hero.speed/2;
                                     feet_clip.speed = hero.speed;
                                     hero_drag_target = guards[i];
-                                    hero.rotate_to_instant(guards[i].x,guards[i].y);
-                                    hero.rad += Math.PI;//reverse rotation because hero is dragging something
                                     hero_drag_target.speed = hero.speed;
                                     hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                                     //return;//don't return, this allows choking out a guard to have higher precedence than dragging a body
-                                }else if(hero.masked){
+                                }else{
                                     //hero is choking out a live guard who is not already alarmed:
                                     newMessage('You are choking out a guard!');
                                     play_sound(sound_guard_choke);
@@ -1655,10 +1674,11 @@ function addKeyHandlers(){
         if(code == 83){keys['s'] = false;}
         if(code == 68){keys['d'] = false;}
         if(code == 70){keys['f'] = false;}
+        if(code == 71){keys['g'] = false;}
         if(code == 82){keys['r'] = false;}
         if(code == 86){
             //on release of key only
-            if(keys['v'])circProgBar.stop();//stop putting on mask
+            //if(keys['v'])circProgBar.stop();//stop putting on mask
             keys['v'] = false;
         }
         if(code == 16){
@@ -1680,7 +1700,10 @@ function addKeyHandlers(){
                 feet_clip.speed = hero.speed;
             }
             //allow user to abort unlocking door:
-            if(grid.a_door_is_being_unlocked && !hero.ability_remote_lockpick)circProgBar.stop();
+            if(grid.a_door_is_being_unlocked && !hero.ability_remote_lockpick){
+                circProgBar.stop();
+                hero.lockpicking = false;
+            }
             
             grid.a_door_is_being_unlocked = false;//unlocking stops when space is released
         }
@@ -1699,30 +1722,32 @@ function addKeyHandlers(){
         }
         keys['LMB'] = true;
         clickEvent = e;
-        
-            //very minor camera shake:
-        if(hero.gun.ammo > 0)camera.startShake(5,0);
-        
-        if(!hero.gun.automatic){
-            if(hero.gun.ammo > 0){
+        //hero can only shoot if gun is out
+        if(hero.gunOut){
                 //very minor camera shake:
-                camera.shakeDecay = 1.5;
+            if(hero.gun.ammo > 0)camera.startShake(5,0);
             
-                hero.gun.ammo--;
-                //newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
-                doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
+            if(!hero.gun.automatic){
+                if(hero.gun.ammo > 0){
+                    //very minor camera shake:
+                    camera.shakeDecay = 1.5;
                 
-                //toggles on the visiblity of .draw_gun_shot's line
-                hero.shoot();
-                if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
-                mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
-                
-                
+                    hero.gun.ammo--;
+                    //newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
+                    doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
+                    
+                    //toggles on the visiblity of .draw_gun_shot's line
+                    hero.shoot();
+                    if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
+                    mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
+                    
+                    
+                }
             }
-        }
-        if(hero.gun.ammo<=0){
-            newFloatingMessage("Press 'r' to reload!",{x:hero.x,y:hero.y},"#FF0000");
-            play_sound(sound_dry_fire);
+            if(hero.gun.ammo<=0){
+                newFloatingMessage("Press 'r' to reload!",{x:hero.x,y:hero.y},"#FF0000");
+                play_sound(sound_dry_fire);
+            }
         }
 
     }
@@ -1747,7 +1772,7 @@ function mouseWheelHandler(e){
 }
 function removeHandlers(excludeKeyHandlers){
     console.log('remove key handlers');
-    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, space:false, shift:false, LMB:false};
+    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, g:false, space:false, shift:false, LMB:false};
     
     //if excludeKeyDown is true, don't remove the onkeydown and onkeyup listeners
     if(!excludeKeyHandlers)window.onkeydown = null;
@@ -1844,38 +1869,43 @@ function makeBloodSplatter(atX,atY,pointAtX,pointAtY){
     alarmingObjects.push(blood_splatter);//add bloodsplatter to alarming objects so if it is see they will sound alarm
 }
 function setHeroImage(){
-    //put on mask
-    switch(hero.gun.name){
-        case "Shotgun":
-            hero.sprite.setTexture(img_hero_with_shotty);
-            break;
-        case "Sawed-Off Shotty":
-            hero.sprite.setTexture(img_hero_with_shotty_sawed);
-            break;
-        case "Handgun":
-            hero.sprite.setTexture(img_hero_with_pistol);
-            break;
-        case "Silenced Handgun":
-            hero.sprite.setTexture(img_hero_with_pistol_silenced);
-            break;
-        case "Machine Gun":
-            hero.sprite.setTexture(img_hero_with_machine_gun);
-            break;
-        default:
-            hero.sprite.setTexture(img_masked);
-            break;
+    if(hero.gunOut){
+        switch(hero.gun.name){
+            case "Shotgun":
+                hero.sprite.setTexture(img_hero_with_shotty);
+                break;
+            case "Sawed-Off Shotty":
+                hero.sprite.setTexture(img_hero_with_shotty_sawed);
+                break;
+            case "Handgun":
+                hero.sprite.setTexture(img_hero_with_pistol);
+                break;
+            case "Silenced Handgun":
+                hero.sprite.setTexture(img_hero_with_pistol_silenced);
+                break;
+            case "Machine Gun":
+                hero.sprite.setTexture(img_hero_with_machine_gun);
+                break;
+            default:
+                hero.imgMaskOn(true);
+                break;
+            
+        }
+    }else{
+        hero.sprite.setTexture(img_hero_body);
         
     }
 
 }
 function useMask(toggle){
     hero.masked = toggle;
+    if(hero.masked == undefined)hero.masked = false;
     if(toggle){
         if(hero.carry){
             //mask and bag of money
             hero.sprite.setTexture(img_hero_with_money);
         }else{
-            setHeroImage();
+            hero.imgMaskOn(true);
         }
         //switch music
         if(music_masked && music_unmasked){
@@ -1884,7 +1914,7 @@ function useMask(toggle){
         }
     }else{
         //take off mask
-        hero.sprite.setTexture(img_blue);
+        hero.imgMaskOn(false);
         //switch music
         if(music_masked && music_unmasked){
             changeVolume(music_masked,0.0);
