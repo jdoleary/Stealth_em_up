@@ -602,7 +602,10 @@ function gameloop_guards(deltaTime){
                 //check if guard sees hero:
                 if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
                     if(hero.willCauseAlert() || guards[i].knowsHerosFace){
-                        guards[i].knowsHerosFace = true;
+                        //guard will remember hero's face unless hero is masked:
+                        if(!hero.masked){
+                            guards[i].knowsHerosFace = true;
+                        }
                         newMessage('A guard has seen you being suspicious!');
                         //alarm if hero is seen masked
                         guards[i].becomeAlarmed(hero);
@@ -627,7 +630,11 @@ function gameloop_guards(deltaTime){
                 if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
                     //guard is not being choked out and sees hero
                     if((hero.willCauseAlert() || guards[i].knowsHerosFace) && hero.alive){
-                        guards[i].knowsHerosFace = true;
+                        //guard will remember hero's face unless hero is masked:
+                        if(!hero.masked){
+                            guards[i].knowsHerosFace = true;
+                            guards[i].sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
+                        }
                         //reset target
                         guards[i].moving = false;
                         guards[i].target_rotate = hero;
@@ -1414,7 +1421,7 @@ function gameloop(deltaTime){
         }
         gun_drops[i].prepare_for_draw();
         //check if hero is close enough to pick up:
-        if(!hero_drag_target && get_distance(hero.x,hero.y,gun_drops[i].x,gun_drops[i].y) <= hero.radius*dragDistance){
+        if(get_distance(hero.x,hero.y,gun_drops[i].x,gun_drops[i].y) <= hero.radius*dragDistance){
             if(hero.ability_auto_pickup_ammo){
                 pickUpGunDrop(gun_drops[i]);
             }else{
@@ -1425,6 +1432,10 @@ function gameloop(deltaTime){
                 tooltip.objX = gun_drops[i].x;
                 tooltip.objY = gun_drops[i].y;
                 if(keys['space']){
+                    if(hero_drag_target){
+                        hero_drag_target.stop_dragging();
+                        hero_drag_target = null;
+                    }
                     circProgBar.reset(hero.x,hero.y,600,function(){
                         pickUpGunDrop(this);
                     }.bind(gun_drops[i]));

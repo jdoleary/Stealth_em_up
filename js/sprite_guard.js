@@ -78,7 +78,6 @@ function sprite_guard_wrapper(pixiSprite){
             if(!this.alarmed){
                 this.alarmed = true;
                 //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-                console.log('here');
                 if(this.knowsHerosFace)this.sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
                 else this.sprite.setTexture(img_guard_alert);
                 
@@ -100,7 +99,6 @@ function sprite_guard_wrapper(pixiSprite){
         this.hearAlarm = function(){
             if(this.alive){
                 //when a guard is told of an alarming event.
-                console.log('here1');
                 if(this.knowsHerosFace)this.sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
                 else this.sprite.setTexture(img_guard_alert);
                 this.speed = 3;//speed up when alarmed.
