@@ -311,7 +311,6 @@
         <!--Show effect of upgrades-->
     </div>
     <div id="startScreen" class="body_content" align="right">
-        <div><button type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Start Game</button></div>
         <!--<div><button type="button" class="btn btn-1 btn-1a" onclick="location.href='/game.html?volume=0.0'">Start Game (Muted)</button></div>-->
 
         
@@ -581,15 +580,6 @@
     <div id="feedback" class="body_content" align="right">
         <iframe src="https://docs.google.com/forms/d/1g9iHmcgLgr4Ob_XtQXY8P5cIKpV4QaSOcXAFXrAADvs/viewform?embedded=true" width="760" height="1000" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
     </div>
-    
-    <div id="footer" align="center">
-        <a href="#startScreen"><button id="button_startScreen" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('startScreen');">Start Screen</button></a>
-        <a href="#levelSelect"><button id="button_levelSelect" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('levelSelect');">Level Select</button></a>
-        <a href="#achievements"><button id="button_achievements" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('achievements');updateStats();">Achievements</button></a>
-        <a href="#mailingList"><button id="button_mailingList" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('mailingList');">Join Mailing List</button></a>
-        <a href="#feedback"><button id="button_feedback" type="button" class="btn btn-1 btn-1a" onclick="showMenuScreen('feedback');">Leave Feedback</button></a>
-    
-    </div>
     <script>
         function update_stats(){
             var hero_stats = "";
@@ -796,6 +786,7 @@
             $("#upgradeScreen").hide();
             
             $("#"+id).show();
+            history.pushState({}, id, "#id");
             
             //set no buttons to currentMenuItem
             $("#button_startScreen").removeClass("currentMenuItem");
