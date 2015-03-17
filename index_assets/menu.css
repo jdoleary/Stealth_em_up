@@ -84,6 +84,7 @@ td>ul>li:nth-child(odd){
 /* Links */
 a,
 a:focus,
+a:active,
 a:hover {
   color: #fff;
 }
@@ -97,6 +98,7 @@ a:hover {
 
 }
 .btn-default:hover,
+.btn-default:active,
 .btn-default:focus {
   color: #fff;
   text-shadow: none; /* Prevent inheritence from `body` */
