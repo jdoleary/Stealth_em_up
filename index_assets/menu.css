@@ -12,10 +12,74 @@ h1{
     margin: 0;
     font-size: 60px;
     letter-spacing: 15px;
+    padding-bottom: 40px;
 }
 h4{
 
     padding-bottom: 40px;
+}
+#Features{
+    overflow-y:scroll;
+    height:900px;
+    margin-top:120px;
+}
+#todotable td{
+
+    padding-right: 30px !important;
+    padding-left: 30px !important;
+}
+.td_left_side{
+    text-align:right;
+}
+.td_left_side>ul>li{
+    text-align: right;
+    margin-right:-30px;
+    margin-left:0;
+}
+.td_right_side{
+    text-align:left;
+}
+.td_right_side>ul>li{
+    text-align: left;
+    margin-left:-30px;
+    margin-right:0;
+}
+table ul{
+list-style-type: none;
+padding: 0;
+}
+table li{
+    height:60px;
+    overflow:hidden;
+    padding:20px;
+    margin-left:30px;
+    margin-right:30px;
+    vertical-align:middle;
+}
+table{
+    margin-bottom:30px !important;
+    table-layout:fixed;
+}
+table td{
+    overflow: hidden;
+}
+#todotable td>ul>li{
+
+    padding-left:30px;
+    padding-right:30px;
+}
+#todotable td>span{
+
+}
+td>ul>li:nth-child(odd){
+    background-color:rgba(255,255,255,0.2);
+}
+
+.center {
+  margin: 0 auto;
+  width: 600px;
+  padding: 20px;
+  color: white;
 }
 /* Links */
 a,

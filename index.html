@@ -6,7 +6,7 @@
     <meta name="description" content="A top-down stealth action shooter.">
     <meta name="author" content="Jordan O'Leary">
 
-    <title>Rob Me Blind</title>
+    <title>Rob 'em Blind</title>
 
     <!-- Bootstrap core CSS -->
     <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -29,21 +29,25 @@
                 <div class="inner">
                   <nav>
                     <ul class="nav masthead-nav">
-                      <li class="active"><a href="#Home" onclick="showMenuScreen('Home',$(this))">Home</a></li>
+                      <li class="active"><a id="linkToHomePage" href="#Home" onclick="showMenuScreen('Home',$(this))">Home</a></li>
                       <li><a href="#Features" onclick="showMenuScreen('Features',$(this))">Features</a></li>
                       <li><a href="#Mailing_List" onclick="showMenuScreen('Mailing_List',$(this))">Mailing List</a></li>
                       <li><a href="#Support_Development" onclick="showMenuScreen('Support_Development',$(this))">Support Development</a></li>
                     </ul>
                   </nav>
+                  
+                  
+                  
+                  
+                  
                 </div>
               </div>
             <div id="Home" class="menuWindow">
 
               <div class="inner cover">
-                <h1 class="cover-heading">Rob Me Blind</h1>
-                <h4 class="cover-heading">Version 0.01</h4>
+                <h1 class="cover-heading">Rob 'em Blind</h1>
                 <p class="lead">
-                  <a href="/play.html" class="btn btn-lg btn-default">Play</a>
+                  <a href="/menu.html" class="btn btn-lg btn-default">Play</a>
                 </p>
                 <p class="lead">
                   <a href="#Options" onclick="showMenuScreen('Options',$(this))" class="btn btn-lg btn-default">Options</a>
@@ -56,6 +60,7 @@
               <div class="mastfoot">
                 <div class="inner">
                   
+                <h4 class="cover-heading">Version 0.01</h4>
                 </div>
               </div>
             </div>
@@ -66,7 +71,138 @@
                 Contact
             </div>
             <div id="Features" class="menuWindow">
-                Features
+                <div>
+                    <table id="featuretable" class="center table">
+                        <tr>
+                            <td>
+                            Features
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <ul>
+                                <li>Fine Tuned Stealth Gameplay</li>
+                                <li>Rogue-lite</li>
+                                <li>Upgrades</li>
+                                <li>Intelligent AI</li>
+                                <li>Distractable Walls</li>
+                                <li>Unique "Identity" Mechanic</li>
+                                <li>Use Enemies as a Human Shield</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                    <table id="todotable" class="center table">
+                        <tr>
+                            <td class="td_left_side">
+                            In Progress
+                            </td>
+                            <td class="td_right_side">
+                            Completed
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td_left_side">
+                                <ul>
+                                    <li>Optimize</li>
+                                    <li>tinypng.com</li>
+                                    <li>webpagetest.org</li>
+                                    <li>Asset Loader:</li>
+                                    <li>http://www.html5rocks.com/en/tutorials/games/assetmanager/</li>
+                                    <li>https://github.com/sethladd/Bad-Aliens</li>
+                                    <li></li>
+                                    <li>Particle Engine</li>
+                                    <li>How to:</li>
+                                    <li>http://www.goodboydigital.com/pixi-webgl-primitives/</li>
+                                    <li>http://codepen.io/anon/pen/GgwjdE</li>
+                                    <li></li>
+                                    <li>Shell casings</li>
+                                    <li>Bullet to wall effects</li>
+                                    <li>Paper flying</li>
+                                    <li>override right click</li>
+                                    <li>website:</li>
+                                    <li>Features:</li>
+                                    <li>Completed</li>
+                                    <li>ToDo</li>
+                                    <li>Options</li>
+                                    <li>Volume</li>
+                                    <li>Controls (keybind)</li>
+                                    <li>Contact Me</li>
+                                    <li>Support Development</li>
+                                    <li></li>
+                                    <li>Career mode</li>
+                                    <li>session remembers your progress and time until mob comes</li>
+                                    <li></li>
+                                    <li>Extra</li>
+                                    <li>Loadout</li>
+                                    <li>Different Guard Types</li>
+                                    <li>Piercing shot</li>
+                                    <li>Sniper Rifle</li>
+                                    <li>Map editor</li>
+                                    <li>Map Size</li>
+                                    <li>Automatically surround with walls and fill with floor</li>
+                                    <li>Map size shouldn’t be chosen, everything is placed as an object and then sorted and filled into the array</li>
+                                    <li></li>
+                                    <li>loading map files may cause a problem with doors confusing image_number’s 4 with 5 and 6</li>
+                                    <li>Cameras (with Rotation)</li>
+                                    <li>Editor set camera rotation</li>
+                                    <li></li>
+                                    <li>Save map data to server</li>
+                                    <li>allow name entry</li>
+                                    <li>screen shake</li>
+                                </ul>
+                            </td>
+                            <td class="td_right_side">
+                                <ul>
+                                    <li>Fix sprites</li>
+                                    <li>mask/body/legs sprites separate</li>
+                                    <li>Alert behavior</li>
+                                    <li>Bool for when hero’s actions are illegal and would draw attention</li>
+                                    <li>Mask doesn't block actions		</li>
+                                    <li>new gun images</li>
+                                    <li>New guns</li>
+                                    <li>shotty</li>
+                                    <li>assult rifle</li>
+                                    <li>Make desks look like desks</li>
+                                    <li>Hero can switch between guns</li>
+                                    <li>AI can use shotty and pistol</li>
+                                    <li>AI move diagonally</li>
+                                    <li>Datatables</li>
+                                    <li>make guards collide with corners?</li>
+                                    <li>Level Editor</li>
+                                    <li>Users save level file to server</li>
+                                    <li>Use Javascript save to server:</li>
+                                    <li>Breaching charges</li>
+                                    <li>Connect data tables to server return (just compare current webserver live version with github version)</li>
+                                    <li>Google recaptcha for submitting map</li>
+                                    <li>HTML Special chars</li>
+                                    <li>Fix sawherolast so it doesn’t follow you after they lose sight of you</li>
+                                    <li>Bullets don’t hit comrades</li>
+                                    <li>Local Avoidance</li>
+                                    <li>bug: “Last Seen” Resets even before everyone is notified (even if you have the chance to kill the see-er.</li>
+                                    <li>Choking guards priority over dragging bodies</li>
+                                    <li>Body blocks bullets when choking out</li>
+                                    <li>my copyright</li>
+                                    <li>Better ai. Look around corners when alert</li>
+                                    <li>Break game loop into methods</li>
+                                    <li>AI can walk diagonally</li>
+                                    <li>Dragged body always absorbs bullets</li>
+                                    <li>Hero points in direction of fire</li>
+                                    <li>jowall dodads</li>
+                                    <li>Screenshake</li>
+                                    <li>move display objects instead of childreN??</li>
+                                    <li>C4 blows up 8 tiles around it</li>
+                                    <li>Guards increase accuracy over time?</li>
+                                    <li>Exploded walls near off limits area will spawn as off limits</li>
+                                    <li>feet rotate in direction of movement.</li>
+                                    <li>Pathing can go in straight line diagonal</li>
+                                    <li>Custom Cursor</li>
+                                    <li>...And a Whole Lot More That I Didn't Write Down!</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
             
             <div id="Mailing_List" class="menuWindow">
