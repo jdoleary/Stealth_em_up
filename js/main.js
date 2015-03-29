@@ -19,6 +19,7 @@ var renderer;
 var pause = false;
 //show tooltips:
 var show_sprite_tooltips = false;
+var debug_on = false;
 
 function windowSetup(){
     //Mr Doob's Stats.js:
@@ -298,7 +299,7 @@ function startGame(){
     state = states["Gameplay"];
     
     //initialize variables:
-    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, g:false, space:false, shift:false, LMB:false};
+    keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, g:false, space:false, shift:false, LMB:false, RMB:false};
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
     
@@ -576,168 +577,169 @@ function gameloop_guards(deltaTime){
     
     
     for(var i = 0; i < guards.length; i++){
-        if(guards[i].alive){
+        var guard = guards[i];
+        if(guard.alive){
         
         
                 //shooting
-            //guards aim can be off by up to guards[i].accuracy pixels:
-            var aim_x_offset = Math.floor(Math.random() * guards[i].accuracy);
-            var aim_y_offset = Math.floor(Math.random() * guards[i].accuracy);
+            //guards aim can be off by up to guard.accuracy pixels:
+            var aim_x_offset = Math.floor(Math.random() * guard.accuracy);
+            var aim_y_offset = Math.floor(Math.random() * guard.accuracy);
             //only set aim if they are able to shoot again, don't reset aim every loop
-            if(guards[i].can_shoot){
+            if(guard.can_shoot){
                 
                 //take the ray from guard to hero and make it go all the way to the wall:
-                var guard_aim_to_wall = getRaycastPoint(guards[i].x,guards[i].y,hero.x+aim_x_offset,hero.y+aim_y_offset);
-                guards[i].aim.set(guards[i].x,guards[i].y,guard_aim_to_wall.x,guard_aim_to_wall.y);
+                var guard_aim_to_wall = getRaycastPoint(guard.x,guard.y,hero.x+aim_x_offset,hero.y+aim_y_offset);
+                guard.aim.set(guard.x,guard.y,guard_aim_to_wall.x,guard_aim_to_wall.y);
             }
             //draw the guards gun shot
-            guards[i].draw_gun_shot(guards[i].aim);
+            guard.draw_gun_shot(guard.aim);
             
             
             //if guard are not already alarmed
-            if(!guards[i].alarmed  && !guards[i].being_choked_out){
+            if(!guard.alarmed  && !guard.being_choked_out){
                 //check if guard sees alarming objects:
                 for(var j = 0; j < alarmingObjects.length; j++){
-                    if(guards[i].doesSpriteSeeSprite(alarmingObjects[j])){
+                    if(guard.doesSpriteSeeSprite(alarmingObjects[j])){
                         newMessage('A guard has seen something alarming!');
-                        guards[i].becomeAlarmed(alarmingObjects[j]);
+                        guard.becomeAlarmed(alarmingObjects[j]);
                     }
                 }
                 //check if guard sees hero:
-                if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
-                    if(hero.willCauseAlert() || guards[i].knowsHerosFace){
+                if(!guard.being_choked_out && guard.doesSpriteSeeSprite(hero)){
+                    if(hero.willCauseAlert() || guard.knowsHerosFace){
                         //guard will remember hero's face unless hero is masked:
                         if(!hero.masked){
-                            guards[i].knowsHerosFace = true;
+                            guard.knowsHerosFace = true;
                         }
                         newMessage('A guard has seen you being suspicious!');
                         //alarm if hero is seen masked
-                        guards[i].becomeAlarmed(hero);
+                        guard.becomeAlarmed(hero);
                         
                         //show alert icon for this guard:
-                        set_latestAlert(guards[i]);
+                        set_latestAlert(guard);
                         
                         //rotate guard to face hero:
-                        guards[i].target_rotate = hero;
+                        guard.target_rotate = hero;
                         
                         //set lastSeen for investigating hero
-                        hero.setLastSeen(guards[i]);
-                        guards[i].sawHeroLastAt = {x:hero.x,y:hero.y};
+                        hero.setLastSeen(guard);
+                        guard.sawHeroLastAt = {x:hero.x,y:hero.y};
                     }
                     
                 }else{
                     //guard doesn't see hero so set target_rotate to null so guard can rotate where he moves again
-                    guards[i].target_rotate = null;
+                    guard.target_rotate = null;
                 }
             }else{
                 //guard is alarmed:
-                if(!guards[i].being_choked_out && guards[i].doesSpriteSeeSprite(hero)){
+                if(!guard.being_choked_out && guard.doesSpriteSeeSprite(hero)){
                     //guard is not being choked out and sees hero
-                    if((hero.willCauseAlert() || guards[i].knowsHerosFace) && hero.alive){
+                    if((hero.willCauseAlert() || guard.knowsHerosFace) && hero.alive){
                         //guard will remember hero's face unless hero is masked:
                         if(!hero.masked){
-                            guards[i].knowsHerosFace = true;
-                            guards[i].sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
+                            guard.knowsHerosFace = true;
+                            guard.sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
                         }
                         //reset target
-                        guards[i].moving = false;
-                        guards[i].target_rotate = hero;
+                        guard.moving = false;
+                        guard.target_rotate = hero;
                         
-                        if(guards[i].can_shoot){
+                        if(guard.can_shoot){
                             
-                            doGunShotEffects(guards[i], false);//plays sound
+                            doGunShotEffects(guard, false);//plays sound
                             
-                            guards[i].shoot();//toggles on the visiblity of .draw_gun_shot's line
+                            guard.shoot();//toggles on the visiblity of .draw_gun_shot's line
                             
                             //increase guard's accuracy every time they shoot, for gameplay reasons
-                            if(guards[i].accuracy > 10)guards[i].accuracy -= 10;
-                            else guards[i].accuracy = 0;
+                            if(guard.accuracy > 10)guard.accuracy -= 10;
+                            else guard.accuracy = 0;
                             
             
                             
                         }else{
                             //if guard can't shoot yet (reaction time)
-                            if(!guards[i].reacting){
-                                guards[i].reacting = true;
-                                setTimeout(reactionTimeout.bind(guards[i]), guards[i].shoot_speed);
+                            if(!guard.reacting){
+                                guard.reacting = true;
+                                setTimeout(reactionTimeout.bind(guard), guard.shoot_speed);
                             }
                         }
                         
                         //show alert icon for this guard:
-                        set_latestAlert(guards[i]);
+                        set_latestAlert(guard);
                         
                         //set lastSeen for investigating hero
-                        hero.setLastSeen(guards[i]);
-                        guards[i].sawHeroLastAt = {x:hero.x,y:hero.y};
+                        hero.setLastSeen(guard);
+                        guard.sawHeroLastAt = {x:hero.x,y:hero.y};
                     }
                 }else{
                     
                     //if guard is alarmed rotate to the next waypoint so they peer around corners.
                     //~guard doesn't see hero so set target_rotate to null so guard can rotate where he moves again
                     //don't change rotation unless the guard is close to the point (this keeps them from walking backwards [bug])
-                    if(guards[i].path[0] && get_distance(guards[i].x,guards[i].y,guards[i].path[0].x,guards[i].path[0].y < 100))guards[i].target_rotate = guards[i].path[0];
+                    if(guard.path[0] && get_distance(guard.x,guard.y,guard.path[0].x,guard.path[0].y < 100))guard.target_rotate = guard.path[0];
                 
                     //if alarmed move to last place hero was seen
-                    if(notifyGuardsOfHeroLocation || !guards[i].chasingHero && hero.lastSeenX && hero.lastSeenY){
+                    if(notifyGuardsOfHeroLocation || !guard.chasingHero && hero.lastSeenX && hero.lastSeenY){
                         //this is only called once due to .chasingHero
                         //repath to hero pos
-                        guards[i].moving = true;
-                        guards[i].pathToCoords(hero.lastSeenX,hero.lastSeenY);
-                        guards[i].chasingHero = true;
+                        guard.moving = true;
+                        guard.pathToCoords(hero.lastSeenX,hero.lastSeenY);
+                        guard.chasingHero = true;
                     }
                 }
             }
             //if guard has a path
-            if(guards[i].path.length > 0){
+            if(guard.path.length > 0){
                 //if guard does not have a target:
-                if(guards[i].target.x == null || guards[i].target.y == null){
-                    grid.reducePathWithShortcut(guards[i].path,guards[i].radius);
-                    guards[i].target = guards[i].path.shift();//get the first element.
+                if(guard.target.x == null || guard.target.y == null){
+                    grid.reducePathWithShortcut(guard.path,guard.radius);
+                    guard.target = guard.path.shift();//get the first element.
                 }
                 
             }else{
-                guards[i].getRandomPatrolPath();
+                guard.getRandomPatrolPath();
                /* //set the rotation point when guard first starts idling
-                if(!guards[i].startedIdling){
-                    guards[i].idleRotateRad = guards[i].rad+Math.PI;
-                    guards[i].startedIdling = true;
+                if(!guard.startedIdling){
+                    guard.idleRotateRad = guard.rad+Math.PI;
+                    guard.startedIdling = true;
                 }
                 //if guard does not have a path, wait a little while, then move
                 var wait_max = 4000;
                 var wait_min = 300;
-                if(!guards[i].idling){
+                if(!guard.idling){
                     var random_idle = Math.random() * (wait_max - wait_min) + wait_min;
                     console.log('random idle: ' + random_idle);
                     setTimeout(this.getRandomPatrolPath, random_idle);
-                    guards[i].idling = true;
+                    guard.idling = true;
                 }else{
                     //note: if a path is not found and this.path == [], the guard will idle again.
                     //guard idling
-                    if(!guards[i].target_rotate){
-                        if(guards[i].rotate_to_rad(guards[i].idleRotateRad+Math.PI)){
-                            guards[i].idling = false;
+                    if(!guard.target_rotate){
+                        if(guard.rotate_to_rad(guard.idleRotateRad+Math.PI)){
+                            guard.idling = false;
                         }
                     }
                 }
-                guards[i].idling = true;*/
+                guard.idling = true;*/
                 
             }
             //call move to target, if target is reached, it will return true and set target to null
-            if(guards[i].move_to_target()){
-                guards[i].target.x = null;
-                guards[i].target.y = null;
+            if(guard.move_to_target()){
+                guard.target.x = null;
+                guard.target.y = null;
             }
             
         }
-        guards[i].prepare_for_draw();
+        guard.prepare_for_draw();
         
         //draw blood trails.
-        if(guards[i].blood_trail){
+        if(guard.blood_trail){
             for(var z = 20, j = 1; j > 0; z += 20, j -= 0.04){
                 //decrease the alpha for every 40 points on the path
                 var min = z-22;
                 if(min < 0)min = 0;
-                var path = guards[i].blood_trail.slice(min,z);
+                var path = guard.blood_trail.slice(min,z);
                 graphics_blood.lineStyle(15, 0xb51d1d, j);
                 //graphics_blood.drawPath(path);
             }
@@ -745,8 +747,8 @@ function gameloop_guards(deltaTime){
         //collide with other guards so they don't overlap:
         //start at i+1 so it checks all the guards who haven't already been checked for collision
         for(var other_guard_index = i+1; other_guard_index < guards.length; other_guard_index++){
-            if(guards[i].alive && guards[other_guard_index].alive){
-                guards[i].unit_to_unit_collide({x:guards[other_guard_index].x-1,y:guards[other_guard_index].y-1},10);
+            if(guard.alive && guards[other_guard_index].alive){
+                guard.unit_to_unit_collide({x:guards[other_guard_index].x-1,y:guards[other_guard_index].y-1},10);
             }
         }
     }
@@ -914,15 +916,16 @@ function gameloop_bullets(deltaTime){
         //if the hero shot the bullet check if bullet intersects guard:
         if(bullets[b].ignore == hero){
             for(var i = 0; i < guards.length; i++){
-                if(bullets[b].ignore == guards[i])continue;//don't kill the shooter with his own bullet
-                if(guards[i].alive && circle_linesetment_intersect(guards[i].getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
-                    guards[i].kill();
+                var guard = guards[i];
+                if(bullets[b].ignore == guard)continue;//don't kill the shooter with his own bullet
+                if(guard.alive && circle_linesetment_intersect(guard.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+                    guard.kill();
                     //make blood splatter:
-                    makeBloodSplatter(guards[i].x,guards[i].y,hero.x,hero.y);
+                    makeBloodSplatter(guard.x,guard.y,hero.x,hero.y);
                     //make blood trail:
-                    guards[i].blood_trail = [guards[i].x,guards[i].y];
+                    guard.blood_trail = [guard.x,guard.y];
                     
-                    if(guards[i].alarmed && !backupCalled)newMessage("You dispatch the guard before he can get the word out!");
+                    if(guard.alarmed && !backupCalled)newMessage("You dispatch the guard before he can get the word out!");
                     
                     
                     //add to stats:
@@ -1035,12 +1038,13 @@ function gameloop_dragtarget(deltaTime){
     //////////////////////
     //show tooltip if hero is close enough to drag a guard:
     for(var i = 0; i < guards.length; i++){
-        if(hero.alive && guards[i].alive  && !guards[i].being_choked_out && get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
+        var guard = guards[i];
+        if(hero.alive && guard.alive  && !guard.being_choked_out && get_distance(hero.x,hero.y,guard.x,guard.y) <= hero.radius*dragDistance){
             tooltip.visible = true;
             tooltipshown = true;
             tooltip.setText("[Space]");
-            tooltip.objX = guards[i].x;
-            tooltip.objY = guards[i].y - 32;
+            tooltip.objX = guard.x;
+            tooltip.objY = guard.y - 32;
         }
     }
     if(!tooltipshown){
@@ -1195,7 +1199,7 @@ function gameloop_getawaycar_and_loot(deltaTime){
             //deposite money in car:
             newMessage("The money is safe!");
             //add button for win condition
-            addButton("Back to Hub",window.innerWidth/2,window.innerHeight/2,function(){location.href='/menu.html';});
+            addButton("Back to Hub",window.innerWidth/2,window.innerHeight/2,function(){location.href='/stealth/menu.html';});
             
             
             //add to stats:
@@ -1418,47 +1422,25 @@ function gameloop(deltaTime){
     }
     //dropped guns:
     for(var i = 0; i < gun_drops.length; i++){
-        if(gun_drops[i].flag_for_removal){            
+        var gun_drop = gun_drops[i];
+        if(gun_drop.flag_for_removal){            
             gun_drops.splice(i,1);
             i--;
             continue;
         }
-        gun_drops[i].prepare_for_draw();
+        gun_drop.prepare_for_draw();
         //check if hero is close enough to pick up:
-        if(get_distance(hero.x,hero.y,gun_drops[i].x,gun_drops[i].y) <= hero.radius*dragDistance){
+        if(get_distance(hero.x,hero.y,gun_drop.x,gun_drop.y) <= hero.radius*dragDistance){
             if(hero.ability_auto_pickup_ammo){
-                pickUpGunDrop(gun_drops[i]);
-            }else{
-                //show tooltip
-                tooltip.visible = true;
-                tooltipshown = true;
-                tooltip.setText("[Space] pick up gun.");
-                tooltip.objX = gun_drops[i].x;
-                tooltip.objY = gun_drops[i].y;
-                if(keys['space']){
-                    if(hero_drag_target){
-                        hero_drag_target.stop_dragging();
-                        hero_drag_target = null;
-                    }
-                    circProgBar.reset(hero.x,hero.y,600,function(){
-                        pickUpGunDrop(this);
-                    }.bind(gun_drops[i]));
-                    circProgBar.distanceCancelTarget = {x:gun_drops[i].x,y:gun_drops[i].y};
-                }
+                pickUpGunDrop(gun_drop);
             }
-            /*
-            //if hero is out of ammo (or has a guards gun), pick up guards gun/ammo:
-            if((hero.gun.ammo <= 0 || !hero.silenced) && guards[i].ammo > 0 && hero.gun.ammo != 6){
-                hero.gun.silenced = false;
-                var max = hero.gun.clip_size - hero.gun.ammo;
-                guards[i].ammo -= max;
-                hero.gun.ammo += max;
                 
-                newMessage('You pick up a regular pistol from a guard, careful, this one is not silenced!');
-                //newMessage("Ammo: " + ammo + "/6");
-                newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
-                newMessage("Dead guard's remaining ammo: " + guards[i].ammo + "/6");
-            }*/
+            //show tooltip
+            tooltip.visible = true;
+            tooltipshown = true;
+            tooltip.setText("[Right Click] to pick up gun.");
+            tooltip.objX = gun_drop.x;
+            tooltip.objY = gun_drop.y;
         }
         
     }
@@ -1466,14 +1448,15 @@ function gameloop(deltaTime){
     gameloop_zoom_and_camera(deltaTime);
     
     //causing slowdown?
-    updateDebugInfo();
+    if(debug_on)updateDebugInfo();
 
 }
+var debug_info = $('#debug_info');
 function updateDebugInfo(){
     var all_hero_clips = hero.clips.join();
-    if(hero.willCauseAlert())$('#debug_info').css('color', 'red');
-    else $('#debug_info').css('color', 'green');
-    $('#debug_info').html(
+    if(hero.willCauseAlert())debug_info.css('color', 'red');
+    else debug_info.css('color', 'green');
+    debug_info.html(
         "Hero Ammo: " + hero.gun.ammo + "<br>" +
         "Clip Size: " + hero.gun.clip_size +  "<br>" +
         "Ammo Type: " + hero.gun.ammo_type + "<br>" +
@@ -1499,6 +1482,16 @@ Key Handlers
 
 function addKeyHandlers(){
     console.log('add key handlers');
+    //override right click:
+    if (document.addEventListener) {
+        document.addEventListener('contextmenu', function(e){
+            e.preventDefault();
+        }, false);
+    } else {
+        document.attachEvent('oncontextmenu', function() {
+            window.event.returnValue = false;
+        });
+    }
     window.onkeydown = function(e){
         //this function is called every frame that said key is down
         var code = e.keyCode ? e.keyCode : e.which;
@@ -1585,16 +1578,17 @@ function addKeyHandlers(){
                             //lockpick door:
                     
                         for(var i = 0; i < grid.doors.length; i++){
-                            if(grid.doors[i].solid && get_distance(hero.x,hero.y,grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2) <= hero.radius*5){
+                            var door = grid.doors[i];
+                            if(door.solid && get_distance(hero.x,hero.y,door.x+grid.cell_size/2,door.y+grid.cell_size/2) <= hero.radius*5){
                                 //if door isn't solid, then it is already unlocked.
                                 grid.a_door_is_being_unlocked = true;
                                 
                                 //timer
                                 var unlockTimeRemaining = hero.lockpick_speed;
                                 hero.lockpicking = true;
-                                circProgBar.reset(grid.doors[i].x+grid.cell_size/2,grid.doors[i].y+grid.cell_size/2,unlockTimeRemaining,grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
+                                circProgBar.reset(door.x+grid.cell_size/2,door.y+grid.cell_size/2,unlockTimeRemaining,grid.door_sprites[i].unlock.bind(grid.door_sprites[i]));
                                 //cancel unlocking if hero moves away from door, unless hero has unlocked remote unlock
-                                if(!hero.ability_remote_lockpick)circProgBar.distanceCancelTarget = {x:grid.doors[i].x,y:grid.doors[i].y};
+                                if(!hero.ability_remote_lockpick)circProgBar.distanceCancelTarget = {x:door.x,y:door.y};
                                 
                                 return;//unlocking doors succeeds loot interactions.  (Hero can unlock door while holding loot).
                             }
@@ -1602,7 +1596,8 @@ function addKeyHandlers(){
                     
                         //check if any dead guards are close enough to be dragged.
                         for(var i = 0; i < guards.length; i++){
-                            if(get_distance(hero.x,hero.y,guards[i].x,guards[i].y) <= hero.radius*dragDistance){
+                            var guard = guards[i];
+                            if(get_distance(hero.x,hero.y,guard.x,guards[i].y) <= hero.radius*dragDistance){
                             
                                 //check if any dead guards are close enough to be dragged.
                                 if(!guards[i].alive){
@@ -1735,46 +1730,65 @@ function addKeyHandlers(){
     window.addEventListener("DOMMouseScroll", mouseWheelHandler, false);
 
     onmousedown = function(e){
-        if(hero_drag_target){
-            newFloatingMessage("You cannot shoot while dragging a body!",{x:hero.x,y:hero.y},"#FFaa00");
-            return;
-        }
-        keys['LMB'] = true;
         clickEvent = e;
-        //hero can only shoot if gun is out
-        if(hero.gunOut){
-                //very minor camera shake:
-            if(hero.gun.ammo > 0)camera.startShake(5,0);
-            
-            if(!hero.gun.automatic){
-                if(hero.gun.ammo > 0){
+        if(clickEvent.which === 1){
+            //LMB
+            if(hero_drag_target){
+                newFloatingMessage("You cannot shoot while dragging a body!",{x:hero.x,y:hero.y},"#FFaa00");
+                return;
+            }
+            keys['LMB'] = true;
+            //hero can only shoot if gun is out
+            if(hero.gunOut){
                     //very minor camera shake:
-                    camera.shakeDecay = 1.5;
+                if(hero.gun.ammo > 0)camera.startShake(5,0);
                 
-                    hero.gun.ammo--;
-                    //newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
-                    doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
+                if(!hero.gun.automatic){
+                    if(hero.gun.ammo > 0){
+                        //very minor camera shake:
+                        camera.shakeDecay = 1.5;
                     
-                    //toggles on the visiblity of .draw_gun_shot's line
-                    hero.shoot();
-                    if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
-                    mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
-                    
-                    
+                        hero.gun.ammo--;
+                        //newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
+                        doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
+                        
+                        //toggles on the visiblity of .draw_gun_shot's line
+                        hero.shoot();
+                        if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
+                        mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
+                        
+                        
+                    }
+                }
+                if(hero.gun.ammo<=0){
+                    newFloatingMessage("Press 'r' to reload!",{x:hero.x,y:hero.y},"#FF0000");
+                    play_sound(sound_dry_fire);
                 }
             }
-            if(hero.gun.ammo<=0){
-                newFloatingMessage("Press 'r' to reload!",{x:hero.x,y:hero.y},"#FF0000");
-                play_sound(sound_dry_fire);
+        }else if(clickEvent.which === 3){
+            //RMB
+            keys['RMB'] = true;
+            for(var i = 0; i < gun_drops.length; i++){
+                var gun_drop = gun_drops[i];
+                //if close to gun_drop, pick it up:
+                if(get_distance(hero.x,hero.y,gun_drop.x,gun_drop.y) <= hero.radius*dragDistance){
+                    pickUpGunDrop(gun_drop);
+                    
+                }
             }
         }
 
     }
     onmouseup = function(e){
-        keys['LMB'] = false;
         clickEvent = e;
-        //set shakeDecay so that when automatic gun is done firing it will stop the shake.
-        camera.shakeDecay = 1.5;
+        if(clickEvent.which === 1){
+            keys['LMB'] = false;
+            //set shakeDecay so that when automatic gun is done firing it will stop the shake.
+            camera.shakeDecay = 1.5;
+        }else if(clickEvent.which === 3){
+            //RMB
+            keys['RMB'] = false;
+        }
     }
 }
 function mouseWheelHandler(e){
