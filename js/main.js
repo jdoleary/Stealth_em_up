@@ -16,6 +16,10 @@ var stage;
 var window_properties;
 var renderer;
 
+var pause = false;
+//show tooltips:
+var show_sprite_tooltips = false;
+
 function windowSetup(){
     //Mr Doob's Stats.js:
     stats = new Stats();
@@ -538,7 +542,7 @@ function animate(time) {
         
         stats.begin();//Mr Doob's Stats.js
         
-        gameloop(deltaTime);
+        if(!pause)gameloop(deltaTime);
         
         
         stats.end();//Mr Doob's Stats.js
@@ -1191,7 +1195,7 @@ function gameloop_getawaycar_and_loot(deltaTime){
             //deposite money in car:
             newMessage("The money is safe!");
             //add button for win condition
-            addButton("Level Select",window.innerWidth/2,window.innerHeight/2,function(){location.href='/?m=levelSelect';});
+            addButton("Back to Hub",window.innerWidth/2,window.innerHeight/2,function(){location.href='/menu.html';});
             
             
             //add to stats:
@@ -1515,6 +1519,10 @@ function addKeyHandlers(){
                 hero.gunOut = !hero.gunOut;
                 setHeroImage();
             }
+            if(code == 80){
+                //'p'
+                pause = !pause;
+            }
             if(code == 82){
                 keys['r'] = true;
                 hero.reload();
@@ -1531,7 +1539,7 @@ function addKeyHandlers(){
                             bomb_tooltip.setText("Press 'f' to detonate");
                         });
                         bombs_left--;
-                    }else{
+                    }else if(hero.ability_timed_bomb){
                         //timed bomb
                         //if f isn't already pressed and bomb isn't already set
                         if(bombs_left>0){
@@ -1835,14 +1843,14 @@ function spawn_individual_backup(){
     var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert));
     newGuard.x = guard_backup_spawn.x;
     newGuard.y = guard_backup_spawn.y;
-    if(newGuard.alive)newGuard.hearAlarm();
+    //if(newGuard.alive)newGuard.hearAlarm();
     guards.push(newGuard);
 
 }
 function alert_all_guards(){
     for(var z = 0; z < guards.length; z++){
-        //alert the other living guards
-        if(guards[z].alive)guards[z].hearAlarm();
+        //alert the other living guards that are 500 distance away
+        if(guards[z].alive && get_distance(hero.x,hero.y,guards[z].x,guards[z].y)<500)guards[z].hearAlarm();
     }
     if(!backupCalled){
         //this part cannot repeat in the same game
