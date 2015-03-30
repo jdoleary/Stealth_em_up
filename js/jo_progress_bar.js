@@ -65,6 +65,9 @@ function circularProgressBar(posx,posy,size,lineWidth){
     this.targetFollow;
     this.paramForCallback;//pass param to callback
     this.heroMaskProg = function(timeToFinish,callback,param){
+        //clear distanceCancelTarget
+        this.distanceCancelTarget = null;//set null from the last one
+        
         this.targetFollow = hero;
         //set timetofinish:
         this.timePassedSinceStart = 0;
@@ -76,6 +79,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
         this.paramForCallback = param;
         //show
         this.visible = true;
+        
         
         
     }

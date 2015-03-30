@@ -19,7 +19,7 @@ var renderer;
 var pause = false;
 //show tooltips:
 var show_sprite_tooltips = false;
-var debug_on = false;
+var debug_on = true;
 
 function getColor(x,y){
     return {r:50,g:50,b:50,a:1};
@@ -60,67 +60,6 @@ function windowSetup(){
     startMenu();//init menu
     requestAnimFrame(animate);//start main loop
     
-}
-    
-    //////////////////////////////////////////////////////////////////////////
-    
-    
-    /*PIXI.Texture.Draw = function (cb) {
-            var canvas = document.createElement('canvas');
-            if (typeof cb == 'function') cb(canvas);
-            return PIXI.Texture.fromCanvas(canvas);
-        }*/
-    //TODO: test:
-    /*var sprite = new PIXI.Sprite(PIXI.Texture.Draw(function (canvas) {
-		//we are now in a 2D context
-		//you need to specify your canvas width and height otherwise it'll have a size of 0x0 and you'll get an empty sprite
-		canvas.width = 800;   
-		canvas.height = 600;
-
-		var ctx = canvas.getContext('2d');  //get  canvas 2D context
-		
-		ctx.fillStyle = "black";
-		ctx.fillRect(0,0,canvas.width,canvas.height);
-        inc = 0;
-		var pix = ctx.createImageData(canvas.width, canvas.height);
-		for (var y = 0; y < canvas.height; y++) {
-			for (var x = 0; x < canvas.width; x++) {
-				var colorRGBA = getColor(x,y);
-				pix.data[inc++] = colorRGBA.r;
-				pix.data[inc++] = colorRGBA.g;
-				pix.data[inc++] = colorRGBA.b;
-				pix.data[inc++] = colorRGBA.a;
-			}
-		}
- 
-		ctx.putImageData(pix, 0, 0);		
-	}));
-    //stage.addChild(sprite);*/
-    
-    //http://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
-var c = document.getElementById("myCanvas");
-var ctx = c.getContext("2d");
-ctx.fillStyle = "red";
-ctx.fillRect(10, 10, 50, 50);
-
-function copy() {
-    var imgData = ctx.getImageData(10, 10, 50, 50);
-    ctx.putImageData(imgData, 10, 70);
-}
-    var testSprite;
-    
-    //////////////////////////////////////////////////////////////////////////
-function test(r,g,b,a,x,y){
-    //255 max:
-    var c = document.getElementById("myCanvas");
-    var ctx = c.getContext("2d");
-    var id = ctx.createImageData(1,1); // only do this once per page
-    var d  = id.data;                        // only do this once per page
-    d[0]   = r;
-    d[1]   = g;
-    d[2]   = b;
-    d[3]   = a;
-    ctx.putImageData( id, x, y );    
 }
 
 
@@ -186,8 +125,6 @@ var bomb_tooltip;
 var bomb_radius_debug;
 var bomb_radius;
 
-//todo test to be removed
-//var mapData;
 
 //grid/map
 var grid;
@@ -396,13 +333,6 @@ function startGame(){
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
     stage_child.addChild(display_actors);
     
-    //TODO: test:
-    for(var i = 0; i < 250; i++){
-    test(0,0,0,255,i,i);
-    }
-    var texture = PIXI.Texture.fromCanvas(document.getElementById("myCanvas"));
-    testSprite = new PIXI.Sprite(texture);
-    display_blood.addChild(testSprite);
     
     
     ///////////////////////
@@ -1174,7 +1104,7 @@ function gameloop_messages_and_tooltip(deltaTime){
         var drawPos = camera.relativePoint({x:messages_floating[m_f].objX,y:messages_floating[m_f].objY});
         messages_floating[m_f].x = drawPos.x;
         messages_floating[m_f].y = drawPos.y;
-        var startFloatSpeed = 0.1*deltaTime;
+        var startFloatSpeed = 0.1*deltaTime/stage_child.scale.x;//stage_child.scale.x to account for camera zoom
         
         if(!messages_floating[m_f].lastFloatSpeed){
             messages_floating[m_f].objY -= startFloatSpeed;
@@ -1200,6 +1130,37 @@ function gameloop_zoom_and_camera(deltaTime){
     //loose camera
     camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
     camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
+    //don't let camera show out of bounds:
+    var cam_width = window_properties.width*(1/stage_child.scale.x);
+    var cam_height = window_properties.height*(1/stage_child.scale.y);
+    var grid_width = grid.width*grid.cell_size;
+    var grid_height = grid.height*grid.cell_size;
+    
+    if(camera.x < 0+cam_width/2){
+        camera.x = 0+cam_width/2;
+    }
+    if(camera.y < 0+cam_height/2){
+        camera.y = 0+cam_height/2;
+    }
+    
+    if(camera.x >= grid_width-cam_width/2){
+        camera.x = grid_width-cam_width/2;
+    }
+    if(camera.y >= grid_height-cam_height/2){
+        camera.y = grid_height-cam_height/2;
+    }
+    
+    //check both:
+    if(cam_width > grid_width){
+        //if both out of left and right limit, put camera in middle
+        camera.x = grid_width/2;
+    }
+    if(cam_height > grid_height){
+        //if both out of top and bottom limit, put camera in middle
+        camera.y = grid_height/2;
+    }
+    
+    
     if(camera.shaking){
         camera.posBeforeShakex = hero.x + (mouse.x - hero.x)/look_sensitivity;
         camera.posBeforeShakey = hero.y + (mouse.y - hero.y)/look_sensitivity;    
@@ -1240,13 +1201,18 @@ function gameloop_zoom_and_camera(deltaTime){
         stage_child.scale.y += zoom_magnitude;
         stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
         stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
+        changeFontSizes();
     }else if(stage_child.scale.x > zoom + 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
         stage_child.scale.x -= zoom_magnitude;
         stage_child.scale.y -= zoom_magnitude;
         stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
         stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
+        changeFontSizes();
     
     }
+}
+function changeFontSizes(){
+    tooltip.style.font = 30/stage_child.scale.x + "px Arial";      
 }
 function gameloop_getawaycar_and_loot(deltaTime){
     //////////////////////
@@ -1417,12 +1383,7 @@ function gameloop(deltaTime){
     if(hero.gunDrawn)hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     hero.move_to_target();
     
-    //TODO: test:
-    
-    test(0,0,0,255,hero.x,hero.y);
-    var texture = PIXI.Texture.fromCanvas(document.getElementById("myCanvas"));
-    testSprite.setTexture(texture);
-    
+
     
     //keep feet under hero:
     feet_clip.target.x = hero.x;
@@ -1555,7 +1516,8 @@ function updateDebugInfo(){
         "inOffLimits: " + hero.inOffLimits + "<br>" +
         "lockpicking: " + hero.lockpicking + "<br>" +
         "Dragging: " + hero_drag_target + "<br>" +
-        "gotMoney: " + hero.carry + "<br>"
+        "gotMoney: " + hero.carry + "<br>" +
+        "Cam: " + camera.x + "," + camera.y + "<br>"
     );
 }
 ////////////////////////////////////////////////////////////
@@ -1594,9 +1556,12 @@ function addKeyHandlers(){
             if(code == 83){keys['s'] = true;}
             if(code == 68){keys['d'] = true;}
             if(code == 71){
+                // !keys['g'] makes it so that it will only be called once for a single press of the letter
+                if(!keys['g']){
+                    hero.gunOut = !hero.gunOut;
+                    setHeroImage();
+                }
                 keys['g'] = true;
-                hero.gunOut = !hero.gunOut;
-                setHeroImage();
             }
             if(code == 80){
                 //'p'
@@ -1644,6 +1609,7 @@ function addKeyHandlers(){
                 // !keys['v'] makes it so that it will only be called once for a single press of the letter
                 if(!keys['v']){
                     circProgBar.heroMaskProg(hero.ability_toggle_mask_speed,useMask,!hero.masked);
+                    
                     
                 }
                 keys['v'] = true;
@@ -1918,7 +1884,7 @@ function newMessage(mess){
 }
 function newFloatingMessage(mess,pos,color){
     //Color in format of "#000000"
-    var m = new PIXI.Text(mess, { font: "20px Arial", fill: color, align: "left", stroke: "#FFFFFF", strokeThickness: 3 });
+    var m = new PIXI.Text(mess, { font: 30/stage_child.scale.x + "px Arial", fill: color, align: "left", stroke: "#FFFFFF", strokeThickness: 3 });
     m.objX = pos.x;
     m.objY = pos.y;
     m.anchor.y = 1;
@@ -2019,6 +1985,7 @@ function setHeroImage(){
 function useMask(toggle){
     hero.masked = toggle;
     if(hero.masked == undefined)hero.masked = false;
+
     if(toggle){
         if(hero.carry){
             //mask and bag of money
@@ -2038,6 +2005,33 @@ function useMask(toggle){
         if(music_masked && music_unmasked){
             changeVolume(music_masked,0.0);
             changeVolume(music_unmasked,1.0);
+        }
+        //hero just took off his mask, check if any guards can see him DO IT:
+        for(var i = 0; i < guards.length; i++){
+            var guard = guards[i];
+            if(guard.alive){
+                //check if guard sees hero:
+                if(!guard.being_choked_out && guard.doesSpriteSeeSprite(hero)){
+                    //guard will remember hero's face unless hero is masked:
+                    guard.knowsHerosFace = true;
+                    
+                    newMessage('A guard has seen you taking off your mask!');
+                    //alarm if hero is seen masked
+                    guard.becomeAlarmed(hero);
+                    
+                    //show alert icon for this guard:
+                    set_latestAlert(guard);
+                    
+                    //rotate guard to face hero:
+                    guard.target_rotate = hero;
+                    
+                    //set lastSeen for investigating hero
+                    hero.setLastSeen(guard);
+                    guard.sawHeroLastAt = {x:hero.x,y:hero.y};
+             
+                    
+                }
+            }
         }
         
     }
