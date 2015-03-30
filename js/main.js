@@ -1290,8 +1290,6 @@ function gameloop_alert_animation(deltaTime){
 }
 function pickUpGunDrop(gunDrop){
 
-    //add clip to hero's inventory (hero should already have all guns even if some are empty:
-    hero.clips.push(gunDrop.gun.ammo_type);
     newFloatingMessage("You picked up: " + gunDrop.gun.name + "!",{x:hero.x,y:hero.y},"#FFaa00");
     //remove gun drop
     gunDrop.remove_from_parent();//remove from parent
@@ -1508,14 +1506,11 @@ function gameloop(deltaTime){
 }
 var debug_info = $('#debug_info');
 function updateDebugInfo(){
-    var all_hero_clips = hero.clips.join();
     if(hero.willCauseAlert())debug_info.css('color', 'red');
     else debug_info.css('color', 'green');
     debug_info.html(
         "Hero Ammo: " + hero.gun.ammo + "<br>" +
         "Clip Size: " + hero.gun.clip_size +  "<br>" +
-        "Ammo Type: " + hero.gun.ammo_type + "<br>" +
-        "Clips: " + all_hero_clips + "<br>" +
         "Health: " + hero.health + "<br>" +
         "Gun: " + hero.gun.name + "<br>" +
         "Alert Causes: " + "<br>" +
@@ -1801,7 +1796,7 @@ function addKeyHandlers(){
             //hero can only shoot if gun is out
             if(hero.gunOut){
                     //very minor camera shake:
-                if(hero.gun.ammo > 0)camera.startShake(5,0);
+                if(hero.gun.ammo > 0)camera.startShake(10,0);
                 
                 if(!hero.gun.automatic){
                     if(hero.gun.ammo > 0){
@@ -1884,10 +1879,7 @@ Other
 function newMessage(mess){
     //console.log(mess);
     messageText.push(mess);
-    setTimeout(function(){
-        messageText.shift();
-        updateMessage();
-    },7000);
+    if(messageText.length > 3)messageText.shift();
     updateMessage();
 }
 function newFloatingMessage(mess,pos,color){

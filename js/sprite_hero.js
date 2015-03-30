@@ -27,7 +27,6 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
         ];
         this.gun_index = 0;
         this.gun = this.guns[this.gun_index];
-        this.clips = ["pistol","shells","shells","machine"];
         this.health = upgrades["hero_health"];
         this.ability_kick_doors = upgrades["kick_doors"];
         this.ability_auto_pickup_ammo = upgrades["auto_pickup_ammo"];

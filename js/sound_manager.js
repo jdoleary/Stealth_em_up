@@ -49,7 +49,7 @@ function readjustVolumes(){
     
 
 function changeVolume(clip,newVolume){
-    clip.volume = newVolume*volume_master;
+    if(clip != null)clip.volume = newVolume*volume_master;
 }
 
 function play_sound(sound){

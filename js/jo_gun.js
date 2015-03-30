@@ -3,14 +3,12 @@ Copyright 2014,2015, Jordan O'Leary, All rights reserved.
 If you would like to copy or use my code, you may contact
 me at jdoleary@gmail.com
 /*******************************************************/
-function jo_gun(name,clip_size, ammo_type, silenced, automatic, bullets_per_shot, spread){
+function jo_gun(name,clip_size, silenced, automatic, bullets_per_shot, spread){
     this.name = name;
     //Clip_size is the amount of ammo per clip
     this.clip_size = clip_size;
     //ammo is how much ammo is in the current clip
     this.ammo = clip_size;
-    //
-    this.ammo_type = ammo_type;
     //
     this.silenced = silenced;
     //automatic: if you can hold down to fire
@@ -21,30 +19,20 @@ function jo_gun(name,clip_size, ammo_type, silenced, automatic, bullets_per_shot
     this.spread = spread;
     
     this.make_copy = function(){
-        return new jo_gun(this.name, this.clip_size, this.ammo_type, this.silenced, this.automatic, this.bullets_per_shot, this.spread);
+        return new jo_gun(this.name, this.clip_size, this.silenced, this.automatic, this.bullets_per_shot, this.spread);
     }
     this.reload = function(unit){
-    
-        var indexOfClipUsed = unit.clips.indexOf(this.ammo_type);
-        if(indexOfClipUsed >= 0){
-            unit.reloading = true;
-            var reload_speed = 2000;
-            if(unit.reload_speed)reload_speed = unit.reload_speed;
-            //reload the gun in 2 seconds
-            circProgBar.reset(hero.x,hero.y,reload_speed,function(){ 
-                //add ammo to gun's ammo
-                this.ammo = this.clip_size;
-                //remove clip from unit.clips
-                unit.clips.splice(indexOfClipUsed,1);
-                //set reloadingn to false so unit can reload again if they need to
-                unit.reloading = false;
-            }.bind(this));
-            circProgBar.follow = hero;
-        }else{
-            //reload failed:
+        unit.reloading = true;
+        var reload_speed = 2000;
+        if(unit.reload_speed)reload_speed = unit.reload_speed;
+        //reload the gun in 2 seconds
+        circProgBar.reset(hero.x,hero.y,reload_speed,function(){ 
+            //add ammo to gun's ammo
+            this.ammo = this.clip_size;
+            //set reloadingn to false so unit can reload again if they need to
             unit.reloading = false;
-            newFloatingMessage("You are out of clips of this type!",{x:hero.x,y:hero.y},"#FF00aa");
-        }
+        }.bind(this));
+        circProgBar.follow = hero;
     }
     //unit is the unit doing the shooting:
     this.shoot = function(unit){
@@ -77,15 +65,10 @@ function jo_gun(name,clip_size, ammo_type, silenced, automatic, bullets_per_shot
    
 }
 //these are prefabs only, instances should be made with make_copy();
-var gun_shotgun = new jo_gun("Shotgun", 6,'shells',false,false,8,30);
-var gun_shotgun_sawed_off = new jo_gun("Sawed-Off Shotty", 6,'shells',false,false,8,90);
-var gun_pistol = new jo_gun("Handgun",8,'pistol',false,false,1,0);
-var gun_pistol_silenced = new jo_gun("Silenced Handgun",8,'pistol',true,false,1,0);
-var gun_machine = new jo_gun("Machine Gun", 60,'machine',false,true,1,3);
-var ammo_types = [
-    'shells',
-    'pistol',
-    'machine'
-];
+var gun_shotgun = new jo_gun("Shotgun", 6,false,false,8,30);
+var gun_shotgun_sawed_off = new jo_gun("Sawed-Off Shotty", 6,false,false,8,90);
+var gun_pistol = new jo_gun("Handgun",8,false,false,1,0);
+var gun_pistol_silenced = new jo_gun("Silenced Handgun",8,true,false,1,0);
+var gun_machine = new jo_gun("Machine Gun", 60,false,true,1,3);
 var all_gun_prefabs = [gun_shotgun,gun_shotgun_sawed_off,gun_pistol,gun_pistol_silenced,gun_machine];
 

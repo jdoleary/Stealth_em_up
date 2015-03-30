@@ -19,7 +19,6 @@ function jo_sprite(pixiSprite, parent){
     var rand_gun = all_gun_prefabs[Math.floor(Math.random() * all_gun_prefabs.length)];
     this.gun = rand_gun.make_copy();//give random gun
     
-    this.clips = [];//List of strings of ammo_types
     this.reloading = false;
     
     this.gun_shot_line = new debug_line();
@@ -36,14 +35,14 @@ function jo_sprite(pixiSprite, parent){
     if(parent)parent.addChild(this.sprite);
 	else display_actors.addChild(this.sprite);
     
-    
+    /*CAUSING SUPER SLOW DOWN ON FIRE FOX!:
     //sprite tooltip
     this.tooltip = new PIXI.Text("Tooltip", { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 2 });
     this.tooltip.anchor.x = 0.5;//centered
     if(show_sprite_tooltips)this.tooltip.visible = true;
     else this.tooltip.visible = false;
     this.tooltip.text = "";
-    stage_child.addChild(this.tooltip);
+    stage_child.addChild(this.tooltip);*/
     
     this.kill = function(){
         //play_sound(sound_unit_die);
@@ -246,12 +245,12 @@ function jo_sprite(pixiSprite, parent){
         this.sprite.position.x = draw_coords.x;
         this.sprite.position.y = draw_coords.y;
         this.sprite.rotation = this.rad;
-        
+        /*
         //tooltip
         this.tooltip.x = draw_coords.x;
         this.tooltip.y = draw_coords.y;
         var dist = get_distance(this.x,this.y,hero.x,hero.y);
-        this.tooltip.setText("dFromHero: " + Math.round(dist));
+        this.tooltip.setText("dFromHero: " + Math.round(dist));*/
     };
     this.getCircleInfoForUtilityLib = function(){
         return {'center': {x:this.x,y:this.y}, 'radius':this.radius};
