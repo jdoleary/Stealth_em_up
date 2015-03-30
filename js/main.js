@@ -1135,37 +1135,45 @@ function gameloop_zoom_and_camera(deltaTime){
     var cam_height = window_properties.height*(1/stage_child.scale.y);
     var grid_width = grid.width*grid.cell_size;
     var grid_height = grid.height*grid.cell_size;
+    var cam_adjust_x = camera.x;
+    var cam_adjust_y = camera.y;
     
     if(camera.x < 0+cam_width/2){
-        camera.x = 0+cam_width/2;
+        cam_adjust_x = 0+cam_width/2;
     }
     if(camera.y < 0+cam_height/2){
-        camera.y = 0+cam_height/2;
+        cam_adjust_y = 0+cam_height/2;
     }
     
     if(camera.x >= grid_width-cam_width/2){
-        camera.x = grid_width-cam_width/2;
+        cam_adjust_x = grid_width-cam_width/2;
     }
     if(camera.y >= grid_height-cam_height/2){
-        camera.y = grid_height-cam_height/2;
+        cam_adjust_y = grid_height-cam_height/2;
     }
     
     //check both:
     if(cam_width > grid_width){
         //if both out of left and right limit, put camera in middle
-        camera.x = grid_width/2;
+        cam_adjust_x = grid_width/2;
     }
     if(cam_height > grid_height){
         //if both out of top and bottom limit, put camera in middle
-        camera.y = grid_height/2;
+        cam_adjust_y = grid_height/2;
     }
+    
+    camera.x = cam_adjust_x;
+    camera.y = cam_adjust_y;
     
     
     if(camera.shaking){
-        camera.posBeforeShakex = hero.x + (mouse.x - hero.x)/look_sensitivity;
-        camera.posBeforeShakey = hero.y + (mouse.y - hero.y)/look_sensitivity;    
+        camera.posBeforeShakex = cam_adjust_x;
+        camera.posBeforeShakey = cam_adjust_y;    
     }
     camera.shake();
+    
+    
+    
     /*
     //The below commented block is for smooth camera
     //press space to look around

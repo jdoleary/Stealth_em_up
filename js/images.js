@@ -29,7 +29,7 @@ var img_guard_alert = PIXI.Texture.fromImage("images/guard_alert.png");
 var img_guard_dead  = PIXI.Texture.fromImage("images/guard_dead.png");
 var img_guard_choke = PIXI.Texture.fromImage("images/guard_choke.png");
 var img_guard_drag  = PIXI.Texture.fromImage("images/guard_dragging.png");
-var img_bullet  = PIXI.Texture.fromImage("images/bullet.png");
+var img_bullet  = PIXI.Texture.fromImage("images/bullet3x.png");
 
 //gun images
 var img_gun_pistol  = PIXI.Texture.fromImage("images/pistol.png");
