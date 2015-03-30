@@ -1303,6 +1303,8 @@ function pickUpGunDrop(gunDrop){
 var mousetest;
 function gameloop(deltaTime){
     
+    
+    gameloop_zoom_and_camera(deltaTime);
     //////////////////////
     //update Mouse
     //////////////////////
@@ -1501,8 +1503,6 @@ function gameloop(deltaTime){
         }
         
     }
-    
-    gameloop_zoom_and_camera(deltaTime);
     
     //causing slowdown?
     if(debug_on)updateDebugInfo();
