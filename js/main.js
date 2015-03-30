@@ -1162,7 +1162,6 @@ function gameloop_zoom_and_camera(deltaTime){
         //if both out of top and bottom limit, put camera in middle
         cam_adjust_y = grid_height/2;
     }
-    
     camera.x = cam_adjust_x;
     camera.y = cam_adjust_y;
     
@@ -1302,17 +1301,11 @@ function pickUpGunDrop(gunDrop){
 }
 var mousetest;
 function gameloop(deltaTime){
-    
-    
-    gameloop_zoom_and_camera(deltaTime);
     //////////////////////
     //update Mouse
     //////////////////////
     mouse_rel = stage.getMousePosition();//gets relative mouse position
-    if(mouse_rel.x != -10000)mouse = camera.objectivePoint(mouse_rel);//only set mouse position if the mouse is on the stage
-    
-
-
+    if(mouse_rel.x != -10000)mouse = camera.getMouse(mouse_rel);//only set mouse position if the mouse is on the stage
       
     //////////////////////
     //Hero Movement and Aim
@@ -1504,6 +1497,7 @@ function gameloop(deltaTime){
         
     }
     
+    gameloop_zoom_and_camera(deltaTime);
     //causing slowdown?
     if(debug_on)updateDebugInfo();
 
@@ -1512,6 +1506,8 @@ var debug_info = $('#debug_info');
 function updateDebugInfo(){
     if(hero.willCauseAlert())debug_info.css('color', 'red');
     else debug_info.css('color', 'green');
+    
+        var screenCorner = camera.objScreenCorner();
     debug_info.html(
         "Hero Ammo: " + hero.gun.ammo + "<br>" +
         "Clip Size: " + hero.gun.clip_size +  "<br>" +
@@ -1524,7 +1520,8 @@ function updateDebugInfo(){
         "lockpicking: " + hero.lockpicking + "<br>" +
         "Dragging: " + hero_drag_target + "<br>" +
         "gotMoney: " + hero.carry + "<br>" +
-        "Cam: " + camera.x + "," + camera.y + "<br>"
+        "mouse: " + Math.round(mouse.x) + "," + Math.round(mouse.y) + "<br>" +
+        "corner: " + screenCorner.x + "," + screenCorner.y + "<br>"
     );
 }
 ////////////////////////////////////////////////////////////

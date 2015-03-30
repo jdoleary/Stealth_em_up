@@ -7,6 +7,9 @@ me at jdoleary@gmail.com
 function jo_cam(window_properties){
     this.x = 0;
     this.y = 0;
+    //used for correcting mouse when camera stays in bounds:
+    this.offset_x = 0;
+    this.offset_y = 0;
     this.following = false;
     this.objScreenCorner = function(){
         return {x: this.x-window_properties.width/2,y: this.y-window_properties.height/2};
@@ -21,6 +24,11 @@ function jo_cam(window_properties){
         //used for mouse translating to obj coords:
         var screenCorner = this.objScreenCorner();
         return {x: relativePoint.x + screenCorner.x, y: relativePoint.y + screenCorner.y};
+    }
+    this.getMouse = function(relativePoint){
+        var screenCorner = {x: this.x-window_properties.width*(1/stage_child.scale.x)/2,y: this.y-window_properties.height*(1/stage_child.scale.y)/2}
+        return {x: relativePoint.x*(1/stage_child.scale.x) + screenCorner.x, y: relativePoint.y*(1/stage_child.scale.y) + screenCorner.y};
+        
     }
     
     this.objScreenCorner_ignore_shake = function(){
