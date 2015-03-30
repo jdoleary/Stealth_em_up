@@ -218,7 +218,6 @@
 	
 </head>
     <script>
-        jo_store("money",101);
         function finishedloading(text){
             console.log('Finished loading: ' + text);
         }
@@ -655,6 +654,25 @@
                 $('#tooltip').text(upgrades[$(this).data('key')].description);
             });
         }
+        function newGameReset(){
+            jo_store('game_count',1);
+            //update stats:
+            jo_store("money",2);
+            jo_store("hero_health",1);
+            jo_store("kick_doors",false);
+            jo_store("auto_pickup_ammo",false);
+            jo_store("NumOfGunsHold",1);
+            jo_store("RemoteLockpick",false);
+            jo_store("Run_speed",8);
+            jo_store("Lockpick_speed",5000);
+            jo_store("Reload_speed",2000);
+            jo_store("Toggle_mask",500);
+            jo_store("Choke_speed",3000);
+            jo_store("Drag_body_speed",4);
+            jo_store("Timed_bomb",false);
+            jo_store("Remote_bomb",false);
+            jo_store("Plastic_surgery",0);
+        }
         var upgrades = {
             "More Health":{"cost": 2, "description":"You can survive being shot more.", "image": "S_Holy03"},
             "Kick Doors Open":{"cost": 5, "description":"Sprinting twords a door kicks it open.", "image": "E_Wood04"},
@@ -671,27 +689,36 @@
             "Remote Bomb":{"cost": 7, "description":"Plant a remotely detonated bomb.", "image": "S_Fire06"},
             "<strike>Plastic Surgery</strike>":{"cost": 10, "description":"Everyone forgets what you look like.", "image": "I_Mirror"}
         };
-        refreshAvaliableUpgrades();
+        //if no games have been played, reset the stats:
+        if(jo_store_get('game_count')===undefined)newGameReset();
+        else jo_store_inc('game_count');
         
-        console.log('RESTART GAME, RESET UPGRADES');
-        //add start money:
-        jo_store("money",100);
-        //update stats:
-        jo_store("hero_health",1);
-        jo_store("kick_doors",false);
-        jo_store("auto_pickup_ammo",false);
-        jo_store("NumOfGunsHold",1);
-        jo_store("RemoteLockpick",false);
-        jo_store("Run_speed",8);
-        jo_store("Lockpick_speed",5000);
-        jo_store("Reload_speed",2000);
-        jo_store("Toggle_mask",500);
-        jo_store("Choke_speed",3000);
-        jo_store("Drag_body_speed",4);
-        jo_store("Timed_bomb",false);
-        jo_store("Remote_bomb",false);
-        jo_store("Plastic_surgery",0);
+        //remove upgrade buttons that have already been researched:
+        if(jo_store_get('hero_health')>1)delete upgrades["More Health"];
+            console.log('----------------');
+            console.log(jo_store_get('kick_doors'));
+        if(jo_store_get('kick_doors')=='true'){
+            console.log('delete');
+            delete upgrades["Kick Doors Open"];
+        }else{
+            console.log('no delete');
+        }
+        if(jo_store_get('auto_pickup_ammo')=='true')delete upgrades["Automatically Pick Up Ammo"];
+        if(jo_store_get('NumOfGunsHold')>1)delete upgrades["Hold More Guns"];
+        if(jo_store_get('RemoteLockpick')=='true')delete upgrades["Remote Lockpick"];
+        if(jo_store_get('Run_speed')>8)delete upgrades["Increase Run Speed"];
+        if(jo_store_get('Lockpick_speed')<5000)delete upgrades["Increase Lockpick Speed"];
+        if(jo_store_get('Reload_speed')<2000)delete upgrades["Increase Reload Speed"];
+        if(jo_store_get('Toggle_mask')<500)delete upgrades["Increase Toggling Mask Speed"];
+        if(jo_store_get('Choke_speed')<3000)delete upgrades["Increase Choke Out Speed"];
+        if(jo_store_get('Drag_body_speed')>4)delete upgrades["Increase Drag Body Speed"];
+        if(jo_store_get('Timed_bomb')=='true')delete upgrades["Timed Bomb"];
+        if(jo_store_get('Remote_bomb')=='true')delete upgrades["Remote Bomb"];
+        if(jo_store_get('Plastic_surgery')>0)delete upgrades["Plastic Surgery"];
+        
+        
         update_stats();
+        refreshAvaliableUpgrades();
     
         var test;
         //pull level maps from server

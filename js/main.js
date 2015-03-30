@@ -19,7 +19,7 @@ var renderer;
 var pause = false;
 //show tooltips:
 var show_sprite_tooltips = false;
-var debug_on = true;
+var debug_on = false;
 
 function getColor(x,y){
     return {r:50,g:50,b:50,a:1};
@@ -462,6 +462,7 @@ function setup_map(map){
     
             //hero feet:
             feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
+            feet_clip.stop_distance = 3;//fix jittery bug
             feet_clip.sprite.loop = true;
             feet_clip.sprite.animationSpeed = 0.2;//slow it down
     
@@ -1256,6 +1257,9 @@ function gameloop_getawaycar_and_loot(deltaTime){
             
             //add to stats:
             jo_store_inc("wins");
+            
+            //add 5 gold:
+            jo_store("money",jo_store_get('money')+5);
             
             
             hero.carry = null;
