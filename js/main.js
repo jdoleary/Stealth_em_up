@@ -21,6 +21,10 @@ var pause = false;
 var show_sprite_tooltips = false;
 var debug_on = false;
 
+function getColor(x,y){
+    return {r:50,g:50,b:50,a:1};
+}
+
 function windowSetup(){
     //Mr Doob's Stats.js:
     stats = new Stats();
@@ -52,10 +56,74 @@ function windowSetup(){
     //document.body.appendChild(renderer.view);
 
 
+
     startMenu();//init menu
     requestAnimFrame(animate);//start main loop
     
 }
+    
+    //////////////////////////////////////////////////////////////////////////
+    
+    
+    /*PIXI.Texture.Draw = function (cb) {
+            var canvas = document.createElement('canvas');
+            if (typeof cb == 'function') cb(canvas);
+            return PIXI.Texture.fromCanvas(canvas);
+        }*/
+    //TODO: test:
+    /*var sprite = new PIXI.Sprite(PIXI.Texture.Draw(function (canvas) {
+		//we are now in a 2D context
+		//you need to specify your canvas width and height otherwise it'll have a size of 0x0 and you'll get an empty sprite
+		canvas.width = 800;   
+		canvas.height = 600;
+
+		var ctx = canvas.getContext('2d');  //get  canvas 2D context
+		
+		ctx.fillStyle = "black";
+		ctx.fillRect(0,0,canvas.width,canvas.height);
+        inc = 0;
+		var pix = ctx.createImageData(canvas.width, canvas.height);
+		for (var y = 0; y < canvas.height; y++) {
+			for (var x = 0; x < canvas.width; x++) {
+				var colorRGBA = getColor(x,y);
+				pix.data[inc++] = colorRGBA.r;
+				pix.data[inc++] = colorRGBA.g;
+				pix.data[inc++] = colorRGBA.b;
+				pix.data[inc++] = colorRGBA.a;
+			}
+		}
+ 
+		ctx.putImageData(pix, 0, 0);		
+	}));
+    //stage.addChild(sprite);*/
+    
+    //http://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+ctx.fillStyle = "red";
+ctx.fillRect(10, 10, 50, 50);
+
+function copy() {
+    var imgData = ctx.getImageData(10, 10, 50, 50);
+    ctx.putImageData(imgData, 10, 70);
+}
+    var testSprite;
+    
+    //////////////////////////////////////////////////////////////////////////
+function test(r,g,b,a,x,y){
+    //255 max:
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+    var id = ctx.createImageData(1,1); // only do this once per page
+    var d  = id.data;                        // only do this once per page
+    d[0]   = r;
+    d[1]   = g;
+    d[2]   = b;
+    d[3]   = a;
+    ctx.putImageData( id, x, y );    
+}
+
+
 function fullscreen() {
     var
           el = document.documentElement
@@ -302,6 +370,8 @@ function startGame(){
     keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, g:false, space:false, shift:false, LMB:false, RMB:false};
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
+
+    
     
     //zoom:
     zoom = 1;
@@ -325,6 +395,14 @@ function startGame(){
     stage_child.addChild(display_effects);
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
     stage_child.addChild(display_actors);
+    
+    //TODO: test:
+    for(var i = 0; i < 250; i++){
+    test(0,0,0,255,i,i);
+    }
+    var texture = PIXI.Texture.fromCanvas(document.getElementById("myCanvas"));
+    testSprite = new PIXI.Sprite(texture);
+    display_blood.addChild(testSprite);
     
     
     ///////////////////////
@@ -1339,6 +1417,13 @@ function gameloop(deltaTime){
     if(hero.gunDrawn)hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     hero.move_to_target();
     
+    //TODO: test:
+    
+    test(0,0,0,255,hero.x,hero.y);
+    var texture = PIXI.Texture.fromCanvas(document.getElementById("myCanvas"));
+    testSprite.setTexture(texture);
+    
+    
     //keep feet under hero:
     feet_clip.target.x = hero.x;
     feet_clip.target.y = hero.y;
@@ -1357,17 +1442,18 @@ function gameloop(deltaTime){
     
     //check collisions and prepare to draw walls:
     for(var i = 0; i < grid.cells.length; i++){
-        if(grid.cells[i].solid){
-            hero.collide(grid.cells[i].v2);
-            hero.collide(grid.cells[i].v4);
-            hero.collide(grid.cells[i].v6);
-            hero.collide(grid.cells[i].v8);
-            hero.collide_with_wall_sides(grid.cells[i]);
+        var cell = grid.cells[i];
+        if(cell.solid){
+            hero.collide(cell.v2);
+            hero.collide(cell.v4);
+            hero.collide(cell.v6);
+            hero.collide(cell.v8);
+            hero.collide_with_wall_sides(cell);
         }
         
         //draw:
-        //grid.cells[i].draw();//debug
-        grid.cells[i].prepare_for_draw();
+        //cell.draw();//debug
+        cell.prepare_for_draw();
     }
     if(hero.alive && !hero_drag_target){
         hero.target_rotate = mouse;

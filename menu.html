@@ -730,7 +730,7 @@
                 
                 //set each datatable row to link to the map
                 $("#datatablesdiv tr").click(function(){
-                    location.href = './game.html?volume=1.0&level=' + $(this).find(".sorting_1")[0].innerText;
+                    location.href = './game.html?volume=1.0&level=' + $(this).find(".sorting_1")[0].innerHTML;
                 });
             };
             oReq.open("get", "maps/get-data.php", true);
