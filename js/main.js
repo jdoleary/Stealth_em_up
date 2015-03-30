@@ -252,11 +252,14 @@ function removeAllChildren(obj){
     }
 }
 function clearStage(){
-    //for menu:
-    if(button){
-        button.interactive = false;
-        button.click = null;
-        button = null;
+    for(var i = 0; i < buttons.length; i++){
+        var button = buttons[i];
+        //for menu:
+        if(button){
+            button.interactive = false;
+            button.click = null;
+            button = null;
+        }
     }
     //clear all timeouts
     var id = window.setTimeout(function() {}, 0);
@@ -277,7 +280,6 @@ function clearStage(){
     removeAllChildren(stage);
     stage = new PIXI.Stage(0xEEEEEE, interactive);
 }
-var button;//menu button
 
 
 function startMenu(){

@@ -7,9 +7,6 @@ me at jdoleary@gmail.com
 function jo_cam(window_properties){
     this.x = 0;
     this.y = 0;
-    //used for correcting mouse when camera stays in bounds:
-    this.offset_x = 0;
-    this.offset_y = 0;
     this.following = false;
     this.objScreenCorner = function(){
         return {x: this.x-window_properties.width/2,y: this.y-window_properties.height/2};

@@ -3,6 +3,8 @@ Copyright 2014,2015, Jordan O'Leary, All rights reserved.
 If you would like to copy or use my code, you may contact
 me at jdoleary@gmail.com
 /*******************************************************/
+
+var buttons = [];
 function addButton(text,x,y, clickFunction){
     //clickFunction is the function that is called whent this button is clicked.
     //var textureButton = PIXI.Texture.fromImage(img);
@@ -14,7 +16,7 @@ function addButton(text,x,y, clickFunction){
     var textforbutton = new PIXI.Text(text, { font: "30px Arial", fill: "#000000", align:"left", stroke: "#FFFFFF", strokeThickness: 4 });
     textforbutton.anchor.x = 0.5;//centered
     
-    button = new PIXI.Sprite(textureButton);
+    var button = new PIXI.Sprite(textureButton);
     button.anchor.x = 0.5;
     button.anchor.y = 0.5;		
     button.x = x;
@@ -57,9 +59,12 @@ function addButton(text,x,y, clickFunction){
     }
     
     button.click = function(data){
+        //disable once clicked
+        this.interactive = false;
         clickFunction();
     }
     
+    buttons.push(button);
     stage.addChild(button);
 
 }
