@@ -16,6 +16,22 @@ var stage;
 var window_properties;
 var renderer;
 
+//TODO test:
+var wabbitTexture = new PIXI.Texture.fromImage("../images/bunnys.png")
+var	particle_container;	
+var bunny1;
+var bunny2;
+var bunny3;
+var bunny4;
+var bunny5;
+
+var	bunnyTextures = [];
+var	bunnyType = 2;
+var bunnys = []
+var	currentTexture;
+
+//
+
 var pause = false;
 //show tooltips:
 var show_sprite_tooltips = false;
@@ -328,11 +344,13 @@ function startGame(){
     display_blood = new PIXI.DisplayObjectContainer();
     display_effects = new PIXI.DisplayObjectContainer();
     display_tiles_walls = new PIXI.DisplayObjectContainer();
+    particle_container = new PIXI.SpriteBatch(wabbitTexture);
     display_actors = new PIXI.DisplayObjectContainer();
     stage_child.addChild(display_tiles);
     stage_child.addChild(display_blood);
     stage_child.addChild(display_effects);
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
+    stage_child.addChild(particle_container);
     stage_child.addChild(display_actors);
     
     
@@ -449,7 +467,18 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             //circular progress bar:
             circProgBar = new circularProgressBar(400,400,60,15);
             
-
+            //TODO BUNNYS
+             bunny1 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 47, 26, 37));
+             bunny2 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 86, 26, 37));
+             bunny3 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 125, 26, 37));
+             bunny4 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 164, 26, 37));
+             bunny5 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 2, 26, 37));
+             
+             
+            bunnyTextures = [bunny1, bunny2, bunny3, bunny4, bunny5];
+            bunnyType = 2;
+            currentTexture = bunnyTextures[bunnyType];
+            
 }
 function setup_map(map){
     console.log('map:');
@@ -1140,6 +1169,32 @@ function gameloop_zoom_and_camera(deltaTime){
     var grid_height = grid.height*grid.cell_size;
     var cam_adjust_x = camera.x;
     var cam_adjust_y = camera.y;
+    /*
+    if(camera.x < 0){
+        cam_adjust_x = 0;
+    }
+    if(camera.y < 0){
+        cam_adjust_y = 0;
+    }
+    
+    //if(camera.x >= grid_width-cam_width/2){
+    if(camera.x >= grid_width){
+        cam_adjust_x = grid_width;
+    }
+    if(camera.y >= grid_height){
+        cam_adjust_y = grid_height;
+    }
+    
+    //check both:
+    if(cam_width > grid_width){
+        //if both out of left and right limit, put camera in middle
+        cam_adjust_x = grid_width/2;
+    }
+    if(cam_height > grid_height){
+        //if both out of top and bottom limit, put camera in middle
+        cam_adjust_y = grid_height/2;
+    }*/
+    
     
     if(camera.x < 0+cam_width/2){
         cam_adjust_x = 0+cam_width/2;
@@ -1164,8 +1219,14 @@ function gameloop_zoom_and_camera(deltaTime){
         //if both out of top and bottom limit, put camera in middle
         cam_adjust_y = grid_height/2;
     }
+    
     camera.x = cam_adjust_x;
     camera.y = cam_adjust_y;
+    stage_child.x = -camera.x+cam_width/2;
+    stage_child.y = -camera.y+cam_height/2;
+    //For testing camera:
+    //guards[0].x = camera.x;
+    //guards[0].y = camera.y;
     
     
     if(camera.shaking){
@@ -1389,6 +1450,24 @@ function gameloop(deltaTime){
     hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
     if(hero.gunDrawn)hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     hero.move_to_target();
+    
+    //TODO BUNNIES:
+    
+		var bunny = new PIXI.Sprite(currentTexture);
+		
+		bunny.anchor.x = 0.5;
+		bunny.anchor.y = 0.5;
+        bunny.position.x = hero.x;
+        bunny.position.y = hero.y;
+        bunny.rotation = (hero.sprite.rotation);
+
+		bunnys.push(bunny);
+        particle_container.addChild(bunny);
+    //cycle bunny texture
+	bunnyType++
+	bunnyType %= 5;
+	currentTexture = bunnyTextures[bunnyType];
+    //
     
 
     

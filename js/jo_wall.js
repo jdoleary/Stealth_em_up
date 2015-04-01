@@ -122,9 +122,8 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     
     };
     this.prepare_for_draw = function(){
-        var draw_coords = camera.relativePoint(this);
-        this.image_sprite.position.x = draw_coords.x;
-        this.image_sprite.position.y = draw_coords.y;
+        this.image_sprite.position.x = this.x;
+        this.image_sprite.position.y = this.y;
     };
     
     

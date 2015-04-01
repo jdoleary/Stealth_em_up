@@ -54,14 +54,13 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
         display_actors.addChild(this.sprite_head);
         
         this.prepare_for_draw = function(){
-            var draw_coords = camera.relativePoint(this);
-            this.sprite.position.x = draw_coords.x;
-            this.sprite.position.y = draw_coords.y;
+            this.sprite.position.x = this.x;
+            this.sprite.position.y = this.y;
             this.sprite.rotation = this.rad;
             //head:
             
-            this.sprite_head.position.x = draw_coords.x;
-            this.sprite_head.position.y = draw_coords.y;
+            this.sprite_head.position.x = this.x;
+            this.sprite_head.position.y = this.y;
             this.sprite_head.rotation = this.rad;
         };
         

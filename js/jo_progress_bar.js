@@ -120,9 +120,8 @@ function circularProgressBar(posx,posy,size,lineWidth){
             this.x = this.follow.x;
             this.y = this.follow.y;
         }
-        var draw_coords = camera.relativePoint(this);
-        this.drawX = draw_coords.x;
-        this.drawY = draw_coords.y;
+        this.drawX = this.x;
+        this.drawY = this.y;
     };
 }
 

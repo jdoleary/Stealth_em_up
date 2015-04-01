@@ -30,9 +30,8 @@ function jo_gun_drop(pixiSprite, parent, xx, yy, gun){
     }
  
     this.prepare_for_draw = function(){
-        var draw_coords = camera.relativePoint(this);
-        this.sprite.position.x = draw_coords.x;
-        this.sprite.position.y = draw_coords.y;
+        this.sprite.position.x = this.x;
+        this.sprite.position.y = this.y;
         this.sprite.rotation = this.rad;
     };
 }

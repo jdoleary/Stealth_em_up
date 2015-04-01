@@ -13,6 +13,8 @@ function jo_cam(window_properties){
     
     };
     this.relativePoint = function(objectivePoint){
+        //TODO use stage_child instead of camera:
+        return objectivePoint;
         var screenCorner = this.objScreenCorner();
         //pass sprite properties to this method to get the relative point where they are drawn on the screen.
         return {x: objectivePoint.x - screenCorner.x, y: objectivePoint.y - screenCorner.y};
