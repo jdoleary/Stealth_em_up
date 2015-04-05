@@ -24,6 +24,7 @@ var bunny2;
 var bunny3;
 var bunny4;
 var bunny5;
+var bunny_speed = 10;
 
 var	bunnyTextures = [];
 var	bunnyType = 2;
@@ -330,7 +331,7 @@ function startGame(){
     
     //zoom:
     zoom = 1;
-    zoom_magnitude = 0.01;
+    zoom_magnitude = 0.02;
     
     //look sensitivity: This affects how far the camera stretches when the player moves the mouse around;
     //1.5: very far, all the way to the mouse
@@ -1159,12 +1160,26 @@ function gameloop_zoom_and_camera(deltaTime){
     //Camera
     //////////////////////
     
+ 
+    //////////////////////
+    //Zoom / Scale
+    //////////////////////
+    //this code allows the zoom / scale to change smoothly based on the mouse wheel input
+    
+   if(stage_child.scale.x < zoom - 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
+        stage_child.scale.x += zoom_magnitude;
+        stage_child.scale.y += zoom_magnitude;
+        changeFontSizes();
+    }else if(stage_child.scale.x > zoom + 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
+        stage_child.scale.x -= zoom_magnitude;
+        stage_child.scale.y -= zoom_magnitude;
+        changeFontSizes();
+    
+    }
+    
     //loose camera
-    //TODO add second half back in:
-    //camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
-    //camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
-    camera.x = hero.x;// + (mouse.x - hero.x)/look_sensitivity;
-    camera.y = hero.y;// + (mouse.y - hero.y)/look_sensitivity;
+    camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
+    camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
     //don't let camera show out of bounds:
     var cam_width = window_properties.width*(1/stage_child.scale.x);
     var cam_height = window_properties.height*(1/stage_child.scale.y);
@@ -1172,31 +1187,6 @@ function gameloop_zoom_and_camera(deltaTime){
     var grid_height = grid.height*grid.cell_size;
     var cam_adjust_x = camera.x;
     var cam_adjust_y = camera.y;
-    /*
-    if(camera.x < 0){
-        cam_adjust_x = 0;
-    }
-    if(camera.y < 0){
-        cam_adjust_y = 0;
-    }
-    
-    //if(camera.x >= grid_width-cam_width/2){
-    if(camera.x >= grid_width){
-        cam_adjust_x = grid_width;
-    }
-    if(camera.y >= grid_height){
-        cam_adjust_y = grid_height;
-    }
-    
-    //check both:
-    if(cam_width > grid_width){
-        //if both out of left and right limit, put camera in middle
-        cam_adjust_x = grid_width/2;
-    }
-    if(cam_height > grid_height){
-        //if both out of top and bottom limit, put camera in middle
-        cam_adjust_y = grid_height/2;
-    }*/
     
     
     if(camera.x < 0+cam_width/2){
@@ -1223,16 +1213,8 @@ function gameloop_zoom_and_camera(deltaTime){
         cam_adjust_y = grid_height/2;
     }
     
-    //TODO add cam_adjust back in:
-    //camera.x = cam_adjust_x;
-    //camera.y = cam_adjust_y;
-    stage_child.x = (-camera.x+cam_width/2)*stage_child.scale.x;
-    stage_child.y = (-camera.y+cam_height/2)*stage_child.scale.y;
-    //stage_child.x = -hero.x;
-    //stage_child.y = -hero.y;
-    //For testing camera:
-    //guards[0].x = camera.x;
-    //guards[0].y = camera.y;
+    camera.x = cam_adjust_x;
+    camera.y = cam_adjust_y;
     
     
     if(camera.shaking){
@@ -1268,25 +1250,9 @@ function gameloop_zoom_and_camera(deltaTime){
             camera.following = false;//when camera reaches it's target, turn off following so it can just stick.
         }
     }*/
- 
-    //////////////////////
-    //Zoom / Scale
-    //////////////////////
-    //this code allows the zoom / scale to change smoothly based on the mouse wheel input
-    /*if(stage_child.scale.x < zoom - 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
-        stage_child.scale.x += zoom_magnitude;
-        stage_child.scale.y += zoom_magnitude;
-        stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
-        stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
-        changeFontSizes();
-    }else if(stage_child.scale.x > zoom + 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
-        stage_child.scale.x -= zoom_magnitude;
-        stage_child.scale.y -= zoom_magnitude;
-        stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
-        stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
-        changeFontSizes();
-    
-    }*/
+    //set the stage_child to the correct position, the stage_child now acts as the camera.
+    stage_child.x = (-camera.x+cam_width/2)*stage_child.scale.x;
+    stage_child.y = (-camera.y+cam_height/2)*stage_child.scale.y;
 }
 function scaleStageChild(a){
     stage_child.scale.x = a;
@@ -1466,13 +1432,32 @@ function gameloop(deltaTime){
     hero.move_to_target();
     
     //TODO BUNNIES:
-    
-		var bunny = new PIXI.Sprite(currentTexture);
+    //update bunny pos:
+    var bunny;
+    for(var i = 0; i < bunnys.length; i++){
+        bunny = bunnys[i];
+        bunny.position.x -= bunny.dx;
+        bunny.position.y += bunny.dy;
+        bunny.dx *= 0.88;
+        bunny.dy *= 0.88;
+        bunny.tick++;
+        if(bunny.tick > 20){
+            bunnys.splice(i,1);
+            i--;
+        }
+    }
+    //make new bunnies
+		bunny = new PIXI.Sprite(currentTexture);
 		
+        
 		bunny.anchor.x = 0.5;
 		bunny.anchor.y = 0.5;
         bunny.position.x = hero.x;
         bunny.position.y = hero.y;
+        var randSpeed = randomIntFromInterval(bunny_speed*0.6,bunny_speed*1.4);
+        bunny.dx = randSpeed*Math.sin(hero.sprite.rotation);
+        bunny.dy = randSpeed*Math.cos(hero.sprite.rotation);
+        bunny.tick = 0;//the amount of times that it has moved;
         bunny.rotation = (hero.sprite.rotation);
 
 		bunnys.push(bunny);
