@@ -1160,8 +1160,11 @@ function gameloop_zoom_and_camera(deltaTime){
     //////////////////////
     
     //loose camera
-    camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
-    camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
+    //TODO add second half back in:
+    //camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
+    //camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
+    camera.x = hero.x;// + (mouse.x - hero.x)/look_sensitivity;
+    camera.y = hero.y;// + (mouse.y - hero.y)/look_sensitivity;
     //don't let camera show out of bounds:
     var cam_width = window_properties.width*(1/stage_child.scale.x);
     var cam_height = window_properties.height*(1/stage_child.scale.y);
@@ -1220,10 +1223,13 @@ function gameloop_zoom_and_camera(deltaTime){
         cam_adjust_y = grid_height/2;
     }
     
-    camera.x = cam_adjust_x;
-    camera.y = cam_adjust_y;
-    stage_child.x = -camera.x+cam_width/2;
-    stage_child.y = -camera.y+cam_height/2;
+    //TODO add cam_adjust back in:
+    //camera.x = cam_adjust_x;
+    //camera.y = cam_adjust_y;
+    stage_child.x = (-camera.x+cam_width/2)*stage_child.scale.x;
+    stage_child.y = (-camera.y+cam_height/2)*stage_child.scale.y;
+    //stage_child.x = -hero.x;
+    //stage_child.y = -hero.y;
     //For testing camera:
     //guards[0].x = camera.x;
     //guards[0].y = camera.y;
@@ -1267,7 +1273,7 @@ function gameloop_zoom_and_camera(deltaTime){
     //Zoom / Scale
     //////////////////////
     //this code allows the zoom / scale to change smoothly based on the mouse wheel input
-    if(stage_child.scale.x < zoom - 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
+    /*if(stage_child.scale.x < zoom - 0.05){//the 0.05 is close enough to desired value to stop so the zoom doesn't bounce back and forth.
         stage_child.scale.x += zoom_magnitude;
         stage_child.scale.y += zoom_magnitude;
         stage_child.position.x = window_properties.width*(1-stage_child.scale.x)/2;
@@ -1280,7 +1286,15 @@ function gameloop_zoom_and_camera(deltaTime){
         stage_child.position.y = window_properties.height*(1-stage_child.scale.y)/2;
         changeFontSizes();
     
-    }
+    }*/
+}
+function scaleStageChild(a){
+    stage_child.scale.x = a;
+    stage_child.scale.y = a;
+    console.log(stage_child.x + "," + stage_child.y);
+    var cam_width = window_properties.width*(1/stage_child.scale.x);
+    var cam_height = window_properties.height*(1/stage_child.scale.y);
+    console.log(cam_width + "," + cam_height);
 }
 function changeFontSizes(){
     tooltip.style.font = 30/stage_child.scale.x + "px Arial";      
