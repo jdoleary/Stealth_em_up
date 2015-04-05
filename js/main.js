@@ -1178,8 +1178,8 @@ function gameloop_zoom_and_camera(deltaTime){
     }
     
     //loose camera
-    camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
-    camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
+    camera.x = hero.x;// + (mouse.x - hero.x)/look_sensitivity;
+    camera.y = hero.y;// + (mouse.y - hero.y)/look_sensitivity;
     //don't let camera show out of bounds:
     var cam_width = window_properties.width*(1/stage_child.scale.x);
     var cam_height = window_properties.height*(1/stage_child.scale.y);
@@ -1251,9 +1251,36 @@ function gameloop_zoom_and_camera(deltaTime){
         }
     }*/
     //set the stage_child to the correct position, the stage_child now acts as the camera.
-    stage_child.x = (-camera.x+cam_width/2)*stage_child.scale.x;
-    stage_child.y = (-camera.y+cam_height/2)*stage_child.scale.y;
+    //camwithoutkick.x = (-camera.x+cam_width/2)*stage_child.scale.x;
+    //camwithoutkick.y = (-camera.y+cam_height/2)*stage_child.scale.y;
+    if(testbunny != null){
+        var movement = moveToTarget(testbunny.position.x,testbunny.position.y,camera.x,camera.y,kickback_speed);
+        if(movement.x == camera.x && movement.y == camera.y){
+            console.log('NUUUUUUUUUUUUUl');
+            testbunny = null;
+        }else{
+            testbunny.position.x = movement.x;
+            testbunny.position.y = movement.y;
+            console.log(movement);
+            stage_child.x = (-testbunny.position.x+cam_width/2)*stage_child.scale.x;
+            stage_child.y = (-testbunny.position.y+cam_height/2)*stage_child.scale.y;
+        }
+    }else{
+        stage_child.x = (-camera.x+cam_width/2)*stage_child.scale.x;
+        stage_child.y = (-camera.y+cam_height/2)*stage_child.scale.y;
+        
+    }
+    
+    /*if(stage_child.kickx != null){
+        var movement = moveToTarget(stage_child.kickx,stage_child.kicky,stage_child.x-stage_child.kickx,stage_child.y-stage_child.kicky,1);
+        //stage_child.x += stage_child.kickx;
+        //stage_child.kickx -= 0.1;
+        //console.log(stage_child.kickx);
+    }*/
+    
 }
+//TODO move:
+var camwithoutkick;
 function scaleStageChild(a){
     stage_child.scale.x = a;
     stage_child.scale.y = a;
@@ -1377,7 +1404,8 @@ function gameloop(deltaTime){
         
             hero.gun.ammo--;
             doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
-            
+            //kickback camera
+            kickback();
             //toggles on the visiblity of .draw_gun_shot's line
             hero.shoot();
             if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
@@ -1447,7 +1475,7 @@ function gameloop(deltaTime){
         }
     }
     //make new bunnies
-		bunny = new PIXI.Sprite(currentTexture);
+		/*bunny = new PIXI.Sprite(currentTexture);
 		
         
 		bunny.anchor.x = 0.5;
@@ -1461,7 +1489,7 @@ function gameloop(deltaTime){
         bunny.rotation = (hero.sprite.rotation);
 
 		bunnys.push(bunny);
-        particle_container.addChild(bunny);
+        particle_container.addChild(bunny);*/
     //cycle bunny texture
 	bunnyType++
 	bunnyType %= 5;
@@ -1887,6 +1915,8 @@ function addKeyHandlers(){
                         hero.gun.ammo--;
                         //newFloatingMessage("Ammo: " + hero.gun.ammo + "/6",{x:hero.x,y:hero.y},"#FFaa00");
                         doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
+                        //kickback camera
+                        kickback();
                         
                         //toggles on the visiblity of .draw_gun_shot's line
                         hero.shoot();
@@ -2307,6 +2337,33 @@ window.onresize = function (event){
     //this part adjusts the ratio:
     renderer.resize(w,h);
 
+
+}
+var testbunny;
+var kickback_speed = 5;
+var kickback_amount = 30;
+function kickback(){
+    var d = get_distance(hero.x,hero.y,mouse.x,mouse.y);
+    var c = kickback_amount;
+    var xx = -(c/d)*(mouse.x-hero.x);
+    var yy = -(c/d)*(mouse.y - hero.y);
+    stage_child.kickx = xx;
+    stage_child.kicky = yy;
+        console.log(stage_child.kickx);
+        console.log(stage_child.kicky);
+    
+    
+    //for testing
+		var bunny = new PIXI.Sprite(currentTexture);
+		
+        
+		bunny.anchor.x = 0.5;
+		bunny.anchor.y = 0.5;
+        bunny.position.x = xx+camera.x;
+        bunny.position.y = yy+camera.y;
+        particle_container.addChild(bunny);
+        testbunny = bunny;
+        return {x:xx,y:yy};
 
 }
 /*Get map from server:*/

@@ -76,7 +76,6 @@ function jo_sprite(pixiSprite, parent){
         this.gun_shot_line.draw_Ray(ray);
     }
 
-    this.stop_distance = 1.5; //Distance to stop from target.
     this.move_to_target = function(){
         //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
         //the movement of this.x and this.y (a,b) are found with the formulas: A/C = a/c and B/C = b/c
@@ -86,8 +85,8 @@ function jo_sprite(pixiSprite, parent){
         var A = this.target.x-this.x;
         var B = this.target.y-this.y;
         var C = Math.sqrt(A*A+B*B);
-        if(C<this.stop_distance){        
-            return true; // the object is close enough that it need not move
+        if(c>C){        
+            return true; //The distance that it would travel, is greater than the distance to the target, snap to target.
         }
         a = c*A/C;
         b = c*B/C;
@@ -173,8 +172,8 @@ function jo_sprite(pixiSprite, parent){
         var A = x-this.x;
         var B = y-this.y;
         var C = Math.sqrt(A*A+B*B);
-        if(C<this.stop_distance){        
-            return true; // the object is close enough that it need not move
+        if(c>C){        
+            return true; //The distance that it would travel, is greater than the distance to the target, snap to target.
         }
         a = c*A/C;
         b = c*B/C;
@@ -198,8 +197,8 @@ function jo_sprite(pixiSprite, parent){
         var A = this.target.x-this.x;
         var B = this.target.y-this.y;
         var C = Math.sqrt(A*A+B*B);
-        if(C<this.stop_distance){        
-            return true; // the object is close enough that it need not move
+        if(c>C){        
+            return true; //The distance that it would travel, is greater than the distance to the target, snap to target.
         }
         a = c*A/C;
         b = c*B/C;

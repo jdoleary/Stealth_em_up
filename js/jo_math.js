@@ -7,7 +7,7 @@ function moveToTarget(x,y,targx,targy,speed){
     var A = targx-x;
     var B = targy-y;
     var C = Math.sqrt(A*A+B*B);
-    if(C<1.5) return {x: x,y: y} // the object is close enough that it need not move
+    if(c>C) return {x: targx,y: targy} // the object is close enough, snap to target
     a = c*A/C;
     b = c*B/C;
     var movement = {x: x+a,y: y+b, ang: Math.atan2(b,a)};

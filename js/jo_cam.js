@@ -40,7 +40,6 @@ function jo_cam(window_properties){
     }
     
     this.speed = 20;
-    this.stop_distance = 10; //Distance to stop from target.
     this.target = {x: null, y:null};//the target that this camera moves twords
     this.move_to_target = function(){
         //this function uses similar triangles with sides a,b,c and A,B,C where c and C are the hypotenuse
@@ -51,10 +50,10 @@ function jo_cam(window_properties){
         var A = this.target.x-this.x;
         var B = this.target.y-this.y;
         var C = Math.sqrt(A*A+B*B);
-        if(C<this.stop_distance){     
+        if(c>C){        
             this.x = this.target.x;   
             this.y = this.target.y;
-            return true; // the target is closer than the distance of a single step, so snap to target.
+            return true; //The distance that it would travel, is greater than the distance to the target, snap to target.
         }
         a = c*A/C;
         b = c*B/C;
