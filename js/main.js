@@ -1251,36 +1251,31 @@ function gameloop_zoom_and_camera(deltaTime){
         }
     }*/
     //set the stage_child to the correct position, the stage_child now acts as the camera.
-    //camwithoutkick.x = (-camera.x+cam_width/2)*stage_child.scale.x;
-    //camwithoutkick.y = (-camera.y+cam_height/2)*stage_child.scale.y;
-    if(testbunny != null){
-        var movement = moveToTarget(testbunny.position.x,testbunny.position.y,camera.x,camera.y,kickback_speed);
+    //stage_child.x = (-camera.x+cam_width/2)*stage_child.scale.x;
+    //stage_child.y = (-camera.y+cam_height/2)*stage_child.scale.y;
+    //camera with kickback:
+    if(stage_child.kickx != null && stage_child.kicky != null){
+        var movement = moveToTarget(stage_child.kickx,stage_child.kicky,camera.x,camera.y,kickback_speed);
+        //set kickback to null if it reaches its target:
         if(movement.x == camera.x && movement.y == camera.y){
-            console.log('NUUUUUUUUUUUUUl');
-            testbunny = null;
+            stage_child.kickx = null;
+            stage_child.kicky = null;
         }else{
-            testbunny.position.x = movement.x;
-            testbunny.position.y = movement.y;
-            console.log(movement);
-            stage_child.x = (-testbunny.position.x+cam_width/2)*stage_child.scale.x;
-            stage_child.y = (-testbunny.position.y+cam_height/2)*stage_child.scale.y;
+            //move kickback to where it should be:
+            stage_child.kickx = movement.x;
+            stage_child.kicky = movement.y;
+            stage_child.x = (-stage_child.kickx+cam_width/2)*stage_child.scale.x;
+            stage_child.y = (-stage_child.kicky+cam_height/2)*stage_child.scale.y;
         }
     }else{
+        //camera without kickback
         stage_child.x = (-camera.x+cam_width/2)*stage_child.scale.x;
         stage_child.y = (-camera.y+cam_height/2)*stage_child.scale.y;
         
     }
     
-    /*if(stage_child.kickx != null){
-        var movement = moveToTarget(stage_child.kickx,stage_child.kicky,stage_child.x-stage_child.kickx,stage_child.y-stage_child.kicky,1);
-        //stage_child.x += stage_child.kickx;
-        //stage_child.kickx -= 0.1;
-        //console.log(stage_child.kickx);
-    }*/
     
 }
-//TODO move:
-var camwithoutkick;
 function scaleStageChild(a){
     stage_child.scale.x = a;
     stage_child.scale.y = a;
@@ -1474,27 +1469,6 @@ function gameloop(deltaTime){
             i--;
         }
     }
-    //make new bunnies
-		/*bunny = new PIXI.Sprite(currentTexture);
-		
-        
-		bunny.anchor.x = 0.5;
-		bunny.anchor.y = 0.5;
-        bunny.position.x = hero.x;
-        bunny.position.y = hero.y;
-        var randSpeed = randomIntFromInterval(bunny_speed*0.6,bunny_speed*1.4);
-        bunny.dx = randSpeed*Math.sin(hero.sprite.rotation);
-        bunny.dy = randSpeed*Math.cos(hero.sprite.rotation);
-        bunny.tick = 0;//the amount of times that it has moved;
-        bunny.rotation = (hero.sprite.rotation);
-
-		bunnys.push(bunny);
-        particle_container.addChild(bunny);*/
-    //cycle bunny texture
-	bunnyType++
-	bunnyType %= 5;
-	currentTexture = bunnyTextures[bunnyType];
-    //
     
 
     
@@ -2339,7 +2313,30 @@ window.onresize = function (event){
 
 
 }
-var testbunny;
+function ejectShell(){
+    
+    //make new bunnies
+    bunny = new PIXI.Sprite(currentTexture);
+    
+    
+    bunny.anchor.x = 0.5;
+    bunny.anchor.y = 0.5;
+    bunny.position.x = hero.x;
+    bunny.position.y = hero.y;
+    var randSpeed = randomIntFromInterval(bunny_speed*0.6,bunny_speed*1.4);
+    bunny.dx = randSpeed*Math.sin(hero.sprite.rotation);
+    bunny.dy = randSpeed*Math.cos(hero.sprite.rotation);
+    bunny.tick = 0;//the amount of times that it has moved;
+    bunny.rotation = (hero.sprite.rotation);
+
+    bunnys.push(bunny);
+    particle_container.addChild(bunny);
+    //cycle bunny texture
+	bunnyType++
+	bunnyType %= 5;
+	currentTexture = bunnyTextures[bunnyType];
+    //
+}
 var kickback_speed = 5;
 var kickback_amount = 30;
 function kickback(){
@@ -2347,23 +2344,10 @@ function kickback(){
     var c = kickback_amount;
     var xx = -(c/d)*(mouse.x-hero.x);
     var yy = -(c/d)*(mouse.y - hero.y);
-    stage_child.kickx = xx;
-    stage_child.kicky = yy;
-        console.log(stage_child.kickx);
-        console.log(stage_child.kicky);
-    
-    
-    //for testing
-		var bunny = new PIXI.Sprite(currentTexture);
-		
-        
-		bunny.anchor.x = 0.5;
-		bunny.anchor.y = 0.5;
-        bunny.position.x = xx+camera.x;
-        bunny.position.y = yy+camera.y;
-        particle_container.addChild(bunny);
-        testbunny = bunny;
-        return {x:xx,y:yy};
+    //set stage_child kickx so that the camera will kick back
+    stage_child.kickx = xx+camera.x;
+    stage_child.kicky = yy+camera.y;
+    ejectShell();
 
 }
 /*Get map from server:*/
