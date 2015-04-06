@@ -476,9 +476,10 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
              bunny5 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 2, 26, 37));
              
              
-            bunnyTextures = [bunny1, bunny2, bunny3, bunny4, bunny5];
+            bunnyTextures = [bunny1, bunny2, bunny3, bunny4, bunny5,img_shell];
             bunnyType = 2;
             currentTexture = bunnyTextures[bunnyType];
+            currentTexture = img_shell;
             
 }
 function setup_map(map){
@@ -691,6 +692,7 @@ function gameloop_guards(deltaTime){
                             doGunShotEffects(guard, false);//plays sound
                             
                             guard.shoot();//toggles on the visiblity of .draw_gun_shot's line
+                            ejectShell(guard);
                             
                             //increase guard's accuracy every time they shoot, for gameplay reasons
                             if(guard.accuracy > 10)guard.accuracy -= 10;
@@ -1401,6 +1403,7 @@ function gameloop(deltaTime){
             doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
             //kickback camera
             kickback();
+            ejectShell(hero);
             //toggles on the visiblity of .draw_gun_shot's line
             hero.shoot();
             if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
@@ -1463,6 +1466,7 @@ function gameloop(deltaTime){
         bunny.position.y += bunny.dy;
         bunny.dx *= 0.88;
         bunny.dy *= 0.88;
+        bunny.rotation += bunny.dr;
         bunny.tick++;
         if(bunny.tick > 20){
             bunnys.splice(i,1);
@@ -1891,6 +1895,7 @@ function addKeyHandlers(){
                         doGunShotEffects(hero, hero.gun.silenced);//plays sound and shows affects
                         //kickback camera
                         kickback();
+                        ejectShell(hero);
                         
                         //toggles on the visiblity of .draw_gun_shot's line
                         hero.shoot();
@@ -2313,7 +2318,7 @@ window.onresize = function (event){
 
 
 }
-function ejectShell(){
+function ejectShell(source){
     
     //make new bunnies
     bunny = new PIXI.Sprite(currentTexture);
@@ -2321,33 +2326,37 @@ function ejectShell(){
     
     bunny.anchor.x = 0.5;
     bunny.anchor.y = 0.5;
-    bunny.position.x = hero.x;
-    bunny.position.y = hero.y;
+    bunny.position.x = source.x;
+    bunny.position.y = source.y;
+    bunny.scale.x = 0.5;
+    bunny.scale.y = 0.5;
     var randSpeed = randomIntFromInterval(bunny_speed*0.6,bunny_speed*1.4);
-    bunny.dx = randSpeed*Math.sin(hero.sprite.rotation);
-    bunny.dy = randSpeed*Math.cos(hero.sprite.rotation);
+    var randRotationOffset = randomFloatFromInterval(-Math.PI/6,Math.PI/6);
+    bunny.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
+    bunny.dx = randSpeed*Math.sin(source.sprite.rotation+randRotationOffset);
+    bunny.dy = randSpeed*Math.cos(source.sprite.rotation+randRotationOffset);
     bunny.tick = 0;//the amount of times that it has moved;
-    bunny.rotation = (hero.sprite.rotation);
+    bunny.rotation = (source.sprite.rotation);
 
     bunnys.push(bunny);
     particle_container.addChild(bunny);
     //cycle bunny texture
-	bunnyType++
+	/*bunnyType++
 	bunnyType %= 5;
-	currentTexture = bunnyTextures[bunnyType];
+	currentTexture = bunnyTextures[bunnyType];*/
     //
 }
 var kickback_speed = 5;
 var kickback_amount = 30;
 function kickback(){
     var d = get_distance(hero.x,hero.y,mouse.x,mouse.y);
-    var c = kickback_amount;
+    var kickback_mod = randomFloatFromInterval(0,20);
+    var c = kickback_amount+kickback_mod;
     var xx = -(c/d)*(mouse.x-hero.x);
     var yy = -(c/d)*(mouse.y - hero.y);
     //set stage_child kickx so that the camera will kick back
     stage_child.kickx = xx+camera.x;
     stage_child.kicky = yy+camera.y;
-    ejectShell();
 
 }
 /*Get map from server:*/
