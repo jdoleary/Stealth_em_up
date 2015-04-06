@@ -28,7 +28,7 @@ var bunny_speed = 10;
 
 var	bunnyTextures = [];
 var	bunnyType = 2;
-var bunnys = []
+var bunnys;
 var	currentTexture;
 
 //
@@ -104,7 +104,7 @@ var clickEvent;
 
 var stage_child;
 
-var gun_drops = [];
+var gun_drops;
 
 //zoom:
 var zoom;
@@ -200,7 +200,6 @@ var tooltip;
 var tooltipshown;
 
 //MOVIE CLIPS:
-var spark_clip;
 var feet_clip;
 var alert_clip;
 
@@ -326,6 +325,9 @@ function startGame(){
     keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, g:false, space:false, shift:false, LMB:false, RMB:false};
     stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
     stage.addChild(stage_child);
+    
+    gun_drops = [];
+    bunnys = [];
 
     
     
@@ -444,11 +446,6 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             tooltip.objX = 0;
             tooltip.objY = 0;
             stage_child.addChild(tooltip);
-
-            //MOVIE CLIPS:
-            spark_clip = new jo_sprite(jo_movie_clip("movie_clips/","spark_",10,".png"),display_effects);
-            spark_clip.sprite.loop = false;
-            spark_clip.sprite.animationSpeed = 0.7;//slow it down
             
             alert_clip = new jo_sprite(jo_movie_clip("movie_clips/","alert_",12,".png"),display_actors);
             alert_clip.sprite.loop = false;
@@ -814,7 +811,7 @@ function gameloop_civs(deltaTime){
                 //check if civs sees hero:
                 if(civs[i].doesSpriteSeeSprite(hero)){
                     if(hero.wilLCauseAlert()){
-                        newMessage('A civs has seen you wearing a mask!');
+                        newMessage('A civs has seen you suspicious!');
                         //alarm if hero is seen masked
                         civs[i].becomeAlarmed(hero);
                     }
@@ -872,7 +869,7 @@ function gameloop_security_cams(deltaTime){
                 if(security_cameras[i].doesSpriteSeeSprite(hero)){
                     //alarm if hero is seen masked
                     if(hero.willCauseAlert()){
-                        newMessage('A security camera has seen you wearing a mask!');
+                        newMessage('A security camera has seen you being suspicious!');
                         security_cameras[i].becomeAlarmed(hero);
                         
                         //THIS DOESN"T WORK YET:
@@ -936,11 +933,8 @@ function gameloop_bullets(deltaTime){
         if(bullets[b].move_to_target()){
             //if true, bullet hits wall
             
+            //TODO old, replace with particles:
             //play gun spark against wall where gun shot hits:
-            spark_clip.x = bullets[b].target.x;
-            spark_clip.y = bullets[b].target.y;
-            spark_clip.rotate_to_instant(bullets[b].ignore.x,bullets[b].ignore.y);
-            spark_clip.sprite.gotoAndPlay(0);
             
             //destroy bullet
             display_actors.removeChild(bullets[b].sprite);
@@ -1433,7 +1427,6 @@ function gameloop(deltaTime){
     for(var i = 0; i < static_effect_sprites.length; i++){
         static_effect_sprites[i].prepare_for_draw();
     }
-    spark_clip.prepare_for_draw();
     feet_clip.prepare_for_draw();
     alert_clip.prepare_for_draw();
     

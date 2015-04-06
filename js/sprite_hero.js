@@ -40,6 +40,7 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
         this.ability_choke_speed = upgrades["Choke_speed"];
         this.ability_timed_bomb = upgrades["Timed_bomb"];
         this.ability_remote_bomb = upgrades["Remote_bomb"];
+        this.ability_body_armor = upgrades["Body_armor"];
         
         this.willCauseAlert = function(){
             if(this.masked || this.gunOut || this.inOffLimits || this.lockpicking || this.carry !== null || hero_drag_target !== null)return true;
@@ -117,6 +118,13 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
         }
         
         this.hurt = function(fromX,fromY){
+            if(this.ability_body_armor){
+                var chance = randomFloatFromInterval(0,1);
+                if(chance >=.5){
+                    newFloatingMessage("Close Call!",{x:hero.x,y:hero.y},"#FFaa00");
+                    return;
+                }
+            }
             this.health--;
             if(this.health <= 0)this.kill();
             //make blood splatter:

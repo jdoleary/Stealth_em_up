@@ -71,4 +71,5 @@ var gun_pistol = new jo_gun("Handgun",8,false,false,1,0);
 var gun_pistol_silenced = new jo_gun("Silenced Handgun",8,true,false,1,0);
 var gun_machine = new jo_gun("Machine Gun", 600,false,true,1,3);
 var all_gun_prefabs = [gun_shotgun,gun_shotgun_sawed_off,gun_pistol,gun_pistol_silenced,gun_machine];
+var all_gun_prefabs_without_sawed = [gun_shotgun,gun_pistol,gun_pistol_silenced,gun_machine];
 

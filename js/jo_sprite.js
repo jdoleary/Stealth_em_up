@@ -16,7 +16,7 @@ function jo_sprite(pixiSprite, parent){
     //moved to sprite_hero.js:://this.carry = null;//object hero is carrying (loot)
     this.health = 1;
     
-    var rand_gun = all_gun_prefabs[Math.floor(Math.random() * all_gun_prefabs.length)];
+    var rand_gun = all_gun_prefabs_without_sawed[Math.floor(Math.random() * all_gun_prefabs_without_sawed.length)];
     this.gun = rand_gun.make_copy();//give random gun
     
     this.reloading = false;

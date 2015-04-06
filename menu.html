@@ -572,6 +572,7 @@
             hero_stats += "Drag Body Speed: " + jo_store_get('Drag_body_speed') + "<br>";
             hero_stats += "Timed Bomb: " + jo_store_get('Timed_bomb') + "<br>";
             hero_stats += "Remote Bomb: " + jo_store_get('Remote_bomb') + "<br>";
+            hero_stats += "Body_armor: " + jo_store_get('Body_armor') + "<br>";
             hero_stats += "Plastic Surgery: " + jo_store_get('Plastic_surgery') + "<br>";
             $('#hero_stats').html(hero_stats);
             
@@ -623,6 +624,9 @@
                 case "Remote Bomb":
                     jo_store("Remote_bomb",true);
                     break;
+                case "Body_armor":
+                    jo_store("Body_armor",true);
+                    break;
                 case "Plastic Surgery":
                     jo_store_inc("Plastic_surgery");
                     break;    
@@ -671,6 +675,7 @@
             jo_store("Drag_body_speed",4);
             jo_store("Timed_bomb",false);
             jo_store("Remote_bomb",false);
+            jo_store("Body_armor",false);
             jo_store("Plastic_surgery",0);
         }
         var upgrades = {
@@ -687,6 +692,7 @@
             "Increase Drag Body Speed":{"cost": 2, "description":"Drag bodies all around! (with great speed)", "image": "W_Fist001"},
             "Timed Bomb":{"cost": 5, "description":"Plant a bomb on a timer.", "image": "S_Fire02"},
             "Remote Bomb":{"cost": 7, "description":"Plant a remotely detonated bomb.", "image": "S_Fire06"},
+            "Body_armor":{"cost": 2, "description":"50% chance to survive a fatal wound.", "image": "A_Armour01"},
             "<strike>Plastic Surgery</strike>":{"cost": 10, "description":"Everyone forgets what you look like.", "image": "I_Mirror"}
         };
         //if no games have been played, reset the stats:
@@ -714,6 +720,7 @@
         if(jo_store_get('Drag_body_speed')>4)delete upgrades["Increase Drag Body Speed"];
         if(jo_store_get('Timed_bomb')=='true')delete upgrades["Timed Bomb"];
         if(jo_store_get('Remote_bomb')=='true')delete upgrades["Remote Bomb"];
+        if(jo_store_get('Body_armor')=='true')delete upgrades["Remote Bomb"];
         if(jo_store_get('Plastic_surgery')>0)delete upgrades["Plastic Surgery"];
         
         

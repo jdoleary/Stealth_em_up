@@ -14,6 +14,7 @@ var upgrades = {
     "Drag_body_speed":jo_store_get("Drag_body_speed"),//implemented
     "Timed_bomb":jo_store_get("Timed_bomb"),
     "Remote_bomb":jo_store_get("Remote_bomb"),
+    "Body_armor":jo_store_get("Body_armor"),
     "Plastic_surgery":jo_store_get("Plastic_surgery")
 }
 //convert sting to bool if bool string
