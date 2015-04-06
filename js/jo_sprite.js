@@ -85,8 +85,8 @@ function jo_sprite(pixiSprite, parent){
         var A = this.target.x-this.x;
         var B = this.target.y-this.y;
         var C = Math.sqrt(A*A+B*B);
-        if(c>C){        
-            return true; //The distance that it would travel, is greater than the distance to the target, snap to target.
+        if(C<this.stop_distance){        
+            return true; // the object is close enough that it need not move
         }
         a = c*A/C;
         b = c*B/C;
@@ -185,7 +185,7 @@ function jo_sprite(pixiSprite, parent){
         if(this.rad > Math.PI)this.rad -= Math.PI*2; //keep it between -PI and PI
         
     };
-    
+    this.stop_distance = 1.5;
     this.get_dragged = function(){
         //get_dragged is the same as move_to_target except with extra rotation code
     
@@ -197,8 +197,8 @@ function jo_sprite(pixiSprite, parent){
         var A = this.target.x-this.x;
         var B = this.target.y-this.y;
         var C = Math.sqrt(A*A+B*B);
-        if(c>C){        
-            return true; //The distance that it would travel, is greater than the distance to the target, snap to target.
+        if(C<this.stop_distance){        
+            return true; // the object is close enough that it need not move
         }
         a = c*A/C;
         b = c*B/C;

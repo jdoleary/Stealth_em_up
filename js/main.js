@@ -1180,8 +1180,8 @@ function gameloop_zoom_and_camera(deltaTime){
     }
     
     //loose camera
-    camera.x = hero.x;// + (mouse.x - hero.x)/look_sensitivity;
-    camera.y = hero.y;// + (mouse.y - hero.y)/look_sensitivity;
+    camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
+    camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
     //don't let camera show out of bounds:
     var cam_width = window_properties.width*(1/stage_child.scale.x);
     var cam_height = window_properties.height*(1/stage_child.scale.y);
@@ -1464,15 +1464,13 @@ function gameloop(deltaTime){
         bunny = bunnys[i];
         bunny.position.y += bunny.dy;
         //check the y to see if it has gone into a wall
-        if(grid.isWallSightBlocking_coords(bunny.position.x,bunny.position.y)){
-            console.log('y');
+        if(grid.isWallSolid_coords(bunny.position.x,bunny.position.y)){
             bunny.position.y -= bunny.dy*2;
             bunny.dy *= -1;
         }
         bunny.position.x -= bunny.dx;
         //check the x to see if it has gone into a wall
-        if(grid.isWallSightBlocking_coords(bunny.position.x,bunny.position.y)){
-            console.log('x');
+        if(grid.isWallSolid_coords(bunny.position.x,bunny.position.y)){
             bunny.position.x += bunny.dx*2;
             bunny.dx *= -1;
         }

@@ -12147,6 +12147,10 @@ PIXI.Graphics.prototype.arc = function(cx, cy, radius, startAngle, endAngle, ant
     var startX = cx + Math.cos(startAngle) * radius;
     var startY = cy + Math.sin(startAngle) * radius;
     var points;
+    
+    //Jordan O'Leary:
+    //added code:
+    this.moveTo(startX,startY);
 
     if( this.currentPath )
     {
