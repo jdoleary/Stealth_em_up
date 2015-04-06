@@ -1462,10 +1462,22 @@ function gameloop(deltaTime){
     var bunny;
     for(var i = 0; i < bunnys.length; i++){
         bunny = bunnys[i];
-        bunny.position.x -= bunny.dx;
         bunny.position.y += bunny.dy;
-        bunny.dx *= 0.88;
-        bunny.dy *= 0.88;
+        //check the y to see if it has gone into a wall
+        if(grid.isWallSightBlocking_coords(bunny.position.x,bunny.position.y)){
+            console.log('y');
+            bunny.position.y -= bunny.dy*2;
+            bunny.dy *= -1;
+        }
+        bunny.position.x -= bunny.dx;
+        //check the x to see if it has gone into a wall
+        if(grid.isWallSightBlocking_coords(bunny.position.x,bunny.position.y)){
+            console.log('x');
+            bunny.position.x += bunny.dx*2;
+            bunny.dx *= -1;
+        }
+        bunny.dx *= 0.9;
+        bunny.dy *= 0.9;
         bunny.rotation += bunny.dr;
         bunny.tick++;
         if(bunny.tick > 20){
