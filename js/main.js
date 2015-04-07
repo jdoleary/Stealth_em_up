@@ -2347,12 +2347,15 @@ window.onresize = function (event){
 
 }
 var shard_limit = 20;
+var shardType = 0;
+var shardImages = [img_shard_1,img_shard_2,img_shard_3];
+var currentShard = shardImages[shardType];
 function shardParticleSplatter(angle,target){
     var shardAmount = randomIntFromInterval(1,6);
         angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.
     for(var i = 0; i < shardAmount; i++){
         //make new bunnies
-        shard = new PIXI.Sprite(img_shard);
+        shard = new PIXI.Sprite(currentShard);
         
         
         shard.anchor.x = 0.5;
@@ -2372,17 +2375,26 @@ function shardParticleSplatter(angle,target){
 
         shards.push(shard);
         particle_container.addChild(shard);
+        
+        //rotate to next image:
+        shardType++
+        shardType %= shardImages.length;
+        currentShard = shardImages[shardType];
+        
         if(shards.length > shard_limit)return;
     }
     
 }
+var bloodSplatType = 0;
+var bloodSplatImages = [img_blood_1,img_blood_2,img_blood_3];
+var currentbloodSplat = bloodSplatImages[bloodSplatType];
 function bloodParticleSplatter(angle,target){
     var bloodAmount = randomIntFromInterval(5,15);
     angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.    
     var bloodSplat;
     for(var i = 0; i < bloodAmount; i++){
         //make new bunnies
-        bloodSplat = new PIXI.Sprite(img_blood);
+        bloodSplat = new PIXI.Sprite(currentbloodSplat);
         
         
         bloodSplat.anchor.x = 0.5;
@@ -2399,13 +2411,17 @@ function bloodParticleSplatter(angle,target){
         bloodSplat.position.y = target.y + bloodSplat.dy;
 
         particle_container.addChild(bloodSplat);
+        //rotate to next image:
+        bloodSplatType++
+        bloodSplatType %= bloodSplatImages.length;
+        currentbloodSplat = bloodSplatImages[bloodSplatType];
     }
     
 }
 function ejectShell(source){
     
     //make new bunnies
-    shell = new PIXI.Sprite(currentTexture);
+    shell = new PIXI.Sprite(img_shell);
     
     
     shell.anchor.x = 0.5;
