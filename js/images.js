@@ -53,3 +53,5 @@ var img_hero_body = PIXI.Texture.fromImage("images/new_hero/body.png");
 
 var img_guard_knows_hero_face = PIXI.Texture.fromImage("images/guard_alert_knows_face.png");
 var img_shell = PIXI.Texture.fromImage("images/shell.png");
+var img_blood = PIXI.Texture.fromImage("images/blood.png");
+var img_shard = PIXI.Texture.fromImage("images/shard.png");

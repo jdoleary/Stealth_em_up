@@ -17,18 +17,19 @@ var window_properties;
 var renderer;
 
 //TODO test:
-var wabbitTexture = new PIXI.Texture.fromImage("../images/bunnys.png")
+var wabbitTexture = new PIXI.Texture.fromImage("../images/shells.png")
 var	particle_container;	
-var bunny1;
-var bunny2;
-var bunny3;
-var bunny4;
-var bunny5;
-var bunny_speed = 10;
+var shell1;
+var shell2;
+var shell3;
+var shell4;
+var shell5;
+var shell_speed = 10;
 
-var	bunnyTextures = [];
-var	bunnyType = 2;
-var bunnys;
+var	shellTextures = [];
+var	shellType = 2;
+var shells;
+var shards;
 var	currentTexture;
 
 //
@@ -327,7 +328,8 @@ function startGame(){
     stage.addChild(stage_child);
     
     gun_drops = [];
-    bunnys = [];
+    shells = [];
+    shards = [];
 
     
     
@@ -350,10 +352,11 @@ function startGame(){
     particle_container = new PIXI.SpriteBatch(wabbitTexture);
     display_actors = new PIXI.DisplayObjectContainer();
     stage_child.addChild(display_tiles);
-    stage_child.addChild(display_blood);
+    stage_child.addChild(display_blood);    
+    stage_child.addChild(particle_container);
     stage_child.addChild(display_effects);
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
-    stage_child.addChild(particle_container);
+
     stage_child.addChild(display_actors);
     
     
@@ -465,17 +468,17 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             //circular progress bar:
             circProgBar = new circularProgressBar(400,400,60,15);
             
-            //TODO BUNNYS
-             bunny1 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 47, 26, 37));
-             bunny2 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 86, 26, 37));
-             bunny3 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 125, 26, 37));
-             bunny4 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 164, 26, 37));
-             bunny5 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 2, 26, 37));
+            //TODO shells
+             shell1 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 47, 26, 37));
+             shell2 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 86, 26, 37));
+             shell3 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 125, 26, 37));
+             shell4 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 164, 26, 37));
+             shell5 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 2, 26, 37));
              
              
-            bunnyTextures = [bunny1, bunny2, bunny3, bunny4, bunny5,img_shell];
-            bunnyType = 2;
-            currentTexture = bunnyTextures[bunnyType];
+            shellTextures = [shell1, shell2, shell3, shell4, shell5,img_shell];
+            shellType = 2;
+            currentTexture = shellTextures[shellType];
             currentTexture = img_shell;
             
 }
@@ -923,25 +926,29 @@ function gameloop_bullets(deltaTime){
     //////////////////////
     bulletLoop:
     for(var b = 0; b < bullets.length; b++){
-        bullets[b].prepare_for_draw();
+        var bullet = bullets[b];
+        bullet.prepare_for_draw();
         //call move to target, if target is reached, it should remove the bullet
         
-        var bulletPosBeforeMove = {x:bullets[b].x,y:bullets[b].y};//to check if a bullet kills a target, check if the prev position to the move position intersects the target
+        var bulletPosBeforeMove = {x:bullet.x,y:bullet.y};//to check if a bullet kills a target, check if the prev position to the move position intersects the target
         //continued: this is because bullet path between frames looks like      a--------x------b
         //a: bullet start pos, b: bullet end pos, x: target  
         
-        if(bullets[b].move_to_target()){
+        if(bullet.move_to_target()){
             //if true, bullet hits wall
             
             //TODO old, replace with particles:
             //play gun spark against wall where gun shot hits:
+            //bullet.target.x.y
+            var splatter_angle = grid.angleBetweenPoints(bullet.x,bullet.y,bullet.target.x,bullet.target.y)
+            shardParticleSplatter(-splatter_angle,bullet.target);
             
             //destroy bullet
-            display_actors.removeChild(bullets[b].sprite);
+            display_actors.removeChild(bullet.sprite);
             bullets.splice(b,1);
             continue bulletLoop;
         }
-        bullets[b].rotate_to_instant(bullets[b].target.x,bullets[b].target.y);
+        bullet.rotate_to_instant(bullet.target.x,bullet.target.y);
         
         
         //Who does the bullet kill:
@@ -951,14 +958,17 @@ function gameloop_bullets(deltaTime){
                 //hero, cameras, hero_drag_target
             
         //if the hero shot the bullet check if bullet intersects guard:
-        if(bullets[b].ignore == hero){
+        if(bullet.ignore == hero){
             for(var i = 0; i < guards.length; i++){
                 var guard = guards[i];
-                if(bullets[b].ignore == guard)continue;//don't kill the shooter with his own bullet
-                if(guard.alive && circle_linesetment_intersect(guard.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+                if(bullet.ignore == guard)continue;//don't kill the shooter with his own bullet
+                if(guard.alive && circle_linesetment_intersect(guard.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullet.x,y:bullet.y})){
                     guard.kill();
                     //make blood splatter:
-                    makeBloodSplatter(guard.x,guard.y,hero.x,hero.y);
+                    //The angle is hero and not bullet, because if the bullet hits the guard off to the side it causes a strange splatter
+                    var splatter_angle = grid.angleBetweenPoints(hero.x,hero.y,guard.x,guard.y);
+                    bloodParticleSplatter(-splatter_angle,guard);
+                    console.log('angle: ' + splatter_angle);
                     //make blood trail:
                     guard.blood_trail = [guard.x,guard.y];
                     
@@ -969,7 +979,7 @@ function gameloop_bullets(deltaTime){
                     jo_store_inc("guardsShot");
                     
                     //destroy bullet
-                    display_actors.removeChild(bullets[b].sprite);
+                    display_actors.removeChild(bullet.sprite);
                     bullets.splice(b,1);
                     continue bulletLoop;
 
@@ -978,23 +988,23 @@ function gameloop_bullets(deltaTime){
             }
         }else{
             //check if bullet intersects hero_drag_target
-            if(hero_drag_target && circle_linesetment_intersect(hero_drag_target.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+            if(hero_drag_target && circle_linesetment_intersect(hero_drag_target.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullet.x,y:bullet.y})){
                 if(hero_drag_target.alive)hero_drag_target.kill();
                 //make blood splatter:
-                makeBloodSplatter(hero_drag_target.x,hero_drag_target.y,bullets[b].ignore.x,bullets[b].ignore.y);
+                makeBloodSplatter(hero_drag_target.x,hero_drag_target.y,bullet.ignore.x,bullet.ignore.y);
                 //destroy bullet
-                display_actors.removeChild(bullets[b].sprite);
+                display_actors.removeChild(bullet.sprite);
                 bullets.splice(b,1);
                 continue bulletLoop;
 
             }
             //check if bullet intersects with hero
                 //ignore:: //don't kill the shooter with his own bullet
-            if(bullets[b].ignore != hero && hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
-                hero.hurt(bullets[b].ignore.x,bullets[b].ignore.y);
+            if(bullet.ignore != hero && hero.alive && circle_linesetment_intersect(hero.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullet.x,y:bullet.y})){
+                hero.hurt(bullet.ignore.x,bullet.ignore.y);
                 
                 //destroy bullet
-                display_actors.removeChild(bullets[b].sprite);
+                display_actors.removeChild(bullet.sprite);
                 bullets.splice(b,1);
                 continue bulletLoop;
 
@@ -1011,7 +1021,7 @@ function gameloop_bullets(deltaTime){
         }*/
         //check if bullet intersects camera:
         for(var i = 0; i < security_cameras.length; i++){
-            if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullets[b].x,y:bullets[b].y})){
+            if(circle_linesetment_intersect(security_cameras[i].getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullet.x,y:bullet.y})){
                 security_cameras[i].kill();
             }
         
@@ -1450,29 +1460,19 @@ function gameloop(deltaTime){
     if(hero.gunDrawn)hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     hero.move_to_target();
     
-    //TODO BUNNIES:
-    //update bunny pos:
-    var bunny;
-    for(var i = 0; i < bunnys.length; i++){
-        bunny = bunnys[i];
-        bunny.position.y += bunny.dy;
-        //check the y to see if it has gone into a wall
-        if(grid.isWallSolid_coords(bunny.position.x,bunny.position.y)){
-            bunny.position.y -= bunny.dy*2;
-            bunny.dy *= -1;
+    
+    //////////////////////
+    //update particles
+    //////////////////////
+    for(var i = 0; i < shells.length; i++){
+        if(tickParticle(shells[i])){
+            shells.splice(i,1);
+            i--;
         }
-        bunny.position.x -= bunny.dx;
-        //check the x to see if it has gone into a wall
-        if(grid.isWallSolid_coords(bunny.position.x,bunny.position.y)){
-            bunny.position.x += bunny.dx*2;
-            bunny.dx *= -1;
-        }
-        bunny.dx *= 0.9;
-        bunny.dy *= 0.9;
-        bunny.rotation += bunny.dr;
-        bunny.tick++;
-        if(bunny.tick > 20){
-            bunnys.splice(i,1);
+    }
+    for(var i = 0; i < shards.length; i++){
+        if(tickParticle(shards[i])){
+            shards.splice(i,1);
             i--;
         }
     }
@@ -1612,6 +1612,31 @@ function updateDebugInfo(){
         "mouse: " + Math.round(mouse.x) + "," + Math.round(mouse.y) + "<br>" +
         "corner: " + screenCorner.x + "," + screenCorner.y + "<br>"
     );
+}
+//Controls the behavior of a particle during one game tick
+function tickParticle(particle){
+    //particle should have .dy .dx .dr. and tick
+    particle.position.y += particle.dy;
+    //check the y to see if it has gone into a wall
+    if(grid.isWallSolid_coords(particle.position.x,particle.position.y)){
+        particle.position.y -= particle.dy*2;
+        particle.dy *= -1;
+    }
+    particle.position.x -= particle.dx;
+    //check the x to see if it has gone into a wall
+    if(grid.isWallSolid_coords(particle.position.x,particle.position.y)){
+        particle.position.x += particle.dx*2;
+        particle.dx *= -1;
+    }
+    particle.dx *= 0.9;
+    particle.dy *= 0.9;
+    particle.rotation += particle.dr;
+    particle.tick++;
+    //remove from array once it is done moving (OPTIMIZATION)
+    if(particle.tick > 20){
+        return true;//remove it from array
+    }
+    return false;
 }
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
@@ -2321,32 +2346,88 @@ window.onresize = function (event){
 
 
 }
+var shard_limit = 20;
+function shardParticleSplatter(angle,target){
+    var shardAmount = randomIntFromInterval(1,6);
+        angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.
+    for(var i = 0; i < shardAmount; i++){
+        //make new bunnies
+        shard = new PIXI.Sprite(img_shard);
+        
+        
+        shard.anchor.x = 0.5;
+        shard.anchor.y = 0.5;
+        shard.position.x = target.x;
+        shard.position.y = target.y;
+        var randScale = randomFloatFromInterval(0.3,1);
+        shard.scale.x = randScale;
+        shard.scale.y = randScale;
+        var randSpeed = randomFloatWithBias(0.1,shell_speed*2);
+        var randRotationOffset = randomFloatFromInterval(-Math.PI/6,Math.PI/6);
+        shard.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
+        shard.dx = randSpeed*Math.sin(angle+randRotationOffset);
+        shard.dy = randSpeed*Math.cos(angle+randRotationOffset);
+        shard.tick = 0;//the amount of times that it has moved;
+        shard.rotation = (angle);
+
+        shards.push(shard);
+        particle_container.addChild(shard);
+        if(shards.length > shard_limit)return;
+    }
+    
+}
+function bloodParticleSplatter(angle,target){
+    var bloodAmount = randomIntFromInterval(5,15);
+    angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.    
+    var bloodSplat;
+    for(var i = 0; i < bloodAmount; i++){
+        //make new bunnies
+        bloodSplat = new PIXI.Sprite(img_blood);
+        
+        
+        bloodSplat.anchor.x = 0.5;
+        bloodSplat.anchor.y = 0.5;
+        var randScale = randomFloatFromInterval(0.5,3);
+        bloodSplat.scale.x = randScale;
+        bloodSplat.scale.y = randScale;
+        var randSpeed = randomFloatWithBias(0.1,shell_speed*2);
+        var randRotationOffset = randomFloatFromInterval(-Math.PI/6,Math.PI/6);
+        bloodSplat.dx = randSpeed*Math.sin(angle+randRotationOffset)*15;
+        bloodSplat.dy = randSpeed*Math.cos(angle+randRotationOffset)*15;
+        bloodSplat.rotation = (angle);
+        bloodSplat.position.x = target.x + bloodSplat.dx;
+        bloodSplat.position.y = target.y + bloodSplat.dy;
+
+        particle_container.addChild(bloodSplat);
+    }
+    
+}
 function ejectShell(source){
     
     //make new bunnies
-    bunny = new PIXI.Sprite(currentTexture);
+    shell = new PIXI.Sprite(currentTexture);
     
     
-    bunny.anchor.x = 0.5;
-    bunny.anchor.y = 0.5;
-    bunny.position.x = source.x;
-    bunny.position.y = source.y;
-    bunny.scale.x = 0.5;
-    bunny.scale.y = 0.5;
-    var randSpeed = randomIntFromInterval(bunny_speed*0.6,bunny_speed*1.4);
+    shell.anchor.x = 0.5;
+    shell.anchor.y = 0.5;
+    shell.position.x = source.x;
+    shell.position.y = source.y;
+    shell.scale.x = 0.5;
+    shell.scale.y = 0.5;
+    var randSpeed = randomFloatWithBias(shell_speed*0.6,shell_speed*2);
     var randRotationOffset = randomFloatFromInterval(-Math.PI/6,Math.PI/6);
-    bunny.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
-    bunny.dx = randSpeed*Math.sin(source.sprite.rotation+randRotationOffset);
-    bunny.dy = randSpeed*Math.cos(source.sprite.rotation+randRotationOffset);
-    bunny.tick = 0;//the amount of times that it has moved;
-    bunny.rotation = (source.sprite.rotation);
+    shell.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
+    shell.dx = randSpeed*Math.sin(source.sprite.rotation+randRotationOffset);
+    shell.dy = randSpeed*Math.cos(source.sprite.rotation+randRotationOffset);
+    shell.tick = 0;//the amount of times that it has moved;
+    shell.rotation = (source.sprite.rotation);
 
-    bunnys.push(bunny);
-    particle_container.addChild(bunny);
-    //cycle bunny texture
-	/*bunnyType++
-	bunnyType %= 5;
-	currentTexture = bunnyTextures[bunnyType];*/
+    shells.push(shell);
+    particle_container.addChild(shell);
+    //cycle shell texture
+	/*shellType++
+	shellType %= 5;
+	currentTexture = shellTextures[shellType];*/
     //
 }
 var kickback_speed = 5;

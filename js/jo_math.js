@@ -44,7 +44,34 @@ function rotate_point_about_axis(axis,angle,p)
 function randomIntFromInterval(min,max)
 {
     //console.log(min + "," + max);
-    return Math.floor(Math.random()*(max-min+1)+min);
+    return Math.floor(Math.random()*(max-min)+min);
+}
+
+function biasTest(min,max,bias){
+    var sum = 0;
+    var highest = 0;
+    for(var i = 0; i < 1000; i++){
+        var r = randomFloatWithBias2(min,max);
+        //var r = randomFloatFromInterval(min,max);
+        sum += r;
+        if(r > highest)highest = r;
+
+    }
+    console.log(highest);
+    return sum/1000;
+}
+//higher bias yields lower numbers more often
+function randomFloatWithBias2(min,max){
+    return (Math.random() * Math.random() * max) + min;
+    
+}
+//higher bias yields lower numbers more often
+function randomFloatWithBias(min,max){
+    /*var rand = Math.random();
+    rand = Math.pow(rand,bias);
+    return (rand*(max-min)+min);*/
+    return (Math.random() * Math.random() * max) + min;
+    
 }
 function randomFloatFromInterval(min,max)
 {
