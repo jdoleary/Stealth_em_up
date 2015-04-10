@@ -204,7 +204,8 @@ function jo_grid(map){
         //gets 1d index from 2d index
         //NOTE: I had to reverse col and row, usually the formula is width * row + col, but
         //because of the way that the 2d array works I had to reverse it.
-        return this.cells[this.width * col + row];
+        if(row < this.width && row >= 0 && col < this.height && col >= 0)return this.cells[this.width * col + row];
+        else return null;
     };
     
     this.get1DIndexFrom2DIndex = function(row, col){
