@@ -111,6 +111,10 @@ try {
     ?>
     
     <div id="buttons"  style="position:absolute;top:20px;right:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
+        <button id="button_single_block" class="pure-button pure-button-active" onclick="change_tool('single');" style="width:100%">Single Block Tool</button>
+        <br>   
+        <button id="button_fill" class="pure-button" onclick="change_tool('fill');" style="width:100%">Fill Tool</button>
+        <br>   
         <button id="button0" class="pure-button pure-button-active" onclick="changePaletteNum(0);" style="width:100%">Wall</button>
         <br>    
         <button id="button1"  class="pure-button" onclick="changePaletteNum(1);" style="width:100%">Floor</button>
@@ -191,7 +195,22 @@ try {
         $('#input_filename').hide();
         $('#input_map_data').hide();
         $('#button_captcha').hide();
-    
+        
+        
+        var tool = 'single';
+        function change_tool(tool_type){
+            $('#button_single_block').removeClass("pure-button-active");
+            $('#button_fill').removeClass("pure-button-active");
+            tool = tool_type;
+            if(tool == 'single'){
+                $('#button_single_block').addClass("pure-button-active");
+                
+            }else{
+                $('#button_fill').addClass("pure-button-active");
+                
+            }
+        }
+        
         //the number type of tile to place when clicking
         var palette_number = 0;
         function changePaletteNum(num){
@@ -199,6 +218,7 @@ try {
             $("#button" + num).addClass("pure-button-active");
             console.log("change palette: " + num);
             palette_number = num;
+            change_tool(tool);//reset tool css (this is a bad shortcut but it works)
         }
         var gridClickEnabled = true;
         function disableGridClick(){

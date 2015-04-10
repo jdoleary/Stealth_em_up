@@ -1225,7 +1225,227 @@ function gameloop_alert_animation(deltaTime){
         }
     }
 }
+function magicWandFill(Ax,Ay){
+    console.log('Fill: ' + Ax + ',' + Ay + ' with type: ' + palette_number);
+    //console.log(grid.getCellFromIndex(Ax,Ay));
+    //reset fill
+    fill = [];
+    //getAllOfSameTypeTouchingA
+    var cell = grid.getCellFromIndex(Ax,Ay);
+    if(cell.image_number == palette_number){
+        //if the clicked cell already has the type abort:
+        console.log('selected cell is already type: ' + palette_number);
+        return;
+    }
+    neighbors(Ax,Ay,cell.image_number);
+    //printGrid(searchResult);
+    //---------------------HELPER FUNCTIONS:
+    
+    function printGrid(g){
+        console.log('---------------');
+        for(var x = 0; x < g.length; x++){
+            console.log(g[x]);
+        }
+    }
+    var magicSelector = 9;
+    function addToResult(y,x,type){
+        //if(searchResult[y] == undefined)searchResult[y] = [];
+        //searchResult[y][x] = type;
+        //this is the list of selected element coords
+        //if(type == magicSelector)fill.push({x:x,y:y});
+        fill.push({x:x,y:y});
+    }
+    function change(cell){
+        var grid_pos = grid.getIndexFromCoords_2d(cell.x,cell.y);
+        //can't change border cells:
+        if(grid_pos.x != 0 && grid_pos.x != grid.width-1 && grid_pos.y != 0 && grid_pos.y != grid.height-1){
+            if(cell){
+                cell.changeImage(palette_number);
+            }
+        }
+            
+        
+    }
+    
+    function neighbors(x,y,type) {
+        var ret = [];
+        //console.log('type: ' + type);
+        //console.log('--------------------------------neighbors:');
+        //addToResult(y,x,magicSelector);
+        change(grid.getCellFromIndex(x,y),type);
+        var west = grid.getCellFromIndex(x,y-1);
+        var east = grid.getCellFromIndex(x,y+1);
+        var south = grid.getCellFromIndex(x-1,y);
+        var north = grid.getCellFromIndex(x+1,y);
+        /*console.log(west);
+        console.log(east);
+        console.log(south);
+        console.log(north);*/
+        
+        // West
+        if(west != undefined) {
+            //console.log({x:x,y:y-1,data:grid[y-1][x]});
+            if(west.image_number == type)ret.push({x:x,y:y-1,data:west});
+        }
+
+        // East
+        if(east != undefined) {
+            //console.log({x:x,y:y+1,data:grid[y+1][x]});
+            if(east.image_number == type)ret.push({x:x,y:y+1,data:east});
+        }
+
+        // South
+        if(south != undefined) {
+            //console.log({x:x-1,y:y,data:grid[x-1][y]});
+            if(south.image_number == type)ret.push({x:x-1,y:y,data:south});
+        }
+
+        // North
+        if(north != undefined) {
+            //console.log({x:x+1,y:y,data:grid[y][x+1]});
+            if(north.image_number == type)ret.push({x:x+1,y:y,data:north});
+        }
+        //console.log(ret);
+        for(var i = 0; i < ret.length; i++){
+            /*//check again if not already checked:
+            var checked = false;
+            for(var j = 0; j < fill.length; j++){
+                if(ret[i].x == fill[j].x && ret[i].y && fill[j].y){
+                    console.log('already checked ' + ret[i].x + ',' + ret[i].y);
+                    checked = true;
+                    break;
+                }
+            }
+            if(!checked)neighbors(ret[i].x,ret[i].y,type);*/
+            neighbors(ret[i].x,ret[i].y,type);
+        }
+
+        return ret;
+    };
+
+    
+}
 var mousetest;
+function changeCellSpecial(cell,palette_number){
+    console.log('change cell special');
+    //can't build outside of map bounds
+    if(cell){
+    
+        switch(palette_number){
+            case 5:
+                cell.changeImage(4);//show off limits
+                cell.image_number = 5;//but actually be, door
+                grid.make_door(cell,false);
+                
+                mouseDown = false;//make it so this can only be placed once per mousedown
+                break;
+            case 6:
+                cell.changeImage(4);//show off limits
+                cell.image_number = 6;//but actually be, door
+                grid.make_door(cell,true);
+                
+                mouseDown = false;//make it so this can only be placed once per mousedown
+                break;
+            case 7:
+                //money:
+                loot[0].x = editor_selector.x;
+                loot[0].y = editor_selector.y;
+                if(cell)cell.changeImage(1);//make floor
+                break;
+            case 8:
+                //getawaycar
+                getawaycar.x = editor_selector.x-32;
+                getawaycar.y = editor_selector.y-32;
+                break;
+            case 9:
+                //computer
+                //restrict to grid cell bounds
+                computer_for_security_cameras.x = editor_selector.x;
+                computer_for_security_cameras.y = editor_selector.y;
+                break;
+            case 10:
+                //player spawn
+                hero_spawn_icon.x = editor_selector.x;
+                hero_spawn_icon.y = editor_selector.y;
+                if(cell)cell.changeImage(1);//make floor
+                break;
+            case 11:
+                //guard backup spawn
+                guard_spawn_icon.x = editor_selector.x;
+                guard_spawn_icon.y = editor_selector.y;
+                if(cell)cell.changeImage(1);//make floor
+                break;
+            case 12:
+                //security cam
+                var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),editor_selector.x,editor_selector.y,Math.PI,Math.PI/2);
+                security_cameras.push(cam_inst);
+                mouseDown = false;//make it so this can only be placed once per mousedown
+                break;
+            case 13:
+                //guard
+                var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg));
+                guard_inst.x = mouse.x;
+                guard_inst.y = mouse.y;
+                guards.push(guard_inst);
+                mouseDown = false;//make it so this can only be placed once per mousedown
+                if(cell)cell.changeImage(1);//make floor
+                break;
+            case 14:
+                //eraser
+                i = security_cameras.length;
+                while(i--){
+                    if(get_distance(editor_selector.x,editor_selector.y, security_cameras[i].x, security_cameras[i].y)<=grid.cell_size/2){
+                        display_actors.removeChild(security_cameras[i].sprite);
+                        security_cameras.splice(i,1);
+                    }
+                }
+                if(get_distance(editor_selector.x,editor_selector.y, guard_spawn_icon.x, guard_spawn_icon.y)<=grid.cell_size/2){
+                    //don't allow a guard_spawn_icon with 0,0 pos
+                    guard_spawn_icon.x = 0;
+                    guard_spawn_icon.y = 0;
+                }
+                if(get_distance(editor_selector.x,editor_selector.y, hero_spawn_icon.x, hero_spawn_icon.y)<=grid.cell_size/2){
+                    //don't allow a hero_spawn_icon with 0,0 pos
+                    hero_spawn_icon.x = 0;
+                    hero_spawn_icon.y = 0;
+                }
+                if(get_distance(editor_selector.x,editor_selector.y, getawaycar.x, getawaycar.y)<=grid.cell_size/2){
+                    //don't allow a getawaycar with 0,0 pos
+                    getawaycar.x = 0;
+                    getawaycar.y = 0;
+                }
+                if(get_distance(editor_selector.x,editor_selector.y, loot[0].x, loot[0].y)<=grid.cell_size/2){
+                    //don't allow a loot[0] with 0,0 pos
+                    loot[0].x = 0;
+                    loot[0].y = 0;
+                }
+                if(get_distance(editor_selector.x,editor_selector.y, computer_for_security_cameras.x, computer_for_security_cameras.y)<=grid.cell_size/2){
+                    //don't allow a loot[0] with 0,0 pos
+                    computer_for_security_cameras.x = 0;
+                    computer_for_security_cameras.y = 0;
+                }
+                i = grid.door_sprites.length;
+                while(i--){
+                    if(get_distance(editor_selector.x,editor_selector.y, grid.door_sprites[i].x, grid.door_sprites[i].y)<=grid.cell_size){
+                        display_actors.removeChild(grid.door_sprites[i].sprite);
+                        grid.door_sprites.splice(i,1);
+                    }
+                
+                }
+                i = guards.length;
+                while(i--){
+                    if(get_distance(editor_selector.x,editor_selector.y, guards[i].x, guards[i].y)<=grid.cell_size){
+                        display_actors.removeChild(guards[i].sprite);
+                        guards.splice(i,1);
+                    }
+                
+                }
+                
+                break;
+                
+        }
+    }
+}
 function gameloop(deltaTime){
     
     //////////////////////
@@ -1238,129 +1458,15 @@ function gameloop(deltaTime){
     if(mouseDown && gridClickEnabled){
         var grid_pos = grid.getIndexFromCoords_2d(mouse.x,mouse.y);
         var cell = grid.getCellFromIndex(grid_pos.x,grid_pos.y);
-        
         //only overwrite non border grid cells
         if(grid_pos.x != 0 && grid_pos.x != grid.width-1 && grid_pos.y != 0 && grid_pos.y != grid.height-1){
-            if(palette_number <5){
-                //for "palette_number" see map_editor.html
-                if(cell)cell.changeImage(palette_number);
-            }else{
-                    //can't build outside of map bounds
-                if(cell){
-                
-                    switch(palette_number){
-                        case 5:
-                            cell.changeImage(4);//show off limits
-                            cell.image_number = 5;//but actually be, door
-                            grid.make_door(cell,false);
-                            
-                            mouseDown = false;//make it so this can only be placed once per mousedown
-                            break;
-                        case 6:
-                            cell.changeImage(4);//show off limits
-                            cell.image_number = 6;//but actually be, door
-                            grid.make_door(cell,true);
-                            
-                            mouseDown = false;//make it so this can only be placed once per mousedown
-                            break;
-                        case 7:
-                            //money:
-                            loot[0].x = editor_selector.x;
-                            loot[0].y = editor_selector.y;
-                            if(cell)cell.changeImage(1);//make floor
-                            break;
-                        case 8:
-                            //getawaycar
-                            getawaycar.x = editor_selector.x-32;
-                            getawaycar.y = editor_selector.y-32;
-                            break;
-                        case 9:
-                            //computer
-                            //restrict to grid cell bounds
-                            computer_for_security_cameras.x = editor_selector.x;
-                            computer_for_security_cameras.y = editor_selector.y;
-                            break;
-                        case 10:
-                            //player spawn
-                            hero_spawn_icon.x = editor_selector.x;
-                            hero_spawn_icon.y = editor_selector.y;
-                            if(cell)cell.changeImage(1);//make floor
-                            break;
-                        case 11:
-                            //guard backup spawn
-                            guard_spawn_icon.x = editor_selector.x;
-                            guard_spawn_icon.y = editor_selector.y;
-                            if(cell)cell.changeImage(1);//make floor
-                            break;
-                        case 12:
-                            //security cam
-                            var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),editor_selector.x,editor_selector.y,Math.PI,Math.PI/2);
-                            security_cameras.push(cam_inst);
-                            mouseDown = false;//make it so this can only be placed once per mousedown
-                            break;
-                        case 13:
-                            //guard
-                            var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg));
-                            guard_inst.x = mouse.x;
-                            guard_inst.y = mouse.y;
-                            guards.push(guard_inst);
-                            mouseDown = false;//make it so this can only be placed once per mousedown
-                            if(cell)cell.changeImage(1);//make floor
-                            break;
-                        case 14:
-                            //eraser
-                            i = security_cameras.length;
-                            while(i--){
-                                if(get_distance(editor_selector.x,editor_selector.y, security_cameras[i].x, security_cameras[i].y)<=grid.cell_size/2){
-                                    display_actors.removeChild(security_cameras[i].sprite);
-                                    security_cameras.splice(i,1);
-                                }
-                            }
-                            if(get_distance(editor_selector.x,editor_selector.y, guard_spawn_icon.x, guard_spawn_icon.y)<=grid.cell_size/2){
-                                //don't allow a guard_spawn_icon with 0,0 pos
-                                guard_spawn_icon.x = 0;
-                                guard_spawn_icon.y = 0;
-                            }
-                            if(get_distance(editor_selector.x,editor_selector.y, hero_spawn_icon.x, hero_spawn_icon.y)<=grid.cell_size/2){
-                                //don't allow a hero_spawn_icon with 0,0 pos
-                                hero_spawn_icon.x = 0;
-                                hero_spawn_icon.y = 0;
-                            }
-                            if(get_distance(editor_selector.x,editor_selector.y, getawaycar.x, getawaycar.y)<=grid.cell_size/2){
-                                //don't allow a getawaycar with 0,0 pos
-                                getawaycar.x = 0;
-                                getawaycar.y = 0;
-                            }
-                            if(get_distance(editor_selector.x,editor_selector.y, loot[0].x, loot[0].y)<=grid.cell_size/2){
-                                //don't allow a loot[0] with 0,0 pos
-                                loot[0].x = 0;
-                                loot[0].y = 0;
-                            }
-                            if(get_distance(editor_selector.x,editor_selector.y, computer_for_security_cameras.x, computer_for_security_cameras.y)<=grid.cell_size/2){
-                                //don't allow a loot[0] with 0,0 pos
-                                computer_for_security_cameras.x = 0;
-                                computer_for_security_cameras.y = 0;
-                            }
-                            i = grid.door_sprites.length;
-                            while(i--){
-                                if(get_distance(editor_selector.x,editor_selector.y, grid.door_sprites[i].x, grid.door_sprites[i].y)<=grid.cell_size){
-                                    display_actors.removeChild(grid.door_sprites[i].sprite);
-                                    grid.door_sprites.splice(i,1);
-                                }
-                            
-                            }
-                            i = guards.length;
-                            while(i--){
-                                if(get_distance(editor_selector.x,editor_selector.y, guards[i].x, guards[i].y)<=grid.cell_size){
-                                    display_actors.removeChild(guards[i].sprite);
-                                    guards.splice(i,1);
-                                }
-                            
-                            }
-                            
-                            break;
-                            
-                    }
+            if(tool == 'single'){
+                if(palette_number <5){
+                    //for "palette_number" see map_editor.html
+                    console.log('single change');
+                    if(cell)cell.changeImage(palette_number);
+                }else{
+                    changeCellSpecial(cell,palette_number); 
                 }
             }
         }
@@ -1746,6 +1852,17 @@ function addKeyHandlers(){
     }
     onmouseup = function(e){
         mouseDown = false;
+        if(tool == 'fill'){
+        
+            var grid_pos = grid.getIndexFromCoords_2d(mouse.x,mouse.y);
+            var cell = grid.getCellFromIndex(grid_pos.x,grid_pos.y);
+            if(palette_number < 5){
+                magicWandFill(grid_pos.x,grid_pos.y);
+            }else{
+                console.log('You cannot use fill tool for currently selected brush ('+palette_number+'), please choose a tile type');
+            }
+            
+        }
     }
 }
 function mouseWheelHandler(e){
