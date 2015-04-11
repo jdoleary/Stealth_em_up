@@ -1225,18 +1225,18 @@ function gameloop_alert_animation(deltaTime){
         }
     }
 }
+var stop = 0;
 function magicWandFill(Ax,Ay){
     console.log('Fill: ' + Ax + ',' + Ay + ' with type: ' + palette_number);
     //console.log(grid.getCellFromIndex(Ax,Ay));
-    //reset fill
-    fill = [];
     //getAllOfSameTypeTouchingA
     var cell = grid.getCellFromIndex(Ax,Ay);
-    if(cell.image_number == palette_number){
+    if(cell == null || cell.image_number == palette_number){
         //if the clicked cell already has the type abort:
-        console.log('selected cell is already type: ' + palette_number);
+        console.log('cell is null or selected cell is already type: ' + palette_number);
         return;
     }
+    console.log('Overwrite cells in proximity with type: ' + cell.image_number);
     neighbors(Ax,Ay,cell.image_number);
     //printGrid(searchResult);
     //---------------------HELPER FUNCTIONS:
@@ -1248,18 +1248,13 @@ function magicWandFill(Ax,Ay){
         }
     }
     var magicSelector = 9;
-    function addToResult(y,x,type){
-        //if(searchResult[y] == undefined)searchResult[y] = [];
-        //searchResult[y][x] = type;
-        //this is the list of selected element coords
-        //if(type == magicSelector)fill.push({x:x,y:y});
-        fill.push({x:x,y:y});
-    }
-    function change(cell){
-        var grid_pos = grid.getIndexFromCoords_2d(cell.x,cell.y);
+    function change(indexX,indexY){
+        //console.log('try change: ' + indexX + ',' + indexY);
+        var cell = grid.getCellFromIndex(indexX,indexY)
         //can't change border cells:
-        if(grid_pos.x != 0 && grid_pos.x != grid.width-1 && grid_pos.y != 0 && grid_pos.y != grid.height-1){
-            if(cell){
+        if(indexX != 0 && indexX != grid.width-1 && indexY != 0 && indexY != grid.height-1){
+            if(cell !== null){
+                //console.log('change: ' + indexX + ',' + indexY);
                 cell.changeImage(palette_number);
             }
         }
@@ -1268,11 +1263,15 @@ function magicWandFill(Ax,Ay){
     }
     
     function neighbors(x,y,type) {
+        stop++;
+        if(stop>1000000){
+            console.log('ERROR, timeout');
+            return;
+        }
         var ret = [];
         //console.log('type: ' + type);
         //console.log('--------------------------------neighbors:');
-        //addToResult(y,x,magicSelector);
-        change(grid.getCellFromIndex(x,y),type);
+        change(x,y);
         var west = grid.getCellFromIndex(x,y-1);
         var east = grid.getCellFromIndex(x,y+1);
         var south = grid.getCellFromIndex(x-1,y);
@@ -1283,41 +1282,33 @@ function magicWandFill(Ax,Ay){
         console.log(north);*/
         
         // West
-        if(west != undefined) {
+        if(west !== null) {
             //console.log({x:x,y:y-1,data:grid[y-1][x]});
-            if(west.image_number == type)ret.push({x:x,y:y-1,data:west});
+            if(west.image_number === type)ret.push({x:x,y:y-1,data:west});
         }
 
         // East
-        if(east != undefined) {
+        if(east !== null) {
             //console.log({x:x,y:y+1,data:grid[y+1][x]});
-            if(east.image_number == type)ret.push({x:x,y:y+1,data:east});
+            if(east.image_number === type)ret.push({x:x,y:y+1,data:east});
         }
 
         // South
-        if(south != undefined) {
+        if(south !== null) {
             //console.log({x:x-1,y:y,data:grid[x-1][y]});
-            if(south.image_number == type)ret.push({x:x-1,y:y,data:south});
+            if(south.image_number === type)ret.push({x:x-1,y:y,data:south});
         }
 
         // North
-        if(north != undefined) {
+        if(north !== null) {
             //console.log({x:x+1,y:y,data:grid[y][x+1]});
-            if(north.image_number == type)ret.push({x:x+1,y:y,data:north});
+            if(north.image_number === type)ret.push({x:x+1,y:y,data:north});
         }
         //console.log(ret);
         for(var i = 0; i < ret.length; i++){
-            /*//check again if not already checked:
-            var checked = false;
-            for(var j = 0; j < fill.length; j++){
-                if(ret[i].x == fill[j].x && ret[i].y && fill[j].y){
-                    console.log('already checked ' + ret[i].x + ',' + ret[i].y);
-                    checked = true;
-                    break;
-                }
+            if(ret[i].x != 0 && ret[i].x != grid.width-1 && ret[i].y != 0 && ret[i].y != grid.height-1){
+                neighbors(ret[i].x,ret[i].y,type);
             }
-            if(!checked)neighbors(ret[i].x,ret[i].y,type);*/
-            neighbors(ret[i].x,ret[i].y,type);
         }
 
         return ret;
