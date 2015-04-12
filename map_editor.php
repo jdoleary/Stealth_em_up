@@ -138,6 +138,21 @@ try {
         <button id="button11"  class="pure-button" onclick="changePaletteNum(11);"  style="width:100%">Guard Backup Spawn</button>
         <br>   
         <button id="button12"  class="pure-button" onclick="changePaletteNum(12);"  style="width:100%">Security Camera</button>
+        <br>
+        <div id="SecurityCameraRotationSelector">
+            <svg width="180" height="180" xmlns:xlink="http://www.w3.org/1999/xlink viewBox="180 180 360 360">
+             <g transform="translate(60,100) scale(0.25,0.25)" id="quarter_pies">
+              <path id="pie1" onclick="pie(this,1)" d="M0,0 L0,-200  A200,200 0 0,1  200,000  z" 
+                style="fill:white;fill-opacity: 1;stroke:black;stroke-width: 1"/>
+              <path id="pie2" onclick="pie(this,2)" d="M0,0 L-200,0  A200,200 0 0,1    0,-200 z" 
+                style="fill:white;fill-opacity: 1;stroke:black;stroke-width: 1"/>
+              <path id="pie3" onclick="pie(this,3)" d="M0,0 L0,200   A200,200 0 0,1 -200,0    z" 
+                style="fill:white;fill-opacity: 1;stroke:black;stroke-width: 1"/>
+              <path id="pie4" onclick="pie(this,4)" d="M0,0 L200,0   A200,200 0 0,1    0,200  z" 
+                style="fill:white;fill-opacity: 1;stroke:black;stroke-width: 1"/>
+             </g>
+            </svg>
+        </div>
         <br>   
         <button id="button13"  class="pure-button" onclick="changePaletteNum(13);"  style="width:100%">Guard</button>
         <br>   
@@ -219,6 +234,11 @@ try {
             console.log("change palette: " + num);
             palette_number = num;
             change_tool(tool);//reset tool css (this is a bad shortcut but it works)
+            if(num === 12){
+                $('#SecurityCameraRotationSelector').show();
+            }else{
+                $('#SecurityCameraRotationSelector').hide();
+            }
         }
         var gridClickEnabled = true;
         function disableGridClick(){
