@@ -276,8 +276,9 @@ function startMenu(){
         console.log("start menu");
         clearStage();
         state = states["StartMenu"];
-        addButton("Play",200,200,startGame);
-        addButton("Fullscreen",200,400,fullscreen);
+        addButton("Begin",200,200,startGame);
+        addButton("Begin - Fullscreen",200,400,fullscreen);
+        
         //set music to "unmasked"
         if(music_masked && music_unmasked){
             changeVolume(music_masked,0.0);
@@ -290,6 +291,7 @@ function startMenu(){
 function startGame(){
     //the the menu or any other previous children
     console.log("start game");
+    $('#buttons').show();
     clearStage();
     
     state = states["Gameplay"];
@@ -2200,7 +2202,7 @@ function getQuadrantRotationBounds(quadrantOptions){
     //quadrantOptions = [4,2,1];//for example
     //remember that the first element of this return has to increase to get to the second, so [1,2,4] is not the same as ['3']
     var comb = quadrantCombinations[quadrantOptions.sort().join(',')];
-    if(comb == undefined)comb = quadrantCombinations('1,2,3,4');
+    if(comb == undefined)comb = quadrantCombinations['1,2,3,4'];
     return comb;
 }
 var quadrantsSelected = [];

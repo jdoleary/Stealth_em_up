@@ -74,6 +74,22 @@ try {
           border:5px solid black;
           border-radius: 5px;
         }
+        #map_size_controls{
+            position: absolute;
+            width:100%;
+            height:100%;
+        }
+        #map_size_controls > div{
+          width: 300px;
+          height: 100px;
+          padding: 20px;
+
+          position: absolute;
+          top: 50%;
+          left: 50%;
+
+          margin: -70px 0 0 -170px;
+        }
 	</style>
 
     <link rel="stylesheet" type="text/css" href="buttons.css">
@@ -109,8 +125,17 @@ try {
         echo "Fail to send to server";
     }
     ?>
+    <div id="map_size_controls">
+        <div>
+            Choose Map Size:
+            <br>
+            <span id="map_width_slider_text">40 blocks wide.</span><input type="range" id="map_width_slider" value="40" min="20" max="120" onchange="updateSliders();">
+            <br>
+            <span id="map_heigh_slider_text">40 blocks high.</span><input type="range" id="map_height_slider" value="40" min="20" max="120" onchange="updateSliders();">
+        </div>
+    </div>
     
-    <div id="buttons"  style="position:absolute;top:20px;right:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
+    <div id="buttons"  style="display:none;position:absolute;top:20px;right:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
         <button id="button_single_block" class="pure-button pure-button-active" onclick="change_tool('single');" style="width:100%">Single Block Tool</button>
         <br>   
         <button id="button_fill" class="pure-button" onclick="change_tool('fill');" style="width:100%">Fill Tool</button>
@@ -137,24 +162,24 @@ try {
         <br>   
         <button id="button11"  class="pure-button" onclick="changePaletteNum(11);"  style="width:100%">Guard Backup Spawn</button>
         <br>   
+        <button id="button13"  class="pure-button" onclick="changePaletteNum(13);"  style="width:100%">Guard</button>
+        <br>   
         <button id="button12"  class="pure-button" onclick="changePaletteNum(12);"  style="width:100%">Security Camera</button>
         <br>
-        <div id="SecurityCameraRotationSelector">
+        <div id="SecurityCameraRotationSelector" style="border-style:solid;border-color:#ff0000;display:none;">
             <svg width="180" height="180" xmlns:xlink="http://www.w3.org/1999/xlink viewBox="180 180 360 360">
-             <g transform="translate(60,100) scale(0.25,0.25)" id="quarter_pies">
-              <path id="pie1" onclick="pie(this,1)" d="M0,0 L0,-200  A200,200 0 0,1  200,000  z" 
+             <g transform="translate(100,100) scale(0.25,0.25)" id="quarter_pies">
+              <path id="pie1" onclick="pie(this,4)" d="M0,0 L0,-200  A200,200 0 0,1  200,000  z" 
                 style="fill:white;fill-opacity: 1;stroke:black;stroke-width: 1"/>
-              <path id="pie2" onclick="pie(this,2)" d="M0,0 L-200,0  A200,200 0 0,1    0,-200 z" 
+              <path id="pie2" onclick="pie(this,3)" d="M0,0 L-200,0  A200,200 0 0,1    0,-200 z" 
                 style="fill:white;fill-opacity: 1;stroke:black;stroke-width: 1"/>
-              <path id="pie3" onclick="pie(this,3)" d="M0,0 L0,200   A200,200 0 0,1 -200,0    z" 
+              <path id="pie3" onclick="pie(this,2)" d="M0,0 L0,200   A200,200 0 0,1 -200,0    z" 
                 style="fill:white;fill-opacity: 1;stroke:black;stroke-width: 1"/>
-              <path id="pie4" onclick="pie(this,4)" d="M0,0 L200,0   A200,200 0 0,1    0,200  z" 
+              <path id="pie4" onclick="pie(this,1)" d="M0,0 L200,0   A200,200 0 0,1    0,200  z" 
                 style="fill:white;fill-opacity: 1;stroke:black;stroke-width: 1"/>
              </g>
             </svg>
         </div>
-        <br>   
-        <button id="button13"  class="pure-button" onclick="changePaletteNum(13);"  style="width:100%">Guard</button>
         <br>   
         <button id="button14"  class="pure-button" onclick="changePaletteNum(14);"  style="width:100%">Erase Objects</button>
         <br>
@@ -211,6 +236,10 @@ try {
         $('#input_map_data').hide();
         $('#button_captcha').hide();
         
+        function updateSliders(){
+            $('#map_width_slider_text').text($('#map_width_slider').val() + " blocks wide");
+            $('#map_height_slider_text').text($('#map_height_slider').val() + " blocks high");
+        }
         
         var tool = 'single';
         function change_tool(tool_type){
