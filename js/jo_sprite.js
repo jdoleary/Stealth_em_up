@@ -14,7 +14,8 @@ function jo_sprite(pixiSprite, parent){
     this.alive = true;
     this.radius = 19;
     //moved to sprite_hero.js:://this.carry = null;//object hero is carrying (loot)
-    this.health = 1;
+    this.health = 3;//1;
+    
     
     var rand_gun = all_gun_prefabs_without_sawed[Math.floor(Math.random() * all_gun_prefabs_without_sawed.length)];
     this.gun = rand_gun.make_copy();//give random gun
@@ -22,7 +23,7 @@ function jo_sprite(pixiSprite, parent){
     this.reloading = false;
     
     this.gun_shot_line = new debug_line();
-    this.gun_shot_line.graphics.visible = false;
+    this.gun_shot_line.graphics.visible = true;
     this.aim = new Ray(0,0,0,0);
     this.can_shoot = false;
     this.shoot_speed = 700;//shoots every 0.7 seconds
@@ -62,8 +63,6 @@ function jo_sprite(pixiSprite, parent){
     
     this.shoot = function(){
         this.gun.shoot(this);
-        //shows gun_shot_line
-        //this.gun_shot_line.graphics.visible = true;
         this.can_shoot = false; //so the guards don't shoot way too fast
 
         //toggle gun_shot_line visibility.
@@ -239,6 +238,15 @@ function jo_sprite(pixiSprite, parent){
         }else return false;
     
     };
+    this.isRaycastUnobstructedBetweenThese = function(otherSprite){
+        //returns true if there are no walls between these sprites.
+        //only if there are no walls between them:
+        var raycast = getRaycastPoint(this.x,this.y,otherSprite.x,otherSprite.y);
+        if(get_distance(this.x,this.y,raycast.x,raycast.y)>=get_distance(this.x,this.y,otherSprite.x,otherSprite.y)){
+            return true;
+        }else return false;
+        
+    }
     this.prepare_for_draw = function(){
         //var draw_coords = camera.relativePoint(this);
         this.sprite.position.x = this.x;

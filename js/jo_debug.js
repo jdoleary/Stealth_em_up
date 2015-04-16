@@ -25,9 +25,18 @@ function debug_line(){
         var draw_coords1 = camera.relativePoint({x:ray.start.x,y:ray.start.y});
         var draw_coords2 = camera.relativePoint({x:ray.end.x,y:ray.end.y});
         this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
-        this.graphics.lineStyle(2, 0xaaaaaa, 1);
+        this.graphics.lineStyle(2, 0xcc0000, 1);
 		this.graphics.moveTo(draw_coords1.x, draw_coords1.y);
 		this.graphics.lineTo(draw_coords2.x, draw_coords2.y);
+    }
+    this.draw_Ray_without_clear = function(ray){
+        //draw on the screen objective (where game origin is 0,0)
+        var draw_coords1 = camera.relativePoint({x:ray.start.x,y:ray.start.y});
+        var draw_coords2 = camera.relativePoint({x:ray.end.x,y:ray.end.y});
+        this.graphics.lineStyle(2, 0xcc0000, 1);
+		this.graphics.moveTo(draw_coords1.x, draw_coords1.y);
+		this.graphics.lineTo(draw_coords2.x, draw_coords2.y);
+        
     }
     this.clear = function(){
         this.graphics.clear();//without clear it wont erase the debug shape from previous frame.

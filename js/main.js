@@ -167,6 +167,9 @@ var graphics_blood;
             var hero;
             var hero_last_seen;
             var hero_end_aim_coord;
+            var starburst;
+            var starburst_ray;
+            
 			
 			var hero_drag_target; // a special var reserved for when the hero is dragging something.
 			var guards;
@@ -504,7 +507,13 @@ function setup_map(map){
     
             //make sprites:
 			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_hero_body),new PIXI.Sprite(img_hero_head),4,8);
-			hero_end_aim_coord;
+			//hero_end_aim_coord;
+            starburst = new debug_line();
+            starburst_ray = new Ray(0,0,0,0);
+            starburst_angles = [];
+            for(var i = 0; i < 48; i++){
+                starburst_angles.push(Math.PI*2-i*Math.PI*2/48);
+            }
             hero.x = map.objects.hero[0];
             hero.y = map.objects.hero[1];
 			hero.speed = hero.speed_walk;
@@ -624,7 +633,13 @@ function gameloop_guards(deltaTime){
     for(var i = 0; i < guards.length; i++){
         var guard = guards[i];
         if(guard.alive){
-        
+            //TODO: experimental vision
+            if(guard.isRaycastUnobstructedBetweenThese(hero)){
+                guard.sprite.visible = true;
+            }else{
+                guard.sprite.visible = false;
+            }
+            guard.currentlySeesHero = guard.doesSpriteSeeSprite(hero);
         
                 //shooting
             //guards aim can be off by up to guard.accuracy pixels:
@@ -651,7 +666,7 @@ function gameloop_guards(deltaTime){
                     }
                 }
                 //check if guard sees hero:
-                if(!guard.being_choked_out && guard.doesSpriteSeeSprite(hero)){
+                if(!guard.being_choked_out && guard.currentlySeesHero){
                     if(hero.willCauseAlert() || guard.knowsHerosFace){
                         //guard will remember hero's face unless hero is masked:
                         if(!hero.masked){
@@ -678,7 +693,7 @@ function gameloop_guards(deltaTime){
                 }
             }else{
                 //guard is alarmed:
-                if(!guard.being_choked_out && guard.doesSpriteSeeSprite(hero)){
+                if(!guard.being_choked_out && guard.currentlySeesHero){
                     //guard is not being choked out and sees hero
                     if((hero.willCauseAlert() || guard.knowsHerosFace) && hero.alive){
                         //guard will remember hero's face unless hero is masked:
@@ -1460,9 +1475,24 @@ function gameloop(deltaTime){
     //update Hero
     //////////////////////
     
-    hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
-    if(hero.gunDrawn)hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
+    if(hero.alive && hero.gunOut){
+        hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
+        hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
+    }
     hero.move_to_target();
+    
+    //TODO: test hero starburst for visibility:
+    starburst.clear();
+    var raycast;// = getRaycastPoint(hero.x,hero.y,hero.x,hero.y+100);
+    //starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
+    //starburst.draw_Ray_without_clear(starburst_ray);
+    for(var i = 0; i < starburst_angles.length; i++){
+        raycast = getRaycastPoint(hero.x,hero.y,hero.x+Math.cos(starburst_angles[i]),hero.y+Math.sin(starburst_angles[i]));
+        starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
+        starburst.draw_Ray_without_clear(starburst_ray);
+        
+    }
+    
     
     
     //////////////////////
