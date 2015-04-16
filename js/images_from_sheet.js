@@ -40,11 +40,13 @@ var img_shard_2= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(
 var img_shard_3= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(31,31,16,16));
 var img_shell= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(57,31,16,16));
 var img_gun_shotgun= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(719,143,128,128));
-var img_gun_pistol_silenced= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(705,281,128,128));/*
+var img_gun_pistol_silenced= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(705,281,128,128));
+/*
 var img_tile_black= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(695,419,64,64));
 var img_tile_brown= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(769,419,64,64));
 var img_tile_red= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(695,493,64,64));
-var img_tile_white= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(769,493,64,64));*/
+var img_tile_white= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(769,493,64,64));
+*/
 var img_getawaycar= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(715,567,128,128));
 
 
@@ -53,3 +55,4 @@ var img_hero_head = PIXI.Texture.fromImage("images/new_hero/head.png");
 var img_origin = PIXI.Texture.fromImage("images/last_seen.png");
 var img_blood_splatter = PIXI.Texture.fromImage("images/blood_splatter.png");
 var img_blood_splatter2 = PIXI.Texture.fromImage("images/blood_splatter2.png");
+var img_hero_head_masked = PIXI.Texture.fromImage("images/new_hero/head_masked.png");

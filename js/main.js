@@ -25,11 +25,13 @@ var shell3;
 var shell4;
 var shell5;
 var shell_speed = 10;
+var blood_speed = 1;
 
 var	shellTextures = [];
 var	shellType = 2;
 var shells;
 var shards;
+var bloods;
 var	currentTexture;
 
 //
@@ -330,6 +332,7 @@ function startGame(){
     gun_drops = [];
     shells = [];
     shards = [];
+    bloods = [];
 
     
     
@@ -961,14 +964,15 @@ function gameloop_bullets(deltaTime){
         if(bullet.ignore == hero){
             for(var i = 0; i < guards.length; i++){
                 var guard = guards[i];
+                    
                 if(bullet.ignore == guard)continue;//don't kill the shooter with his own bullet
                 if(guard.alive && circle_linesetment_intersect(guard.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullet.x,y:bullet.y})){
                     guard.kill();
                     //make blood splatter:
                     //The angle is hero and not bullet, because if the bullet hits the guard off to the side it causes a strange splatter
                     var splatter_angle = grid.angleBetweenPoints(hero.x,hero.y,guard.x,guard.y);
-                    bloodParticleSplatter(-splatter_angle,guard);
-                    console.log('angle: ' + splatter_angle);
+                    bloodParticleSplatter(splatter_angle,guard);
+                    console.log('angle: ' + splatter_angle*180/Math.PI);
                     //make blood trail:
                     guard.blood_trail = [guard.x,guard.y];
                     
@@ -1465,14 +1469,40 @@ function gameloop(deltaTime){
     //update particles
     //////////////////////
     for(var i = 0; i < shells.length; i++){
-        if(tickParticle(shells[i])){
+        if(tickParticle(shells[i],20,true)){
             shells.splice(i,1);
             i--;
         }
     }
     for(var i = 0; i < shards.length; i++){
-        if(tickParticle(shards[i])){
+        if(tickParticle(shards[i],20,true)){
             shards.splice(i,1);
+            i--;
+        }
+    }
+    for(var i = 0; i < bloods.length; i++){
+        var blood = bloods[i];
+        //leave trail of blood:
+        bloodSplat = new PIXI.Sprite(currentbloodSplat);
+        //bloodSplat = new PIXI.Sprite(img_shell);
+        
+        
+        bloodSplat.anchor.x = 0.5;
+        bloodSplat.anchor.y = 0.5;
+        bloodSplat.position.x = blood.position.x;
+        bloodSplat.position.y = blood.position.y;
+        bloodSplat.scale.x = blood.scale.x;
+        bloodSplat.scale.y = blood.scale.y;
+        bloodSplat.rotation = randomFloatFromInterval(0.0,Math.PI*2);
+        particle_container.addChild(bloodSplat);
+        
+        //shrink blood particle:
+        blood.scale.x*=0.99;
+        blood.scale.y*=0.99;
+        
+        //remove when done ticking
+        if(tickParticle(blood,10,false)){
+            bloods.splice(i,1);
             i--;
         }
     }
@@ -1614,7 +1644,7 @@ function updateDebugInfo(){
     );
 }
 //Controls the behavior of a particle during one game tick
-function tickParticle(particle){
+function tickParticle(particle,tick_max,bounce){
     //particle should have .dy .dx .dr. and tick
     particle.position.y += particle.dy;
     //check the y to see if it has gone into a wall
@@ -1623,17 +1653,23 @@ function tickParticle(particle){
         particle.dy *= -1;
     }
     particle.position.x -= particle.dx;
-    //check the x to see if it has gone into a wall
-    if(grid.isWallSolid_coords(particle.position.x,particle.position.y)){
-        particle.position.x += particle.dx*2;
-        particle.dx *= -1;
-    }
+        //check the x to see if it has gone into a wall
+        if(grid.isWallSolid_coords(particle.position.x,particle.position.y)){
+            // if particle should bounce off walls
+            if(bounce){
+                    particle.position.x += particle.dx*2;
+                    particle.dx *= -1;
+            }else{
+                return true;
+            }
+        }
+    
     particle.dx *= 0.9;
     particle.dy *= 0.9;
     particle.rotation += particle.dr;
     particle.tick++;
     //remove from array once it is done moving (OPTIMIZATION)
-    if(particle.tick > 20){
+    if(particle.tick > tick_max){
         return true;//remove it from array
     }
     return false;
@@ -2355,8 +2391,8 @@ function shardParticleSplatter(angle,target){
         angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.
     for(var i = 0; i < shardAmount; i++){
         //make new bunnies
-        //shard = new PIXI.Sprite(currentShard);
-        shard = new PIXI.Sprite(img_shell);
+        shard = new PIXI.Sprite(currentShard);
+        //shard = new PIXI.Sprite(img_shell);
         
         
         shard.anchor.x = 0.5;
@@ -2390,28 +2426,31 @@ var bloodSplatType = 0;
 var bloodSplatImages = [img_blood_1,img_blood_2,img_blood_3];
 var currentbloodSplat = bloodSplatImages[bloodSplatType];
 function bloodParticleSplatter(angle,target){
-    var bloodAmount = randomIntFromInterval(5,15);
+    var bloodAmount = randomIntFromInterval(15,30);
     angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.    
     var bloodSplat;
     for(var i = 0; i < bloodAmount; i++){
         //make new bunnies
-        //bloodSplat = new PIXI.Sprite(currentbloodSplat);
-        bloodSplat = new PIXI.Sprite(img_shell);
+        bloodSplat = new PIXI.Sprite(currentbloodSplat);
+        //bloodSplat = new PIXI.Sprite(img_shell);
         
         
         bloodSplat.anchor.x = 0.5;
         bloodSplat.anchor.y = 0.5;
-        var randScale = randomFloatFromInterval(0.5,3);
+        bloodSplat.position.x = target.x;
+        bloodSplat.position.y = target.y;
+        var randScale = randomFloatFromInterval(0.5,1);
         bloodSplat.scale.x = randScale;
         bloodSplat.scale.y = randScale;
-        var randSpeed = randomFloatWithBias(0.1,shell_speed*2);
-        var randRotationOffset = randomFloatFromInterval(-Math.PI/6,Math.PI/6);
-        bloodSplat.dx = randSpeed*Math.sin(angle+randRotationOffset)*15;
-        bloodSplat.dy = randSpeed*Math.cos(angle+randRotationOffset)*15;
+        var randSpeed = randomFloatWithBias(0.1,blood_speed*2);
+        var randRotationOffset = randomFloatFromInterval(-Math.PI/4,Math.PI/4);
+        bloodSplat.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
+        bloodSplat.dx = -randSpeed*Math.sin(angle+randRotationOffset)*15;
+        bloodSplat.dy = -randSpeed*Math.cos(angle+randRotationOffset)*15;
+        bloodSplat.tick = 0;//the amount of times that it has moved;
         bloodSplat.rotation = (angle);
-        bloodSplat.position.x = target.x + bloodSplat.dx;
-        bloodSplat.position.y = target.y + bloodSplat.dy;
 
+        bloods.push(bloodSplat);
         particle_container.addChild(bloodSplat);
         //rotate to next image:
         bloodSplatType++
