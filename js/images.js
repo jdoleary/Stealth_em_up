@@ -1,4 +1,4 @@
-
+/*
 //images:
 var img_blue = PIXI.Texture.fromImage("images/hero_body_1.png");
 var img_masked = PIXI.Texture.fromImage("images/hero_body_1_masked.png");
@@ -58,4 +58,4 @@ var img_blood_2 = PIXI.Texture.fromImage("images/blood2.png");
 var img_blood_3 = PIXI.Texture.fromImage("images/blood3.png");
 var img_shard_1 = PIXI.Texture.fromImage("images/shard.png");
 var img_shard_2 = PIXI.Texture.fromImage("images/shard2.png");
-var img_shard_3 = PIXI.Texture.fromImage("images/shard3.png");
+var img_shard_3 = PIXI.Texture.fromImage("images/shard3.png");*/

@@ -17,7 +17,7 @@ var window_properties;
 var renderer;
 
 //TODO test:
-var wabbitTexture = new PIXI.Texture.fromImage("../images/shells.png")
+var wabbitTexture = new PIXI.Texture.fromImage("../images/shell.png")
 var	particle_container;	
 var shell1;
 var shell2;
@@ -2346,16 +2346,17 @@ window.onresize = function (event){
 
 
 }
-var shard_limit = 20;
+var shard_limit = 2000;
 var shardType = 0;
 var shardImages = [img_shard_1,img_shard_2,img_shard_3];
 var currentShard = shardImages[shardType];
 function shardParticleSplatter(angle,target){
-    var shardAmount = randomIntFromInterval(1,6);
+    var shardAmount = 100;//randomIntFromInterval(1,6);
         angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.
     for(var i = 0; i < shardAmount; i++){
         //make new bunnies
-        shard = new PIXI.Sprite(currentShard);
+        //shard = new PIXI.Sprite(currentShard);
+        shard = new PIXI.Sprite(img_shell);
         
         
         shard.anchor.x = 0.5;
@@ -2394,7 +2395,8 @@ function bloodParticleSplatter(angle,target){
     var bloodSplat;
     for(var i = 0; i < bloodAmount; i++){
         //make new bunnies
-        bloodSplat = new PIXI.Sprite(currentbloodSplat);
+        //bloodSplat = new PIXI.Sprite(currentbloodSplat);
+        bloodSplat = new PIXI.Sprite(img_shell);
         
         
         bloodSplat.anchor.x = 0.5;

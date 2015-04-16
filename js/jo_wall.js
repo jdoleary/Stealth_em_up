@@ -7,10 +7,11 @@ me at jdoleary@gmail.com
 
 var img_tile_black = "images/tile_black.png";
 var img_tile_white = "images/tile_white.png";
-var img_tile_brown = "images/tile_brown.png";
-var img_doodad_paper = "images/papers.png";
-var img_doodad_lamp = "images/lamp.png";
 var img_tile_red = "images/tile_red.png";
+var img_tile_brown = "images/tile_brown.png";
+/*
+var img_doodad_paper = "images/papers.png";
+var img_doodad_lamp = "images/lamp.png";*/
 
 function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     /*
@@ -51,19 +52,24 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
         
         switch(image_number_p) {
         case 0:
+            //var sprite = new PIXI.Sprite(img_tile_black);
             var sprite = new PIXI.Sprite.fromImage(img_tile_black);
             break;
         case 1:
+            //var sprite = new PIXI.Sprite(img_tile_white);
             var sprite = new PIXI.Sprite.fromImage(img_tile_white);
             break;
         case 2:
+            //var sprite = new PIXI.Sprite(img_tile_brown);
             var sprite = new PIXI.Sprite.fromImage(img_tile_brown);
             var random_tile = Math.round(Math.random() * (10 - 1) + 1);
             var sprite_doodad;
             if(random_tile==1 || random_tile==3){
-                sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_paper);
+                sprite_doodad = new PIXI.Sprite(img_doodad_paper);
+                //sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_paper);
             }else if(random_tile==2){
-                sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_lamp);
+                sprite_doodad = new PIXI.Sprite(img_doodad_lamp);
+                //sprite_doodad = new PIXI.Sprite.fromImage(img_doodad_lamp);
             }
             
             if(display_actors && sprite_doodad)new jo_doodad(sprite_doodad,display_actors,this.x,this.y);
@@ -91,6 +97,7 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             break;
         case 3:
         case 4:
+            //var sprite = new PIXI.Sprite(img_tile_red);
             var sprite = new PIXI.Sprite.fromImage(img_tile_red);
             break;
             
