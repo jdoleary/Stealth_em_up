@@ -169,6 +169,8 @@ var graphics_blood;
             var hero_end_aim_coord;
             var starburst;
             var starburst_ray;
+            var starburst_angles;
+            var starburst_points;
             
 			
 			var hero_drag_target; // a special var reserved for when the hero is dragging something.
@@ -511,6 +513,7 @@ function setup_map(map){
             starburst = new debug_line();
             starburst_ray = new Ray(0,0,0,0);
             starburst_angles = [];
+            starburst_points = [];
             for(var i = 0; i < 48; i++){
                 starburst_angles.push(Math.PI*2-i*Math.PI*2/48);
             }
@@ -574,6 +577,9 @@ function setup_map(map){
             loot.push(money);
 
             
+            
+            //TODO: debug
+            showCornersForVisionMasking();
 
 }
 ////////////////////////////////////////////////////////////
@@ -1486,10 +1492,16 @@ function gameloop(deltaTime){
     var raycast;// = getRaycastPoint(hero.x,hero.y,hero.x,hero.y+100);
     //starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
     //starburst.draw_Ray_without_clear(starburst_ray);
-    for(var i = 0; i < starburst_angles.length; i++){
+    /*for(var i = 0; i < starburst_angles.length; i++){
         raycast = getRaycastPoint(hero.x,hero.y,hero.x+Math.cos(starburst_angles[i]),hero.y+Math.sin(starburst_angles[i]));
         starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-        starburst.draw_Ray_without_clear(starburst_ray);
+        starburst.draw_Ray_without_clear(starburst_ray,0xaa0000);
+        
+    }*/
+    for(var i = 0; i < starburst_points.length; i++){
+        raycast = getRaycastPoint(hero.x,hero.y,starburst_points[i].x,starburst_points[i].y);
+        starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
+        starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
         
     }
     
@@ -2571,5 +2583,42 @@ function getMapInfo(subdir, fileName){
     //                                 continue.
     oReq.send();*/
 
-
+function showCornersForVisionMasking(){
+    var true_corners = 0;
+    for(var c = 0; c < grid.cells.length; c++){
+        /*var array = [grid.cells[c].v2,grid.cells[c].v4,grid.cells[c].v6,grid.cells[c].v8];
+        for(var a = 0; a < array.length; a++){
+            //get all 4 cells on the corner of this point:
+        }*/
+        //i should only have to use v2 to avoid duplication:
+        var cell = grid.cells[c];
+        var index = grid.getIndexFromCoords_2d(cell.v2.x-1,cell.v2.y-1);
+        var northwest = grid.getCellFromIndex(index.x,index.y);
+        
+        index = grid.getIndexFromCoords_2d(cell.v2.x+1,cell.v2.y+1);
+        var southeast = grid.getCellFromIndex(index.x,index.y);
+        
+        index = grid.getIndexFromCoords_2d(cell.v2.x-1,cell.v2.y+1);
+        var southwest = grid.getCellFromIndex(index.x,index.y);
+        
+        index = grid.getIndexFromCoords_2d(cell.v2.x+1,cell.v2.y-1);
+        var northeast = grid.getCellFromIndex(index.x,index.y);
+        
+        var corner_cells = [northwest,northeast,southwest,southeast];
+        var number_of_blocks_vision = 0;
+        for(var i = 0; i < corner_cells.length; i++){
+            if(corner_cells[i] != undefined && corner_cells[i].blocks_vision)number_of_blocks_vision++;
+        }
+        //if not even, it is a true corner point used for vision masking:
+        if(number_of_blocks_vision%2!=0){
+            var circle = new debug_circle();
+            circle.alpha = 1.0;
+            circle.color = 0x00ff00;
+            circle.draw(cell.v2.x,cell.v2.y,5);
+            starburst_points.push({x:cell.v2.x,y:cell.v2.y});
+            true_corners++;
+        }
+    }
+    console.log("True corners for vision masking: " + true_corners);
+};
 

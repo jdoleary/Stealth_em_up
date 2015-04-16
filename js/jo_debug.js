@@ -29,11 +29,11 @@ function debug_line(){
 		this.graphics.moveTo(draw_coords1.x, draw_coords1.y);
 		this.graphics.lineTo(draw_coords2.x, draw_coords2.y);
     }
-    this.draw_Ray_without_clear = function(ray){
+    this.draw_Ray_without_clear = function(ray,color){
         //draw on the screen objective (where game origin is 0,0)
         var draw_coords1 = camera.relativePoint({x:ray.start.x,y:ray.start.y});
         var draw_coords2 = camera.relativePoint({x:ray.end.x,y:ray.end.y});
-        this.graphics.lineStyle(2, 0xcc0000, 1);
+        this.graphics.lineStyle(2, color, 1);
 		this.graphics.moveTo(draw_coords1.x, draw_coords1.y);
 		this.graphics.lineTo(draw_coords2.x, draw_coords2.y);
         
@@ -49,16 +49,17 @@ function debug_circle(){
     this.graphics.lineStyle(0);
     stage_child.addChild(this.graphics);
     this.color = 0xa52a2a;
+    this.alpha = 0.5;
     this.draw = function(x,y,size){
         this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
-        this.graphics.beginFill(this.color, 0.5);
+        this.graphics.beginFill(this.color, this.alpha);
         this.graphics.drawCircle(x, y,size);
     
     }
     this.draw_obj = function(x,y,size){
         var draw_coords = camera.relativePoint({x:x,y:y});
         this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
-        this.graphics.beginFill(this.color, 0.5);
+        this.graphics.beginFill(this.color, this.alpha);
         this.graphics.drawCircle(draw_coords.x, draw_coords.y,size);
     
     }
