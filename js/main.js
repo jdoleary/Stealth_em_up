@@ -351,6 +351,7 @@ function startGame(){
     
     //LOS 
     losGraphics = new PIXI.Graphics().beginFill(0xFF0000);
+    losGraphics.alpha = 0.7;
     losPath = [100,100,200,100,100,200,100,100,100,200,0,200,100,100 ,1000,0,1000,1000,0,1000,0,0,1000,0];
     losPoints = [];
 
@@ -1414,8 +1415,6 @@ function pickUpGunDrop(gunDrop){
 
 }
 var mousetest;
-var si = false;
-var so = false;
 function gameloop(deltaTime){
     //////////////////////
     //update Mouse
@@ -1511,53 +1510,56 @@ function gameloop(deltaTime){
     starburst.clear();
     var raycast;// = getRaycastPoint(hero.x,hero.y,hero.x,hero.y+100);
     //starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-    
-    console.log('0000000000000000000000000: ' + losPoints.length);
+    var first = {};
+    //console.log('0000000000000000000000000: ' + losPoints.length);
+    losPath.push(hero.x,hero.y);
+    var previous_equals_its_true_point = false;
     for(var i = 0; i < losPoints.length; i++){
         var true_point = losPoints[i].true_point;
         //update angle:
         losPoints[i].angle = findAngleBetweenPoints(true_point,hero);
         
         raycast = getRaycastPoint(hero.x,hero.y,true_point.x,true_point.y);
+        //if raycast point if farther away from hero than true point, then add the true point as a draw point:
+        var ray_to_hero = get_distance(hero.x,hero.y,raycast.x,raycast.y);
+        var ray_to_true = get_distance(hero.x,hero.y,true_point.x,true_point.y);
+        var addTrue = false;
+        if(ray_to_true < ray_to_hero)addTrue = true;
         starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
         starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
         
         
-        if(i < 600){
-            //how you draw the triangle poly:
-            //A B C A C D A D F A F
-            //create losPath
-            if(i > 1){
-                //start point between every two other points
-                
-                //repeat last and start point:
+        //how you draw the triangle poly:
+        //A B C A C D A D F A F
+        //create losPath
+        if(i > 1){
+            //start point between every two other points
+            
+            //repeat last and start point:
+            if(addTrue){
+                //if(previous_equals_its_true_point)losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
                 losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
-                
-                if(si)console.log('>' + hero.x + ',' + hero.y);
+                //if(!previous_equals_its_true_point)losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
             }else{
-                losPath.push(raycast.x,raycast.y); 
-                
+                losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
             }
-            if(si)console.log(raycast.x + ',' + raycast.y);
+            if(true_point.x == raycast.x && true_point.y == raycast.y)previous_equals_its_true_point = true;
+            else previous_equals_its_true_point = false;
+            
         }
+        if(i==0){
+            losPath.push(raycast.x,raycast.y); 
+            first.x = raycast.x;
+            first.y = raycast.y;
+            
+        }
+        
             
     }
-    if(si)debugger;
+    losPath.push(first.x,first.y,hero.x,hero.y);
     //push the corners of the map so that losPath is inverted:
-    losPath.push(0);
-    losPath.push(0);
+    losPath.push(0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0);
     
-    losPath.push(grid_width);
-    losPath.push(0);
-    
-    losPath.push(grid_width);
-    losPath.push(grid_height);
-    
-    losPath.push(0);
-    losPath.push(grid_height);
-    
-    losPath.push(0);
-    losPath.push(0);
     
     //sort losPoints by angle:
     losPoints = quickSort(losPoints,0,losPoints.length-1);
