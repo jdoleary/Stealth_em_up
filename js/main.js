@@ -107,6 +107,11 @@ var clickEvent;
 
 var stage_child;
 
+
+
+var losGraphics;
+var losPath;
+
 var gun_drops;
 
 //zoom:
@@ -338,6 +343,11 @@ function startGame(){
     shells = [];
     shards = [];
     bloods = [];
+    
+    //LOS 
+    losGraphics = new PIXI.Graphics().beginFill(0xFF0000);
+    losPath = [100,100,200,100,100,200,100,100,100,200,0,200,100,100 ,1000,0,1000,1000,0,1000,0,0,1000,0];
+    
 
     
     
@@ -366,6 +376,8 @@ function startGame(){
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
 
     stage_child.addChild(display_actors);
+    
+    stage_child.addChild(losGraphics);//for line of sight
     
     
     
@@ -1661,6 +1673,12 @@ function gameloop(deltaTime){
     gameloop_zoom_and_camera(deltaTime);
     //causing slowdown?
     if(debug_on)updateDebugInfo();
+    
+    
+    //Update LOS:
+    losGraphics.clear();
+    losGraphics.beginFill(0);
+    losGraphics.drawPolygon(losPath);
 
 }
 var debug_info = $('#debug_info');
