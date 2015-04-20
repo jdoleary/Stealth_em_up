@@ -37,6 +37,8 @@ function debug_line(){
 		this.graphics.moveTo(draw_coords1.x, draw_coords1.y);
 		this.graphics.lineTo(draw_coords2.x, draw_coords2.y);
         
+        this.graphics.drawCircle(draw_coords2.x, draw_coords2.y,10);
+        
     }
     this.clear = function(){
         this.graphics.clear();//without clear it wont erase the debug shape from previous frame.

@@ -111,6 +111,10 @@ var stage_child;
 
 var losGraphics;
 var losPath;
+var losPoints;//the constantly updated list of points and angles that allows for drawing the losPath;
+
+var grid_width;
+var grid_height;
 
 var gun_drops;
 
@@ -175,6 +179,7 @@ var graphics_blood;
             var starburst;
             var starburst_ray;
             var starburst_angles;
+            //true corner points:
             var starburst_points;
             
 			
@@ -347,7 +352,7 @@ function startGame(){
     //LOS 
     losGraphics = new PIXI.Graphics().beginFill(0xFF0000);
     losPath = [100,100,200,100,100,200,100,100,100,200,0,200,100,100 ,1000,0,1000,1000,0,1000,0,0,1000,0];
-    
+    losPoints = [];
 
     
     
@@ -507,6 +512,12 @@ function setup_map(map){
     console.log(map);
     //grid/map
     grid = new jo_grid(map);
+    
+    
+    //whole map width and height:
+    grid_width = grid.width*grid.cell_size;
+    grid_height = grid.height*grid.cell_size;
+    
     display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
     display_tiles_walls.addChild(tile_containers[2]);//add SpriteBatches, brown furnature
     display_tiles.addChild(tile_containers[1]);//add SpriteBatches
@@ -524,11 +535,8 @@ function setup_map(map){
 			//hero_end_aim_coord;
             starburst = new debug_line();
             starburst_ray = new Ray(0,0,0,0);
-            starburst_angles = [];
             starburst_points = [];
-            for(var i = 0; i < 48; i++){
-                starburst_angles.push(Math.PI*2-i*Math.PI*2/48);
-            }
+
             hero.x = map.objects.hero[0];
             hero.y = map.objects.hero[1];
 			hero.speed = hero.speed_walk;
@@ -1226,8 +1234,6 @@ function gameloop_zoom_and_camera(deltaTime){
     //don't let camera show out of bounds:
     var cam_width = window_properties.width*(1/stage_child.scale.x);
     var cam_height = window_properties.height*(1/stage_child.scale.y);
-    var grid_width = grid.width*grid.cell_size;
-    var grid_height = grid.height*grid.cell_size;
     var cam_adjust_x = camera.x;
     var cam_adjust_y = camera.y;
     
@@ -1408,6 +1414,8 @@ function pickUpGunDrop(gunDrop){
 
 }
 var mousetest;
+var si = false;
+var so = false;
 function gameloop(deltaTime){
     //////////////////////
     //update Mouse
@@ -1503,21 +1511,57 @@ function gameloop(deltaTime){
     starburst.clear();
     var raycast;// = getRaycastPoint(hero.x,hero.y,hero.x,hero.y+100);
     //starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-    //starburst.draw_Ray_without_clear(starburst_ray);
-    /*for(var i = 0; i < starburst_angles.length; i++){
-        raycast = getRaycastPoint(hero.x,hero.y,hero.x+Math.cos(starburst_angles[i]),hero.y+Math.sin(starburst_angles[i]));
-        starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-        starburst.draw_Ray_without_clear(starburst_ray,0xaa0000);
+    
+    console.log('0000000000000000000000000: ' + losPoints.length);
+    for(var i = 0; i < losPoints.length; i++){
+        var true_point = losPoints[i].true_point;
+        //update angle:
+        losPoints[i].angle = findAngleBetweenPoints(true_point,hero);
         
-    }*/
-    for(var i = 0; i < starburst_points.length; i++){
-        raycast = getRaycastPoint(hero.x,hero.y,starburst_points[i].x,starburst_points[i].y);
+        raycast = getRaycastPoint(hero.x,hero.y,true_point.x,true_point.y);
         starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
         starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
         
+        
+        if(i < 600){
+            //how you draw the triangle poly:
+            //A B C A C D A D F A F
+            //create losPath
+            if(i > 1){
+                //start point between every two other points
+                
+                //repeat last and start point:
+                losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
+                
+                if(si)console.log('>' + hero.x + ',' + hero.y);
+            }else{
+                losPath.push(raycast.x,raycast.y); 
+                
+            }
+            if(si)console.log(raycast.x + ',' + raycast.y);
+        }
+            
     }
+    if(si)debugger;
+    //push the corners of the map so that losPath is inverted:
+    losPath.push(0);
+    losPath.push(0);
     
+    losPath.push(grid_width);
+    losPath.push(0);
     
+    losPath.push(grid_width);
+    losPath.push(grid_height);
+    
+    losPath.push(0);
+    losPath.push(grid_height);
+    
+    losPath.push(0);
+    losPath.push(0);
+    
+    //sort losPoints by angle:
+    losPoints = quickSort(losPoints,0,losPoints.length-1);
+
     
     //////////////////////
     //update particles
@@ -1679,6 +1723,7 @@ function gameloop(deltaTime){
     losGraphics.clear();
     losGraphics.beginFill(0);
     losGraphics.drawPolygon(losPath);
+    losPath = [];
 
 }
 var debug_info = $('#debug_info');
@@ -2633,7 +2678,13 @@ function showCornersForVisionMasking(){
             circle.alpha = 1.0;
             circle.color = 0x00ff00;
             circle.draw(cell.v2.x,cell.v2.y,5);
-            starburst_points.push({x:cell.v2.x,y:cell.v2.y});
+            starburst_points.push({x:cell.v2.x,y:cell.v2.y});//for drawing debug lines
+            /*        
+            {
+                true_point: {x,y},
+                angle: 234
+            }*/
+            losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
             true_corners++;
         }
     }
