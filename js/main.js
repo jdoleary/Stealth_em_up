@@ -1514,6 +1514,7 @@ function gameloop(deltaTime){
     //console.log('0000000000000000000000000: ' + losPoints.length);
     losPath.push(hero.x,hero.y);
     var previous_equals_its_true_point = false;
+    var previous_greater_than_true = false;
     for(var i = 0; i < losPoints.length; i++){
         var true_point = losPoints[i].true_point;
         //update angle:
@@ -1538,8 +1539,7 @@ function gameloop(deltaTime){
             //repeat last and start point:
             if(addTrue){
                 //if(previous_equals_its_true_point)losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
-                losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
-                //if(!previous_equals_its_true_point)losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
+                losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y);
             }else{
                 losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
             }
@@ -2671,8 +2671,13 @@ function showCornersForVisionMasking(){
         
         var corner_cells = [northwest,northeast,southwest,southeast];
         var number_of_blocks_vision = 0;
+        var corner = -1;
         for(var i = 0; i < corner_cells.length; i++){
-            if(corner_cells[i] != undefined && corner_cells[i].blocks_vision)number_of_blocks_vision++;
+            if(corner_cells[i] != undefined && corner_cells[i].blocks_vision){
+                number_of_blocks_vision++;
+                //determines which block is blocking vision, only applicable if there is only one blocking block
+                corner = i;
+            }
         }
         //if not even, it is a true corner point used for vision masking:
         if(number_of_blocks_vision%2!=0){
@@ -2686,7 +2691,35 @@ function showCornersForVisionMasking(){
                 true_point: {x,y},
                 angle: 234
             }*/
-            losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
+            if(number_of_blocks_vision == 1){
+                var offsetx = 0;
+                var offsety = 0;
+                switch(corner){
+                    case 0:
+                        //NW
+                        offsetx = 1;
+                        offsety = -1;
+                        break;
+                    case 1:
+                        offsetx = -1;
+                        offsety = -1;
+                        //NE
+                        break;
+                    case 2:
+                        offsetx = 1;
+                        offsety = 1;
+                        //SW
+                        break;
+                    case 3:
+                        offsetx = -1;
+                        offsety = 1;
+                        //SE
+                        break;
+                }
+                losPoints.push({true_point:{x:cell.v2.x+offsetx,y:cell.v2.y+offsety},angle:0});//for rendering LOS
+            }else{
+                losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
+            }
             true_corners++;
         }
     }
