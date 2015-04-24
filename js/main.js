@@ -1513,21 +1513,38 @@ function gameloop(deltaTime){
     var first = {};
     //console.log('0000000000000000000000000: ' + losPoints.length);
     losPath.push(hero.x,hero.y);
-    var previous_equals_its_true_point = false;
-    var previous_greater_than_true = false;
+    var lastPoint;
+    var relevantCorner = false;
     for(var i = 0; i < losPoints.length; i++){
         var true_point = losPoints[i].true_point;
         //update angle:
         losPoints[i].angle = findAngleBetweenPoints(true_point,hero);
         
+        
         raycast = getRaycastPoint(hero.x,hero.y,true_point.x,true_point.y);
         //if raycast point if farther away from hero than true point, then add the true point as a draw point:
         var ray_to_hero = get_distance(hero.x,hero.y,raycast.x,raycast.y);
         var ray_to_true = get_distance(hero.x,hero.y,true_point.x,true_point.y);
-        var addTrue = false;
-        if(ray_to_true < ray_to_hero)addTrue = true;
+        relevantCorner = false;
+
+        //find the corners that are visible to the hero
+        //possible room for optimization in the getRaycastPoint function
+        if(ray_to_true < ray_to_hero || (Math.abs(ray_to_hero - ray_to_true) < 10)){
+            relevantCorner = true;
+        }
         starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-        starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
+        if(relevantCorner){
+            if(!losPoints[i].noray){
+                //normal
+                starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
+                starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
+            }else{
+                starburst_ray.set(hero.x,hero.y,true_point.x,true_point.y);
+                starburst.draw_Ray_without_clear(starburst_ray,0x00ff00);
+            }
+            
+        }//else if(losPoints[i].noray)starburst.draw_Ray_without_clear(starburst_ray,0xff0000);
+    
         
         
         //how you draw the triangle poly:
@@ -1535,16 +1552,20 @@ function gameloop(deltaTime){
         //create losPath
         if(i > 1){
             //start point between every two other points
-            
-            //repeat last and start point:
-            if(addTrue){
-                //if(previous_equals_its_true_point)losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
-                losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y);
-            }else{
-                losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
+            if(relevantCorner){
+             
+                if(losPoints[i].noray){
+                    losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
+                    lastPoint = true_point;
+        
+                }else{
+                    //losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
+                    losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
+                    lastPoint = raycast;
+                }
             }
-            if(true_point.x == raycast.x && true_point.y == raycast.y)previous_equals_its_true_point = true;
-            else previous_equals_its_true_point = false;
+            //losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
+            
             
         }
         if(i==0){
@@ -2683,14 +2704,15 @@ function showCornersForVisionMasking(){
         if(number_of_blocks_vision%2!=0){
             var circle = new debug_circle();
             circle.alpha = 1.0;
-            circle.color = 0x00ff00;
-            circle.draw(cell.v2.x,cell.v2.y,5);
+            //later,circle.color = 0x00ff00;
+            //later, to account for offset: circle.draw(cell.v2.x,cell.v2.y,5);
             starburst_points.push({x:cell.v2.x,y:cell.v2.y});//for drawing debug lines
             /*        
             {
                 true_point: {x,y},
                 angle: 234
             }*/
+            //if it is an outer corner, add two points, one that will cast a ray, and another that uses the true corner
             if(number_of_blocks_vision == 1){
                 var offsetx = 0;
                 var offsety = 0;
@@ -2698,29 +2720,37 @@ function showCornersForVisionMasking(){
                     case 0:
                         //NW
                         offsetx = 1;
-                        offsety = -1;
+                        offsety = 1;
                         break;
                     case 1:
                         offsetx = -1;
-                        offsety = -1;
+                        offsety = 1;
                         //NE
                         break;
                     case 2:
                         offsetx = 1;
-                        offsety = 1;
+                        offsety = -1;
                         //SW
                         break;
                     case 3:
                         offsetx = -1;
-                        offsety = 1;
+                        offsety = -1;
                         //SE
                         break;
                 }
+                losPoints.push({noray:true,true_point:{x:cell.v2.x-offsetx*2,y:cell.v2.y-offsety*2},angle:0});//for rendering LOS
                 losPoints.push({true_point:{x:cell.v2.x+offsetx,y:cell.v2.y+offsety},angle:0});//for rendering LOS
+                circle.color = 0x00ff00;
+                circle.draw(cell.v2.x+offsetx,cell.v2.y+offsety,4);
             }else{
                 losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
+                circle.color = 0xff0000;
+                circle.draw(cell.v2.x,cell.v2.y,4);
             }
             true_corners++;
+            /*
+            True corners are decided once when the game starts.  Relevant corners are decided at runtime and are using to draw the LOS polygon
+            */
         }
     }
     console.log("True corners for vision masking: " + true_corners);
