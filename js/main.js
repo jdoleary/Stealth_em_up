@@ -177,10 +177,9 @@ var graphics_blood;
             var hero_last_seen;
             var hero_end_aim_coord;
             var starburst;
+            var draw_starburst = false;//DEBUG FOR LOS
             var starburst_ray;
             var starburst_angles;
-            //true corner points:
-            var starburst_points;
             
 			
 			var hero_drag_target; // a special var reserved for when the hero is dragging something.
@@ -536,7 +535,6 @@ function setup_map(map){
 			//hero_end_aim_coord;
             starburst = new debug_line();
             starburst_ray = new Ray(0,0,0,0);
-            starburst_points = [];
 
             hero.x = map.objects.hero[0];
             hero.y = map.objects.hero[1];
@@ -1516,9 +1514,18 @@ function gameloop(deltaTime){
     var lastPoint;
     var relevantCorner = false;
     for(var i = 0; i < losPoints.length; i++){
-        var true_point = losPoints[i].true_point;
         //update angle:
-        losPoints[i].angle = findAngleBetweenPoints(true_point,hero);
+        losPoints[i].angle = findAngleBetweenPoints(losPoints[i].true_point,hero);
+    }
+    
+    //sort losPoints by angle:
+    losPoints = quickSort(losPoints,0,losPoints.length-1);
+    
+    var noray;
+    var true_point;
+    for(var i = 0; i < losPoints.length; i++){
+        true_point = losPoints[i].true_point;
+        noray = losPoints[i].noray;
         
         
         raycast = getRaycastPoint(hero.x,hero.y,true_point.x,true_point.y);
@@ -1532,20 +1539,21 @@ function gameloop(deltaTime){
         if(ray_to_true < ray_to_hero || (Math.abs(ray_to_hero - ray_to_true) < 10)){
             relevantCorner = true;
         }
-        starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-        if(relevantCorner){
-            if(!losPoints[i].noray){
-                //normal
-                starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-                starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
-            }else{
-                starburst_ray.set(hero.x,hero.y,true_point.x,true_point.y);
-                starburst.draw_Ray_without_clear(starburst_ray,0x00ff00);
-            }
-            
-        }//else if(losPoints[i].noray)starburst.draw_Ray_without_clear(starburst_ray,0xff0000);
-    
+        if(draw_starburst){
+            starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
+            if(relevantCorner){
+                if(!noray){
+                    //normal
+                    starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
+                    starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
+                }else{
+                    starburst_ray.set(hero.x,hero.y,true_point.x,true_point.y);
+                    starburst.draw_Ray_without_clear(starburst_ray,0x00ff00);
+                }
+                
+            }//else if(noray)starburst.draw_Ray_without_clear(starburst_ray,0xff0000);
         
+        }
         
         //how you draw the triangle poly:
         //A B C A C D A D F A F
@@ -1554,12 +1562,11 @@ function gameloop(deltaTime){
             //start point between every two other points
             if(relevantCorner){
              
-                if(losPoints[i].noray){
+                if(noray){
                     losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
                     lastPoint = true_point;
         
                 }else{
-                    //losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
                     losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
                     lastPoint = raycast;
                 }
@@ -1582,8 +1589,6 @@ function gameloop(deltaTime){
     losPath.push(0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0);
     
     
-    //sort losPoints by angle:
-    losPoints = quickSort(losPoints,0,losPoints.length-1);
 
     
     //////////////////////
@@ -2702,11 +2707,12 @@ function showCornersForVisionMasking(){
         }
         //if not even, it is a true corner point used for vision masking:
         if(number_of_blocks_vision%2!=0){
-            var circle = new debug_circle();
-            circle.alpha = 1.0;
+            if(draw_starburst){
+                var circle = new debug_circle();
+                circle.alpha = 1.0;
+            }
             //later,circle.color = 0x00ff00;
             //later, to account for offset: circle.draw(cell.v2.x,cell.v2.y,5);
-            starburst_points.push({x:cell.v2.x,y:cell.v2.y});//for drawing debug lines
             /*        
             {
                 true_point: {x,y},
@@ -2738,14 +2744,18 @@ function showCornersForVisionMasking(){
                         //SE
                         break;
                 }
-                losPoints.push({noray:true,true_point:{x:cell.v2.x-offsetx*2,y:cell.v2.y-offsety*2},angle:0});//for rendering LOS
+                losPoints.push({noray:true,true_point:{x:cell.v2.x-offsetx,y:cell.v2.y-offsety},angle:0});//for rendering LOS
                 losPoints.push({true_point:{x:cell.v2.x+offsetx,y:cell.v2.y+offsety},angle:0});//for rendering LOS
-                circle.color = 0x00ff00;
-                circle.draw(cell.v2.x+offsetx,cell.v2.y+offsety,4);
+                if(draw_starburst){
+                    circle.color = 0x00ff00;
+                    circle.draw(cell.v2.x+offsetx,cell.v2.y+offsety,4);
+                }
             }else{
                 losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
-                circle.color = 0xff0000;
-                circle.draw(cell.v2.x,cell.v2.y,4);
+                if(draw_starburst){
+                    circle.color = 0xff0000;
+                    circle.draw(cell.v2.x,cell.v2.y,4);
+                }
             }
             true_corners++;
             /*
