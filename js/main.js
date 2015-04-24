@@ -1623,8 +1623,8 @@ function gameloop(deltaTime){
         particle_container.addChild(bloodSplat);
         
         //shrink blood particle:
-        blood.scale.x*=0.99;
-        blood.scale.y*=0.99;
+        blood.scale.x*=0.7;
+        blood.scale.y*=0.7;
         
         //remove when done ticking
         if(tickParticle(blood,10,false)){
@@ -2570,9 +2570,7 @@ function bloodParticleSplatter(angle,target){
         
         bloodSplat.anchor.x = 0.5;
         bloodSplat.anchor.y = 0.5;
-        bloodSplat.position.x = target.x;
-        bloodSplat.position.y = target.y;
-        var randScale = randomFloatFromInterval(0.5,1);
+        var randScale = randomFloatFromInterval(1,2);
         bloodSplat.scale.x = randScale;
         bloodSplat.scale.y = randScale;
         var randSpeed = randomFloatWithBias(0.1,blood_speed*2);
@@ -2580,6 +2578,9 @@ function bloodParticleSplatter(angle,target){
         bloodSplat.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
         bloodSplat.dx = -randSpeed*Math.sin(angle+randRotationOffset)*15;
         bloodSplat.dy = -randSpeed*Math.cos(angle+randRotationOffset)*15;
+        //start the blood off a little away from target
+        bloodSplat.position.x = target.x+Math.sin(angle)*20;
+        bloodSplat.position.y = target.y+Math.cos(angle)*20;
         bloodSplat.tick = 0;//the amount of times that it has moved;
         bloodSplat.rotation = (angle);
 
@@ -2698,13 +2699,22 @@ function showCornersForVisionMasking(){
         var corner_cells = [northwest,northeast,southwest,southeast];
         var number_of_blocks_vision = 0;
         var corner = -1;
+        var touching_door = false;
         for(var i = 0; i < corner_cells.length; i++){
-            if(corner_cells[i] != undefined && corner_cells[i].blocks_vision){
-                number_of_blocks_vision++;
-                //determines which block is blocking vision, only applicable if there is only one blocking block
-                corner = i;
+            if(corner_cells[i] != undefined){
+                if(corner_cells[i].blocks_vision){
+                    number_of_blocks_vision++;
+                    //determines which block is blocking vision, only applicable if there is only one blocking block
+                    //mark the corner if it isn't a door:
+                    if(!corner_cells[i].door)corner = i;
+                }
+                if(corner_cells[i].door){
+                    touching_door = true;
+                }
             }
         }
+        //allows for corner on closed doors
+        if(number_of_blocks_vision == 2 && touching_door)number_of_blocks_vision--;
         //if not even, it is a true corner point used for vision masking:
         if(number_of_blocks_vision%2!=0){
             if(draw_starburst){
