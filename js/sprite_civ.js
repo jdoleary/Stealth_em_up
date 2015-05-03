@@ -15,7 +15,7 @@ function sprite_civ_wrapper(pixiSprite){
         
         
         this.kill = function(){
-            this.sprite.setTexture(img_skull);
+            this.sprite.texture = (img_skull);
             this.alive = false;
             //enable moving so they can be dragged
             this.moving = true;
@@ -44,7 +44,7 @@ function sprite_civ_wrapper(pixiSprite){
             if(!this.alarmed){
                 this.alarmed = true;
                 //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-                this.sprite.setTexture(img_guard_alert);
+                this.sprite.texture = (img_guard_alert);
                 this.path = [];//empty path
                 this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
                 this.moving = false;//this sprite stop in their tracks when they see otherSprite.

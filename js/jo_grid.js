@@ -114,11 +114,11 @@ var tile_containers;
 
 function jo_grid(map){
     //set up sprite batches:
-    tile_container_black = new PIXI.SpriteBatch();//for efficiency!
-    tile_container_white = new PIXI.SpriteBatch();//for efficiency!
-    tile_container_brown = new PIXI.SpriteBatch();//for efficiency!
-    tile_container_red = new PIXI.SpriteBatch();//for efficiency!
-    tile_container_purple = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_black = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
+    tile_container_white = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
+    tile_container_brown = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
+    tile_container_red = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
+    tile_container_purple = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
     tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
 
     //Debug lines for shortcut pathing
@@ -178,7 +178,7 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.blocks_vision){
-            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;
@@ -194,7 +194,7 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.solid && !cell.door){
-            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;
@@ -210,7 +210,7 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.solid){
-            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;
@@ -250,7 +250,7 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.restricted){
-            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;

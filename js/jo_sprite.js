@@ -257,7 +257,7 @@ function jo_sprite(pixiSprite, parent){
         this.tooltip.x = draw_coords.x;
         this.tooltip.y = draw_coords.y;
         var dist = get_distance(this.x,this.y,hero.x,hero.y);
-        this.tooltip.setText("dFromHero: " + Math.round(dist));*/
+        this.tooltip.text = ("dFromHero: " + Math.round(dist));*/
     };
     this.getCircleInfoForUtilityLib = function(){
         return {'center': {x:this.x,y:this.y}, 'radius':this.radius};

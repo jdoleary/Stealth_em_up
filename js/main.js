@@ -11,10 +11,10 @@ Window Setup
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 var stats;
-var interactive;
 var stage;
 var window_properties;
 var renderer;
+var mouse_relative = {x:0,y:0};
 
 //TODO test:
 var wabbitTexture = new PIXI.Texture.fromImage("../images/shell.png")
@@ -44,7 +44,11 @@ var debug_on = false;
 function getColor(x,y){
     return {r:50,g:50,b:50,a:1};
 }
-
+function mouseMove(e){
+    mouse_relative.x = e.pageX;
+    mouse_relative.y = e.pageY;
+    
+}
 function windowSetup(){
     //Mr Doob's Stats.js:
     stats = new Stats();
@@ -53,11 +57,7 @@ function windowSetup(){
     stats.domElement.style.top = '8px';
     document.body.appendChild( stats.domElement );
 
-    //CREATE STAGE
-    // create an new instance of a pixi stage
-    // the second parameter is interactivity...
-    interactive = true;
-
+    window.onmousemove = mouseMove;
 
 
     //make sure that width value is the same in index.html's style
@@ -78,7 +78,7 @@ function windowSetup(){
 
 
     startMenu();//init menu
-    requestAnimFrame(animate);//start main loop
+    requestAnimationFrame(animate);//start main loop
     
 }
 
@@ -314,7 +314,8 @@ function clearStage(){
     removeAllChildren(display_tiles_walls);
     removeAllChildren(stage_child);
     removeAllChildren(stage);
-    stage = new PIXI.Stage(0xEEEEEE, interactive);
+    stage = new PIXI.Container();
+    stage.interactive = true;
 }
 
 
@@ -343,7 +344,7 @@ function startGame(){
     
     //initialize variables:
     keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, g:false, space:false, shift:false, LMB:false, RMB:false};
-    stage_child = new PIXI.DisplayObjectContainer();//replaces stage for scaling
+    stage_child = new PIXI.Container();//replaces stage for scaling
     stage.addChild(stage_child);
     
     gun_drops = [];
@@ -378,13 +379,13 @@ function startGame(){
     
     
     //display object containers that hold the layers of everything.
-    display_tiles = new PIXI.DisplayObjectContainer();
-    display_blood = new PIXI.DisplayObjectContainer();
-    display_effects = new PIXI.DisplayObjectContainer();
-    display_tiles_walls = new PIXI.DisplayObjectContainer();
-    particle_container = new PIXI.SpriteBatch(wabbitTexture);
-    display_actors = new PIXI.DisplayObjectContainer();
-    test = new PIXI.DisplayObjectContainer();
+    display_tiles = new PIXI.Container();
+    display_blood = new PIXI.Container();
+    display_effects = new PIXI.Container();
+    display_tiles_walls = new PIXI.Container();
+    particle_container = new PIXI.ParticleContainer(200000, [false, true, false, false, false]);
+    display_actors = new PIXI.Container();
+    test = new PIXI.Container();
     stage_child.addChild(display_tiles);
     stage_child.addChild(display_blood);    
     stage_child.addChild(particle_container);
@@ -508,11 +509,11 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             circProgBar = new circularProgressBar(400,400,60,15);
             
             //TODO shells
-             shell1 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 47, 26, 37));
-             shell2 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 86, 26, 37));
-             shell3 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 125, 26, 37));
-             shell4 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 164, 26, 37));
-             shell5 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(2, 2, 26, 37));
+             shell1 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(0,0,16,16));
+             shell2 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(0,0,16,16));
+             shell3 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(0,0,16,16));
+             shell4 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(0,0,16,16));
+             shell5 = new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.Rectangle(0,0,16,16));
              
              
             shellTextures = [shell1, shell2, shell3, shell4, shell5,img_shell];
@@ -532,11 +533,11 @@ function setup_map(map){
     grid_width = grid.width*grid.cell_size;
     grid_height = grid.height*grid.cell_size;
     
-    display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
-    display_tiles_walls.addChild(tile_containers[2]);//add SpriteBatches, brown furnature
-    display_tiles.addChild(tile_containers[1]);//add SpriteBatches
-    display_tiles.addChild(tile_containers[3]);//add SpriteBatches
-    display_tiles.addChild(tile_containers[4]);//add SpriteBatches
+    display_tiles_walls.addChild(tile_containers[0]);//add ParticleContaineres, black walls
+    display_tiles_walls.addChild(tile_containers[2]);//add ParticleContaineres, brown furnature
+    display_tiles.addChild(tile_containers[1]);//add ParticleContaineres
+    display_tiles.addChild(tile_containers[3]);//add ParticleContaineres
+    display_tiles.addChild(tile_containers[4]);//add ParticleContaineres
     
             //hero feet:
             feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
@@ -644,7 +645,7 @@ function animate(time) {
     // render the stage
     renderer.render(stage);
     //request another animate call
-    requestAnimFrame(animate);	
+    requestAnimationFrame(animate);	
 
     
 }
@@ -738,7 +739,7 @@ function gameloop_guards(deltaTime){
                         //guard will remember hero's face unless hero is masked:
                         if(!hero.masked){
                             guard.knowsHerosFace = true;
-                            guard.sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
+                            guard.sprite.texture = (img_guard_knows_hero_face);//show that this guard knows your face:
                         }
                         //reset target
                         guard.moving = false;
@@ -969,7 +970,7 @@ function gameloop_security_cams(deltaTime){
         if(hero.alive && !cameras_disabled){
             tooltip.visible = true;
             tooltipshown = true;
-            tooltip.setText("[Space] to deactivate cameras");
+            tooltip.text = ("[Space] to deactivate cameras");
             tooltip.objX = computer_for_security_cameras.x;
             tooltip.objY = computer_for_security_cameras.y;
         }
@@ -1123,7 +1124,7 @@ function gameloop_doors(deltaTime){
             if(hero.alive){
                 tooltip.visible = true;
                 tooltipshown = true;
-                tooltip.setText("[Space]");
+                tooltip.text = ("[Space]");
                 tooltip.objX = door_inst.x;
                 tooltip.objY = door_inst.y - 32;
             }
@@ -1147,7 +1148,7 @@ function gameloop_dragtarget(deltaTime){
         if(hero.alive && guard.alive  && !guard.being_choked_out && get_distance(hero.x,hero.y,guard.x,guard.y) <= hero.radius*dragDistance){
             tooltip.visible = true;
             tooltipshown = true;
-            tooltip.setText("[Space]");
+            tooltip.text = ("[Space]");
             tooltip.objX = guard.x;
             tooltip.objY = guard.y - 32;
         }
@@ -1158,7 +1159,7 @@ function gameloop_dragtarget(deltaTime){
         if(!hero.masked){
             tooltip.visible = true;
             tooltipshown = true;
-            tooltip.setText("Hold [v] to put on your mask");
+            tooltip.text = ("Hold [v] to put on your mask");
             tooltip.objX = hero.x;
             tooltip.objY = hero.y + grid.cell_size;
             
@@ -1365,7 +1366,7 @@ function gameloop_getawaycar_and_loot(deltaTime){
             if(get_distance(hero.x,hero.y,loot[i].x,loot[i] .y) <= hero.radius*2){
                 hero.carry = loot[i];
                 loot[i].sprite.visible = false;
-                hero.sprite.setTexture(img_hero_with_money);
+                hero.sprite.texture = (img_hero_with_money);
                 newMessage("You've got the money!  Get it to the escape vehicle!");
                 break;
             }
@@ -1389,7 +1390,7 @@ function gameloop_getawaycar_and_loot(deltaTime){
             
             
             hero.carry = null;
-            hero.sprite.setTexture(img_masked);
+            hero.sprite.texture = (img_masked);
             
         }
     }
@@ -1426,13 +1427,11 @@ function pickUpGunDrop(gunDrop){
     gunDrop.flag_for_removal = true;
 
 }
-var mousetest;
 function gameloop(deltaTime){
     //////////////////////
     //update Mouse
     //////////////////////
-    mouse_rel = stage.getMousePosition();//gets relative mouse position
-    if(mouse_rel.x != -10000)mouse = camera.getMouse(mouse_rel);//only set mouse position if the mouse is on the stage
+    if(mouse_relative.x != -10000)mouse = camera.getMouse(mouse_relative);//only set mouse position if the mouse is on the stage
       
     //////////////////////
     //Hero Movement and Aim
@@ -1749,7 +1748,7 @@ function gameloop(deltaTime){
             //show tooltip
             tooltip.visible = true;
             tooltipshown = true;
-            tooltip.setText("[Right Click] to pick up gun.");
+            tooltip.text = ("[Right Click] to pick up gun.");
             tooltip.objX = gun_drop.x;
             tooltip.objY = gun_drop.y;
         }
@@ -1888,7 +1887,7 @@ function addKeyHandlers(){
                         hero.moving = false;
                         circProgBar.reset(hero.x,hero.y,1500,function(){
                             plantBomb();
-                            bomb_tooltip.setText("Press 'f' to detonate");
+                            bomb_tooltip.text = ("Press 'f' to detonate");
                         });
                         bombs_left--;
                     }else if(hero.ability_timed_bomb){
@@ -2021,9 +2020,9 @@ function addKeyHandlers(){
                         if(!cameras_disabled && get_distance(hero.x,hero.y,computer_for_security_cameras.x,computer_for_security_cameras .y) <= hero.radius*4){
                             cameras_disabled = true;
                             newMessage('All security cameras have been disabled!');
-                            computer_for_security_cameras.sprite.setTexture(img_computer_off);
+                            computer_for_security_cameras.sprite.texture = (img_computer_off);
                             for(var i = 0; i < security_cameras.length; i++){
-                                security_cameras[i].sprite.setTexture(img_cam_off);
+                                security_cameras[i].sprite.texture = (img_cam_off);
                             
                             }
                         }
@@ -2204,7 +2203,7 @@ function updateMessage(){
     for(var i = 0; i < messageText.length; i++){
         textForMessage += messageText[i] + "\n";
     }
-    message.setText(textForMessage);
+    message.text = (textForMessage);
 };
 function spawn_backup(){
     newMessage("The police have arrived!");
@@ -2265,19 +2264,19 @@ function setHeroImage(){
     if(hero.gunOut){
         switch(hero.gun.name){
             case "Shotgun":
-                hero.sprite.setTexture(img_hero_with_shotty);
+                hero.sprite.texture = (img_hero_with_shotty);
                 break;
             case "Sawed-Off Shotty":
-                hero.sprite.setTexture(img_hero_with_shotty_sawed);
+                hero.sprite.texture = (img_hero_with_shotty_sawed);
                 break;
             case "Handgun":
-                hero.sprite.setTexture(img_hero_with_pistol);
+                hero.sprite.texture = (img_hero_with_pistol);
                 break;
             case "Silenced Handgun":
-                hero.sprite.setTexture(img_hero_with_pistol_silenced);
+                hero.sprite.texture = (img_hero_with_pistol_silenced);
                 break;
             case "Machine Gun":
-                hero.sprite.setTexture(img_hero_with_machine_gun);
+                hero.sprite.texture = (img_hero_with_machine_gun);
                 break;
             default:
                 hero.imgMaskOn(true);
@@ -2285,7 +2284,7 @@ function setHeroImage(){
             
         }
     }else{
-        hero.sprite.setTexture(img_hero_body);
+        hero.sprite.texture = (img_hero_body);
         
     }
 
@@ -2297,7 +2296,7 @@ function useMask(toggle){
     if(toggle){
         if(hero.carry){
             //mask and bag of money
-            hero.sprite.setTexture(img_hero_with_money);
+            hero.sprite.texture = (img_hero_with_money);
         }else{
             hero.imgMaskOn(true);
         }
@@ -2396,7 +2395,7 @@ function setBomb(fuseStart){
     bomb_fuse = bomb_fuse_start;
     var bomb_scale_variety = 0;
     var bomb_tooltip_interval = setInterval(function(){
-        bomb_tooltip.setText((bomb_fuse/1000.0).toFixed(1));
+        bomb_tooltip.text = ((bomb_fuse/1000.0).toFixed(1));
         bomb_fuse -= 10;
         var percent_till_explode = 1-bomb_fuse/bomb_fuse_start;
         if(percent_till_explode>=0.95)bomb_tooltip.style.fill = "#ff0000";

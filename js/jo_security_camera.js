@@ -58,7 +58,7 @@ function jo_security_camera(x,y,maxswivel,minswivel){
         }
     }
     this.kill = function(){
-        this.sprite.setTexture(img_cam_broken);
+        this.sprite.texture = (img_cam_broken);
         this.alive = false;
         this.target = {x: null, y:null};
         alarmingObjects.push(this);//add body to alarming objects so if it is see they will sound alarm
@@ -70,7 +70,7 @@ function jo_security_camera(x,y,maxswivel,minswivel){
         if(!this.alarmed){
                 this.alarmed = true;
                 //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-                this.sprite.setTexture(img_security_camera_alerted);
+                this.sprite.texture = (img_security_camera_alerted);
                 this.target = {x:objectOfAlarm.x,y:objectOfAlarm.y};
                 
                 //in 3 seconds, if this guard is still alive, alert the others.

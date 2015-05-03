@@ -33,11 +33,11 @@ function addButton(text,x,y, clickFunction){
         
         if(this.isOver)
         {
-            this.setTexture(textureButtonOver);
+            this.texture = (textureButtonOver);
         }
         else
         {
-            this.setTexture(textureButton);
+            this.texture = (textureButton);
         }
     }
     
@@ -48,14 +48,14 @@ function addButton(text,x,y, clickFunction){
         
         if(this.isdown)return
         
-        this.setTexture(textureButtonOver)
+        this.texture = (textureButtonOver)
     }
     // set the mouseout callback..
     button.mouseout = function(data){
         
         this.isOver = false;
         if(this.isdown)return
-        this.setTexture(textureButton)
+        this.texture = (textureButton)
     }
     
     button.click = function(data){

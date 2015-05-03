@@ -67,10 +67,10 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
         
         this.imgMaskOn = function(putOn){
             if(putOn){
-                this.sprite_head.setTexture(img_hero_head_masked);
+                this.sprite_head.texture = (img_hero_head_masked);
                 
             }else{
-                this.sprite_head.setTexture(img_hero_head);
+                this.sprite_head.texture = (img_hero_head);
                 
             }
         }
@@ -141,9 +141,9 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
             this.target = {x: null, y:null};
             
             console.log('||||||||||||||||||||||||change hero texture to dead hero');
-            this.sprite.setTexture(img_hero_dead);
+            this.sprite.texture = (img_hero_dead);
             
-            messageGameOver.setText('Press [Esc] to restart!');
+            messageGameOver.text = ('Press [Esc] to restart!');
             
             //remove key handlers so hero can no longer move around
             removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)

@@ -34,7 +34,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
                 this.relatedDoorWall.openDoor();//for changing "solidness" and line of sight
                 
                 //change color:
-                this.sprite.setTexture(img_door_open);
+                this.sprite.texture = (img_door_open);
             }
         
         }
@@ -49,7 +49,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
             
             
                 //change color: (unlocked doors stay green)
-                if(!this.unlocked)this.sprite.setTexture(img_door_closed);
+                if(!this.unlocked)this.sprite.texture = (img_door_closed);
         
         }
         this.unlock = function(){
@@ -57,7 +57,7 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
             if(this.broken)return;
             this.unlocked = true;
             //change color:
-            this.sprite.setTexture(img_door_open);
+            this.sprite.texture = (img_door_open);
         }
    
 

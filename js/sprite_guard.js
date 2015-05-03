@@ -22,7 +22,7 @@ function sprite_guard_wrapper(pixiSprite){
         
         this.kill = function(){
             //play_sound(sound_unit_die);
-            this.sprite.setTexture(img_guard_dead);
+            this.sprite.texture = (img_guard_dead);
             this.alive = false;
             //enable moving so they can be dragged
             this.moving = true;
@@ -80,8 +80,8 @@ function sprite_guard_wrapper(pixiSprite){
             if(!this.alarmed){
                 this.alarmed = true;
                 //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-                if(this.knowsHerosFace)this.sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
-                else this.sprite.setTexture(img_guard_alert);
+                if(this.knowsHerosFace)this.sprite.texture = (img_guard_knows_hero_face);//show that this guard knows your face:
+                else this.sprite.texture = (img_guard_alert);
                 
                 this.path = [];//empty path
                 this.moving = false;//this sprite stop in their tracks when they see otherSprite.
@@ -101,8 +101,8 @@ function sprite_guard_wrapper(pixiSprite){
         this.hearAlarm = function(){
             if(this.alive){
                 //when a guard is told of an alarming event.
-                if(this.knowsHerosFace)this.sprite.setTexture(img_guard_knows_hero_face);//show that this guard knows your face:
-                else this.sprite.setTexture(img_guard_alert);
+                if(this.knowsHerosFace)this.sprite.texture = (img_guard_knows_hero_face);//show that this guard knows your face:
+                else this.sprite.texture = (img_guard_alert);
                 this.speed = 3;//speed up when alarmed.
                 this.alarmed = true;
             }
@@ -113,15 +113,15 @@ function sprite_guard_wrapper(pixiSprite){
         //modify and call parent function
         this.get_dragged = function(){
             //if not being choked out, set texture to drag
-            if(this.being_choked_out && this.alive)this.sprite.setTexture(img_guard_choke);
-            else this.sprite.setTexture(img_guard_drag);
+            if(this.being_choked_out && this.alive)this.sprite.texture = (img_guard_choke);
+            else this.sprite.texture = (img_guard_drag);
             this.get_dragged_parent();
    
         
         }
         this.stop_dragging = function(){
             console.log('stop dragging' + this.alive);
-            if(!this.alive)this.sprite.setTexture(img_guard_dead);
+            if(!this.alive)this.sprite.texture = (img_guard_dead);
         }
         
         
