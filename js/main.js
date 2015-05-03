@@ -110,6 +110,8 @@ var stage_child;
 
 
 var losGraphics;
+var losGraphics2;
+var losGraphics3;
 var losPath;
 var losPoints;//the constantly updated list of points and angles that allows for drawing the losPath;
 
@@ -131,6 +133,7 @@ var display_blood;
 var display_effects;
 var display_actors;
 var display_tiles_walls;
+var test;
 
 
 ////////////////////////////////////////////////////////////
@@ -350,8 +353,15 @@ function startGame(){
     
     //LOS 
     losGraphics = new PIXI.Graphics().beginFill(0xFF0000);
+    losGraphics2 = new PIXI.Graphics().beginFill(0xFF0000);
+    //losGraphics2.mask = losGraphics;
+    losGraphics3 = new PIXI.Graphics().beginFill(0xFF0000);
+    //losGraphics3.mask = losGraphics;
     losGraphics.alpha = 0.7;
-    losPath = [100,100,200,100,100,200,100,100,100,200,0,200,100,100 ,1000,0,1000,1000,0,1000,0,0,1000,0];
+    losGraphics2.alpha = 0.1;
+    losGraphics3.alpha = 0.1;
+    //losPath = [100,100,200,100,100,200,100,100,100,200,0,200,100,100 ,1000,0,1000,1000,0,1000,0,0,1000,0];
+    losPath = [];
     losPoints = [];
 
     
@@ -374,6 +384,7 @@ function startGame(){
     display_tiles_walls = new PIXI.DisplayObjectContainer();
     particle_container = new PIXI.SpriteBatch(wabbitTexture);
     display_actors = new PIXI.DisplayObjectContainer();
+    test = new PIXI.DisplayObjectContainer();
     stage_child.addChild(display_tiles);
     stage_child.addChild(display_blood);    
     stage_child.addChild(particle_container);
@@ -382,7 +393,10 @@ function startGame(){
 
     stage_child.addChild(display_actors);
     
+    stage_child.addChild(test);
     stage_child.addChild(losGraphics);//for line of sight
+    test.addChild(losGraphics2);//for line of sight
+    test.addChild(losGraphics3);//for line of sight
     
     
     
@@ -1749,8 +1763,15 @@ function gameloop(deltaTime){
     
     //Update LOS:
     losGraphics.clear();
+    losGraphics2.clear();
+    losGraphics3.clear();
     losGraphics.beginFill(0);
+    losGraphics2.beginFill(0);
+    losGraphics3.beginFill(0);
     losGraphics.drawPolygon(losPath);
+    //losGraphics.drawPolygon([0,0,300,0,300,300,0,300]);
+    losGraphics2.drawPolygon([0,0,200,0,200,200,0,200,0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
+    losGraphics3.drawPolygon([500,0,1000,0,1000,500,500,500,500,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
     losPath = [];
 
 }
