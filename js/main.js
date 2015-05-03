@@ -108,7 +108,18 @@ var clickEvent;
 var stage_child;
 
 
-
+/*
+New LOS Graphics:
+*/
+var losTexture;
+var losSprite;
+//a big transparent rectangle of black that covers the whole grid
+var losShade;
+var losShadeContainer;
+//the mask for losShade which will be rendered on to losTexture
+var losPathGraphics;
+var losPathGraphicsContainer;
+//
 var losGraphics;
 var losGraphics2;
 var losGraphics3;
@@ -133,7 +144,6 @@ var display_blood;
 var display_effects;
 var display_actors;
 var display_tiles_walls;
-var test;
 
 
 ////////////////////////////////////////////////////////////
@@ -351,7 +361,7 @@ function startGame(){
     shells = [];
     shards = [];
     bloods = [];
-    
+    //
     //LOS 
     losGraphics = new PIXI.Graphics().beginFill(0xFF0000);
     losGraphics2 = new PIXI.Graphics().beginFill(0xFF0000);
@@ -385,7 +395,6 @@ function startGame(){
     display_tiles_walls = new PIXI.Container();
     particle_container = new PIXI.ParticleContainer(200000, [false, true, false, false, false]);
     display_actors = new PIXI.Container();
-    test = new PIXI.Container();
     stage_child.addChild(display_tiles);
     stage_child.addChild(display_blood);    
     stage_child.addChild(particle_container);
@@ -394,10 +403,7 @@ function startGame(){
 
     stage_child.addChild(display_actors);
     
-    stage_child.addChild(test);
-    stage_child.addChild(losGraphics);//for line of sight
-    test.addChild(losGraphics2);//for line of sight
-    test.addChild(losGraphics3);//for line of sight
+    //stage_child.addChild(losGraphics);//for line of sight
     
     
     
@@ -533,6 +539,35 @@ function setup_map(map){
     grid_width = grid.width*grid.cell_size;
     grid_height = grid.height*grid.cell_size;
     
+    /*
+    New LOS Graphics:
+    */
+    losTexture = new PIXI.RenderTexture(renderer,grid.width*grid.cell_size,grid.height*grid.cell_size);
+    losSprite = new PIXI.Sprite(losTexture);
+	stage_child.addChild(losSprite);
+    
+    losShade = new PIXI.Graphics();
+    //draw the shade:
+    losShade.clear();
+    losShade.alpha = 0.7;
+    losShade.beginFill(0);
+    losShade.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
+    
+    losShadeContainer = new PIXI.Container();
+    
+    losPathGraphics = new PIXI.Graphics();
+    losPathGraphicsContainer = new PIXI.Container();
+    //stage_child.addChild(losPathGraphics);//test TODO REMOVE
+    losPathGraphicsContainer.addChild(losPathGraphics);
+    
+    //new for V3
+    losShadeContainer.addChild(losShade);
+    stage_child.addChild(losShadeContainer);//for line of sight
+    
+    //add the mask:
+	losShadeContainer.mask = losSprite;
+    
+    
     display_tiles_walls.addChild(tile_containers[0]);//add ParticleContaineres, black walls
     display_tiles_walls.addChild(tile_containers[2]);//add ParticleContaineres, brown furnature
     display_tiles.addChild(tile_containers[1]);//add ParticleContaineres
@@ -642,6 +677,7 @@ function animate(time) {
         
         stats.end();//Mr Doob's Stats.js
     }
+    
     // render the stage
     renderer.render(stage);
     //request another animate call
@@ -1760,7 +1796,20 @@ function gameloop(deltaTime){
     if(debug_on)updateDebugInfo();
     
     
-    //Update LOS:
+    //Update LOS:    
+    losPathGraphics.clear();
+    
+    losPathGraphics.beginFill(0);
+    losPathGraphics.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
+    losPathGraphics.beginFill(0xffffff);
+    losPathGraphics.drawPolygon(losPath);
+    losPathGraphics.beginFill(0);
+    losPathGraphics.drawPolygon([0,0,300,0,300,500,0,500,0,0]);
+    
+    //reset the losSprite texture
+    losTexture.render(losPathGraphicsContainer, null, false);
+    
+   /* 
     losGraphics.clear();
     losGraphics2.clear();
     losGraphics3.clear();
@@ -1770,7 +1819,7 @@ function gameloop(deltaTime){
     losGraphics.drawPolygon(losPath);
     //losGraphics.drawPolygon([0,0,300,0,300,300,0,300]);
     losGraphics2.drawPolygon([0,0,200,0,200,200,0,200,0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
-    losGraphics3.drawPolygon([500,0,1000,0,1000,500,500,500,500,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
+    losGraphics3.drawPolygon([500,0,1000,0,1000,500,500,500,500,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);*/
     losPath = [];
 
 }
