@@ -5,9 +5,10 @@ me at jdoleary@gmail.com
 /*******************************************************/
 function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
     function jo_security_camera(x,y,maxswivel,minswivel){
-
-        this.x = x;
-        this.y = y;
+        
+        //TODO remove the -20, for testing LOS:
+        this.x = x-20;
+        this.y = y-20;
         this.radius = 14;
         this.alarmed = false;
         this.losPath = [];
@@ -94,6 +95,7 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                 }*/
                 //i should only have to use v2 to avoid duplication:
                 var cell = grid.cells[c];
+                
                 var index = grid.getIndexFromCoords_2d(cell.v2.x-1,cell.v2.y-1);
                 var northwest = grid.getCellFromIndex(index.x,index.y);
                 
@@ -183,7 +185,9 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                     */
                 }
             }
+
             console.log("Security Camera true corners for vision masking: " + true_corners);
+            console.error("Need to optimize this ^ Should be much less: " + true_corners);
         }
 
     }

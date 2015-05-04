@@ -628,6 +628,7 @@ function setup_map(map){
 			security_cameras = [];
             for(var i = 0; i < map.objects.security_cams.length; i++){
                 var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),map.objects.security_cams[i].pos[0],map.objects.security_cams[i].pos[1],map.objects.security_cams[i].swivel_max,map.objects.security_cams[i].swivel_min);
+                cam_inst.setupLOS();//finds the points for the camera to consider when drawing los
                 security_cameras.push(cam_inst);
             }
             
@@ -649,7 +650,9 @@ function setup_map(map){
             
             
             //TODO: debug
-            showCornersForVisionMasking();
+            //finds the points for the camera to consider when drawing los
+            //showCornersForVisionMasking(); changed to setupLOS
+            hero.setupLOS();
 
 }
 ////////////////////////////////////////////////////////////
@@ -1545,7 +1548,7 @@ function make_starburst(unit){
     }
     unit.losPath.push(first.x,first.y,unit.x,unit.y);
     //push the corners of the map so that unit.losPath is inverted:
-    unit.losPath.push(0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0);
+    //unit.losPath.push(0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0);
     
 }
 function gameloop(deltaTime){
@@ -1639,7 +1642,10 @@ function gameloop(deltaTime){
     hero.move_to_target();
     
     make_starburst(hero);
-    //make_starburst(security_cameras[0]);
+    
+    for(var i = 0; i < security_cameras.length; i++){
+        make_starburst(security_cameras[i]);
+    }
     
 
     
@@ -1802,12 +1808,20 @@ function gameloop(deltaTime){
     //Update LOS:    
     losPathGraphics.clear();
     
-    losPathGraphics.beginFill(0);
-    losPathGraphics.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
     losPathGraphics.beginFill(0xffffff);
-    losPathGraphics.drawPolygon(hero.losPath);
+    losPathGraphics.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
     losPathGraphics.beginFill(0);
-    losPathGraphics.drawPolygon([0,0,300,0,300,500,0,500,0,0]);
+    losPathGraphics.drawPolygon(hero.losPath);
+    
+    //clear out the LOS paths:
+    hero.losPath = [];
+    for(var i = 0; i < security_cameras.length; i++){
+        var sec_camera = security_cameras[i];
+        losPathGraphics.beginFill(0);
+        losPathGraphics.drawPolygon(sec_camera.losPath);
+        sec_camera.losPath = [];
+    }
+
     
     //reset the losSprite texture
     losTexture.render(losPathGraphicsContainer, null, false);
@@ -1823,8 +1837,7 @@ function gameloop(deltaTime){
     //losGraphics.drawPolygon([0,0,300,0,300,300,0,300]);
     losGraphics2.drawPolygon([0,0,200,0,200,200,0,200,0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
     losGraphics3.drawPolygon([500,0,1000,0,1000,500,500,500,500,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);*/
-    hero.losPath = [];
-
+    
 }
 var debug_info = $('#debug_info');
 function updateDebugInfo(){
@@ -2747,104 +2760,4 @@ function getMapInfo(subdir, fileName){
     //                                 continue.
     oReq.send();*/
 
-function showCornersForVisionMasking(){
-    var true_corners = 0;
-    for(var c = 0; c < grid.cells.length; c++){
-        /*var array = [grid.cells[c].v2,grid.cells[c].v4,grid.cells[c].v6,grid.cells[c].v8];
-        for(var a = 0; a < array.length; a++){
-            //get all 4 cells on the corner of this point:
-        }*/
-        //i should only have to use v2 to avoid duplication:
-        var cell = grid.cells[c];
-        var index = grid.getIndexFromCoords_2d(cell.v2.x-1,cell.v2.y-1);
-        var northwest = grid.getCellFromIndex(index.x,index.y);
-        
-        index = grid.getIndexFromCoords_2d(cell.v2.x+1,cell.v2.y+1);
-        var southeast = grid.getCellFromIndex(index.x,index.y);
-        
-        index = grid.getIndexFromCoords_2d(cell.v2.x-1,cell.v2.y+1);
-        var southwest = grid.getCellFromIndex(index.x,index.y);
-        
-        index = grid.getIndexFromCoords_2d(cell.v2.x+1,cell.v2.y-1);
-        var northeast = grid.getCellFromIndex(index.x,index.y);
-        
-        var corner_cells = [northwest,northeast,southwest,southeast];
-        var number_of_blocks_vision = 0;
-        var corner = -1;
-        var touching_door = false;
-        for(var i = 0; i < corner_cells.length; i++){
-            if(corner_cells[i] != undefined){
-                if(corner_cells[i].blocks_vision){
-                    number_of_blocks_vision++;
-                    //determines which block is blocking vision, only applicable if there is only one blocking block
-                    //mark the corner if it isn't a door:
-                    if(!corner_cells[i].door)corner = i;
-                }
-                if(corner_cells[i].door){
-                    touching_door = true;
-                }
-            }
-        }
-        //allows for corner on closed doors
-        if(number_of_blocks_vision == 2 && touching_door)number_of_blocks_vision--;
-        //if not even, it is a true corner point used for vision masking:
-        if(number_of_blocks_vision%2!=0){
-            if(draw_starburst){
-                var circle = new debug_circle();
-                circle.alpha = 1.0;
-            }
-            //later,circle.color = 0x00ff00;
-            //later, to account for offset: circle.draw(cell.v2.x,cell.v2.y,5);
-            /*        
-            {
-                true_point: {x,y},
-                angle: 234
-            }*/
-            //if it is an outer corner, add two points, one that will cast a ray, and another that uses the true corner
-            if(number_of_blocks_vision == 1){
-                var offsetx = 0;
-                var offsety = 0;
-                switch(corner){
-                    case 0:
-                        //NW
-                        offsetx = 1;
-                        offsety = 1;
-                        break;
-                    case 1:
-                        offsetx = -1;
-                        offsety = 1;
-                        //NE
-                        break;
-                    case 2:
-                        offsetx = 1;
-                        offsety = -1;
-                        //SW
-                        break;
-                    case 3:
-                        offsetx = -1;
-                        offsety = -1;
-                        //SE
-                        break;
-                }
-                hero.losPoints.push({noray:true,true_point:{x:cell.v2.x-offsetx,y:cell.v2.y-offsety},angle:0});//for rendering LOS
-                hero.losPoints.push({true_point:{x:cell.v2.x+offsetx,y:cell.v2.y+offsety},angle:0});//for rendering LOS
-                if(draw_starburst){
-                    circle.color = 0x00ff00;
-                    circle.draw(cell.v2.x+offsetx,cell.v2.y+offsety,4);
-                }
-            }else{
-                hero.losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
-                if(draw_starburst){
-                    circle.color = 0xff0000;
-                    circle.draw(cell.v2.x,cell.v2.y,4);
-                }
-            }
-            true_corners++;
-            /*
-            True corners are decided once when the game starts.  Relevant corners are decided at runtime and are using to draw the LOS polygon
-            */
-        }
-    }
-    console.log("True corners for vision masking: " + true_corners);
-};
 
