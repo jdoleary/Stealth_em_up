@@ -123,8 +123,8 @@ var losPathGraphicsContainer;
 var losGraphics;
 var losGraphics2;
 var losGraphics3;
-var losPath;
-var losPoints;//the constantly updated list of points and angles that allows for drawing the losPath;
+//var losPath;
+//Change to hero.losPoints: var losPoints;//the constantly updated list of points and angles that allows for drawing the losPath;
 
 var grid_width;
 var grid_height;
@@ -190,7 +190,7 @@ var graphics_blood;
             var hero_last_seen;
             var hero_end_aim_coord;
             var starburst;
-            var draw_starburst = false;//DEBUG FOR LOS
+            var draw_starburst = true;//DEBUG FOR LOS
             var starburst_ray;
             var starburst_angles;
             
@@ -372,8 +372,7 @@ function startGame(){
     losGraphics2.alpha = 0.1;
     losGraphics3.alpha = 0.1;
     //losPath = [100,100,200,100,100,200,100,100,100,200,0,200,100,100 ,1000,0,1000,1000,0,1000,0,0,1000,0];
-    losPath = [];
-    losPoints = [];
+
 
     
     
@@ -582,6 +581,8 @@ function setup_map(map){
     
             //make sprites:
 			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_hero_body),new PIXI.Sprite(img_hero_head),4,8);
+            hero.losPath = [];
+            hero.losPoints = [];
 			//hero_end_aim_coord;
             starburst = new debug_line();
             starburst_ray = new Ray(0,0,0,0);
@@ -1463,6 +1464,90 @@ function pickUpGunDrop(gunDrop){
     gunDrop.flag_for_removal = true;
 
 }
+function make_starburst(unit){
+    starburst.clear();
+    var raycast;
+    var first = {};
+
+    unit.losPath.push(unit.x,unit.y);
+    var lastPoint;
+    var relevantCorner = false;
+    for(var i = 0; i < unit.losPoints.length; i++){
+        //update angle:
+        unit.losPoints[i].angle = findAngleBetweenPoints(unit.losPoints[i].true_point,unit);
+    }
+    
+    //sort unit.losPoints by angle:
+    unit.losPoints = quickSort(unit.losPoints,0,unit.losPoints.length-1);
+    
+    var noray;
+    var true_point;
+    for(var i = 0; i < unit.losPoints.length; i++){
+        true_point = unit.losPoints[i].true_point;
+        noray = unit.losPoints[i].noray;
+        
+        
+        raycast = getRaycastPoint(unit.x,unit.y,true_point.x,true_point.y);
+        //if raycast point if farther away from unit than true point, then add the true point as a draw point:
+        var ray_to_unit = get_distance(unit.x,unit.y,raycast.x,raycast.y);
+        var ray_to_true = get_distance(unit.x,unit.y,true_point.x,true_point.y);
+        relevantCorner = false;
+
+        //find the corners that are visible to the unit
+        //possible room for optimization in the getRaycastPoint function
+        if(ray_to_true < ray_to_unit || (Math.abs(ray_to_unit - ray_to_true) < 10)){
+            relevantCorner = true;
+        }
+        if(draw_starburst){
+            starburst_ray.set(unit.x,unit.y,raycast.x,raycast.y);
+            if(relevantCorner){
+                if(!noray){
+                    //normal
+                    starburst_ray.set(unit.x,unit.y,raycast.x,raycast.y);
+                    starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
+                }else{
+                    starburst_ray.set(unit.x,unit.y,true_point.x,true_point.y);
+                    starburst.draw_Ray_without_clear(starburst_ray,0x00ff00);
+                }
+                
+            }//else if(noray)starburst.draw_Ray_without_clear(starburst_ray,0xff0000);
+        
+        }
+        
+        //how you draw the triangle poly:
+        //A B C A C D A D F A F
+        //create unit.losPath
+        if(i > 1){
+            //start point between every two other points
+            if(relevantCorner){
+             
+                if(noray){
+                    unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
+                    lastPoint = true_point;
+        
+                }else{
+                    unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
+                    lastPoint = raycast;
+                }
+            }
+            //unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
+            
+            
+        }
+        if(i==0){
+            unit.losPath.push(raycast.x,raycast.y); 
+            first.x = raycast.x;
+            first.y = raycast.y;
+            
+        }
+        
+            
+    }
+    unit.losPath.push(first.x,first.y,unit.x,unit.y);
+    //push the corners of the map so that unit.losPath is inverted:
+    unit.losPath.push(0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0);
+    
+}
 function gameloop(deltaTime){
     //////////////////////
     //update Mouse
@@ -1553,90 +1638,8 @@ function gameloop(deltaTime){
     }
     hero.move_to_target();
     
-    //TODO: test hero starburst for visibility:
-    starburst.clear();
-    var raycast;// = getRaycastPoint(hero.x,hero.y,hero.x,hero.y+100);
-    //starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-    var first = {};
-    //console.log('0000000000000000000000000: ' + losPoints.length);
-    losPath.push(hero.x,hero.y);
-    var lastPoint;
-    var relevantCorner = false;
-    for(var i = 0; i < losPoints.length; i++){
-        //update angle:
-        losPoints[i].angle = findAngleBetweenPoints(losPoints[i].true_point,hero);
-    }
-    
-    //sort losPoints by angle:
-    losPoints = quickSort(losPoints,0,losPoints.length-1);
-    
-    var noray;
-    var true_point;
-    for(var i = 0; i < losPoints.length; i++){
-        true_point = losPoints[i].true_point;
-        noray = losPoints[i].noray;
-        
-        
-        raycast = getRaycastPoint(hero.x,hero.y,true_point.x,true_point.y);
-        //if raycast point if farther away from hero than true point, then add the true point as a draw point:
-        var ray_to_hero = get_distance(hero.x,hero.y,raycast.x,raycast.y);
-        var ray_to_true = get_distance(hero.x,hero.y,true_point.x,true_point.y);
-        relevantCorner = false;
-
-        //find the corners that are visible to the hero
-        //possible room for optimization in the getRaycastPoint function
-        if(ray_to_true < ray_to_hero || (Math.abs(ray_to_hero - ray_to_true) < 10)){
-            relevantCorner = true;
-        }
-        if(draw_starburst){
-            starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-            if(relevantCorner){
-                if(!noray){
-                    //normal
-                    starburst_ray.set(hero.x,hero.y,raycast.x,raycast.y);
-                    starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
-                }else{
-                    starburst_ray.set(hero.x,hero.y,true_point.x,true_point.y);
-                    starburst.draw_Ray_without_clear(starburst_ray,0x00ff00);
-                }
-                
-            }//else if(noray)starburst.draw_Ray_without_clear(starburst_ray,0xff0000);
-        
-        }
-        
-        //how you draw the triangle poly:
-        //A B C A C D A D F A F
-        //create losPath
-        if(i > 1){
-            //start point between every two other points
-            if(relevantCorner){
-             
-                if(noray){
-                    losPath.push(true_point.x,true_point.y,hero.x,hero.y,true_point.x,true_point.y); 
-                    lastPoint = true_point;
-        
-                }else{
-                    losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
-                    lastPoint = raycast;
-                }
-            }
-            //losPath.push(raycast.x,raycast.y,hero.x,hero.y,raycast.x,raycast.y); 
-            
-            
-        }
-        if(i==0){
-            losPath.push(raycast.x,raycast.y); 
-            first.x = raycast.x;
-            first.y = raycast.y;
-            
-        }
-        
-            
-    }
-    losPath.push(first.x,first.y,hero.x,hero.y);
-    //push the corners of the map so that losPath is inverted:
-    losPath.push(0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0);
-    
+    make_starburst(hero);
+    //make_starburst(security_cameras[0]);
     
 
     
@@ -1802,7 +1805,7 @@ function gameloop(deltaTime){
     losPathGraphics.beginFill(0);
     losPathGraphics.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
     losPathGraphics.beginFill(0xffffff);
-    losPathGraphics.drawPolygon(losPath);
+    losPathGraphics.drawPolygon(hero.losPath);
     losPathGraphics.beginFill(0);
     losPathGraphics.drawPolygon([0,0,300,0,300,500,0,500,0,0]);
     
@@ -1816,11 +1819,11 @@ function gameloop(deltaTime){
     losGraphics.beginFill(0);
     losGraphics2.beginFill(0);
     losGraphics3.beginFill(0);
-    losGraphics.drawPolygon(losPath);
+    losGraphics.drawPolygon(hero.losPath);
     //losGraphics.drawPolygon([0,0,300,0,300,300,0,300]);
     losGraphics2.drawPolygon([0,0,200,0,200,200,0,200,0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
     losGraphics3.drawPolygon([500,0,1000,0,1000,500,500,500,500,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);*/
-    losPath = [];
+    hero.losPath = [];
 
 }
 var debug_info = $('#debug_info');
@@ -2823,14 +2826,14 @@ function showCornersForVisionMasking(){
                         //SE
                         break;
                 }
-                losPoints.push({noray:true,true_point:{x:cell.v2.x-offsetx,y:cell.v2.y-offsety},angle:0});//for rendering LOS
-                losPoints.push({true_point:{x:cell.v2.x+offsetx,y:cell.v2.y+offsety},angle:0});//for rendering LOS
+                hero.losPoints.push({noray:true,true_point:{x:cell.v2.x-offsetx,y:cell.v2.y-offsety},angle:0});//for rendering LOS
+                hero.losPoints.push({true_point:{x:cell.v2.x+offsetx,y:cell.v2.y+offsety},angle:0});//for rendering LOS
                 if(draw_starburst){
                     circle.color = 0x00ff00;
                     circle.draw(cell.v2.x+offsetx,cell.v2.y+offsety,4);
                 }
             }else{
-                losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
+                hero.losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
                 if(draw_starburst){
                     circle.color = 0xff0000;
                     circle.draw(cell.v2.x,cell.v2.y,4);
