@@ -89,6 +89,46 @@ function findAngleBetweenPoints(start,end){
     var ang = Math.atan2(opp,adj);
     return ang; //In radians
 }
+
+function angleInArc(arcAngle,arcSize,angle){
+/*
+Example: angleInArc(45,25,40) returns true because
+(45,25 represents an arc of 25 degrees centered at the angle 45 degrees.
+Since 40 degrees is along that arc, it returns true.
+*/
+    return angle_between(angle,arcAngle+arcSize/2,arcAngle-arcSize/2);
+}
+function angle_between(n, a, b) {
+    console.log(n + ' ' + a + ' ' + b);
+	n = (360 + (n % 360)) % 360;
+	a = (3600000 + a) % 360;
+	b = (3600000 + b) % 360;
+    console.log(n + ' ' + a + ' ' + b);
+
+	if (a < b)
+		return a <= n && n <= b;
+	return a <= n || n <= b;
+}
+function positionInCircle(circle,x,y){
+    /*function lineDistance( point1, point2 )
+    {
+      var xs = 0;
+      var ys = 0;
+     
+      xs = point2.x - point1.x;
+      xs = xs * xs;
+     
+      ys = point2.y - point1.y;
+      ys = ys * ys;
+     
+      return Math.sqrt( xs + ys );
+    }
+    //distance inside circle, not used currently
+    var dist = lineDistance(circle,{x:x,y:y});*/
+    var angle = Math.atan2(y-circle.y,x-circle.x)*180/Math.PI;
+    return angle;
+
+}
 ////////////////////////////////////////////////////////////
 //////////////////////QUICK SORT for LOS///////////////////////////
 ////////////////////////////////////////////////////////////

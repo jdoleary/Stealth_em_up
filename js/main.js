@@ -1467,7 +1467,9 @@ function pickUpGunDrop(gunDrop){
     gunDrop.flag_for_removal = true;
 
 }
-function make_starburst(unit){
+//called every loop to recheck LOS
+//limit angle limits the view range of the los by limitAngle from the units rotation
+function make_starburst(unit,limitAngle){
     starburst.clear();
     var raycast;
     var first = {};
@@ -1486,6 +1488,12 @@ function make_starburst(unit){
     var noray;
     var true_point;
     for(var i = 0; i < unit.losPoints.length; i++){
+        //TODO 5/9/2015
+        if(limitAngle!=undefined){
+            if(!angleInArc(unit.rotation,limitAngle,unit.losPoints[i].angle*180/Math.PI)){
+                continue;
+            }
+        }
         true_point = unit.losPoints[i].true_point;
         noray = unit.losPoints[i].noray;
         
@@ -1641,10 +1649,10 @@ function gameloop(deltaTime){
     }
     hero.move_to_target();
     
-    make_starburst(hero);
+    //make_starburst(hero);
     
     for(var i = 0; i < security_cameras.length; i++){
-        make_starburst(security_cameras[i]);
+        //make_starburst(security_cameras[i],90);
     }
     
 

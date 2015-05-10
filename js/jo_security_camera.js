@@ -6,9 +6,14 @@ me at jdoleary@gmail.com
 function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
     function jo_security_camera(x,y,maxswivel,minswivel){
         
-        //TODO remove the -20, for testing LOS:
-        this.x = x-20;
-        this.y = y-20;
+        this.x = x;
+        this.y = y;
+        //bumb cameras away from wall:
+        var corner = findCorner(this).corner;
+        var offset = findOffset(corner);
+        this.x += 17*offset.x;
+        this.y += 17*offset.y;
+        
         this.radius = 14;
         this.alarmed = false;
         this.losPath = [];
@@ -27,6 +32,9 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
         
         this.rad = this.min;//set rotation to min swivel
         
+        
+        //debug info
+        this.draw_los_circles = true;
         /*
         The range of motion of rotation is 0 - 360
         
@@ -86,6 +94,66 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                 }
             
         };
+        function findOffset(corner){
+            var offset = {};
+            switch(corner){
+                case 0:
+                    //NW
+                    offset.x = 1;
+                    offset.y = 1;
+                    break;
+                case 1:
+                    offset.x = -1;
+                    offset.y = 1;
+                    //NE
+                    break;
+                case 2:
+                    offset.x = 1;
+                    offset.y = -1;
+                    //SW
+                    break;
+                case 3:
+                    offset.x = -1;
+                    offset.y = -1;
+                    //SE
+                    break;
+            }
+            return offset;
+        }
+        function findCorner(object){
+                
+            var index = grid.getIndexFromCoords_2d(object.x-1,object.y-1);
+            var northwest = grid.getCellFromIndex(index.x,index.y);
+            
+            index = grid.getIndexFromCoords_2d(object.x+1,object.y+1);
+            var southeast = grid.getCellFromIndex(index.x,index.y);
+            
+            index = grid.getIndexFromCoords_2d(object.x-1,object.y+1);
+            var southwest = grid.getCellFromIndex(index.x,index.y);
+            
+            index = grid.getIndexFromCoords_2d(object.x+1,object.y-1);
+            var northeast = grid.getCellFromIndex(index.x,index.y);
+            
+            var corner_cells = [northwest,northeast,southwest,southeast];
+            var number_of_blocks_vision = 0;
+            var corner = -1;
+            var touching_door = false;
+            for(var i = 0; i < corner_cells.length; i++){
+                if(corner_cells[i] != undefined){
+                    if(corner_cells[i].blocks_vision){
+                        number_of_blocks_vision++;
+                        //determines which block is blocking vision, only applicable if there is only one blocking block
+                        //mark the corner if it isn't a door:
+                        if(!corner_cells[i].door)corner = i;
+                    }
+                    if(corner_cells[i].door){
+                        touching_door = true;
+                    }
+                }
+            }
+            return {corner:corner,touching_door:touching_door,number_of_blocks_vision:number_of_blocks_vision};
+        }
+        //called once to get points to consider for LOS calculations
         this.setupLOS = function(){
             var true_corners = 0;
             for(var c = 0; c < grid.cells.length; c++){
@@ -95,43 +163,18 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                 }*/
                 //i should only have to use v2 to avoid duplication:
                 var cell = grid.cells[c];
+                var cornerOb = findCorner(cell.v2);
+                var corner = cornerOb.corner;
+                var touching_door = cornerOb.touching_door;
+                var number_of_blocks_vision = cornerOb.number_of_blocks_vision;
                 
-                var index = grid.getIndexFromCoords_2d(cell.v2.x-1,cell.v2.y-1);
-                var northwest = grid.getCellFromIndex(index.x,index.y);
-                
-                index = grid.getIndexFromCoords_2d(cell.v2.x+1,cell.v2.y+1);
-                var southeast = grid.getCellFromIndex(index.x,index.y);
-                
-                index = grid.getIndexFromCoords_2d(cell.v2.x-1,cell.v2.y+1);
-                var southwest = grid.getCellFromIndex(index.x,index.y);
-                
-                index = grid.getIndexFromCoords_2d(cell.v2.x+1,cell.v2.y-1);
-                var northeast = grid.getCellFromIndex(index.x,index.y);
-                
-                var corner_cells = [northwest,northeast,southwest,southeast];
-                var number_of_blocks_vision = 0;
-                var corner = -1;
-                var touching_door = false;
-                for(var i = 0; i < corner_cells.length; i++){
-                    if(corner_cells[i] != undefined){
-                        if(corner_cells[i].blocks_vision){
-                            number_of_blocks_vision++;
-                            //determines which block is blocking vision, only applicable if there is only one blocking block
-                            //mark the corner if it isn't a door:
-                            if(!corner_cells[i].door)corner = i;
-                        }
-                        if(corner_cells[i].door){
-                            touching_door = true;
-                        }
-                    }
-                }
                 //allows for corner on closed doors
                 if(number_of_blocks_vision == 2 && touching_door)number_of_blocks_vision--;
                 //if not even, it is a true corner point used for vision masking:
                 if(number_of_blocks_vision%2!=0){
-                    if(draw_starburst){
+                    if(this.draw_los_circles){
                         var circle = new debug_circle();
-                        circle.alpha = 1.0;
+                        circle.alpha = 0.5;
                     }
                     //later,circle.color = 0x00ff00;
                     //later, to account for offset: circle.draw(cell.v2.x,cell.v2.y,5);
@@ -142,44 +185,26 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                     }*/
                     //if it is an outer corner, add two points, one that will cast a ray, and another that uses the true corner
                     if(number_of_blocks_vision == 1){
-                        var offsetx = 0;
-                        var offsety = 0;
-                        switch(corner){
-                            case 0:
-                                //NW
-                                offsetx = 1;
-                                offsety = 1;
-                                break;
-                            case 1:
-                                offsetx = -1;
-                                offsety = 1;
-                                //NE
-                                break;
-                            case 2:
-                                offsetx = 1;
-                                offsety = -1;
-                                //SW
-                                break;
-                            case 3:
-                                offsetx = -1;
-                                offsety = -1;
-                                //SE
-                                break;
-                        }
-                        this.losPoints.push({noray:true,true_point:{x:cell.v2.x-offsetx,y:cell.v2.y-offsety},angle:0});//for rendering LOS
-                        this.losPoints.push({true_point:{x:cell.v2.x+offsetx,y:cell.v2.y+offsety},angle:0});//for rendering LOS
-                        if(draw_starburst){
-                            circle.color = 0x00ff00;
-                            circle.draw(cell.v2.x+offsetx,cell.v2.y+offsety,4);
+                        var offset = findOffset(corner);
+                        if(lineOfSight(this.x,this.y,cell.v2.x,cell.v2.y)){
+                            this.losPoints.push({noray:true,true_point:{x:cell.v2.x-offset.x,y:cell.v2.y-offset.y},angle:0});//for rendering LOS
+                            this.losPoints.push({true_point:{x:cell.v2.x+offset.x,y:cell.v2.y+offset.y},angle:0});//for rendering LOS
+                            if(this.draw_los_circles){
+                                circle.color = 0x00ff00;
+                                circle.draw(cell.v2.x+offset.x,cell.v2.y+offset.y,4);
+                            }
                         }
                     }else{
-                        this.losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
-                        if(draw_starburst){
-                            circle.color = 0xff0000;
-                            circle.draw(cell.v2.x,cell.v2.y,4);
+                        if(lineOfSight(this.x,this.y,cell.v2.x,cell.v2.y)){
+                            this.losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
+                            if(this.draw_los_circles){
+                                circle.color = 0xff0000;
+                                circle.draw(cell.v2.x,cell.v2.y,4);
+                            }
                         }
                     }
-                    true_corners++;
+                    
+                    if(lineOfSight(this.x,this.y,cell.v2.x,cell.v2.y))true_corners++;
                     /*
                     True corners are decided once when the game starts.  Relevant corners are decided at runtime and are using to draw the LOS polygon
                     */
@@ -187,7 +212,6 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
             }
 
             console.log("Security Camera true corners for vision masking: " + true_corners);
-            console.error("Need to optimize this ^ Should be much less: " + true_corners);
         }
 
     }

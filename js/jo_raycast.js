@@ -60,6 +60,13 @@ function raycast_virt(point,angle){
     return {x:Bx,y:By,dx:Xa,dy:Ya};
 
 }
+function lineOfSight(ax,ay,bx,by){
+    //but only if there are no walls between them:
+    var raycast = getRaycastPoint(ax,ay,bx,by);
+    if(get_distance(ax,ay,raycast.x,raycast.y)>=get_distance(ax,ay,bx,by)){
+        return true;
+    }else return false;
+}
 function getRaycastPoint(startx,starty,endx,endy){
 //sets the point at which the hero's aim runs into a solid wall
         var ray_angle = findAngleBetweenPoints({x:startx,y:starty},{x:endx,y:endy});
