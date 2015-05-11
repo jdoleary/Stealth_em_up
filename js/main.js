@@ -1502,9 +1502,23 @@ function make_starburst(unit,limitAngle){
         test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray.x,y:ray.y}},0xaa0000);
         unit.losPath.push(ray.x,ray.y); 
         //first.x = ray.x;
-       // first.y = ray.y;
+        // first.y = ray.y;
+        
+        //reorder starting with leftmost:
+        var firstMostAngle = findAngleBetweenPoints({x:ray.x,y:ray.y},unit);
+        var max = unit.losPoints.length;
+        for(var i = 0; i < max; i++){
+            if(unit.losPoints[i].angle < firstMostAngle){
+                unit.losPoints.push(unit.losPoints.splice(i,1)[0]);
+                i--;
+                max--;
+            }
+        }
+        
         
     }
+    
+    
     for(var i = 0; i < unit.losPoints.length; i++){
         //TODO 5/9/2015
         true_point = unit.losPoints[i].true_point;
@@ -1582,7 +1596,7 @@ function make_starburst(unit,limitAngle){
             
             
         }
-        if(unit.losPath.length == 0){
+        if(Object.keys(first).length == 0){
             //if this starburst is being limited within an angle range (like a security camera):
             if(limitAngle!=undefined){
                 //and it is within that arc (The + Math.PI is just needed for some reason, the cameras rotation is backwards for the algorithm)
