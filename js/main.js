@@ -1487,13 +1487,30 @@ function make_starburst(unit,limitAngle){
     
     var noray;
     var true_point;
+    if(limitAngle!=undefined){
+        //raycast point:
+        test_cone.graphics.clear();
+        var dx = 10000*Math.cos(unit.rotation-Math.PI/3);
+        var dy = 10000*Math.sin(unit.rotation-Math.PI/3);
+        var ray = getRaycastPoint(unit.x,unit.y,dx+unit.x,dy+unit.y);
+        test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray.x,y:ray.y}},0xaa0000);
+        
+        var dx2 = 10000*Math.cos(unit.rotation+Math.PI/3);
+        var dy2 = 10000*Math.sin(unit.rotation+Math.PI/3);
+        var ray2 = getRaycastPoint(unit.x,unit.y,dx2+unit.x,dy2+unit.y);
+        test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray2.x,y:ray2.y}},0x00aa00);
+        //unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
+        //unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
+        
+    }
     for(var i = 0; i < unit.losPoints.length; i++){
         //TODO 5/9/2015
-        if(limitAngle!=undefined){
+        /*if(limitAngle!=undefined){
             if(!angleInArc(unit.rotation,limitAngle,unit.losPoints[i].angle*180/Math.PI)){
-                continue;
+                console.log('here');
+                //continue;
             }
-        }
+        }*/
         true_point = unit.losPoints[i].true_point;
         noray = unit.losPoints[i].noray;
         
@@ -1652,7 +1669,7 @@ function gameloop(deltaTime){
     //make_starburst(hero);
     
     for(var i = 0; i < security_cameras.length; i++){
-        //make_starburst(security_cameras[i],90);
+        make_starburst(security_cameras[i],90);
     }
     
 

@@ -96,14 +96,14 @@ Example: angleInArc(45,25,40) returns true because
 (45,25 represents an arc of 25 degrees centered at the angle 45 degrees.
 Since 40 degrees is along that arc, it returns true.
 */
-    return angle_between(angle,arcAngle+arcSize/2,arcAngle-arcSize/2);
+    return angle_between(angle,arcAngle-arcSize/2,arcAngle+arcSize/2);
 }
 function angle_between(n, a, b) {
-    console.log(n + ' ' + a + ' ' + b);
+    //console.log(n + ' ' + a + ' ' + b);
 	n = (360 + (n % 360)) % 360;
 	a = (3600000 + a) % 360;
 	b = (3600000 + b) % 360;
-    console.log(n + ' ' + a + ' ' + b);
+   // console.log(n + ' ' + a + ' ' + b);
 
 	if (a < b)
 		return a <= n && n <= b;

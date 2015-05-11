@@ -52,8 +52,8 @@ function debug_circle(){
     stage_child.addChild(this.graphics);
     this.color = 0xa52a2a;
     this.alpha = 0.5;
-    this.draw = function(x,y,size){
-        this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
+    this.draw = function(x,y,size,noClear){
+        if(!noClear)this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
         this.graphics.beginFill(this.color, this.alpha);
         this.graphics.drawCircle(x, y,size);
     

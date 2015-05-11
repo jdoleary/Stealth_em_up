@@ -156,6 +156,11 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
             
             addButton("menu.png","menu2.png",startMenu);
         }
+
+        if(this.draw_los_circles){
+            var circle = new debug_circle();
+            circle.alpha = 1.0;
+        }
         //called once, gets points to iterate for LOS
         this.setupLOS = function showCornersForVisionMasking(){
             var true_corners = 0;
@@ -199,10 +204,6 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
                 if(number_of_blocks_vision == 2 && touching_door)number_of_blocks_vision--;
                 //if not even, it is a true corner point used for vision masking:
                 if(number_of_blocks_vision%2!=0){
-                    if(this.draw_los_circles){
-                        var circle = new debug_circle();
-                        circle.alpha = 1.0;
-                    }
                     //later,circle.color = 0x00ff00;
                     //later, to account for offset: circle.draw(cell.v2.x,cell.v2.y,5);
                     /*        
@@ -240,13 +241,13 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
                         this.losPoints.push({true_point:{x:cell.v2.x+offsetx,y:cell.v2.y+offsety},angle:0});//for rendering LOS
                         if(this.draw_los_circles){
                             circle.color = 0x00ff00;
-                            circle.draw(cell.v2.x+offsetx,cell.v2.y+offsety,4);
+                            circle.draw(cell.v2.x+offsetx,cell.v2.y+offsety,4,true);
                         }
                     }else{
                         this.losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
                         if(this.draw_los_circles){
                             circle.color = 0xff0000;
-                            circle.draw(cell.v2.x,cell.v2.y,4);
+                            circle.draw(cell.v2.x,cell.v2.y,4,true);
                         }
                     }
                     true_corners++;

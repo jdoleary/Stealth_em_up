@@ -154,6 +154,11 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
             return {corner:corner,touching_door:touching_door,number_of_blocks_vision:number_of_blocks_vision};
         }
         //called once to get points to consider for LOS calculations
+        
+        if(this.draw_los_circles){
+            var circle = new debug_circle();
+            circle.alpha = 0.5;
+        }
         this.setupLOS = function(){
             var true_corners = 0;
             for(var c = 0; c < grid.cells.length; c++){
@@ -172,10 +177,6 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                 if(number_of_blocks_vision == 2 && touching_door)number_of_blocks_vision--;
                 //if not even, it is a true corner point used for vision masking:
                 if(number_of_blocks_vision%2!=0){
-                    if(this.draw_los_circles){
-                        var circle = new debug_circle();
-                        circle.alpha = 0.5;
-                    }
                     //later,circle.color = 0x00ff00;
                     //later, to account for offset: circle.draw(cell.v2.x,cell.v2.y,5);
                     /*        
@@ -191,7 +192,7 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                             this.losPoints.push({true_point:{x:cell.v2.x+offset.x,y:cell.v2.y+offset.y},angle:0});//for rendering LOS
                             if(this.draw_los_circles){
                                 circle.color = 0x00ff00;
-                                circle.draw(cell.v2.x+offset.x,cell.v2.y+offset.y,4);
+                                circle.draw(cell.v2.x+offset.x,cell.v2.y+offset.y,4,true);
                             }
                         }
                     }else{
@@ -199,7 +200,7 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                             this.losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
                             if(this.draw_los_circles){
                                 circle.color = 0xff0000;
-                                circle.draw(cell.v2.x,cell.v2.y,4);
+                                circle.draw(cell.v2.x,cell.v2.y,4,true);
                             }
                         }
                     }
