@@ -11,8 +11,8 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
         //bumb cameras away from wall:
         var corner = findCorner(this).corner;
         var offset = findOffset(corner);
-        this.x += 17*offset.x;
-        this.y += 17*offset.y;
+        this.x += 40*offset.x;
+        this.y += 40*offset.y;
         
         this.radius = 14;
         this.alarmed = false;

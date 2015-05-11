@@ -1491,6 +1491,7 @@ function make_starburst(unit,limitAngle){
     if(limitAngle!=undefined){
         //raycast point:
         test_cone.graphics.clear();
+        hero_cir.graphics.clear();
         var dx = 10000*Math.cos(unit.rotation-limitAngle/2);
         var dy = 10000*Math.sin(unit.rotation-limitAngle/2);
         
@@ -1615,6 +1616,10 @@ function make_starburst(unit,limitAngle){
     }
     //if the first point exists, finish the losPath by drawing back to hero
     if(first.length != 0 && limitAngle==undefined)unit.losPath.push(first.x,first.y,unit.x,unit.y);
+    //test show losPath:
+    for(var i = 0; i < unit.losPath.length-1; i+=2){
+        hero_cir.draw(unit.losPath[i],unit.losPath[i+1],i,true);
+    }
     
 }
 function gameloop(deltaTime){
