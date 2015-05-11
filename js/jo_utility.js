@@ -89,7 +89,12 @@ function findAngleBetweenPoints(start,end){
     var ang = Math.atan2(opp,adj);
     return ang; //In radians
 }
-
+function angleInArcRad(arcAngle,arcSize,angle){
+    var arcAngle = arcAngle*180/Math.PI;
+    var arcSize = arcSize*180/Math.PI;
+    var angle = angle*180/Math.PI;
+    return angleInArc(arcAngle,arcSize,angle);
+}
 function angleInArc(arcAngle,arcSize,angle){
 /*
 Example: angleInArc(45,25,40) returns true because
@@ -103,11 +108,13 @@ function angle_between(n, a, b) {
 	n = (360 + (n % 360)) % 360;
 	a = (3600000 + a) % 360;
 	b = (3600000 + b) % 360;
-   // console.log(n + ' ' + a + ' ' + b);
+    //console.log(Math.round(n) + ' ' + Math.round(a) + ' ' + Math.round(b));
 
-	if (a < b)
-		return a <= n && n <= b;
-	return a <= n || n <= b;
+	if (a < b){
+        return a <= n && n <= b;
+    }else{
+        return a <= n || n <= b;
+    }
 }
 function positionInCircle(circle,x,y){
     /*function lineDistance( point1, point2 )

@@ -190,7 +190,7 @@ var graphics_blood;
             var hero_last_seen;
             var hero_end_aim_coord;
             var starburst;
-            var draw_starburst = true;//DEBUG FOR LOS
+            var draw_starburst = false;//DEBUG FOR LOS
             var starburst_ray;
             var starburst_angles;
             
@@ -1487,32 +1487,28 @@ function make_starburst(unit,limitAngle){
     
     var noray;
     var true_point;
+    var true_point_angle;
     if(limitAngle!=undefined){
         //raycast point:
         test_cone.graphics.clear();
-        var dx = 10000*Math.cos(unit.rotation-Math.PI/3);
-        var dy = 10000*Math.sin(unit.rotation-Math.PI/3);
+        var dx = 10000*Math.cos(unit.rotation-limitAngle/2);
+        var dy = 10000*Math.sin(unit.rotation-limitAngle/2);
+        
+        //console.log('-----------------------');
+        //console.log((unit.rotation-limitAngle/2)*180/Math.PI);
+        //console.log((unit.rotation+limitAngle/2)*180/Math.PI);
         var ray = getRaycastPoint(unit.x,unit.y,dx+unit.x,dy+unit.y);
         test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray.x,y:ray.y}},0xaa0000);
-        
-        var dx2 = 10000*Math.cos(unit.rotation+Math.PI/3);
-        var dy2 = 10000*Math.sin(unit.rotation+Math.PI/3);
-        var ray2 = getRaycastPoint(unit.x,unit.y,dx2+unit.x,dy2+unit.y);
-        test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray2.x,y:ray2.y}},0x00aa00);
-        //unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
-        //unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
+        unit.losPath.push(ray.x,ray.y); 
+        //first.x = ray.x;
+       // first.y = ray.y;
         
     }
     for(var i = 0; i < unit.losPoints.length; i++){
         //TODO 5/9/2015
-        /*if(limitAngle!=undefined){
-            if(!angleInArc(unit.rotation,limitAngle,unit.losPoints[i].angle*180/Math.PI)){
-                console.log('here');
-                //continue;
-            }
-        }*/
         true_point = unit.losPoints[i].true_point;
         noray = unit.losPoints[i].noray;
+        true_point_angle = unit.losPoints[i].angle;
         
         
         raycast = getRaycastPoint(unit.x,unit.y,true_point.x,true_point.y);
@@ -1532,7 +1528,7 @@ function make_starburst(unit,limitAngle){
                 if(!noray){
                     //normal
                     starburst_ray.set(unit.x,unit.y,raycast.x,raycast.y);
-                    starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
+                    starburst.draw_Ray_without_clear(starburst_ray,0xff0000);
                 }else{
                     starburst_ray.set(unit.x,unit.y,true_point.x,true_point.y);
                     starburst.draw_Ray_without_clear(starburst_ray,0x00ff00);
@@ -1550,30 +1546,75 @@ function make_starburst(unit,limitAngle){
             if(relevantCorner){
              
                 if(noray){
-                    unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
-                    lastPoint = true_point;
+                    //if this starburst is being limited within an angle range (like a security camera):
+                    if(limitAngle!=undefined){
+                        //and it is within that arc (The + Math.PI is just needed for some reason, the cameras rotation is backwards for the algorithm)
+                        if(angleInArcRad(unit.rotation+Math.PI,limitAngle,true_point_angle)){
+                            //console.log(true);
+                            unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
+                            test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:true_point.x,y:true_point.y}},0x0000aa);
+                            lastPoint = true_point;
+                        }
+                    }else{
+                        unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
+                        lastPoint = true_point;
+                    }
         
                 }else{
-                    unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
-                    lastPoint = raycast;
+                    
+                    //if this starburst is being limited within an angle range (like a security camera):
+                    if(limitAngle!=undefined){
+                        //and it is within that arc (The + Math.PI is just needed for some reason, the cameras rotation is backwards for the algorithm)
+                        if(angleInArcRad(unit.rotation+Math.PI,limitAngle,true_point_angle)){                            
+                            //console.log(true);
+                            unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
+                            test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:raycast.x,y:raycast.y}},0x0000aa);
+                            lastPoint = raycast;
+                        }
+                    }else{
+                        unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
+                        lastPoint = raycast;
+                    }
                 }
             }
             //unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
             
             
         }
-        if(i==0){
-            unit.losPath.push(raycast.x,raycast.y); 
-            first.x = raycast.x;
-            first.y = raycast.y;
+        if(unit.losPath.length == 0){
+            //if this starburst is being limited within an angle range (like a security camera):
+            if(limitAngle!=undefined){
+                //and it is within that arc (The + Math.PI is just needed for some reason, the cameras rotation is backwards for the algorithm)
+                if(angleInArcRad(unit.rotation+Math.PI,limitAngle,true_point_angle)){                   
+                            //console.log(true);
+                    unit.losPath.push(raycast.x,raycast.y); 
+                    test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:raycast.x,y:raycast.y}},0x0000aa);
+                    first.x = raycast.x;
+                    first.y = raycast.y;
+                }
+            }else{
+                unit.losPath.push(raycast.x,raycast.y); 
+                first.x = raycast.x;
+                first.y = raycast.y;
+            }
             
         }
         
             
     }
-    unit.losPath.push(first.x,first.y,unit.x,unit.y);
-    //push the corners of the map so that unit.losPath is inverted:
-    //unit.losPath.push(0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0);
+    
+    if(limitAngle!=undefined){
+        //raycast point:
+        
+        var dx2 = 10000*Math.cos(unit.rotation+limitAngle/2);
+        var dy2 = 10000*Math.sin(unit.rotation+limitAngle/2);
+        var ray2 = getRaycastPoint(unit.x,unit.y,dx2+unit.x,dy2+unit.y);
+        test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray2.x,y:ray2.y}},0x00aa00);
+        unit.losPath.push(ray2.x,ray2.y,unit.x,unit.y,ray2.x,ray2.y); 
+        
+    }
+    //if the first point exists, finish the losPath by drawing back to hero
+    if(first.length != 0 && limitAngle==undefined)unit.losPath.push(first.x,first.y,unit.x,unit.y);
     
 }
 function gameloop(deltaTime){
@@ -1669,7 +1710,7 @@ function gameloop(deltaTime){
     //make_starburst(hero);
     
     for(var i = 0; i < security_cameras.length; i++){
-        make_starburst(security_cameras[i],90);
+        make_starburst(security_cameras[i],2*Math.PI/3);
     }
     
 
