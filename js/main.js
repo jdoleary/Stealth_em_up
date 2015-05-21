@@ -1067,7 +1067,6 @@ function gameloop_bullets(deltaTime){
                     //The angle is hero and not bullet, because if the bullet hits the guard off to the side it causes a strange splatter
                     var splatter_angle = grid.angleBetweenPoints(hero.x,hero.y,guard.x,guard.y);
                     bloodParticleSplatter(splatter_angle,guard);
-                    console.log('angle: ' + splatter_angle*180/Math.PI);
                     //make blood trail:
                     guard.blood_trail = [guard.x,guard.y];
                     
@@ -1500,6 +1499,8 @@ function make_starburst(unit,limitAngle){
         //console.log((unit.rotation+limitAngle/2)*180/Math.PI);
         var ray = getRaycastPoint(unit.x,unit.y,dx+unit.x,dy+unit.y);
         test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray.x,y:ray.y}},0xaa0000);
+        
+        //Push the CCW most side of the camera's view
         unit.losPath.push(ray.x,ray.y); 
         //first.x = ray.x;
         // first.y = ray.y;
@@ -1508,8 +1509,11 @@ function make_starburst(unit,limitAngle){
         var firstMostAngle = findAngleBetweenPoints({x:ray.x,y:ray.y},unit);
         var max = unit.losPoints.length;
         for(var i = 0; i < max; i++){
+            //test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:unit.losPoints[i].true_point.x,y:unit.losPoints[i].true_point.y}},0x0000aa);
             if(unit.losPoints[i].angle < firstMostAngle){
-                unit.losPoints.push(unit.losPoints.splice(i,1)[0]);
+                //move point to back of the array:
+                var moveToBack = unit.losPoints.splice(i,1)[0];
+                unit.losPoints.push(moveToBack);
                 i--;
                 max--;
             }
@@ -1518,7 +1522,7 @@ function make_starburst(unit,limitAngle){
         
     }
     
-    
+    //Use the losPoints to update the losPath(which is refreshed every loop
     for(var i = 0; i < unit.losPoints.length; i++){
         //TODO 5/9/2015
         true_point = unit.losPoints[i].true_point;
@@ -1534,7 +1538,8 @@ function make_starburst(unit,limitAngle){
 
         //find the corners that are visible to the unit
         //possible room for optimization in the getRaycastPoint function
-        if(ray_to_true < ray_to_unit || (Math.abs(ray_to_unit - ray_to_true) < 10)){
+        if(ray_to_true < ray_to_unit || (Math.abs(ray_to_unit - ray_to_true) < 100)){
+            //NOTE: at steep angles, the second part of this if statement may not evaluate to true.  Just change 100 to a greater number if this happens.
             relevantCorner = true;
         }
         if(draw_starburst){
@@ -1556,7 +1561,7 @@ function make_starburst(unit,limitAngle){
         //how you draw the triangle poly:
         //A B C A C D A D F A F
         //create unit.losPath
-        if(i > 1){
+        if(i >= 1){
             //start point between every two other points
             if(relevantCorner){
              
@@ -1565,10 +1570,10 @@ function make_starburst(unit,limitAngle){
                     if(limitAngle!=undefined){
                         //and it is within that arc (The + Math.PI is just needed for some reason, the cameras rotation is backwards for the algorithm)
                         if(angleInArcRad(unit.rotation+Math.PI,limitAngle,true_point_angle)){
-                            //console.log(true);
                             unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
-                            test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:true_point.x,y:true_point.y}},0x0000aa);
+                            //test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:true_point.x,y:true_point.y}},0xff00aa);
                             lastPoint = true_point;
+                
                         }
                     }else{
                         unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
@@ -1583,7 +1588,7 @@ function make_starburst(unit,limitAngle){
                         if(angleInArcRad(unit.rotation+Math.PI,limitAngle,true_point_angle)){                            
                             //console.log(true);
                             unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
-                            test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:raycast.x,y:raycast.y}},0x0000aa);
+                            //test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:raycast.x,y:raycast.y}},0x00ffaa);
                             lastPoint = raycast;
                         }
                     }else{
@@ -1603,9 +1608,10 @@ function make_starburst(unit,limitAngle){
                 if(angleInArcRad(unit.rotation+Math.PI,limitAngle,true_point_angle)){                   
                             //console.log(true);
                     unit.losPath.push(raycast.x,raycast.y); 
-                    test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:raycast.x,y:raycast.y}},0x0000aa);
+                    //test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:raycast.x,y:raycast.y}},0x0000aa);
                     first.x = raycast.x;
                     first.y = raycast.y;
+                    //hero_cir.draw(moveToBack.true_point.x,moveToBack.true_point.y,50,true);
                 }
             }else{
                 unit.losPath.push(raycast.x,raycast.y); 
@@ -1630,11 +1636,94 @@ function make_starburst(unit,limitAngle){
     }
     //if the first point exists, finish the losPath by drawing back to hero
     if(first.length != 0 && limitAngle==undefined)unit.losPath.push(first.x,first.y,unit.x,unit.y);
-    //test show losPath:
-    for(var i = 0; i < unit.losPath.length-1; i+=2){
-        hero_cir.draw(unit.losPath[i],unit.losPath[i+1],i,true);
+    //test show losPath (big red transparent circles
+    //for(var i = 0; i < unit.losPath.length-1; i+=2){
+        //hero_cir.draw(unit.losPath[i],unit.losPath[i+1],i,true);
+    //}
+    
+}
+//360 degrees of view:
+function make_starburst_without_limit(unit){
+    starburst.clear();
+    var raycast;
+    var first = {};
+
+    unit.losPath.push(unit.x,unit.y);
+    var lastPoint;
+    var relevantCorner = false;
+    for(var i = 0; i < unit.losPoints.length; i++){
+        //update angle:
+        unit.losPoints[i].angle = findAngleBetweenPoints(unit.losPoints[i].true_point,unit);
     }
     
+    //sort unit.losPoints by angle:
+    unit.losPoints = quickSort(unit.losPoints,0,unit.losPoints.length-1);
+    
+    var noray;
+    var true_point;
+    for(var i = 0; i < unit.losPoints.length; i++){
+        true_point = unit.losPoints[i].true_point;
+        noray = unit.losPoints[i].noray;
+        
+        
+        raycast = getRaycastPoint(unit.x,unit.y,true_point.x,true_point.y);
+        //if raycast point if farther away from unit than true point, then add the true point as a draw point:
+        var ray_to_unit = get_distance(unit.x,unit.y,raycast.x,raycast.y);
+        var ray_to_true = get_distance(unit.x,unit.y,true_point.x,true_point.y);
+        relevantCorner = false;
+
+        //find the corners that are visible to the unit
+        //possible room for optimization in the getRaycastPoint function
+        if(ray_to_true < ray_to_unit || (Math.abs(ray_to_unit - ray_to_true) < 10)){
+            relevantCorner = true;
+        }
+        if(draw_starburst){
+            starburst_ray.set(unit.x,unit.y,raycast.x,raycast.y);
+            if(relevantCorner){
+                if(!noray){
+                    //normal
+                    starburst_ray.set(unit.x,unit.y,raycast.x,raycast.y);
+                    starburst.draw_Ray_without_clear(starburst_ray,0x0000ff);
+                }else{
+                    starburst_ray.set(unit.x,unit.y,true_point.x,true_point.y);
+                    starburst.draw_Ray_without_clear(starburst_ray,0x00ff00);
+                }
+                
+            }//else if(noray)starburst.draw_Ray_without_clear(starburst_ray,0xff0000);
+        
+        }
+        
+        //how you draw the triangle poly:
+        //A B C A C D A D F A F
+        //create unit.losPath
+        if(i > 1){
+            //start point between every two other points
+            if(relevantCorner){
+             
+                if(noray){
+                    unit.losPath.push(true_point.x,true_point.y,unit.x,unit.y,true_point.x,true_point.y); 
+                    lastPoint = true_point;
+        
+                }else{
+                    unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
+                    lastPoint = raycast;
+                }
+            }
+            //unit.losPath.push(raycast.x,raycast.y,unit.x,unit.y,raycast.x,raycast.y); 
+            
+            
+        }
+        if(i==0){
+            unit.losPath.push(raycast.x,raycast.y); 
+            first.x = raycast.x;
+            first.y = raycast.y;
+            
+        }
+        
+            
+    }
+    unit.losPath.push(first.x,first.y,unit.x,unit.y);
+   
 }
 function gameloop(deltaTime){
     //////////////////////
@@ -1726,10 +1815,11 @@ function gameloop(deltaTime){
     }
     hero.move_to_target();
     
-    //make_starburst(hero);
+    make_starburst_without_limit(hero);
     
     for(var i = 0; i < security_cameras.length; i++){
         make_starburst(security_cameras[i],2*Math.PI/3);
+
     }
     
 

@@ -200,8 +200,13 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                             this.losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
                             if(this.draw_los_circles){
                                 circle.color = 0xff0000;
+                                //ERROR this isn't hitting some corners
                                 circle.draw(cell.v2.x,cell.v2.y,4,true);
                             }
+                        }else{
+                            //not reached by LOS
+                            circle.color = 0x0000ff;
+                            circle.draw(cell.v2.x,cell.v2.y,4,true);
                         }
                     }
                     
