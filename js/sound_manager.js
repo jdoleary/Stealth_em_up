@@ -29,9 +29,9 @@ var sound_explosion = new Audio("sound/explosion.wav");
 var music_hero_dead;
 var music_masked;
 var music_unmasked;
-force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});
-force_buffer_sound("sound/Volatile_Reaction.mp3", 0.0, function(audio){music_masked = audio;});
-force_buffer_sound("sound/Vanes.mp3", 0.0, function(audio){music_hero_dead = audio;});
+//force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});
+//force_buffer_sound("sound/Volatile_Reaction.mp3", 0.0, function(audio){music_masked = audio;});
+//force_buffer_sound("sound/Vanes.mp3", 0.0, function(audio){music_hero_dead = audio;});
 
 readjustVolumes();//call once automatically:
 
@@ -53,6 +53,7 @@ function changeVolume(clip,newVolume){
 }
 
 function play_sound(sound){
+    if(sound == undefined)return;
     //chrome / firefox discrepancy:
     if (window.chrome) sound.load()
     sound.play()

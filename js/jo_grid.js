@@ -200,6 +200,22 @@ function jo_grid(map){
         else return false;
     
     }
+    this.isWallSolidAndNotDoor_coords = function(x,y){
+        //returns true if the wall that the (x,y) coords are within is solid BUT the cell is not a door:
+        
+        //return if coords are outside of map bounds:
+        if(x < 0 || y < 0)return false;//do not accept negative values;
+        if(x > this.cell_size*this.width || y > this.cell_size*this.height)return false;//coord out of bounds
+        var grid_index = this.getIndexFromCoords_2d(x,y);
+        var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
+        
+        if(cell && cell.solid && !cell.door){
+            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            return true;
+        }
+        else return false;
+        
+    }
     this.isWallSolid_coords = function(x,y){
         //returns true if the wall that the (x,y) coords are within is solid:
         

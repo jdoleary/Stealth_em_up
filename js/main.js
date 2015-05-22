@@ -16,7 +16,6 @@ var window_properties;
 var renderer;
 var mouse_relative = {x:0,y:0};
 
-//TODO test:
 var wabbitTexture = new PIXI.Texture.fromImage("../images/shell.png")
 var	particle_container;	
 var shell1;
@@ -120,10 +119,6 @@ var losShadeContainer;
 var losPathGraphics;
 var losPathGraphicsContainer;
 //
-var losGraphics;
-var losGraphics2;
-var losGraphics3;
-//var losPath;
 //Change to hero.losPoints: var losPoints;//the constantly updated list of points and angles that allows for drawing the losPath;
 
 var grid_width;
@@ -175,8 +170,8 @@ var grid;
 //camera/debug
 var camera;
 var cameras_disabled;
-var test_cone;
-var hero_cir;
+//var //test_cone;
+//var hero_cir;
 
 //visible bullets:
 var bullets;
@@ -361,17 +356,6 @@ function startGame(){
     shells = [];
     shards = [];
     bloods = [];
-    //
-    //LOS 
-    losGraphics = new PIXI.Graphics().beginFill(0xFF0000);
-    losGraphics2 = new PIXI.Graphics().beginFill(0xFF0000);
-    //losGraphics2.mask = losGraphics;
-    losGraphics3 = new PIXI.Graphics().beginFill(0xFF0000);
-    //losGraphics3.mask = losGraphics;
-    losGraphics.alpha = 0.7;
-    losGraphics2.alpha = 0.1;
-    losGraphics3.alpha = 0.1;
-    //losPath = [100,100,200,100,100,200,100,100,100,200,0,200,100,100 ,1000,0,1000,1000,0,1000,0,0,1000,0];
 
 
     
@@ -402,7 +386,6 @@ function startGame(){
 
     stage_child.addChild(display_actors);
     
-    //stage_child.addChild(losGraphics);//for line of sight
     
     
     
@@ -454,8 +437,8 @@ function startGame(){
     //camera/debug
     camera = new jo_cam(window_properties);
     cameras_disabled = false;
-    test_cone = new debug_line();
-    hero_cir = new debug_circle();
+    //test_cone = new debug_line();
+    //hero_cir = new debug_circle();
 
     //make a new bullet with: new jo_sprite(new PIXI.Sprite(img_bullet));
     bullets = [];
@@ -713,12 +696,17 @@ function gameloop_guards(deltaTime){
     for(var i = 0; i < guards.length; i++){
         var guard = guards[i];
         if(guard.alive){
-            //TODO: experimental vision
+            //Only show the gaurds if they are within vision of the hero or a hacked camera:
             if(guard.isRaycastUnobstructedBetweenThese(hero)){
                 guard.sprite.visible = true;
             }else{
                 guard.sprite.visible = false;
             }
+            for(var s = 0; s < security_cameras.length; s++){
+                var cam = security_cameras[s];
+                if(cam.hacked && cam.alive && cam.doesSpriteSeeSprite(guard))guard.sprite.visible = true;
+            }
+            
             guard.currentlySeesHero = guard.doesSpriteSeeSprite(hero);
         
                 //shooting
@@ -952,33 +940,34 @@ function gameloop_security_cams(deltaTime){
     //Security Cameras
     //////////////////////
     for(var i = 0; i < security_cameras.length; i++){
+        var cam = security_cameras[i];
         
-        if(!cameras_disabled && security_cameras[i].alive){
-            security_cameras[i].swivel();
+        if(!cameras_disabled && cam.alive){
+            cam.swivel();
             
             
             //if security_cameras are not already alarmed
-            if(!security_cameras[i].alarmed){
-                //check if security_cameras[i] sees alarming objects:
+            if(!cam.alarmed){
+                //check if cam sees alarming objects:
                 for(var j = 0; j < alarmingObjects.length; j++){
-                    if(security_cameras[i].doesSpriteSeeSprite(alarmingObjects[j])){
+                    if(cam.doesSpriteSeeSprite(alarmingObjects[j])){
                         newMessage('A security camera has seen something alarming!');
-                        security_cameras[i].becomeAlarmed(alarmingObjects[j]);
+                        cam.becomeAlarmed(alarmingObjects[j]);
                     }
                 }
                 //check if security_camera sees hero:
-                if(security_cameras[i].doesSpriteSeeSprite(hero)){
+                if(cam.doesSpriteSeeSprite(hero)){
                     //alarm if hero is seen masked
                     if(hero.willCauseAlert()){
                         newMessage('A security camera has seen you being suspicious!');
-                        security_cameras[i].becomeAlarmed(hero);
+                        cam.becomeAlarmed(hero);
                         
                         //THIS DOESN"T WORK YET:
                         //rotate cam to face hero:
-                        security_cameras[i].rotate_to(hero.x,hero.y);
+                        cam.rotate_to(hero.x,hero.y);
                         //
                         
-                        set_latestAlert(security_cameras[i]);
+                        set_latestAlert(cam);
                         //set lastSeen for investigating hero
                         hero.setLastSeen(null);
                         
@@ -989,19 +978,28 @@ function gameloop_security_cams(deltaTime){
             }else{
                 //if camera is already alarmed, check to update hero position:
                  //check if security_camera sees hero:
-                if(security_cameras[i].doesSpriteSeeSprite(hero)){
+                if(cam.doesSpriteSeeSprite(hero)){
                     //alarm if hero is seen masked
                     if(hero.masked){
                         
-                        set_latestAlert(security_cameras[i]);
+                        set_latestAlert(cam);
                         //set lastSeen for investigating hero
                         hero.setLastSeen(null);
                         
                     }
                 }
             }
+            //Hack camera tooltip
+            if(hero.alive && !cam.hacked && get_distance(hero.x,hero.y,cam.x,cam.y) <= hero.radius*dragDistance){
+                tooltip.visible = true;
+                tooltipshown = true;
+                tooltip.text = ("[Space] to bug camera");
+                tooltip.objX = cam.x;
+                tooltip.objY = cam.y - 32;
+            }
+            
         }
-        security_cameras[i].prepare_for_draw();
+        cam.prepare_for_draw();
     }
     
     //show tooltip when close enough to computer
@@ -1489,8 +1487,8 @@ function make_starburst(unit,limitAngle){
     var true_point_angle;
     if(limitAngle!=undefined){
         //raycast point:
-        test_cone.graphics.clear();
-        hero_cir.graphics.clear();
+        //test_cone.graphics.clear();
+        //hero_cir.graphics.clear();
         var dx = 10000*Math.cos(unit.rotation-limitAngle/2);
         var dy = 10000*Math.sin(unit.rotation-limitAngle/2);
         
@@ -1498,7 +1496,7 @@ function make_starburst(unit,limitAngle){
         //console.log((unit.rotation-limitAngle/2)*180/Math.PI);
         //console.log((unit.rotation+limitAngle/2)*180/Math.PI);
         var ray = getRaycastPoint(unit.x,unit.y,dx+unit.x,dy+unit.y);
-        test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray.x,y:ray.y}},0xaa0000);
+        //test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray.x,y:ray.y}},0xaa0000);
         
         //Push the CCW most side of the camera's view
         unit.losPath.push(ray.x,ray.y); 
@@ -1630,7 +1628,7 @@ function make_starburst(unit,limitAngle){
         var dx2 = 10000*Math.cos(unit.rotation+limitAngle/2);
         var dy2 = 10000*Math.sin(unit.rotation+limitAngle/2);
         var ray2 = getRaycastPoint(unit.x,unit.y,dx2+unit.x,dy2+unit.y);
-        test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray2.x,y:ray2.y}},0x00aa00);
+        //test_cone.draw_Ray_without_clear({start:{x:unit.x,y:unit.y},end:{x:ray2.x,y:ray2.y}},0x00aa00);
         unit.losPath.push(ray2.x,ray2.y,unit.x,unit.y,ray2.x,ray2.y); 
         
     }
@@ -1811,6 +1809,7 @@ function gameloop(deltaTime){
     
     if(hero.alive && hero.gunOut){
         hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
+        //laser sight
         hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     }
     hero.move_to_target();
@@ -1818,7 +1817,8 @@ function gameloop(deltaTime){
     make_starburst_without_limit(hero);
     
     for(var i = 0; i < security_cameras.length; i++){
-        make_starburst(security_cameras[i],2*Math.PI/3);
+        var cam = security_cameras[i];
+        if(cam.hacked && cam.alive)make_starburst(cam,2*Math.PI/3);
 
     }
     
@@ -2001,18 +2001,7 @@ function gameloop(deltaTime){
     //reset the losSprite texture
     losTexture.render(losPathGraphicsContainer, null, false);
     
-   /* 
-    losGraphics.clear();
-    losGraphics2.clear();
-    losGraphics3.clear();
-    losGraphics.beginFill(0);
-    losGraphics2.beginFill(0);
-    losGraphics3.beginFill(0);
-    losGraphics.drawPolygon(hero.losPath);
-    //losGraphics.drawPolygon([0,0,300,0,300,300,0,300]);
-    losGraphics2.drawPolygon([0,0,200,0,200,200,0,200,0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
-    losGraphics3.drawPolygon([500,0,1000,0,1000,500,500,500,500,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);*/
-    
+
 }
 var debug_info = $('#debug_info');
 function updateDebugInfo(){
@@ -2106,6 +2095,7 @@ function addKeyHandlers(){
                 // !keys['g'] makes it so that it will only be called once for a single press of the letter
                 if(!keys['g']){
                     hero.gunOut = !hero.gunOut;
+                    if(!hero.gunOut)hero.gun_shot_line.graphics.clear();
                     setHeroImage();
                 }
                 keys['g'] = true;
@@ -2196,16 +2186,16 @@ function addKeyHandlers(){
                         //check if any dead guards are close enough to be dragged.
                         for(var i = 0; i < guards.length; i++){
                             var guard = guards[i];
-                            if(get_distance(hero.x,hero.y,guard.x,guards[i].y) <= hero.radius*dragDistance){
+                            if(get_distance(hero.x,hero.y,guard.x,guard.y) <= hero.radius*dragDistance){
                             
                                 //check if any dead guards are close enough to be dragged.
-                                if(!guards[i].alive){
+                                if(!guard.alive){
                                     //hero is dragging a dead body
                                     
                                     //slow down hero speed because he just started dragging something.
                                     hero.speed = hero.speed/2;
                                     feet_clip.speed = hero.speed;
-                                    hero_drag_target = guards[i];
+                                    hero_drag_target = guard;
                                     hero_drag_target.speed = hero.speed;
                                     hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                                     //return;//don't return, this allows choking out a guard to have higher precedence than dragging a body
@@ -2218,14 +2208,14 @@ function addKeyHandlers(){
                                     //add to stats:
                                     jo_store_inc("guardsChoked");
                                     
-                                    guards[i].moving = true;
-                                    guards[i].path = [];
-                                    guards[i].target = {x: null, y:null}; 
-                                    guards[i].being_choked_out = true;
+                                    guard.moving = true;
+                                    guard.path = [];
+                                    guard.target = {x: null, y:null}; 
+                                    guard.being_choked_out = true;
                                     //slow down hero speed because he just started dragging something.
                                     hero.speed = hero.speed_walk/2;
                                     feet_clip.speed = hero.speed;
-                                    hero_drag_target = guards[i];
+                                    hero_drag_target = guard;
                                     hero_drag_target.speed = hero.speed;
                                     hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
                                     setTimeout(function(){
@@ -2244,7 +2234,7 @@ function addKeyHandlers(){
                                                 feet_clip.speed = hero.speed;
                                             }
                                         }
-                                    }.bind(guards[i]), hero.ability_choke_speed);
+                                    }.bind(guard), hero.ability_choke_speed);
                                     return;
                                 }
 
@@ -2252,6 +2242,14 @@ function addKeyHandlers(){
                             
                                 
                             
+                        }
+                        
+                        //check if hero is close enough to bug a camera:
+                        for(var s = 0; s < security_cameras.length; s++){           
+                            var cam = security_cameras[s];
+                            if(hero.alive && get_distance(hero.x,hero.y,cam.x,cam.y) <= hero.radius*dragDistance){
+                                cam.hacked = true;
+                            }
                         }
                     
                         //note: dragging guards takes precedence over all the following actions.
@@ -2760,6 +2758,8 @@ function killHero(fromX,fromY){
     hero.kill();
     //make blood splatter:
     makeBloodSplatter(hero.x,hero.y,fromX,fromY);
+    //clear gun shot
+    hero.gun_shot_line.graphics.clear();
 }
 window.onresize = function (event){
     var w = window.innerWidth;

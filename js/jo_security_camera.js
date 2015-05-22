@@ -11,8 +11,15 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
         //bumb cameras away from wall:
         var corner = findCorner(this).corner;
         var offset = findOffset(corner);
-        this.x += 40*offset.x;
-        this.y += 40*offset.y;
+        //The camera must pretend to be pushed away from the wall in order for the los Points to calculate correctly:
+        this.losx = this.x + 40*offset.x;
+        this.losy = this.y + 40*offset.y;
+        //And the camera itself needs to be bumped out from the wall a little:
+        this.x += 4*offset.x;
+        this.y += 4*offset.y;
+        
+        //if the hero has hacked the camera and it works for him
+        this.hacked = false;
         
         this.radius = 14;
         this.alarmed = false;
@@ -34,7 +41,7 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
         
         
         //debug info
-        this.draw_los_circles = true;
+        this.draw_los_circles = false;
         /*
         The range of motion of rotation is 0 - 360
         
@@ -187,7 +194,7 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                     //if it is an outer corner, add two points, one that will cast a ray, and another that uses the true corner
                     if(number_of_blocks_vision == 1){
                         var offset = findOffset(corner);
-                        if(lineOfSight(this.x,this.y,cell.v2.x,cell.v2.y)){
+                        if(lineOfSightIgnoreDoor(this.losx,this.losy,cell.v2.x,cell.v2.y)){
                             this.losPoints.push({noray:true,true_point:{x:cell.v2.x-offset.x,y:cell.v2.y-offset.y},angle:0});//for rendering LOS
                             this.losPoints.push({true_point:{x:cell.v2.x+offset.x,y:cell.v2.y+offset.y},angle:0});//for rendering LOS
                             if(this.draw_los_circles){
@@ -196,7 +203,7 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                             }
                         }
                     }else{
-                        if(lineOfSight(this.x,this.y,cell.v2.x,cell.v2.y)){
+                        if(lineOfSightIgnoreDoor(this.losx,this.losy,cell.v2.x,cell.v2.y)){
                             this.losPoints.push({true_point:{x:cell.v2.x,y:cell.v2.y},angle:0});//for rendering LOS
                             if(this.draw_los_circles){
                                 circle.color = 0xff0000;
@@ -204,13 +211,15 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                                 circle.draw(cell.v2.x,cell.v2.y,4,true);
                             }
                         }else{
-                            //not reached by LOS
-                            circle.color = 0x0000ff;
-                            circle.draw(cell.v2.x,cell.v2.y,4,true);
+                            if(this.draw_los_circles){
+                                //not reached by LOS
+                                circle.color = 0x0000ff;
+                                circle.draw(cell.v2.x,cell.v2.y,4,true);
+                            }
                         }
                     }
                     
-                    if(lineOfSight(this.x,this.y,cell.v2.x,cell.v2.y))true_corners++;
+                    if(lineOfSightIgnoreDoor(this.losx,this.losy,cell.v2.x,cell.v2.y))true_corners++;
                     /*
                     True corners are decided once when the game starts.  Relevant corners are decided at runtime and are using to draw the LOS polygon
                     */

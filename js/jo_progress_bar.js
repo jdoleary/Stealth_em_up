@@ -107,11 +107,13 @@ function circularProgressBar(posx,posy,size,lineWidth){
         if(this.visible){
             //draw base circle:
             this.graphics.lineStyle(this.lineWidth,0xababab,1);
+            this.graphics.moveTo(this.drawX+this.radius,this.drawY);
             this.graphics.arc(this.drawX, this.drawY, this.radius, 0, Math.PI * 2 * 100, false);
             
             //draw top arc
             percent = Math.min(Math.max(0, this.percent || 1), 1);
             this.graphics.lineStyle(this.lineWidth+2,0x555555,1);
+            this.graphics.moveTo(this.drawX+this.radius,this.drawY);
             this.graphics.arc(this.drawX, this.drawY, this.radius, 0, Math.PI * 2 * this.percent, false);
         }
     };
