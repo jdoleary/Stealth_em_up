@@ -1831,17 +1831,23 @@ function gameloop(deltaTime){
     //The below section changes the hero LOS starburst to be source from
     //a bit away from him so he can peak under doors and around corners
     var spyglassPos = hero.getSpyglassPos();
+    var spyglassInWall = grid.isWallSolidAndNotDoor_coords(spyglassPos.x,spyglassPos.y);
+    if(spyglassInWall){
+        spyglassPos.x = hero.x;
+        spyglassPos.y = hero.y;
+    }
     //limit spyglassPos with raycast so it doesn't go through doors:
-    var spyglassPos_ray = getRaycastPointIgnoreDoor(hero.x,hero.y,spyglassPos.x,spyglassPos.y);
+    /*var spyglassPos_ray = getRaycastPointIgnoreDoor(hero.x,hero.y,spyglassPos.x,spyglassPos.y);
     if(get_distance(hero.x,hero.y,spyglassPos_ray.x,spyglassPos_ray.y) < get_distance(hero.x,hero.y,spyglassPos.x,spyglassPos.y)){
         spyglassPos.x = spyglassPos_ray.x;
         spyglassPos.y = spyglassPos_ray.y;
         //the below subtraction gives it a buffer so it isn't right against the wall:
-        if(spyglassPos.x > hero.x)spyglassPos.x -= 5;
-        else spyglassPos.x += 5;
-        if(spyglassPos.y > hero.y)spyglassPos.y -= 5;
-        else spyglassPos.y += 5;
-    }
+        if(spyglassPos.x > hero.x)spyglassPos.x -= 20;
+        else spyglassPos.x += 20;
+        if(spyglassPos.y > hero.y)spyglassPos.y -= 20;
+        else spyglassPos.y += 20;
+    }*/
+    
     make_starburst_with_modified_view(hero,spyglassPos.x,spyglassPos.y);
     //end spyglass
     
