@@ -697,7 +697,11 @@ function gameloop_guards(deltaTime){
         if(guard.alive){
             //Only show the gaurds if they are within vision of the hero or a hacked camera:
             //if(guard.isRaycastUnobstructedBetweenTheseIgnoreDoor(hero){
-            if(guard.isRaycastUnobstructedBetweenTheseIgnoreDoor({x:spyglassPos.x,y:spyglassPos.y})){
+            //if the spyglass is in a door, the raycast should ignore the door
+            if(spyglassPos.inDoor && guard.isRaycastUnobstructedBetweenTheseIgnoreDoor({x:spyglassPos.x,y:spyglassPos.y})){
+                guard.sprite.visible = true;
+            //else it should not ignore doors:
+            }else if(guard.isRaycastUnobstructedBetweenThese({x:spyglassPos.x,y:spyglassPos.y})){
                 guard.sprite.visible = true;
             }else{
                 guard.sprite.visible = false;
@@ -1840,6 +1844,8 @@ function gameloop(deltaTime){
     //a bit away from him so he can peak under doors and around corners
     spyglassPos = hero.getSpyglassPos();
     var spyglassInWall = grid.isWallSolidAndNotDoor_coords(spyglassPos.x,spyglassPos.y);
+    if(grid.isWallDoor_coords(spyglassPos.x,spyglassPos.y))spyglassPos.inDoor = true;
+    else spyglassPos.inDoor = false;
     if(spyglassInWall){
         spyglassPos.x = hero.x;
         spyglassPos.y = hero.y;
@@ -2797,7 +2803,7 @@ var shardType = 0;
 var shardImages = [img_shard_1,img_shard_2,img_shard_3];
 var currentShard = shardImages[shardType];
 function shardParticleSplatter(angle,target){
-    var shardAmount = 100;//randomIntFromInterval(1,6);
+    var shardAmount = randomIntFromInterval(6,30);
         angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.
     for(var i = 0; i < shardAmount; i++){
         //make new bunnies

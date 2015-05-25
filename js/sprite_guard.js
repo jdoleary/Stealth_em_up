@@ -42,7 +42,7 @@ function sprite_guard_wrapper(pixiSprite){
             drop_gun(this.gun,this.x,this.y);
             
             //show sprite when dead:
-            guard.sprite.visible = true;
+            this.sprite.visible = true;
                 
         }
         
