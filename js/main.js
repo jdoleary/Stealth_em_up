@@ -1640,6 +1640,18 @@ function make_starburst(unit,limitAngle){
     //}
     
 }
+function make_starburst_with_modified_view(unit,newX,newY){
+    //calls make_starburst_without_limit() but with a faked x and y
+    //this is useful for a spyglass tool that changes the starburst perspective of 
+    //the unit;
+    var realX = unit.x;
+    var realY = unit.y;
+    unit.x = newX;
+    unit.y = newY;
+    make_starburst_without_limit(unit);
+    unit.x = realX;
+    unit.y = realY;
+}
 //360 degrees of view:
 function make_starburst_without_limit(unit){
     starburst.clear();
@@ -1814,7 +1826,24 @@ function gameloop(deltaTime){
     }
     hero.move_to_target();
     
-    make_starburst_without_limit(hero);
+    //make_starburst_without_limit(hero);
+    //SPYGLASS:
+    //The below section changes the hero LOS starburst to be source from
+    //a bit away from him so he can peak under doors and around corners
+    var spyglassPos = hero.getSpyglassPos();
+    //limit spyglassPos with raycast so it doesn't go through doors:
+    var spyglassPos_ray = getRaycastPointIgnoreDoor(hero.x,hero.y,spyglassPos.x,spyglassPos.y);
+    if(get_distance(hero.x,hero.y,spyglassPos_ray.x,spyglassPos_ray.y) < get_distance(hero.x,hero.y,spyglassPos.x,spyglassPos.y)){
+        spyglassPos.x = spyglassPos_ray.x;
+        spyglassPos.y = spyglassPos_ray.y;
+        //the below subtraction gives it a buffer so it isn't right against the wall:
+        if(spyglassPos.x > hero.x)spyglassPos.x -= 5;
+        else spyglassPos.x += 5;
+        if(spyglassPos.y > hero.y)spyglassPos.y -= 5;
+        else spyglassPos.y += 5;
+    }
+    make_starburst_with_modified_view(hero,spyglassPos.x,spyglassPos.y);
+    //end spyglass
     
     for(var i = 0; i < security_cameras.length; i++){
         var cam = security_cameras[i];
@@ -2000,7 +2029,8 @@ function gameloop(deltaTime){
     
     //reset the losSprite texture
     losTexture.render(losPathGraphicsContainer, null, false);
-    
+    //TEST TODO
+    starburst.draw_Ray_without_clear({start:{x:hero.x,y:hero.y},end:{x:spyglassPos.x,y:spyglassPos.y}},0x00ff00);
 
 }
 var debug_info = $('#debug_info');

@@ -16,6 +16,7 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
         this.inOffLimits = false;
         this.lockpicking = false;
         this.carry = null;
+        this.spyglass_distance = 64;
         
         
         this.guns = [
@@ -258,6 +259,19 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
             }
             console.log("True corners for vision masking: " + true_corners);
         };
+        this.getSpyglassPos = function(){
+            //when hero is using the spyglass, the position of the spyglass is
+            //calculated with this function.
+            var a,b;
+            var c = this.spyglass_distance;
+            var A = mouse.x-this.x;
+            var B = mouse.y-this.y;
+            var C = Math.sqrt(A*A+B*B);
+            a = c*A/C;
+            b = c*B/C;
+            debugger;
+            return {x:hero.x+a,y:hero.y+b};
+        }
 
 
 
