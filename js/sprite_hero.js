@@ -269,7 +269,6 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
             var C = Math.sqrt(A*A+B*B);
             a = c*A/C;
             b = c*B/C;
-            debugger;
             return {x:hero.x+a,y:hero.y+b};
         }
 

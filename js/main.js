@@ -421,6 +421,7 @@ function startGame(){
     stage_child.addChild(bomb_tooltip);
     
     bomb_radius_debug = new debug_circle();
+    bomb_radius_debug.alpha = 1.0;
     bomb_radius = 200;
     
     //store string references to maps here so that query string can choose maps:
@@ -1826,6 +1827,9 @@ function gameloop(deltaTime){
     }
     hero.move_to_target();
     
+    //TODO test:
+    bomb_radius_debug.draw(hero.x,hero.y,30,true);
+    
     //make_starburst_without_limit(hero);
     //SPYGLASS:
     //The below section changes the hero LOS starburst to be source from
@@ -1945,8 +1949,8 @@ function gameloop(deltaTime){
     hero.prepare_for_draw();
     
     bomb.prepare_for_draw();
-    if(bomb.sprite.visible)bomb_radius_debug.draw_obj(bomb.x,bomb.y,bomb_radius);
-    else bomb_radius_debug.graphics.clear();
+    //if(bomb.sprite.visible)bomb_radius_debug.draw_obj(bomb.x,bomb.y,bomb_radius);
+    //else bomb_radius_debug.graphics.clear();
     
     //don't show hero_last_seen if it is too close to hero:
     if(backupCalled){

@@ -50,7 +50,7 @@ function debug_circle(){
     this.graphics = new PIXI.Graphics();
     this.graphics.lineStyle(0);
     stage_child.addChild(this.graphics);
-    this.color = 0xa52a2a;
+    this.color = 0x990000;
     this.alpha = 0.5;
     this.draw = function(x,y,size,noClear){
         if(!noClear)this.graphics.clear();//without clear it wont erase the debug shape from previous frame.
