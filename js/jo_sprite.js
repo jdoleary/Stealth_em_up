@@ -45,16 +45,14 @@ function jo_sprite(pixiSprite, parent){
     this.tooltip.text = "";
     stage_child.addChild(this.tooltip);*/
     
-    this.kill = function(){
+    this.kill = function(fromX,fromY){
         //play_sound(sound_unit_die);
         this.alive = false;
         this.target = {x: null, y:null};
     }
     this.hurt = function(fromX,fromY){
         this.health--;
-        if(this.health <= 0)this.kill();
-        //make blood splatter:
-        makeBloodSplatter(this.x,this.y,fromX,fromY);
+        if(this.health <= 0)this.kill(fromX,fromY);
     }
     
     this.reload = function(){

@@ -130,11 +130,9 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
                 }
             }
             this.health--;
-            if(this.health <= 0)this.kill();
-            //make blood splatter:
-            makeBloodSplatter(this.x,this.y,fromX,fromY);
+            if(this.health <= 0)this.kill(fromX,fromY);
         }
-        this.kill = function(){
+        this.kill = function(fromX,fromY){
             hero_is_dead();
         
             display_actors.removeChild(this.sprite_head);
@@ -153,6 +151,10 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
             removeHandlers(true);//don't remove key handlers when you die (only mouse stuff)
             //add to stats:
             jo_store_inc("loses");
+            
+            
+            var splatter_angle = grid.angleBetweenPoints(fromX,fromY,hero.x,hero.y);
+            bloodParticleSplatter(splatter_angle,hero);
             
             
             addButton("menu.png","menu2.png",startMenu);

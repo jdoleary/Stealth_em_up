@@ -162,7 +162,7 @@ var bomb_tooltip;
 var bomb_radius_debug;
 var bomb_radius;
 
-var blood_test;
+var blood_trail;
 
 
 //grid/map
@@ -178,9 +178,6 @@ var cameras_disabled;
 //visible bullets:
 var bullets;
 
-//blood_drawer:
-var blood_holder;
-var graphics_blood;
 
 			//make sprites
             var hero;
@@ -426,8 +423,8 @@ function startGame(){
     bomb_radius_debug.alpha = 1.0;
     bomb_radius = 200;
     
-    blood_test = new debug_circle(display_blood);
-    blood_test.alpha = 1.0;
+    blood_trail = new debug_circle(display_blood);
+    blood_trail.alpha = 1.0;
     
     //store string references to maps here so that query string can choose maps:
     //mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
@@ -449,12 +446,6 @@ function startGame(){
     //make a new bullet with: new jo_sprite(new PIXI.Sprite(img_bullet));
     bullets = [];
     
-    //blood_drawer:
-    blood_holder = new PIXI.Sprite(img_origin);
-    graphics_blood = new PIXI.Graphics();
-    graphics_blood.lineStyle(15, 0xb51d1d, 1);
-    blood_holder.addChild(graphics_blood);
-    display_blood.addChild(blood_holder);
   
             
 alarmingObjects = [];//guards will sound alarm if they see an alarming object (dead bodies)
@@ -868,17 +859,6 @@ function gameloop_guards(deltaTime){
         }
         guard.prepare_for_draw();
         
-        //draw blood trails.
-        if(guard.blood_trail){
-            for(var z = 20, j = 1; j > 0; z += 20, j -= 0.04){
-                //decrease the alpha for every 40 points on the path
-                var min = z-22;
-                if(min < 0)min = 0;
-                var path = guard.blood_trail.slice(min,z);
-                graphics_blood.lineStyle(15, 0xb51d1d, j);
-                //graphics_blood.drawPath(path);
-            }
-        }
         //collide with other guards so they don't overlap:
         //start at i+1 so it checks all the guards who haven't already been checked for collision
         for(var other_guard_index = i+1; other_guard_index < guards.length; other_guard_index++){
@@ -1072,7 +1052,7 @@ function gameloop_bullets(deltaTime){
                     var splatter_angle = grid.angleBetweenPoints(hero.x,hero.y,guard.x,guard.y);
                     bloodParticleSplatter(splatter_angle,guard);
                     //make blood trail:
-                    guard.blood_trail = [guard.x,guard.y];
+                    guard.blood_trail = true;
                     
                     if(guard.alarmed && !backupCalled)newMessage("You dispatch the guard before he can get the word out!");
                     
@@ -1092,8 +1072,6 @@ function gameloop_bullets(deltaTime){
             //check if bullet intersects hero_drag_target
             if(hero_drag_target && circle_linesetment_intersect(hero_drag_target.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullet.x,y:bullet.y})){
                 if(hero_drag_target.alive)hero_drag_target.kill();
-                //make blood splatter:
-                makeBloodSplatter(hero_drag_target.x,hero_drag_target.y,bullet.ignore.x,bullet.ignore.y);
                 //destroy bullet
                 display_actors.removeChild(bullet.sprite);
                 bullets.splice(b,1);
@@ -1215,11 +1193,16 @@ function gameloop_dragtarget(deltaTime){
         hero_drag_target.get_dragged();
         //leaves blood trail behind as you drag.
         if(hero_drag_target.blood_trail){
-            var len = hero_drag_target.blood_trail.length;
-            if(Math.abs(hero_drag_target.blood_trail[len-2]-hero_drag_target.x)>1 || Math.abs(hero_drag_target.blood_trail[len-1]-hero_drag_target.y)>1){
-                hero_drag_target.blood_trail.push(hero_drag_target.x);//[0]:initial coords.x
-                hero_drag_target.blood_trail.push(hero_drag_target.y);//[1]:initial coords.y
-             }
+            //Blood trail with random variation for prettiness
+            var blood_x_mod = randomFloatWithBias2(-10,10);
+            var blood_y_mod = randomFloatWithBias2(-10,10);
+            var blood_size_mod = randomFloatWithBias2(1,hero_drag_target.blood_trail_size);
+            var skip_blood_draw = randomFloatFromInterval(0,hero_drag_target.blood_trail_skip_frequency);
+            //blood drip frequency and size decreases the longer that unit is dragged.
+            if(hero_drag_target.blood_trail_size > 3)hero_drag_target.blood_trail_size-=0.01;
+            hero_drag_target.blood_trail_skip_frequency+=0.01;
+            
+            if(skip_blood_draw <= 1)blood_trail.draw(hero_drag_target.x+blood_x_mod,hero_drag_target.y+blood_y_mod,blood_size_mod,true);
         }
     }
 }
@@ -1741,6 +1724,8 @@ function make_starburst_without_limit(unit){
     unit.losPath.push(first.x,first.y,unit.x,unit.y);
    
 }
+
+
 function gameloop(deltaTime){
     //////////////////////
     //update Mouse
@@ -1797,10 +1782,7 @@ function gameloop(deltaTime){
     
     
     tooltipshown = false;  //hero is not close enough to any doors/guards, toggle visiblity off.
-    
-    //reset graphics_blood:
-    graphics_blood.clear();
-    graphics_blood.lineStyle(15, 0xb51d1d, 1);
+
     
     //update effects:
     for(var i = 0; i < static_effect_sprites.length; i++){
@@ -1832,12 +1814,6 @@ function gameloop(deltaTime){
     }
     hero.move_to_target();
     
-    //TODO test:
-    var blood_x_mod = randomFloatWithBias2(-10,10);
-    var blood_y_mod = randomFloatWithBias2(-10,10);
-    var blood_size_mod = randomFloatWithBias2(1,5);
-    var skip_blood_draw = randomIntFromInterval(0,3);
-    if(!skip_blood_draw)blood_test.draw(hero.x+blood_x_mod,hero.y+blood_y_mod,blood_size_mod,true);
     
     //make_starburst_without_limit(hero);
     //SPYGLASS:
@@ -1889,29 +1865,24 @@ function gameloop(deltaTime){
     }
     for(var i = 0; i < bloods.length; i++){
         var blood = bloods[i];
-        //leave trail of blood:
-        bloodSplat = new PIXI.Sprite(currentbloodSplat);
-        //bloodSplat = new PIXI.Sprite(img_shell);
-        
-        
-        bloodSplat.anchor.x = 0.5;
-        bloodSplat.anchor.y = 0.5;
-        bloodSplat.position.x = blood.position.x;
-        bloodSplat.position.y = blood.position.y;
-        bloodSplat.scale.x = blood.scale.x;
-        bloodSplat.scale.y = blood.scale.y;
-        bloodSplat.rotation = randomFloatFromInterval(0.0,Math.PI*2);
-        particle_container.addChild(bloodSplat);
-        
         //shrink blood particle:
         blood.scale.x*=0.7;
         blood.scale.y*=0.7;
         
+        
+        var blood_x_mod = randomFloatWithBias2(-10,10);
+        var blood_y_mod = randomFloatWithBias2(-10,10);
+        var blood_size_mod = randomFloatWithBias2(1,blood.scale.y*20);
+        //var skip_blood_draw = randomIntFromInterval(0,3);
+        //if(!skip_blood_draw)blood_trail.draw(blood.position.x+blood_x_mod,blood.position.y+blood_y_mod,blood_size_mod,true);
+        blood_trail.draw(blood.position.x+blood_x_mod,blood.position.y+blood_y_mod,blood_size_mod,true);
+        
         //remove when done ticking
-        if(tickParticle(blood,10,false)){
+        if(tickParticle(blood,7,false)){
             bloods.splice(i,1);
             i--;
         }
+        
     }
     
 
@@ -1978,8 +1949,6 @@ function gameloop(deltaTime){
     if(notifyGuardsOfHeroLocation)console.log("Repath all guards to hero last seen");
     notifyGuardsOfHeroLocation = false;
     
-    //prepare blood layer for draw:
-    prepare_for_draw_blood(); 
 
     gameloop_security_cams(deltaTime);
     
@@ -2528,25 +2497,8 @@ function unsilenced_gun(){
     hero.setLastSeen(null);
 
 }
-function prepare_for_draw_blood(){
-    var draw_coords = camera.relativePoint({x:0,y:0});//0,0 because blood_holder does not consider its sprite
-    blood_holder.x = draw_coords.x;
-    blood_holder.y = draw_coords.y;
-}
-function makeBloodSplatter(atX,atY,pointAtX,pointAtY){
-    var img = img_blood_splatter;
-    //the below line has a 50% chance of reassigning the image
-    var roll = [true,false][Math.round(Math.random())];
-    if(roll){
-        img = img_blood_splatter2;
-    }
-    var blood_splatter = new jo_sprite(new PIXI.Sprite(img),display_blood);
-    blood_splatter.x = atX;
-    blood_splatter.y = atY;
-    blood_splatter.rotate_to_instant(pointAtX,pointAtY);
-    static_effect_sprites.push(blood_splatter);//add to array of still effects
-    alarmingObjects.push(blood_splatter);//add bloodsplatter to alarming objects so if it is see they will sound alarm
-}
+
+
 function setHeroImage(){
     if(hero.gunOut){
         switch(hero.gun.name){
@@ -2741,8 +2693,6 @@ function setBomb(fuseStart){
             for(var g = 0; g < guards.length; g++){
                 if(get_distance(bomb.x,bomb.y,guards[g].x,guards[g].y) < bomb_radius){
                     guards[g].kill();
-                    //make blood splatter:
-                    makeBloodSplatter(guards[g].x,guards[g].y,bomb.x,bomb.y);
                 
                 }
             
@@ -2804,9 +2754,7 @@ function drop_gun(gun,x,y){
     gun_drops.push(new jo_gun_drop(new PIXI.Sprite(image),display_effects,x,y,gun));
 }
 function killHero(fromX,fromY){
-    hero.kill();
-    //make blood splatter:
-    makeBloodSplatter(hero.x,hero.y,fromX,fromY);
+    hero.kill(fromX,fromY);
     //clear gun shot
     hero.gun_shot_line.graphics.clear();
 }
@@ -2868,22 +2816,24 @@ var bloodSplatType = 0;
 var bloodSplatImages = [img_blood_1,img_blood_2,img_blood_3];
 var currentbloodSplat = bloodSplatImages[bloodSplatType];
 function bloodParticleSplatter(angle,target){
-    var bloodAmount = randomIntFromInterval(15,30);
+    //var bloodAmount = randomIntFromInterval(15,30);
+    var bloodAmount = randomIntFromInterval(30,60);
     angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.    
     var bloodSplat;
     for(var i = 0; i < bloodAmount; i++){
         //make new bunnies
         bloodSplat = new PIXI.Sprite(currentbloodSplat);
-        //bloodSplat = new PIXI.Sprite(img_shell);
         
         
         bloodSplat.anchor.x = 0.5;
         bloodSplat.anchor.y = 0.5;
-        var randScale = randomFloatFromInterval(1,2);
+        /*var randScale = randomFloatFromInterval(1,2);
         bloodSplat.scale.x = randScale;
-        bloodSplat.scale.y = randScale;
-        var randSpeed = randomFloatWithBias(0.1,blood_speed*2);
-        var randRotationOffset = randomFloatFromInterval(-Math.PI/4,Math.PI/4);
+        bloodSplat.scale.y = randScale;*/
+        var randSpeed = randomFloatWithBias(0.7,blood_speed);
+        var randRotationOffset = randomFloatWithBias(0,Math.PI/4);
+        var negativeRotationOffset = randomIntFromInterval(0,2);
+        if(negativeRotationOffset)randRotationOffset *= -1;
         bloodSplat.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
         bloodSplat.dx = -randSpeed*Math.sin(angle+randRotationOffset)*15;
         bloodSplat.dy = -randSpeed*Math.cos(angle+randRotationOffset)*15;
@@ -2894,11 +2844,11 @@ function bloodParticleSplatter(angle,target){
         bloodSplat.rotation = (angle);
 
         bloods.push(bloodSplat);
-        particle_container.addChild(bloodSplat);
+        //particle_container.addChild(bloodSplat);
         //rotate to next image:
-        bloodSplatType++
+        /*bloodSplatType++
         bloodSplatType %= bloodSplatImages.length;
-        currentbloodSplat = bloodSplatImages[bloodSplatType];
+        currentbloodSplat = bloodSplatImages[bloodSplatType];*/
     }
     
 }

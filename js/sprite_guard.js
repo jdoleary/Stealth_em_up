@@ -9,6 +9,8 @@ function sprite_guard_wrapper(pixiSprite){
         this.alarmed = false;
         this.being_choked_out = false;
         this.blood_trail;
+        this.blood_trail_size = 10;
+        this.blood_trail_skip_frequency = 1.5;
         this.chasingHero = false;
         this.idling = false;//if guard is just standing
         this.startedIdling = false;
