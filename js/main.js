@@ -118,6 +118,8 @@ var losShadeContainer;
 //the mask for losShade which will be rendered on to losTexture
 var losPathGraphics;
 var losPathGraphicsContainer;
+
+var spyglassPos;
 //
 //Change to hero.losPoints: var losPoints;//the constantly updated list of points and angles that allows for drawing the losPath;
 
@@ -694,7 +696,8 @@ function gameloop_guards(deltaTime){
         var guard = guards[i];
         if(guard.alive){
             //Only show the gaurds if they are within vision of the hero or a hacked camera:
-            if(guard.isRaycastUnobstructedBetweenThese(hero)){
+            //if(guard.isRaycastUnobstructedBetweenTheseIgnoreDoor(hero){
+            if(guard.isRaycastUnobstructedBetweenTheseIgnoreDoor({x:spyglassPos.x,y:spyglassPos.y})){
                 guard.sprite.visible = true;
             }else{
                 guard.sprite.visible = false;
@@ -1046,19 +1049,35 @@ function gameloop_bullets(deltaTime){
                     
                 if(bullet.ignore == guard)continue;//don't kill the shooter with his own bullet
                 if(guard.alive && circle_linesetment_intersect(guard.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullet.x,y:bullet.y})){
-                    guard.kill();
-                    //make blood splatter:
-                    //The angle is hero and not bullet, because if the bullet hits the guard off to the side it causes a strange splatter
+                    var guardDies = true;
                     var splatter_angle = grid.angleBetweenPoints(hero.x,hero.y,guard.x,guard.y);
-                    bloodParticleSplatter(splatter_angle,guard);
-                    //make blood trail:
-                    guard.blood_trail = true;
                     
-                    if(guard.alarmed && !backupCalled)newMessage("You dispatch the guard before he can get the word out!");
-                    
-                    
-                    //add to stats:
-                    jo_store_inc("guardsShot");
+                    if(guard.hasRiotShield){
+                        //check to see if riot shield blocks bullet:
+                        console.log('splatter angle: ' + Math.PI+splatter_angle);
+                        console.log('angle: ' + guard.rad);
+                        var angleInArc = angleInArcRad(guard.rad,Math.PI/2,Math.PI+splatter_angle)
+                        console.log('angle in arc: ' + angleInArc);
+                        if(angleInArc){
+                            guardDies = false;
+                            shardParticleSplatter(splatter_angle,guard);
+                        }
+                        
+                    }
+                    if(guardDies){
+                        guard.kill(hero.x,hero.y);
+                        //make blood splatter:
+                        //The angle is hero and not bullet, because if the bullet hits the guard off to the side it causes a strange splatter
+                        bloodParticleSplatter(splatter_angle,guard);
+                        //make blood trail:
+                        guard.blood_trail = true;
+                        
+                        if(guard.alarmed && !backupCalled)newMessage("You dispatch the guard before he can get the word out!");
+                        
+                        
+                        //add to stats:
+                        jo_store_inc("guardsShot");
+                    }
                     
                     //destroy bullet
                     display_actors.removeChild(bullet.sprite);
@@ -1819,7 +1838,7 @@ function gameloop(deltaTime){
     //SPYGLASS:
     //The below section changes the hero LOS starburst to be source from
     //a bit away from him so he can peak under doors and around corners
-    var spyglassPos = hero.getSpyglassPos();
+    spyglassPos = hero.getSpyglassPos();
     var spyglassInWall = grid.isWallSolidAndNotDoor_coords(spyglassPos.x,spyglassPos.y);
     if(spyglassInWall){
         spyglassPos.x = hero.x;
@@ -2691,8 +2710,9 @@ function setBomb(fuseStart){
             clearInterval(bomb_tooltip_interval);
             //see if it kills anyone:
             for(var g = 0; g < guards.length; g++){
-                if(get_distance(bomb.x,bomb.y,guards[g].x,guards[g].y) < bomb_radius){
-                    guards[g].kill();
+                var guard = guards[g];
+                if(get_distance(bomb.x,bomb.y,guard.x,guard.y) < bomb_radius){
+                    guard.kill(bomb.x,bomb.y);
                 
                 }
             

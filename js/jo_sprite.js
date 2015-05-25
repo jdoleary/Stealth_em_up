@@ -236,10 +236,10 @@ function jo_sprite(pixiSprite, parent){
         }else return false;
     
     };
-    this.isRaycastUnobstructedBetweenThese = function(otherSprite){
+    this.isRaycastUnobstructedBetweenTheseIgnoreDoor = function(otherSprite){
         //returns true if there are no walls between these sprites.
         //only if there are no walls between them:
-        var raycast = getRaycastPoint(this.x,this.y,otherSprite.x,otherSprite.y);
+        var raycast = getRaycastPointIgnoreDoor(this.x,this.y,otherSprite.x,otherSprite.y);
         if(get_distance(this.x,this.y,raycast.x,raycast.y)>=get_distance(this.x,this.y,otherSprite.x,otherSprite.y)){
             return true;
         }else return false;
