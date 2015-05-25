@@ -45,11 +45,12 @@ function debug_line(){
     }
 }
 
-function debug_circle(){
+function debug_circle(parent){
     //a new debug circle should be created for each circle that you want to draw
     this.graphics = new PIXI.Graphics();
     this.graphics.lineStyle(0);
-    stage_child.addChild(this.graphics);
+    if(!parent)stage_child.addChild(this.graphics);
+    else parent.addChild(this.graphics);
     this.color = 0x990000;
     this.alpha = 0.5;
     this.draw = function(x,y,size,noClear){

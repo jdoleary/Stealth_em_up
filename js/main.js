@@ -162,6 +162,8 @@ var bomb_tooltip;
 var bomb_radius_debug;
 var bomb_radius;
 
+var blood_test;
+
 
 //grid/map
 var grid;
@@ -423,6 +425,9 @@ function startGame(){
     bomb_radius_debug = new debug_circle();
     bomb_radius_debug.alpha = 1.0;
     bomb_radius = 200;
+    
+    blood_test = new debug_circle(display_blood);
+    blood_test.alpha = 1.0;
     
     //store string references to maps here so that query string can choose maps:
     //mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
@@ -1828,7 +1833,11 @@ function gameloop(deltaTime){
     hero.move_to_target();
     
     //TODO test:
-    bomb_radius_debug.draw(hero.x,hero.y,30,true);
+    var blood_x_mod = randomFloatWithBias2(-10,10);
+    var blood_y_mod = randomFloatWithBias2(-10,10);
+    var blood_size_mod = randomFloatWithBias2(1,5);
+    var skip_blood_draw = randomIntFromInterval(0,3);
+    if(!skip_blood_draw)blood_test.draw(hero.x+blood_x_mod,hero.y+blood_y_mod,blood_size_mod,true);
     
     //make_starburst_without_limit(hero);
     //SPYGLASS:
@@ -1949,8 +1958,8 @@ function gameloop(deltaTime){
     hero.prepare_for_draw();
     
     bomb.prepare_for_draw();
-    //if(bomb.sprite.visible)bomb_radius_debug.draw_obj(bomb.x,bomb.y,bomb_radius);
-    //else bomb_radius_debug.graphics.clear();
+    if(bomb.sprite.visible)bomb_radius_debug.draw_obj(bomb.x,bomb.y,bomb_radius);
+    else bomb_radius_debug.graphics.clear();
     
     //don't show hero_last_seen if it is too close to hero:
     if(backupCalled){
