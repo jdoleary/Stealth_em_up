@@ -982,15 +982,15 @@ function gameloop_security_cams(deltaTime){
                     }
                 }
             }
-            //Hack camera tooltip
-            if(hero.alive && !cam.hacked && get_distance(hero.x,hero.y,cam.x,cam.y) <= hero.radius*dragDistance){
-                tooltip.visible = true;
-                tooltipshown = true;
-                tooltip.text = ("[Space] to bug camera");
-                tooltip.objX = cam.x;
-                tooltip.objY = cam.y - 32;
-            }
             
+        }
+        //Hack camera tooltip
+        if(hero.alive && cam.alive && !cam.hacked && get_distance(hero.x,hero.y,cam.x,cam.y) <= hero.radius*dragDistance){
+            tooltip.visible = true;
+            tooltipshown = true;
+            tooltip.text = ("[Space] to bug camera");
+            tooltip.objX = cam.x;
+            tooltip.objY = cam.y - 32;
         }
         cam.prepare_for_draw();
     }

@@ -114,11 +114,17 @@ var tile_containers;
 
 function jo_grid(map){
     //set up sprite batches:
+    /*
     tile_container_black = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
     tile_container_white = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
     tile_container_brown = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
     tile_container_red = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
-    tile_container_purple = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
+    tile_container_purple = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!*/
+    tile_container_black = new PIXI.Container();
+    tile_container_white = new PIXI.Container();
+    tile_container_brown = new PIXI.Container();
+    tile_container_red = new PIXI.Container();
+    tile_container_purple = new PIXI.Container();
     tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
 
     //Debug lines for shortcut pathing

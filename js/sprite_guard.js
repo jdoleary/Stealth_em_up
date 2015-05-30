@@ -21,7 +21,7 @@ function sprite_guard_wrapper(pixiSprite){
         this.knowsHerosFace = false;//if guard knows hero's face, mask becomes irrelevant
         this.currentlySeesHero = false;//updated every loop;
         this.gun_shot_line.graphics.visible = false;
-        this.hasRiotShield = true;
+        this.hasRiotShield = false;
         
         this.kill = function(){
             //play_sound(sound_unit_die);
