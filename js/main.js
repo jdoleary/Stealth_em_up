@@ -2838,9 +2838,6 @@ function shardParticleSplatter(angle,target){
     }
     
 }
-var bloodSplatType = 0;
-var bloodSplatImages = [img_blood_1,img_blood_2,img_blood_3];
-var currentbloodSplat = bloodSplatImages[bloodSplatType];
 function bloodParticleSplatter(angle,target){
     //var bloodAmount = randomIntFromInterval(15,30);
     var bloodAmount = randomIntFromInterval(30,60);
@@ -2848,7 +2845,7 @@ function bloodParticleSplatter(angle,target){
     var bloodSplat;
     for(var i = 0; i < bloodAmount; i++){
         //make new bunnies
-        bloodSplat = new PIXI.Sprite(currentbloodSplat);
+        bloodSplat = new PIXI.Sprite();
         
         
         bloodSplat.anchor.x = 0.5;
@@ -2870,11 +2867,6 @@ function bloodParticleSplatter(angle,target){
         bloodSplat.rotation = (angle);
 
         bloods.push(bloodSplat);
-        //particle_container.addChild(bloodSplat);
-        //rotate to next image:
-        /*bloodSplatType++
-        bloodSplatType %= bloodSplatImages.length;
-        currentbloodSplat = bloodSplatImages[bloodSplatType];*/
     }
     
 }
