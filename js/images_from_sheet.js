@@ -108,10 +108,6 @@ function onAssetsLoaded(){
     img_gun_shotgun= PIXI.Texture.fromFrame(("shotgun.png"));
     img_gun_pistol_silenced= PIXI.Texture.fromFrame(("silenced_pistol.png"));
 
-    img_tile_black= PIXI.Texture.fromFrame(("tile_black.png"));
-    img_tile_brown= PIXI.Texture.fromFrame(("tile_brown.png"));
-    img_tile_red= PIXI.Texture.fromFrame(("tile_red.png"));
-    img_tile_white= PIXI.Texture.fromFrame(("tile_white.png"));
     
     img_getawaycar= PIXI.Texture.fromFrame(("van.png"));
     img_hero_body = PIXI.Texture.fromFrame("body.png");
