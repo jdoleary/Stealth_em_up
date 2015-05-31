@@ -17,7 +17,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.lockpicking = false;
         this.carry = null;
         this.spyglass_distance = 64;
-        this.spyglass_equipped = true;
+        this.spyglass_equipped = false;
         
         
         this.guns = [
@@ -63,6 +63,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.sprite_spyglass = new PIXI.Sprite(img_spyglass);
         this.sprite_spyglass.anchor.x = 0;
         this.sprite_spyglass.anchor.y = 0;
+        this.sprite_spyglass.position.y = 10;
         spriteContainer.addChild(this.sprite_spyglass);
         
         this.sprite_body = pixiSprite;
@@ -93,6 +94,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
                 this.sin_body -= 0.12;
                 this.sprite_head.position.x = 2*Math.sin(this.sin);
                 this.sprite_body.rotation = Math.sin(this.sin_body)/4;
+                this.sprite_spyglass.rotation = Math.sin(this.sin_body)/4;
   
                 
             }
@@ -164,6 +166,9 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         }
         this.kill = function(fromX,fromY){
             hero_is_dead();
+            
+            //clear laser sight
+            this.gun_shot_line.graphics.clear();
         
             //display_actors.removeChild(this.sprite_head);
             this.alive = false;

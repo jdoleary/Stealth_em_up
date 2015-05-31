@@ -1843,24 +1843,14 @@ function gameloop(deltaTime){
     var spyglassInWall = grid.isWallSolidAndNotDoor_coords(spyglassPos.x,spyglassPos.y);
     if(grid.isWallDoor_coords(spyglassPos.x,spyglassPos.y))spyglassPos.inDoor = true;
     else spyglassPos.inDoor = false;
-    if(!hero.spyglass_equipped || spyglassInWall){
+    if(!hero.alive || (!hero.spyglass_equipped || spyglassInWall)){
         spyglassPos.x = hero.x;
         spyglassPos.y = hero.y;
         hero.sprite_spyglass.visible = false;
     }else{
         hero.sprite_spyglass.visible = true;
     }
-    //limit spyglassPos with raycast so it doesn't go through doors:
-    /*var spyglassPos_ray = getRaycastPointIgnoreDoor(hero.x,hero.y,spyglassPos.x,spyglassPos.y);
-    if(get_distance(hero.x,hero.y,spyglassPos_ray.x,spyglassPos_ray.y) < get_distance(hero.x,hero.y,spyglassPos.x,spyglassPos.y)){
-        spyglassPos.x = spyglassPos_ray.x;
-        spyglassPos.y = spyglassPos_ray.y;
-        //the below subtraction gives it a buffer so it isn't right against the wall:
-        if(spyglassPos.x > hero.x)spyglassPos.x -= 20;
-        else spyglassPos.x += 20;
-        if(spyglassPos.y > hero.y)spyglassPos.y -= 20;
-        else spyglassPos.y += 20;
-    }*/
+
     
     make_starburst_with_modified_view(hero,spyglassPos.x,spyglassPos.y);
     //end spyglass
@@ -2123,13 +2113,27 @@ function addKeyHandlers(){
             if(code == 65){keys['a'] = true;}
             if(code == 83){keys['s'] = true;}
             if(code == 68){keys['d'] = true;}
-            if(code == 80){hero.spyglass_equipped = !hero.spyglass_equipped;}//key p
+            if(code == 80){
+                //key p
+                hero.spyglass_equipped = !hero.spyglass_equipped;
+                
+                if(hero.spyglass_equipped){
+                    hero.gunOut = false;
+                    if(!hero.gunOut)hero.gun_shot_line.graphics.clear();
+                    setHeroImage();
+                }
+            
+            }
             if(code == 71){
                 // !keys['g'] makes it so that it will only be called once for a single press of the letter
                 if(!keys['g']){
                     hero.gunOut = !hero.gunOut;
                     if(!hero.gunOut)hero.gun_shot_line.graphics.clear();
                     setHeroImage();
+                    
+                    if(hero.gunOut){
+                        hero.spyglass_equipped = false;
+                    }
                 }
                 keys['g'] = true;
             }
