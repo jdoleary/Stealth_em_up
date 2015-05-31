@@ -74,10 +74,12 @@ function windowSetup(){
     document.getElementById("canvas_holder").appendChild(renderer.view);
     //document.body.appendChild(renderer.view);
 
+    PIXI.loader
+    .add('images/spritesheet.json')
+    .load(onAssetsLoaded);
+    
+    console.log(PIXI.loader);
 
-
-    startMenu();//init menu
-    requestAnimationFrame(animate);//start main loop
     
 }
 
