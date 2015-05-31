@@ -71,7 +71,6 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices,grid_index
             //var sprite = new PIXI.Sprite(img_tile_black);
             //var sprite = new PIXI.Sprite.fromImage(img_tile_black);
             var imgPath = walls.black[this.findWallType()];
-            console.log('path: ' + imgPath);
             var sprite = new PIXI.Sprite.fromImage(imgPath);
             if(this.rotate_sprite){
                 sprite.rotation = this.rotate_sprite;

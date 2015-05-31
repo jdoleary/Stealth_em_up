@@ -31,8 +31,10 @@ function jo_sprite(pixiSprite, parent){
     
     this.sprite = pixiSprite;
     //center the image:
-    this.sprite.anchor.x = 0.5;
-    this.sprite.anchor.y = 0.5;
+    if(this.sprite.anchor){
+        this.sprite.anchor.x = 0.5;
+        this.sprite.anchor.y = 0.5;
+    }
     if(parent)parent.addChild(this.sprite);
 	else display_actors.addChild(this.sprite);
     

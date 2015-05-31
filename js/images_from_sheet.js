@@ -1,59 +1,3 @@
-
-
-var img_bullet;
-var img_bomb;
-
-var img_security_camera;
-var img_security_camera_alerted;
-var img_cam_broken;
-var img_cam_off;
-
-var img_computer;
-var img_computer_off;
-var img_door_closed;
-var img_door_open;
-var img_guard_reg;
-var img_guard_alert;
-var img_guard_knows_hero_face;
-var img_guard_choke;
-var img_guard_dead;
-var img_guard_drag;
-var img_guard_spawn_icon;
-var img_blue;
-var img_hero_with_money;
-//? double hero_body_1_masked
-var img_masked;
-var img_hero_with_pistol;
-var img_hero_with_pistol_silenced;
-var img_hero_with_machine_gun;
-var img_hero_with_shotty;
-var img_hero_with_shotty_sawed;
-var img_hero_dead;
-var img_doodad_lamp;
-var img_lastSeen;
-var img_gun_machine;
-var img_money;
-var img_doodad_paper;
-var img_gun_pistol;
-var img_player_spawn_icon;
-var img_gun_shotgun_sawed;
-var img_shard_1;
-var img_shard_2;
-var img_shard_3;
-var img_shell;
-var img_gun_shotgun;
-var img_gun_pistol_silenced;
-
-var img_tile_black;
-var img_tile_brown;
-var img_tile_red;
-var img_tile_white;
-
-var img_getawaycar;
-var img_hero_body;
-var img_hero_head;
-var img_origin;
-var img_hero_head_masked;
 /*
 NOTE: when using a sprite sheet, load with (a) not (b)
 
@@ -63,6 +7,7 @@ NOTE: when using a sprite sheet, load with (a) not (b)
 
 function onAssetsLoaded(){
     console.log('loading finished');
+    //INIT GLOBAL IMAGE VARS
     
     img_bullet= PIXI.Texture.fromFrame(("bullet3x.png"));
     img_bomb= PIXI.Texture.fromFrame(("c4.png"));
@@ -77,8 +22,11 @@ function onAssetsLoaded(){
     img_door_closed= PIXI.Texture.fromFrame(("door_closed.png"));
     img_door_open= PIXI.Texture.fromFrame(("door_open.png"));
     img_guard_reg= PIXI.Texture.fromFrame(("guard.png"));
+    img_guard_riot_reg= PIXI.Texture.fromFrame(("guard_riot.png"));
     img_guard_alert= PIXI.Texture.fromFrame(("guard_alert.png"));
+    img_guard_riot_alert= PIXI.Texture.fromFrame(("guard_riot_alert.png"));
     img_guard_knows_hero_face= PIXI.Texture.fromFrame(("guard_alert_knows_face.png"));
+    img_guard_riot_knows_face = PIXI.Texture.fromFrame(("guard_riot_knows_face.png"));
     img_guard_choke= PIXI.Texture.fromFrame(("guard_choke.png"));
     img_guard_dead= PIXI.Texture.fromFrame(("guard_dead.png"));
     img_guard_drag= PIXI.Texture.fromFrame(("guard_dragging.png"));
@@ -114,7 +62,11 @@ function onAssetsLoaded(){
     img_hero_head = PIXI.Texture.fromFrame(("head.png"));
     img_origin = PIXI.Texture.fromFrame(("last_seen.png"));
     img_hero_head_masked = PIXI.Texture.fromFrame(("head_masked.png"));
+    img_spyglass = PIXI.Texture.fromFrame(("spyglass.png"));
     
+        //Image based initialization
+    shardImages = [img_shard_1,img_shard_2,img_shard_3];
+    currentShard = shardImages[shardType];
     
     startMenu();//init menu
     requestAnimationFrame(animate);//start main loop

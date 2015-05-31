@@ -3,7 +3,7 @@ Copyright 2014,2015, Jordan O'Leary, All rights reserved.
 If you would like to copy or use my code, you may contact
 me at jdoleary@gmail.com
 /*******************************************************/
-function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
+function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
     function sprite_hero(){
         this.speed_walk = speed_walk;
         this.speed_sprint = speed_sprint;
@@ -12,11 +12,12 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
         this.radius = 14;
         //alert causing bools:
         this.masked = false;
-        this.gunOut = false;//TODO: gunOut
+        this.gunOut = false;
         this.inOffLimits = false;
         this.lockpicking = false;
         this.carry = null;
         this.spyglass_distance = 64;
+        this.spyglass_equipped = true;
         
         
         this.guns = [
@@ -51,22 +52,51 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
             else return false;
         }
         
+        //Add all sprites to sprite container
+        this.feet_clip = jo_movie_clip("movie_clips/","feet_",8,".png")
+        this.feet_clip.anchor.x = 0.5;
+        this.feet_clip.anchor.y = 0.5;
+        this.feet_clip.loop = true;
+        this.feet_clip.animationSpeed = 0.15;//slow it down
+        spriteContainer.addChild(this.feet_clip);
+        
+        this.sprite_spyglass = new PIXI.Sprite(img_spyglass);
+        this.sprite_spyglass.anchor.x = 0;
+        this.sprite_spyglass.anchor.y = 0;
+        spriteContainer.addChild(this.sprite_spyglass);
+        
+        this.sprite_body = pixiSprite;
+        this.sprite_body.anchor.x = 0.5;
+        this.sprite_body.anchor.y = 0.5;
+        spriteContainer.addChild(this.sprite_body);
+    
+        var spriteHead = new PIXI.Sprite(img_hero_head);
         //extra draw components:
         this.sprite_head = spriteHead;
         //center the image:
-        this.sprite_head.anchor.x = 0.5;
-        this.sprite_head.anchor.y = 0.5;
-        display_actors.addChild(this.sprite_head);
+        spriteHead.anchor.x = 0.5;
+        spriteHead.anchor.y = 0.5;
+        spriteContainer.addChild(this.sprite_head);
+        this.sprite_animate = false;
+        
+        this.sin = 0;
+        this.sin_body = 0;
+        
+        
         
         this.prepare_for_draw = function(){
             this.sprite.position.x = this.x;
             this.sprite.position.y = this.y;
             this.sprite.rotation = this.rad;
-            //head:
-            
-            this.sprite_head.position.x = this.x;
-            this.sprite_head.position.y = this.y;
-            this.sprite_head.rotation = this.rad;
+            if(this.sprite_animate){
+                this.sin += 0.1;
+                this.sin_body -= 0.12;
+                this.sprite_head.position.x = 2*Math.sin(this.sin);
+                this.sprite_body.rotation = Math.sin(this.sin_body)/4;
+  
+                
+            }
+
         };
         
         this.imgMaskOn = function(putOn){
@@ -135,7 +165,7 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
         this.kill = function(fromX,fromY){
             hero_is_dead();
         
-            display_actors.removeChild(this.sprite_head);
+            //display_actors.removeChild(this.sprite_head);
             this.alive = false;
             //enable moving so they can be dragged
             this.moving = false;
@@ -143,7 +173,8 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
             this.target = {x: null, y:null};
             
             console.log('||||||||||||||||||||||||change hero texture to dead hero');
-            this.sprite.texture = (img_hero_dead);
+            this.sprite_body.texture = (img_hero_dead);
+            this.sprite.removeChild(this.sprite_head);
             
             messageGameOver.text = ('Press [Esc] to restart!');
             
@@ -274,10 +305,10 @@ function sprite_hero_wrapper(pixiSprite,spriteHead,speed_walk,speed_sprint){
             return {x:hero.x+a,y:hero.y+b};
         }
 
-
-
         
     }
-    sprite_hero.prototype = new jo_sprite(pixiSprite);
+    var spriteContainer = new PIXI.Container();
+
+    sprite_hero.prototype = new jo_sprite(spriteContainer);
     return new sprite_hero();
 }

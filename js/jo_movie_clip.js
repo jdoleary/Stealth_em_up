@@ -12,7 +12,7 @@ function jo_movie_clip(path, name, frames, type){
         var texture = PIXI.Texture.fromImage(path + name + (i) + type);
         movie_textures.push(texture);
     };
-    return new PIXI.MovieClip(movie_textures);
+    return new PIXI.extras.MovieClip(movie_textures);
 }
 
 

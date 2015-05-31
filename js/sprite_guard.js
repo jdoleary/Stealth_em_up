@@ -3,8 +3,8 @@ Copyright 2014,2015, Jordan O'Leary, All rights reserved.
 If you would like to copy or use my code, you may contact
 me at jdoleary@gmail.com
 /*******************************************************/
-function sprite_guard_wrapper(pixiSprite){
-    function sprite_guard(){
+function sprite_guard_wrapper(pixiSprite, hasRiotShield){
+    function sprite_guard(hasRiotShield){
         this.path = [];//path applies to AI following a path;
         this.alarmed = false;
         this.being_choked_out = false;
@@ -21,11 +21,25 @@ function sprite_guard_wrapper(pixiSprite){
         this.knowsHerosFace = false;//if guard knows hero's face, mask becomes irrelevant
         this.currentlySeesHero = false;//updated every loop;
         this.gun_shot_line.graphics.visible = false;
-        this.hasRiotShield = false;
+        this.hasRiotShield = hasRiotShield;
+        
+        //Add all sprites to sprite container
+        this.feet_clip = jo_movie_clip("movie_clips/","feet_",8,".png")
+        this.feet_clip.anchor.x = 0.5;
+        this.feet_clip.anchor.y = 0.5;
+        this.feet_clip.loop = true;
+        this.feet_clip.animationSpeed = 0.1;//slow it down
+        this.feet_clip.gotoAndPlay(0);
+        spriteContainer.addChild(this.feet_clip);
+        
+        this.sprite_body = pixiSprite;
+        this.sprite_body.anchor.x = 0.5;
+        this.sprite_body.anchor.y = 0.5;
+        spriteContainer.addChild(this.sprite_body);
         
         this.kill = function(){
             //play_sound(sound_unit_die);
-            this.sprite.texture = (img_guard_dead);
+            this.sprite_body.texture = (img_guard_dead);
             this.alive = false;
             //enable moving so they can be dragged
             this.moving = true;
@@ -35,8 +49,8 @@ function sprite_guard_wrapper(pixiSprite){
             
             
             //make sure the dead body sprite is on top of the blood trail and below other people
-            display_actors.removeChild(this.sprite);
-            display_effects.addChild(this.sprite);
+            spriteContainer.removeChild(this.feet_clip);
+            //display_effects.addChild(this.sprite_body);
             
             //drop gun
             drop_gun(this.gun,this.x,this.y);
@@ -86,8 +100,8 @@ function sprite_guard_wrapper(pixiSprite){
             if(!this.alarmed){
                 this.alarmed = true;
                 //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-                if(this.knowsHerosFace)this.sprite.texture = (img_guard_knows_hero_face);//show that this guard knows your face:
-                else this.sprite.texture = (img_guard_alert);
+                if(this.knowsHerosFace)this.sprite_body.texture = this.hasRiotShield ? img_guard_riot_knows_face : (img_guard_knows_hero_face);//show that this guard knows your face:
+                else this.sprite_body.texture = this.hasRiotShield ? img_guard_riot_alert : (img_guard_alert);
                 
                 this.path = [];//empty path
                 this.moving = false;//this sprite stop in their tracks when they see otherSprite.
@@ -107,8 +121,8 @@ function sprite_guard_wrapper(pixiSprite){
         this.hearAlarm = function(){
             if(this.alive){
                 //when a guard is told of an alarming event.
-                if(this.knowsHerosFace)this.sprite.texture = (img_guard_knows_hero_face);//show that this guard knows your face:
-                else this.sprite.texture = (img_guard_alert);
+                if(this.knowsHerosFace)this.sprite_body.texture = this.hasRiotShield ? img_guard_riot_knows_face : (img_guard_knows_hero_face);//show that this guard knows your face:
+                else this.sprite_body.texture = this.hasRiotShield ? img_guard_riot_alert : img_guard_alert;
                 this.speed = 3;//speed up when alarmed.
                 this.alarmed = true;
             }
@@ -119,20 +133,21 @@ function sprite_guard_wrapper(pixiSprite){
         //modify and call parent function
         this.get_dragged = function(){
             //if not being choked out, set texture to drag
-            if(this.being_choked_out && this.alive)this.sprite.texture = (img_guard_choke);
-            else this.sprite.texture = (img_guard_drag);
+            if(this.being_choked_out && this.alive)this.sprite_body.texture = (img_guard_choke);
+            else this.sprite_body.texture = (img_guard_drag);
             this.get_dragged_parent();
    
         
         }
         this.stop_dragging = function(){
             console.log('stop dragging' + this.alive);
-            if(!this.alive)this.sprite.texture = (img_guard_dead);
+            if(!this.alive)this.sprite_body.texture = (img_guard_dead);
         }
         
         
     }
+    var spriteContainer = new PIXI.Container();
     
-    sprite_guard.prototype = new jo_sprite(pixiSprite);
-    return new sprite_guard();
+    sprite_guard.prototype = new jo_sprite(spriteContainer);
+    return new sprite_guard(hasRiotShield);
 }

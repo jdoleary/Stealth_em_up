@@ -228,7 +228,6 @@ var tooltip;
 var tooltipshown;
 
 //MOVIE CLIPS:
-var feet_clip;
 var alert_clip;
 
 var latestAlert;//the last unit to be alerted (used to show alert icon)
@@ -558,14 +557,9 @@ function setup_map(map){
     display_tiles.addChild(tile_containers[3]);//add ParticleContaineres
     display_tiles.addChild(tile_containers[4]);//add ParticleContaineres
     
-            //hero feet:
-            feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
-            feet_clip.stop_distance = 3;//fix jittery bug
-            feet_clip.sprite.loop = true;
-            feet_clip.sprite.animationSpeed = 0.2;//slow it down
     
             //make sprites:
-			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_hero_body),new PIXI.Sprite(img_hero_head),4,8);
+			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_hero_body),4,8);
             hero.losPath = [];
             hero.losPoints = [];
 			//hero_end_aim_coord;
@@ -575,11 +569,8 @@ function setup_map(map){
             hero.x = map.objects.hero[0];
             hero.y = map.objects.hero[1];
 			hero.speed = hero.speed_walk;
-            feet_clip.speed = hero.speed;
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
-            //put feet under hero
-            feet_clip.x = hero.x;
-            feet_clip.y = hero.y;
+
             
             
 			hero_last_seen = new jo_sprite(new PIXI.Sprite(img_lastSeen));
@@ -588,7 +579,9 @@ function setup_map(map){
             
 			guards = [];
             for(var i = 0; i < map.objects.guards.length; i++){
-                var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_reg));
+                var hasRiotShield = randomIntFromInterval(0,2);
+                var guard_img = hasRiotShield ? img_guard_riot_reg : img_guard_reg;
+                var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(guard_img),hasRiotShield);
                 guard_inst.x = map.objects.guards[i][0];
                 guard_inst.y = map.objects.guards[i][1];
                 guard_inst.getRandomPatrolPath();
@@ -774,7 +767,7 @@ function gameloop_guards(deltaTime){
                         //guard will remember hero's face unless hero is masked:
                         if(!hero.masked){
                             guard.knowsHerosFace = true;
-                            guard.sprite.texture = (img_guard_knows_hero_face);//show that this guard knows your face:
+                            guard.sprite_body.texture = guard.hasRiotShield ? img_guard_riot_knows_face : img_guard_knows_hero_face;//show that this guard knows your face:
                         }
                         //reset target
                         guard.moving = false;
@@ -1098,6 +1091,9 @@ function gameloop_bullets(deltaTime){
             //check if bullet intersects hero_drag_target
             if(hero_drag_target && circle_linesetment_intersect(hero_drag_target.getCircleInfoForUtilityLib(),bulletPosBeforeMove,{x:bullet.x,y:bullet.y})){
                 if(hero_drag_target.alive)hero_drag_target.kill();
+                //splatter
+                var splatter_angle = grid.angleBetweenPoints(bulletPosBeforeMove.x,bulletPosBeforeMove.y,hero_drag_target.x,hero_drag_target.y);
+                bloodParticleSplatter(splatter_angle,hero_drag_target);
                 //destroy bullet
                 display_actors.removeChild(bullet.sprite);
                 bullets.splice(b,1);
@@ -1418,7 +1414,7 @@ function gameloop_getawaycar_and_loot(deltaTime){
             if(get_distance(hero.x,hero.y,loot[i].x,loot[i] .y) <= hero.radius*2){
                 hero.carry = loot[i];
                 loot[i].sprite.visible = false;
-                hero.sprite.texture = (img_hero_with_money);
+                //hero.sprite.texture = (img_hero_with_money);
                 newMessage("You've got the money!  Get it to the escape vehicle!");
                 break;
             }
@@ -1442,7 +1438,6 @@ function gameloop_getawaycar_and_loot(deltaTime){
             
             
             hero.carry = null;
-            hero.sprite.texture = (img_masked);
             
         }
     }
@@ -1814,7 +1809,6 @@ function gameloop(deltaTime){
     for(var i = 0; i < static_effect_sprites.length; i++){
         static_effect_sprites[i].prepare_for_draw();
     }
-    feet_clip.prepare_for_draw();
     alert_clip.prepare_for_draw();
     
     //update circularProgressBar:
@@ -1833,12 +1827,12 @@ function gameloop(deltaTime){
     //update Hero
     //////////////////////
     
+    hero.move_to_target();
     if(hero.alive && hero.gunOut){
         hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
         //laser sight
         hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     }
-    hero.move_to_target();
     
     
     //make_starburst_without_limit(hero);
@@ -1849,9 +1843,12 @@ function gameloop(deltaTime){
     var spyglassInWall = grid.isWallSolidAndNotDoor_coords(spyglassPos.x,spyglassPos.y);
     if(grid.isWallDoor_coords(spyglassPos.x,spyglassPos.y))spyglassPos.inDoor = true;
     else spyglassPos.inDoor = false;
-    if(spyglassInWall){
+    if(!hero.spyglass_equipped || spyglassInWall){
         spyglassPos.x = hero.x;
         spyglassPos.y = hero.y;
+        hero.sprite_spyglass.visible = false;
+    }else{
+        hero.sprite_spyglass.visible = true;
     }
     //limit spyglassPos with raycast so it doesn't go through doors:
     /*var spyglassPos_ray = getRaycastPointIgnoreDoor(hero.x,hero.y,spyglassPos.x,spyglassPos.y);
@@ -1915,15 +1912,6 @@ function gameloop(deltaTime){
     
 
     
-    //keep feet under hero:
-    feet_clip.target.x = hero.x;
-    feet_clip.target.y = hero.y;
-    //feet_clip.rotate_to_instant(hero.x,hero.y);
-    feet_clip.rad = hero.rad;
-    feet_clip.move_to_target();
-    /*feet_clip.x = hero.x;
-    feet_clip.y = hero.y;
-    feet_clip.rad = hero.rad;*/
     
     if(grid.isTileRestricted_coords(hero.x,hero.y)){
         if(hero.alive)hero.inOffLimits = true;
@@ -1948,7 +1936,7 @@ function gameloop(deltaTime){
     }
     if(hero.alive && !hero_drag_target){
         hero.target_rotate = mouse;
-        hero.rotate_to(mouse.x,mouse.y);
+        hero.rotate_to_instant(mouse.x,mouse.y);
     }else if(hero_drag_target){
         hero.target_rotate = hero_drag_target;
     }else{
@@ -2045,8 +2033,6 @@ function gameloop(deltaTime){
     
     //reset the losSprite texture
     losTexture.render(losPathGraphicsContainer, null, false);
-    //TEST TODO
-    starburst.draw_Ray_without_clear({start:{x:hero.x,y:hero.y},end:{x:spyglassPos.x,y:spyglassPos.y}},0x00ff00);
 
 }
 var debug_info = $('#debug_info');
@@ -2137,6 +2123,7 @@ function addKeyHandlers(){
             if(code == 65){keys['a'] = true;}
             if(code == 83){keys['s'] = true;}
             if(code == 68){keys['d'] = true;}
+            if(code == 80){hero.spyglass_equipped = !hero.spyglass_equipped;}//key p
             if(code == 71){
                 // !keys['g'] makes it so that it will only be called once for a single press of the letter
                 if(!keys['g']){
@@ -2146,10 +2133,10 @@ function addKeyHandlers(){
                 }
                 keys['g'] = true;
             }
-            if(code == 80){
+            /*if(code == 80){
                 //'p'
                 pause = !pause;
-            }
+            }*/
             if(code == 82){
                 keys['r'] = true;
                 hero.reload();
@@ -2202,7 +2189,6 @@ function addKeyHandlers(){
                 //cannot sprint while dragging something
                 if(!hero_drag_target){
                     hero.speed = hero.speed_sprint;
-                    feet_clip.speed = hero.speed;
                 }
             
             }
@@ -2240,7 +2226,6 @@ function addKeyHandlers(){
                                     
                                     //slow down hero speed because he just started dragging something.
                                     hero.speed = hero.speed/2;
-                                    feet_clip.speed = hero.speed;
                                     hero_drag_target = guard;
                                     hero_drag_target.speed = hero.speed;
                                     hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
@@ -2260,7 +2245,6 @@ function addKeyHandlers(){
                                     guard.being_choked_out = true;
                                     //slow down hero speed because he just started dragging something.
                                     hero.speed = hero.speed_walk/2;
-                                    feet_clip.speed = hero.speed;
                                     hero_drag_target = guard;
                                     hero_drag_target.speed = hero.speed;
                                     hero_drag_target.stop_distance = hero.radius*2;//I don't know why but the stop distance here seems to need to be bigger by a factor of 10
@@ -2277,7 +2261,6 @@ function addKeyHandlers(){
                                                 hero_drag_target = null;
                                                 //bring hero speed back to normal
                                                 hero.speed = hero.speed_walk;
-                                                feet_clip.speed = hero.speed;
                                             }
                                         }
                                     }.bind(guard), hero.ability_choke_speed);
@@ -2342,7 +2325,6 @@ function addKeyHandlers(){
             keys['shift'] = false;
             if(hero_drag_target==null){
                 hero.speed = hero.speed_walk;
-                feet_clip.speed = hero.speed;
             }
         }
         if(code == 32){
@@ -2354,7 +2336,6 @@ function addKeyHandlers(){
                 hero_drag_target = null;
                 //bring hero speed back to normal
                 hero.speed = hero.speed_walk;
-                feet_clip.speed = hero.speed;
             }
             //allow user to abort unlocking door:
             if(grid.a_door_is_being_unlocked && !hero.ability_remote_lockpick){
@@ -2497,7 +2478,8 @@ function spawn_backup(){
     }
 }
 function spawn_individual_backup(){
-    var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert));
+    var hasRiotShield = randomIntFromInterval(0,2);
+    var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert),hasRiotShield);
     newGuard.x = guard_backup_spawn.x;
     newGuard.y = guard_backup_spawn.y;
     //if(newGuard.alive)newGuard.hearAlarm();
@@ -2531,19 +2513,19 @@ function setHeroImage(){
     if(hero.gunOut){
         switch(hero.gun.name){
             case "Shotgun":
-                hero.sprite.texture = (img_hero_with_shotty);
+                hero.sprite_body.texture = (img_hero_with_shotty);
                 break;
             case "Sawed-Off Shotty":
-                hero.sprite.texture = (img_hero_with_shotty_sawed);
+                hero.sprite_body.texture = (img_hero_with_shotty_sawed);
                 break;
             case "Handgun":
-                hero.sprite.texture = (img_hero_with_pistol);
+                hero.sprite_body.texture = (img_hero_with_pistol);
                 break;
             case "Silenced Handgun":
-                hero.sprite.texture = (img_hero_with_pistol_silenced);
+                hero.sprite_body.texture = (img_hero_with_pistol_silenced);
                 break;
             case "Machine Gun":
-                hero.sprite.texture = (img_hero_with_machine_gun);
+                hero.sprite_body.texture = (img_hero_with_machine_gun);
                 break;
             default:
                 hero.imgMaskOn(true);
@@ -2551,7 +2533,7 @@ function setHeroImage(){
             
         }
     }else{
-        hero.sprite.texture = (img_hero_body);
+        hero.sprite_body.texture = (img_hero_body);
         
     }
 
@@ -2630,8 +2612,14 @@ function hero_move_animation_check(){
         var hero_was = hero_moving;
         if(keys['w'] || keys['a'] || keys['s'] || keys['d'])hero_moving = true;
         else hero_moving = false;
-        if(hero_moving && !hero_was)feet_clip.sprite.gotoAndPlay(0);
-        if(!hero_moving)feet_clip.sprite.gotoAndStop(0);
+        if(hero_moving && !hero_was){
+            hero.feet_clip.gotoAndPlay(0);
+            hero.sprite_animate = true;
+        }
+        if(!hero_moving){
+            hero.feet_clip.gotoAndStop(0);
+            hero.sprite_animate = false;
+        }
 }
 
 //show alert icon
@@ -2803,8 +2791,7 @@ window.onresize = function (event){
 }
 var shard_limit = 2000;
 var shardType = 0;
-var shardImages = [img_shard_1,img_shard_2,img_shard_3];
-var currentShard = shardImages[shardType];
+//Shart images inited at images_from_sheet.js
 function shardParticleSplatter(angle,target){
     var shardAmount = randomIntFromInterval(6,30);
         angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.
