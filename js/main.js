@@ -694,7 +694,7 @@ function gameloop_guards(deltaTime){
             //Only show the gaurds if they are within vision of the hero or a hacked camera:
             //if(guard.isRaycastUnobstructedBetweenTheseIgnoreDoor(hero){
             //if the spyglass is in a door, the raycast should ignore the door
-            if(spyglassPos.inDoor && guard.isRaycastUnobstructedBetweenTheseIgnoreDoor({x:spyglassPos.x,y:spyglassPos.y})){
+            if(hero.spyglass_equipped && spyglassPos.inDoor && guard.isRaycastUnobstructedBetweenTheseIgnoreDoor({x:spyglassPos.x,y:spyglassPos.y})){
                 guard.sprite.visible = true;
             //else it should not ignore doors:
             }else if(guard.isRaycastUnobstructedBetweenThese({x:spyglassPos.x,y:spyglassPos.y})){
