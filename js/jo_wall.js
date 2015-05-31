@@ -4,7 +4,16 @@ If you would like to copy or use my code, you may contact
 me at jdoleary@gmail.com
 /*******************************************************/
 //also referred to as "cell"
-
+var walls = {
+    black:{
+        "corner":"images/wall_black_corner.png",
+        "long":"images/wall_black_long.png",
+        "T":"images/wall_black_T.png",
+        "single":"images/wall_black_single.png",
+        "edge":"images/wall_black_edge.png",
+        "four":"images/wall_black_four.png",
+    }
+};
 var img_tile_black = "images/tile_black.png";
 var img_tile_white = "images/tile_white.png";
 var img_tile_red = "images/tile_red.png";
@@ -13,7 +22,7 @@ var img_tile_brown = "images/tile_brown.png";
 var img_doodad_paper = "images/papers.png";
 var img_doodad_lamp = "images/lamp.png";*/
 
-function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
+function jo_wall(image_number,solid,blocks_vision,restricted,vertices,grid_index_x,grid_index_y){
     /*
     To be able to build walls dynamically they will be made of points
     Grid cells around the cell that the wall is in will only check against 
@@ -31,6 +40,13 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     this.restricted = restricted; //the hero will cause alert if he is seen on a restricted tile even unmasked.
     this.door = false;
     this.image_number = image_number; //for keeping track of the type of cell image
+    this.rotate_sprite;//for rotating the wall sprite because the tile sheet only contains one orientation.
+    
+    //for new images:
+    this.grid_index_x = grid_index_x;
+    this.grid_index_y = grid_index_y;
+    this.offsetX = 0;
+    this.offsetY = 0;
     
     this.v8 = vertices[0];
     this.v2 = vertices[1];
@@ -53,7 +69,19 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
         switch(image_number_p) {
         case 0:
             //var sprite = new PIXI.Sprite(img_tile_black);
-            var sprite = new PIXI.Sprite.fromImage(img_tile_black);
+            //var sprite = new PIXI.Sprite.fromImage(img_tile_black);
+            var imgPath = walls.black[this.findWallType()];
+            console.log('path: ' + imgPath);
+            var sprite = new PIXI.Sprite.fromImage(imgPath);
+            if(this.rotate_sprite){
+                sprite.rotation = this.rotate_sprite;
+                if(this.rotate_sprite == Math.PI/2)this.offsetX = 64;
+                if(this.rotate_sprite == -Math.PI/2)this.offsetY = 64;
+                if(this.rotate_sprite == Math.PI){
+                    this.offsetX = 64;
+                    this.offsetY = 64;
+                }
+            }
             break;
         case 1:
             //var sprite = new PIXI.Sprite(img_tile_white);
@@ -103,14 +131,9 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
             
         }
         this.image_sprite = sprite;
-        //tile_container.addChild(this.image_sprite);//caused fps drops because you can't have different sprites in a sprite batcher
+        
         tile_containers[image_number_p].addChild(sprite);
     }
-    //set the image
-    this.changeImage(this.image_number);
-    
-    this.graphics = new PIXI.Graphics();
-    //stage_child.addChild(this.graphics);
     this.draw = function(){
         //draw wall with debug lines
         var v2_ob = camera.relativePoint(this.v2);
@@ -129,9 +152,62 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
     
     };
     this.prepare_for_draw = function(){
-        this.image_sprite.position.x = this.x;
-        this.image_sprite.position.y = this.y;
+        this.image_sprite.position.x = this.x+this.offsetX;
+        this.image_sprite.position.y = this.y+this.offsetY;
     };
+    
+    this.findWallType = function(){
+        //corner,long,T,single,edge,four
+        var count_of_walls = 0;
+        var north = grid.getCellFromIndex(this.grid_index_x,this.grid_index_y-1);
+        var south = grid.getCellFromIndex(this.grid_index_x,this.grid_index_y+1);
+        var east = grid.getCellFromIndex(this.grid_index_x+1,this.grid_index_y);
+        var west = grid.getCellFromIndex(this.grid_index_x-1,this.grid_index_y);
+        var northWall = north && north.solid && !north.door && north.blocks_vision;
+        var southWall = south && south.solid && !south.door && south.blocks_vision;
+        var eastWall = east && east.solid && !east.door && east.blocks_vision;
+        var westWall = west && west.solid && !west.door && west.blocks_vision;
+        if(northWall)count_of_walls++;
+        if(southWall)count_of_walls++;
+        if(eastWall)count_of_walls++;
+        if(westWall)count_of_walls++;
+        switch(count_of_walls){
+            case 0:
+                return "single";
+                break;
+            case 1:
+                if(westWall)this.rotate_sprite = Math.PI;
+                if(southWall)this.rotate_sprite = Math.PI/2;
+                if(northWall)this.rotate_sprite = -Math.PI/2;
+                return "edge";
+                break;
+            case 2:
+                if((northWall && southWall)){
+                    this.rotate_sprite = Math.PI/2;
+                    return "long";
+                }
+                if((eastWall && westWall)){
+                    return "long"; 
+                }
+                else{
+                    if(northWall && westWall)this.rotate_sprite = Math.PI/2;
+                    if(northWall && eastWall)this.rotate_sprite = -Math.PI/2;
+                    if(northWall && westWall)this.rotate_sprite = Math.PI;
+                    if(southWall && westWall)this.rotate_sprite = Math.PI/2;
+                    return "corner";
+                }
+                break;
+            case 3:
+                if(northWall && southWall && eastWall)this.rotate_sprite = -Math.PI/2;
+                if(northWall && southWall && westWall)this.rotate_sprite = Math.PI/2;
+                if(northWall && eastWall && westWall)this.rotate_sprite = Math.PI;
+                return "T";
+                break;
+            case 4:
+                return "four";
+                break;
+        }
+    }
     
     
     //Corresponding door_sprite is responsible for opening and closing this "door"
@@ -146,5 +222,9 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices){
         this.blocks_vision = true;
     
     }
+    
+    
+    this.graphics = new PIXI.Graphics();
+    //stage_child.addChild(this.graphics);
     
 }

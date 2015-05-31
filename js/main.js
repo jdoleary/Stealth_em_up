@@ -516,6 +516,7 @@ function setup_map(map){
     console.log(map);
     //grid/map
     grid = new jo_grid(map);
+    grid.setImagesForTiles();
     
     
     //whole map width and height:

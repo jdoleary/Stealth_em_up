@@ -160,6 +160,8 @@ function jo_grid(map){
         //gets 1d index from 2d index
         //NOTE: I had to reverse col and row, usually the formula is width * row + col, but
         //because of the way that the 2d array works I had to reverse it.
+        if(row < 0 || col < 0)return undefined;
+        if(row >= this.width || col >= this.height)return undefined;
         return this.cells[this.width * col + row];
     };
     
@@ -361,23 +363,23 @@ function jo_grid(map){
         switch(tile_type) {
         case 1:
             //black
-            this.cells.push(new jo_wall(0,true,true,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(0,true,true,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
             break;
         case 2:
             //white
-            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
             break;
         case 3:
             //brown
-            this.cells.push(new jo_wall(2,true,false,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(2,true,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
             break;
         case 4:
             //red
-            this.cells.push(new jo_wall(3,false,false,true,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(3,false,false,true,this.getWallCoords('square',x_index,y_index),x_index,y_index));
             break;
         case 5:
             //purple (door vertical)
-            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index));
+            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index),x_index,y_index);
             door.door = true;
             this.cells.push(door);
             this.make_door(door, false);
@@ -385,14 +387,14 @@ function jo_grid(map){
         
         case 6:
             //purple (door horizontal)
-            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index));
+            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index),x_index,y_index);
             door.door = true;
             this.cells.push(door);
             this.make_door(door, true);
             break;
         default:
             console.log('here');
-            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index)));
+            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
             break;
         };
     }
@@ -624,6 +626,12 @@ function jo_grid(map){
             this.debug3.draw_obj(endPoint.x+difX,endPoint.y+difY,newPoint.x,newPoint.y);
             this.debug4.draw_obj(endPoint.x+difX2,endPoint.y+difY2,newPoint2.x,newPoint2.y);*/
             return false;  
+        }
+    }
+    this.setImagesForTiles = function(){
+        for(var i = 0; i < this.cells.length; i++){
+            //set the tile image:
+            this.cells[i].changeImage(this.cells[i].image_number);
         }
     }
    
