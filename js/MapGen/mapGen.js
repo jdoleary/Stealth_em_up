@@ -9,7 +9,7 @@ var cell_size = 10;
 //c_width/height is the number of cells in the grid:
 var c_height = canvas.height/cell_size;
 var c_width = canvas.width/cell_size;
-var style = ['#ffffff','#000000','#ff0000','#00ff00','#0000ff','#f0f0f0','#0ff0ff']
+var style = ['#ffffff','#000000','#ff0000','#00ff00','#0000ff','#ff00ff','#0ff0ff']
 function drawSquare(x,y,colorIndex){
   if(x > c_width-1 || x < 0){
     console.log('x out of bounds');
@@ -39,15 +39,15 @@ var drawDebug = [];//for drawing special pionts afte the main draw
 //generate map:
 ///////////////////////////////////////////////////
 var firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,0,2);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,2);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,2);
+makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,0,3);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,3);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,3);
 
 
 firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,0,2);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,2);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,2);
+makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,0,3);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,3);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,3);
 /*
 makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},0);
 makeRandomRectOutlineInBounds(boundsOfLastRect,2);
@@ -66,7 +66,7 @@ for(var xx = 0; xx < c_width; xx++){
 }
 for(var d = 0; d < drawDebug.length; d++){
     
-    console.log(drawDebug[d].x + ' ' + drawDebug[d].y);
+    //console.log(drawDebug[d].x + ' ' + drawDebug[d].y);
     drawSquare(drawDebug[d].x,drawDebug[d].y,drawDebug[d].s);
 }
 
@@ -92,6 +92,7 @@ function getStartCorner(startx,starty,width,height,right,down){
     //the start corner is always the upper left hand corner
     //because the array iterates down right
     var startCorner = {x:0,y:0};
+    //change the direction of the rectangle from the start point:
     if(down){
         startCorner.y = starty;
     }else{
@@ -120,22 +121,42 @@ function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,hei
     var x = intInRange(bounds.xmin,bounds.xmax);
     var y = intInRange(bounds.ymin,bounds.ymax);
     
-    //higher chance of being near an edge, not in the middle:
-    if(intInRange(0,chanceOfBeingNearAnEdge) > 0){
-        console.log('near an edge');
-        x = intInRange(bounds.xmax-3,bounds.xmax);
-        colorIndex = 2;
-    }
-    
     //will choose true or false
     var right = intInRange(0,2);
     var down = intInRange(0,2);
+    
+    //higher chance of being near an edge, not in the middle:
+    if(intInRange(0,chanceOfBeingNearAnEdge) > 0){
+        console.log('near an edge');
+        var which = intInRange(0,4);
+        switch(which){
+            case 0:
+                x = intInRange(bounds.xmax-2,bounds.xmax);
+                right = true;
+                colorIndex = 2;
+                break;
+            case 1:
+                x = intInRange(bounds.xmin,bounds.xmin+2);
+                right = false;
+                colorIndex = 3;
+                break;
+            case 2:
+                y = intInRange(bounds.ymax-2,bounds.ymax);
+                down = true;
+                colorIndex = 4;
+                break;
+            case 3:
+                y = intInRange(bounds.ymin,bounds.ymin+2);
+                down = false;
+                colorIndex = 5;
+                break;
+        }
+    }
     
     return makeRectOutline(x,y,width,height,right,down,colorIndex);
 }
 function makeRectOutline(startx,starty,width,height,right,down,colorIndex){
     drawDebug.push({x:startx,y:starty,s:3});
-    console.log(right + ' ' + down);
   
     var startCorner = getStartCorner(startx,starty,width,height,right,down);
     //drawDebug.push({x:startCorner.x,y:startCorner.y,s:2});
