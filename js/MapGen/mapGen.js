@@ -92,6 +92,10 @@ function getStartCorner(startx,starty,width,height,right,down){
     //the start corner is always the upper left hand corner
     //because the array iterates down right
     var startCorner = {x:0,y:0};
+    
+    startCorner.y = starty;
+    startCorner.x = startx;
+    /*Keep it in bounds
     if(down){
         startCorner.y = starty;
     }else{
@@ -101,10 +105,12 @@ function getStartCorner(startx,starty,width,height,right,down){
         startCorner.x = startx;
     }else{
         startCorner.x = startx-width+1;
-    }
+    }*/
     //Number can't be negative
     if(startCorner.x < 0)startCorner.x = 0;
     if(startCorner.y < 0)startCorner.y = 0;
+    if(startCorner.x + width >= c_width)startCorner.x = startCorner.x + width - c_width;
+    if(startCorner.y + height >= c_height)startCorner.y = startCorner.y + height - c_height;
     
     return startCorner;
   
@@ -124,7 +130,7 @@ function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,hei
     return makeRectOutline(x,y,width,height,right,down,colorIndex);
 }
 function makeRectOutline(startx,starty,width,height,right,down,colorIndex){
-    drawDebug.push({x:startx,y:starty,s:3});
+    //drawDebug.push({x:startx,y:starty,s:3});
   
     var startCorner = getStartCorner(startx,starty,width,height,right,down);
     drawDebug.push({x:startCorner.x,y:startCorner.y,s:2});
@@ -149,8 +155,8 @@ function makeRectFillWithStartCorner(startCorner,width,height,colorIndex){
             
             if(xx == 0 || xx == width-1 || yy == 0 || yy == height-1){
                 //border point:
-                //console.log('x ' + (startCorner.x + xx));
-                //console.log('y ' + (startCorner.y + yy));
+                console.log('x ' + (startCorner.x + xx));
+                console.log('y ' + (startCorner.y + yy));
                 borderPointsFromLastRect.push(grid[startCorner.x + xx][startCorner.y + yy]);
             }
         }
