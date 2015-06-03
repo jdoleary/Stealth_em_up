@@ -38,16 +38,16 @@ var drawDebug = [];//for drawing special pionts afte the main draw
 ///////////////////////////////////////////////////
 //generate map:
 ///////////////////////////////////////////////////
-var firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0);
-makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,4);
+var firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
+makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,0,2);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,2);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,2);
 
 
-firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0);
-makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,4);
+firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
+makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,0,2);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,2);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,2);
 /*
 makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},0);
 makeRandomRectOutlineInBounds(boundsOfLastRect,2);
@@ -92,10 +92,6 @@ function getStartCorner(startx,starty,width,height,right,down){
     //the start corner is always the upper left hand corner
     //because the array iterates down right
     var startCorner = {x:0,y:0};
-    
-    startCorner.y = starty;
-    startCorner.x = startx;
-    /*Keep it in bounds
     if(down){
         startCorner.y = starty;
     }else{
@@ -105,35 +101,44 @@ function getStartCorner(startx,starty,width,height,right,down){
         startCorner.x = startx;
     }else{
         startCorner.x = startx-width+1;
-    }*/
-    //Number can't be negative
+    }
+    //Keep it in bounds
     if(startCorner.x < 0)startCorner.x = 0;
     if(startCorner.y < 0)startCorner.y = 0;
-    if(startCorner.x + width >= c_width)startCorner.x = startCorner.x + width - c_width;
-    if(startCorner.y + height >= c_height)startCorner.y = startCorner.y + height - c_height;
+    if(startCorner.x + width >= c_width)startCorner.x -= startCorner.x + width - c_width;
+    if(startCorner.y + height >= c_height)startCorner.y -= startCorner.y + height - c_height;
     
     return startCorner;
   
 }
 //returns the bounds of the created rectangle
-function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,height_max,colorIndex){
+function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,height_max,colorIndex,chanceOfBeingNearAnEdge){
     //Chooses random values
     var width = intInRange(width_min,width_max);
     var height = intInRange(height_min,height_max);
     
     var x = intInRange(bounds.xmin,bounds.xmax);
     var y = intInRange(bounds.ymin,bounds.ymax);
+    
+    //higher chance of being near an edge, not in the middle:
+    if(intInRange(0,chanceOfBeingNearAnEdge) > 0){
+        console.log('near an edge');
+        x = intInRange(bounds.xmax-3,bounds.xmax);
+        colorIndex = 2;
+    }
+    
     //will choose true or false
-    var right = intInRange(0,1);
-    var down = intInRange(0,1);
+    var right = intInRange(0,2);
+    var down = intInRange(0,2);
     
     return makeRectOutline(x,y,width,height,right,down,colorIndex);
 }
 function makeRectOutline(startx,starty,width,height,right,down,colorIndex){
-    //drawDebug.push({x:startx,y:starty,s:3});
+    drawDebug.push({x:startx,y:starty,s:3});
+    console.log(right + ' ' + down);
   
     var startCorner = getStartCorner(startx,starty,width,height,right,down);
-    drawDebug.push({x:startCorner.x,y:startCorner.y,s:2});
+    //drawDebug.push({x:startCorner.x,y:startCorner.y,s:2});
     makeRectFillWithStartCorner(startCorner,width,height,1);
     makeRectFillWithStartCorner({x:startCorner.x+1,y:startCorner.y+1},width-2,height-2,colorIndex);
     
@@ -155,8 +160,8 @@ function makeRectFillWithStartCorner(startCorner,width,height,colorIndex){
             
             if(xx == 0 || xx == width-1 || yy == 0 || yy == height-1){
                 //border point:
-                console.log('x ' + (startCorner.x + xx));
-                console.log('y ' + (startCorner.y + yy));
+                //console.log('x ' + (startCorner.x + xx));
+                //console.log('y ' + (startCorner.y + yy));
                 borderPointsFromLastRect.push(grid[startCorner.x + xx][startCorner.y + yy]);
             }
         }
