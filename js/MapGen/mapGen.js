@@ -9,6 +9,8 @@ var cell_size = 10;
 //c_width/height is the number of cells in the grid:
 var c_height = canvas.height/cell_size;
 var c_width = canvas.width/cell_size;
+//            white     black     red       green     blue
+//                                          DOOR
 var style = ['#ffffff','#000000','#ff0000','#00ff00','#0000ff','#ff00ff','#0ff0ff']
 function drawSquare(x,y,colorIndex){
   if(x > c_width-1 || x < 0){
@@ -29,25 +31,78 @@ var grid = [];
 for(var xx = 0; xx < c_width; xx++){
   for(var yy = 0; yy < c_height; yy++){
     if(grid[xx] == undefined)grid[xx] = [];
-    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0};
+    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,type:'none'};
   }
 }
 var borderPointsFromLastRect = [];
-var drawDebug = [];//for drawing special pionts afte the main draw
+var drawDebug = [];//for drawing special points after the main draw
 
 ///////////////////////////////////////////////////
 //generate map:
 ///////////////////////////////////////////////////
 var firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,0,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,3);
+makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
+//hall:makeRandomRectOutlineInBounds(firstbounds,3,15,3,20,4,3);
 
 
 firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,0,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,0,3);
+makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
+makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
+
+draw();
+
+setTimeout(function(){
+
+    ///////////////////////////////////////////////////
+    //Place doors:
+    ///////////////////////////////////////////////////
+    //get list of walls (style==1)
+    var wallPieces = [];
+
+    for(var xx = 0; xx < c_width; xx++){
+        for(var yy = 0; yy < c_height; yy++){
+            if(grid[xx][yy].type == 'wall'){
+                wallPieces.push(grid[xx][yy]);
+                grid[xx][yy].nearDoor = true;//wall pieces do not need this property
+            }
+        }
+    }
+    console.log('walls: ' + wallPieces.length);
+    for(var w = 0; w < wallPieces.length; w++){
+        var wall = wallPieces[w];
+        wall.nearDoor = true;
+        try{
+            //if top or bottom neighs don't touch a door
+            if((!grid[wall.x][wall.y+1].nearDoor || !grid[wall.x][wall.y-1].nearDoor) && (grid[wall.x][wall.y+1].style != 1 && grid[wall.x][wall.y-1].style != 1)){
+                grid[wall.x][wall.y].style = 3;
+                grid[wall.x][wall.y].type = 'door'
+                magicWandFill(wall.x,wall.y+1,markAsAccessToDoor);
+                magicWandFill(wall.x,wall.y-1,markAsAccessToDoor);
+            }
+        }catch(err){}//Catch undefined errors
+        try{
+            //if left or right neighs don't touch a door
+            if((!grid[wall.x+1][wall.y].nearDoor || !grid[wall.x-1][wall.y].nearDoor) && (grid[wall.x+1][wall.y].style != 1 && grid[wall.x-1][wall.y].style != 1)){
+                grid[wall.x][wall.y].style = 3;
+                grid[wall.x][wall.y].type = 'door'
+                magicWandFill(wall.x+1,wall.y,markAsAccessToDoor);
+                magicWandFill(wall.x-1,wall.y,markAsAccessToDoor);
+            }
+        }catch(err){}//Catch undefined errors
+    }
+
+    //marks that this cell has access to a door in the room:
+    function markAsAccessToDoor(indexX,indexY){
+        //console.log('mark access ' + indexX + ' ' + indexY);
+        if(grid[indexX][indexY].style == 1)return;//do not change walls
+        grid[indexX][indexY].style = 4;
+        grid[indexX][indexY].nearDoor = true;
+    }
+    draw();
+},1000);
 /*
 makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},0);
 makeRandomRectOutlineInBounds(boundsOfLastRect,2);
@@ -55,19 +110,20 @@ makeRandomRectOutlineInBounds(boundsOfLastRect,3);*/
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
-
-
-//draw grid based on data in array:
-for(var xx = 0; xx < c_width; xx++){
-  for(var yy = 0; yy < c_height; yy++){
-    //console.log(grid[xx][yy].x + ' ' + grid[xx][yy].y + ' ' + grid[xx][yy].style);
-    drawSquare(grid[xx][yy].x,grid[xx][yy].y,grid[xx][yy].style);
-  }
-}
-for(var d = 0; d < drawDebug.length; d++){
-    
-    //console.log(drawDebug[d].x + ' ' + drawDebug[d].y);
-    drawSquare(drawDebug[d].x,drawDebug[d].y,drawDebug[d].s);
+function draw(){
+    console.log('draw');
+    //draw grid based on data in array:
+    for(var xx = 0; xx < c_width; xx++){
+      for(var yy = 0; yy < c_height; yy++){
+        //console.log(grid[xx][yy].x + ' ' + grid[xx][yy].y + ' ' + grid[xx][yy].style);
+        drawSquare(grid[xx][yy].x,grid[xx][yy].y,grid[xx][yy].style);
+      }
+    }
+    for(var d = 0; d < drawDebug.length; d++){
+        
+        //console.log(drawDebug[d].x + ' ' + drawDebug[d].y);
+        drawSquare(drawDebug[d].x,drawDebug[d].y,drawDebug[d].s);
+    }
 }
 
 //UTILITY:
@@ -77,9 +133,10 @@ function intInRange(min,max)
     return Math.floor(Math.random()*(max-min)+min);
 }
 
-function change(x,y,color){
+function change(x,y,color,cellType){
     if(grid[x] && grid[x][y]){
         grid[x][y].style = color;
+        grid[x][y].type = cellType;
         return true;
     }else{
         //out of bounds:
@@ -133,22 +190,18 @@ function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,hei
             case 0:
                 x = intInRange(bounds.xmax-2,bounds.xmax);
                 right = true;
-                colorIndex = 2;
                 break;
             case 1:
                 x = intInRange(bounds.xmin,bounds.xmin+2);
                 right = false;
-                colorIndex = 3;
                 break;
             case 2:
                 y = intInRange(bounds.ymax-2,bounds.ymax);
                 down = true;
-                colorIndex = 4;
                 break;
             case 3:
                 y = intInRange(bounds.ymin,bounds.ymin+2);
                 down = false;
-                colorIndex = 5;
                 break;
         }
     }
@@ -156,12 +209,12 @@ function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,hei
     return makeRectOutline(x,y,width,height,right,down,colorIndex);
 }
 function makeRectOutline(startx,starty,width,height,right,down,colorIndex){
-    drawDebug.push({x:startx,y:starty,s:3});
+    //drawDebug.push({x:startx,y:starty,s:3});
   
     var startCorner = getStartCorner(startx,starty,width,height,right,down);
     //drawDebug.push({x:startCorner.x,y:startCorner.y,s:2});
-    makeRectFillWithStartCorner(startCorner,width,height,1);
-    makeRectFillWithStartCorner({x:startCorner.x+1,y:startCorner.y+1},width-2,height-2,colorIndex);
+    makeRectFillWithStartCorner(startCorner,width,height,1,'wall');
+    makeRectFillWithStartCorner({x:startCorner.x+1,y:startCorner.y+1},width-2,height-2,colorIndex,'floor');
     
     bounds = {xmin:0,ymin:0,xmax:0,ymax:0};
     bounds.xmin = startCorner.x;
@@ -171,13 +224,13 @@ function makeRectOutline(startx,starty,width,height,right,down,colorIndex){
     return bounds;
   
 }
-function makeRectFillWithStartCorner(startCorner,width,height,colorIndex){
+function makeRectFillWithStartCorner(startCorner,width,height,colorIndex,cellType){
     for(var xx = 0; xx < width; xx++){
         if(startCorner.x + xx > c_width-1)break;//oob
         
         for(var yy = 0; yy < height; yy++){    
             if(startCorner.y + yy > c_height-1)break;//oob
-            change(startCorner.x + xx, startCorner.y + yy,colorIndex);
+            change(startCorner.x + xx, startCorner.y + yy,colorIndex,cellType);
             
             if(xx == 0 || xx == width-1 || yy == 0 || yy == height-1){
                 //border point:
