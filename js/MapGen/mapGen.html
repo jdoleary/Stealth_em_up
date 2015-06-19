@@ -1,7 +1,21 @@
 <html>
 <body>
+<style>
+.mouse{
+  position:absolute;
+  top:0;
+  left:0;
+  margin: 15px;
+  padding: 5px;
+  background-color:rgba(255,255,255,1);
+  border: 1px solid #000;
+  pointer-events:none;
+}
+</style>
+<div class='mouse'></div>
 <canvas id="myCanvas" width="600" height="600" style="border:1px solid #d3d3d3;">
   Your browser does not support the HTML5 canvas tag.</canvas>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script src="tools.js"></script>
   <script src="mapGen.js"></script>
 </body>

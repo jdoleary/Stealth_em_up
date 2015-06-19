@@ -3,6 +3,80 @@ This is a stand alone module,
 if you use it in conjunction with mapGen.html it will
 draw out the maps
 */
+
+
+
+//Mouse info
+var index = 0;
+var mouse = {
+  x: 0,
+  y: 0
+};
+$('canvas').mousemove(function(event) {
+  mouse.x = event.offsetX;
+  mouse.y = event.offsetY;
+  p();
+
+})
+//Use arrow keys to step along the map gen process
+$(document).keydown(function(e) {
+  var key = e.which || e.keyCode;
+  switch (key) {
+    case 37:
+      changeIndex(-1);
+      clearInterval(player);
+      break;
+    case 38:
+        //up arrow:
+        //stop playback
+        clearInterval(player);
+        break;
+    case 39:
+      changeIndex(1);
+      clearInterval(player);
+      break;
+    case 40:
+    //down arrow
+      play();
+      break;
+  }
+ 
+  p();
+
+});
+
+var player = null;
+
+function play() {
+  clearInterval(player);
+  player = setInterval(function() {
+    changeIndex(1);
+    p();
+  }, 500);
+
+}
+
+var record = [];
+function changeIndex(i) {
+  index += i;
+  if (index < 0) index = record.length - 1;
+  if (index >= record.length) index = 0;
+  draw(index);
+}
+
+function p() {
+    var x_index = Math.round(mouse.x / cell_size);
+    var y_index = Math.round(mouse.y / cell_size);
+  $('.mouse').text(x_index + ", " + y_index + "Cell data: " + JSON.stringify(record[index][x_index][y_index], null, 4)+ " timeline index: " + index);
+  $('.mouse').css({
+    top: Math.round(mouse.y / cell_size) * cell_size,
+    left: Math.round(mouse.x / cell_size) * cell_size + cell_size * 2
+  });
+
+}
+
+
+
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 var cell_size = 10;
@@ -52,57 +126,65 @@ makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
 makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
 makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
 
-draw();
 
-setTimeout(function(){
+///////////////////////////////////////////////////
+//Place doors:
+///////////////////////////////////////////////////
+//get list of walls (style==1)
+var wallPieces = [];
 
-    ///////////////////////////////////////////////////
-    //Place doors:
-    ///////////////////////////////////////////////////
-    //get list of walls (style==1)
-    var wallPieces = [];
-
-    for(var xx = 0; xx < c_width; xx++){
-        for(var yy = 0; yy < c_height; yy++){
-            if(grid[xx][yy].type == 'wall'){
-                wallPieces.push(grid[xx][yy]);
-                grid[xx][yy].nearDoor = true;//wall pieces do not need this property
-            }
+for(var xx = 0; xx < c_width; xx++){
+    for(var yy = 0; yy < c_height; yy++){
+        if(grid[xx][yy].type == 'wall'){
+            wallPieces.push(grid[xx][yy]);
+            grid[xx][yy].nearDoor = true;//wall pieces do not need this property
+            console.log(grid[xx][yy]);
         }
     }
-    console.log('walls: ' + wallPieces.length);
-    for(var w = 0; w < wallPieces.length; w++){
-        var wall = wallPieces[w];
-        wall.nearDoor = true;
-        try{
-            //if top or bottom neighs don't touch a door
-            if((!grid[wall.x][wall.y+1].nearDoor || !grid[wall.x][wall.y-1].nearDoor) && (grid[wall.x][wall.y+1].style != 1 && grid[wall.x][wall.y-1].style != 1)){
-                grid[wall.x][wall.y].style = 3;
-                grid[wall.x][wall.y].type = 'door'
-                magicWandFill(wall.x,wall.y+1,markAsAccessToDoor);
-                magicWandFill(wall.x,wall.y-1,markAsAccessToDoor);
-            }
-        }catch(err){}//Catch undefined errors
-        try{
-            //if left or right neighs don't touch a door
-            if((!grid[wall.x+1][wall.y].nearDoor || !grid[wall.x-1][wall.y].nearDoor) && (grid[wall.x+1][wall.y].style != 1 && grid[wall.x-1][wall.y].style != 1)){
-                grid[wall.x][wall.y].style = 3;
-                grid[wall.x][wall.y].type = 'door'
-                magicWandFill(wall.x+1,wall.y,markAsAccessToDoor);
-                magicWandFill(wall.x-1,wall.y,markAsAccessToDoor);
-            }
-        }catch(err){}//Catch undefined errors
-    }
+}
+console.log('walls: ' + wallPieces.length);
+for(var w = 0; w < wallPieces.length; w++){
+    var wall = wallPieces[w];
+    wall.nearDoor = true;
+    try{
+        //if top or bottom neighs don't touch a door
+        if((!grid[wall.x][wall.y+1].nearDoor || !grid[wall.x][wall.y-1].nearDoor) && (grid[wall.x][wall.y+1].type == 'floor' && grid[wall.x][wall.y-1].type == 'floor')){
+            //make a door
+            grid[wall.x][wall.y].style = 3;
+            grid[wall.x][wall.y].type = 'door'
+            console.log('make door');
+            magicWandFill(wall.x,wall.y+1,markAsAccessToDoor);
+            magicWandFill(wall.x,wall.y-1,markAsAccessToDoor);
+            addGridToRecord();
+        }
+    }catch(err){}//Catch undefined errors
+    try{
+        //if left or right neighs don't touch a door
+        if((!grid[wall.x+1][wall.y].nearDoor || !grid[wall.x-1][wall.y].nearDoor) && (grid[wall.x+1][wall.y].type == 'floor' && grid[wall.x-1][wall.y].type == 'floor')){
+            grid[wall.x][wall.y].style = 3;
+            grid[wall.x][wall.y].type = 'door'
+            console.log('make door');
+            magicWandFill(wall.x+1,wall.y,markAsAccessToDoor);
+            magicWandFill(wall.x-1,wall.y,markAsAccessToDoor);
+            addGridToRecord();
+        }
+    }catch(err){}//Catch undefined errors
+}
 
-    //marks that this cell has access to a door in the room:
-    function markAsAccessToDoor(indexX,indexY){
-        //console.log('mark access ' + indexX + ' ' + indexY);
-        if(grid[indexX][indexY].style == 1)return;//do not change walls
-        grid[indexX][indexY].style = 4;
-        grid[indexX][indexY].nearDoor = true;
-    }
-    draw();
-},1000);
+//marks that this cell has access to a door in the room:
+function markAsAccessToDoor(indexX,indexY){
+    //console.log('mark access ' + indexX + ' ' + indexY);
+    if(grid[indexX][indexY].type == 'wall')return;//do not change walls
+    grid[indexX][indexY].style = 4;
+    grid[indexX][indexY].nearDoor = true;
+}
+//last add to record
+addGridToRecord();
+    
+    
+//SHOW THE FIRST RECORD GRID:
+changeIndex(0);
+
 /*
 makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},0);
 makeRandomRectOutlineInBounds(boundsOfLastRect,2);
@@ -110,13 +192,16 @@ makeRandomRectOutlineInBounds(boundsOfLastRect,3);*/
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
-function draw(){
-    console.log('draw');
-    //draw grid based on data in array:
+function addGridToRecord(){
+    record.push(jQuery.extend(true, {}, grid));
+    console.count('add record');
+}
+function draw(recordIndex){
+    //draw record[recordIndex] based on data in array:
     for(var xx = 0; xx < c_width; xx++){
       for(var yy = 0; yy < c_height; yy++){
-        //console.log(grid[xx][yy].x + ' ' + grid[xx][yy].y + ' ' + grid[xx][yy].style);
-        drawSquare(grid[xx][yy].x,grid[xx][yy].y,grid[xx][yy].style);
+        //console.log(record[recordIndex][xx][yy].x + ' ' + record[recordIndex][xx][yy].y + ' ' + record[recordIndex][xx][yy].style);
+        drawSquare(record[recordIndex][xx][yy].x,record[recordIndex][xx][yy].y,record[recordIndex][xx][yy].style);
       }
     }
     for(var d = 0; d < drawDebug.length; d++){
@@ -184,7 +269,6 @@ function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,hei
     
     //higher chance of being near an edge, not in the middle:
     if(intInRange(0,chanceOfBeingNearAnEdge) > 0){
-        console.log('near an edge');
         var which = intInRange(0,4);
         switch(which){
             case 0:
@@ -215,6 +299,7 @@ function makeRectOutline(startx,starty,width,height,right,down,colorIndex){
     //drawDebug.push({x:startCorner.x,y:startCorner.y,s:2});
     makeRectFillWithStartCorner(startCorner,width,height,1,'wall');
     makeRectFillWithStartCorner({x:startCorner.x+1,y:startCorner.y+1},width-2,height-2,colorIndex,'floor');
+    
     
     bounds = {xmin:0,ymin:0,xmax:0,ymax:0};
     bounds.xmin = startCorner.x;
