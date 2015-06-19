@@ -106,3 +106,71 @@ function magicWandFill(Ax,Ay,callback,changeIfTrue){
 
     
 }
+function findWallType(x,y){
+    //corner,long,T,single,edge,four
+    var count_of_walls = 0;
+    try{
+        var north = grid[x][y-1];
+    }catch(e){
+        var north = null;
+    }
+    try{
+        var south = grid[x][y+1];
+    }catch(e){
+        var south = null;
+    }
+    try{
+        var east = grid[x+1][y];
+    }catch(e){
+        var east = null;
+    }
+    try{
+        var west = grid[x-1][y];
+    }catch(e){
+        var west = null;
+    }
+    var northWall = north && north.solid && !north.door && north.blocks_vision;
+    var southWall = south && south.solid && !south.door && south.blocks_vision;
+    var eastWall = east && east.solid && !east.door && east.blocks_vision;
+    var westWall = west && west.solid && !west.door && west.blocks_vision;
+    if(northWall)count_of_walls++;
+    if(southWall)count_of_walls++;
+    if(eastWall)count_of_walls++;
+    if(westWall)count_of_walls++;
+    switch(count_of_walls){
+        case 0:
+            return "single";
+            break;
+        case 1:
+            if(westWall)this.rotate_sprite = Math.PI;
+            if(southWall)this.rotate_sprite = Math.PI/2;
+            if(northWall)this.rotate_sprite = -Math.PI/2;
+            return "edge";
+            break;
+        case 2:
+            if((northWall && southWall)){
+                this.rotate_sprite = Math.PI/2;
+                return "long";
+            }
+            if((eastWall && westWall)){
+                return "long"; 
+            }
+            else{
+                if(northWall && westWall)this.rotate_sprite = Math.PI/2;
+                if(northWall && eastWall)this.rotate_sprite = -Math.PI/2;
+                if(northWall && westWall)this.rotate_sprite = Math.PI;
+                if(southWall && westWall)this.rotate_sprite = Math.PI/2;
+                return "corner";
+            }
+            break;
+        case 3:
+            if(northWall && southWall && eastWall)this.rotate_sprite = -Math.PI/2;
+            if(northWall && southWall && westWall)this.rotate_sprite = Math.PI/2;
+            if(northWall && eastWall && westWall)this.rotate_sprite = Math.PI;
+            return "T";
+            break;
+        case 4:
+            return "four";
+            break;
+    }
+}

@@ -91,17 +91,77 @@ var c_width = canvas.width/cell_size;
 //                                          DOOR
 var style = ['#ffffff','#000000','#ff0000','#00ff00','#0000ff','#ff00ff','#0ff0ff']
 function drawSquare(x,y,colorIndex){
-  if(x > c_width-1 || x < 0){
+    if(x > c_width-1 || x < 0){
     console.log('x out of bounds');
     return;
-  }
-  if(y > c_height-1 || y < 0){
+    }
+    if(y > c_height-1 || y < 0){
     console.log('y out of bounds');
     return;
-  }
-  
-  ctx.fillStyle=style[colorIndex];
-  ctx.fillRect(x*cell_size, y*cell_size, cell_size, cell_size);
+    }
+
+    ctx.fillStyle=style[colorIndex];
+    ctx.fillRect(x*cell_size, y*cell_size, cell_size, cell_size);
+}
+function drawImg(x,y,imgID,rad){
+    if(x > c_width-1 || x < 0){
+    console.log('x out of bounds');
+    return;
+    }
+    if(y > c_height-1 || y < 0){
+    console.log('y out of bounds');
+    return;
+    }
+  	
+    var img = new Image();
+    img.onload = function () {
+        // save the context's co-ordinate system before 
+        // we screw with it
+        ctx.save(); 
+           
+        ctx.translate(x*cell_size, y*cell_size); 
+        
+        // now move across and down half the 
+        // width and height of the image (which is 128 x 128)
+        ctx.translate(cell_size/2, cell_size/2); 
+         
+        // rotate around this point
+        ctx.rotate(rad); 
+         
+        // then draw the image back and up
+        ctx.drawImage(img, -cell_size/2, -cell_size/2, cell_size, cell_size); 
+//        ctx.drawImage(img, x*cell_size, y*cell_size, cell_size, cell_size);
+         
+        // and restore the co-ordinate system to its default
+        // top left origin with no rotation
+        ctx.restore();
+    }
+    switch(imgID){
+        case 'single':
+            img.src = "../../images/wall_black_single.png";
+        break;
+        case 'edge':
+            img.src = "../../images/wall_black_edge.png";
+        break;
+        case 'long':
+            img.src = "../../images/wall_black_long.png";
+        break;
+        case 'corner':
+            img.src = "../../images/wall_black_corner.png";
+        break;
+        case 'T':
+            img.src = "../../images/wall_black_T.png";
+        break;
+        case 'four':
+            img.src = "../../images/wall_black_four.png";
+        break;
+        case 'door_horiz':
+            img.src = "../../images/door_closed.png";
+        break;
+        case 'door_virt':
+            img.src = "../../images/door_closed.png";
+        break;
+    }
 }
 
 var grid = [];
@@ -152,12 +212,17 @@ for(var w = 0; w < wallPieces.length; w++){
     console.log('w: ' + w);
     var wall = wallPieces[w];
     wall.nearDoor = true;
+    wall.blocks_vision = true;
+    wall.solid = true;
     try{
         //if top or bottom neighs don't touch a door
         if((!grid[wall.x][wall.y+1].nearDoor || !grid[wall.x][wall.y-1].nearDoor) && (grid[wall.x][wall.y+1].type == 'floor' && grid[wall.x][wall.y-1].type == 'floor')){
             //make a door
             grid[wall.x][wall.y].style = 3;
             grid[wall.x][wall.y].type = 'door'
+            grid[wall.x][wall.y].door = true;
+            grid[wall.x][wall.y].imageInfo = 'door_horiz';
+            grid[wall.x][wall.y].rotate_sprite = Math.PI/2;
             console.log('make door vert at ' + wall.x + "," + wall.y);
             addGridToRecord();
             magicWandFill(wall.x,wall.y+1,markAsAccessToDoor,isNotNearDoor);
@@ -171,7 +236,10 @@ for(var w = 0; w < wallPieces.length; w++){
         //if left or right neighs don't touch a door
         if((!grid[wall.x+1][wall.y].nearDoor || !grid[wall.x-1][wall.y].nearDoor) && (grid[wall.x+1][wall.y].type == 'floor' && grid[wall.x-1][wall.y].type == 'floor')){
             grid[wall.x][wall.y].style = 3;
-            grid[wall.x][wall.y].type = 'door'
+            grid[wall.x][wall.y].type = 'door';
+            grid[wall.x][wall.y].door = true;
+            grid[wall.x][wall.y].imageInfo = 'door_virt';
+            
             console.log('make door horiz at ' + wall.x + "," + wall.y);
             addGridToRecord();
             magicWandFill(wall.x+1,wall.y,markAsAccessToDoor,isNotNearDoor);
@@ -180,7 +248,17 @@ for(var w = 0; w < wallPieces.length; w++){
         }
     }catch(err){
         console.error(err);
-        }//Catch undefined errors
+    }//Catch undefined errors
+    
+}
+
+//set wall type for image drawing
+for(var w = 0; w < wallPieces.length; w++){
+    var wall = wallPieces[w];
+    //if they don't already have image info set
+    if(!grid[wall.x][wall.y].imageInfo){
+        grid[wall.x][wall.y].imageInfo = findWallType.call(grid[wall.x][wall.y],wall.x,wall.y);
+    }
 }
 
 //marks that this cell has access to a door in the room:
@@ -193,13 +271,14 @@ function markAsAccessToDoor(indexX,indexY){
 function isNotNearDoor(indexX,indexY){
     return !grid[indexX][indexY].nearDoor;
 }
+
+
 //last add to record
 addGridToRecord();
     
     
-//SHOW THE FIRST RECORD GRID:
-changeIndex(0);
-play();
+//SHOW THE LAST RECORD GRID:
+changeIndex(record.length - 1);
 
 /*
 makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},0);
@@ -216,8 +295,13 @@ function draw(recordIndex){
     //draw record[recordIndex] based on data in array:
     for(var xx = 0; xx < c_width; xx++){
       for(var yy = 0; yy < c_height; yy++){
+        var cell = record[recordIndex][xx][yy];
         //console.log(record[recordIndex][xx][yy].x + ' ' + record[recordIndex][xx][yy].y + ' ' + record[recordIndex][xx][yy].style);
-        drawSquare(record[recordIndex][xx][yy].x,record[recordIndex][xx][yy].y,record[recordIndex][xx][yy].style);
+        if(cell.imageInfo){
+            drawImg(cell.x,cell.y,cell.imageInfo,cell.rotate_sprite);
+        }else{
+            drawSquare(cell.x,cell.y,cell.style);
+        }
       }
     }
     for(var d = 0; d < drawDebug.length; d++){
