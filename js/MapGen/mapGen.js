@@ -109,7 +109,7 @@ var grid = [];
 for(var xx = 0; xx < c_width; xx++){
   for(var yy = 0; yy < c_height; yy++){
     if(grid[xx] == undefined)grid[xx] = [];
-    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,type:'none'};
+    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,type:'floor'};
   }
 }
 var borderPointsFromLastRect = [];
@@ -199,6 +199,7 @@ addGridToRecord();
     
 //SHOW THE FIRST RECORD GRID:
 changeIndex(0);
+play();
 
 /*
 makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},0);
@@ -271,6 +272,7 @@ function getStartCorner(startx,starty,width,height,right,down){
 }
 //returns the bounds of the created rectangle
 function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,height_max,colorIndex,chanceOfBeingNearAnEdge){
+    addGridToRecord();
     //Chooses random values
     var width = intInRange(width_min,width_max);
     var height = intInRange(height_min,height_max);
