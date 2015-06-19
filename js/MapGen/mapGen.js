@@ -52,7 +52,7 @@ function play() {
   player = setInterval(function() {
     changeIndex(1);
     p();
-  }, 500);
+  }, 300);
 
 }
 
@@ -65,9 +65,13 @@ function changeIndex(i) {
 }
 
 function p() {
-    var x_index = Math.round(mouse.x / cell_size);
-    var y_index = Math.round(mouse.y / cell_size);
-  $('.mouse').text(x_index + ", " + y_index + "Cell data: " + JSON.stringify(record[index][x_index][y_index], null, 4)+ " timeline index: " + index);
+    var x_index = Math.ceil(mouse.x / cell_size)-1;
+    var y_index = Math.ceil(mouse.y / cell_size)-1;
+    var cellData = 'none';
+    try{
+        cellData = JSON.stringify(record[index][x_index][y_index], null, '<br>');
+    }catch(e){}
+  $('.mouse').html(x_index + ", " + y_index + "<br>Cell data: " + cellData + "<br>timeline index: " + index);
   $('.mouse').css({
     top: Math.round(mouse.y / cell_size) * cell_size,
     left: Math.round(mouse.x / cell_size) * cell_size + cell_size * 2
@@ -143,7 +147,9 @@ for(var xx = 0; xx < c_width; xx++){
     }
 }
 console.log('walls: ' + wallPieces.length);
+addGridToRecord();
 for(var w = 0; w < wallPieces.length; w++){
+    console.log('w: ' + w);
     var wall = wallPieces[w];
     wall.nearDoor = true;
     try{
@@ -152,23 +158,29 @@ for(var w = 0; w < wallPieces.length; w++){
             //make a door
             grid[wall.x][wall.y].style = 3;
             grid[wall.x][wall.y].type = 'door'
-            console.log('make door');
-            magicWandFill(wall.x,wall.y+1,markAsAccessToDoor);
-            magicWandFill(wall.x,wall.y-1,markAsAccessToDoor);
+            console.log('make door vert at ' + wall.x + "," + wall.y);
+            addGridToRecord();
+            magicWandFill(wall.x,wall.y+1,markAsAccessToDoor,isNotNearDoor);
+            magicWandFill(wall.x,wall.y-1,markAsAccessToDoor,isNotNearDoor);
             addGridToRecord();
         }
-    }catch(err){}//Catch undefined errors
+    }catch(err){
+        console.error(err);
+    }//Catch undefined errors
     try{
         //if left or right neighs don't touch a door
         if((!grid[wall.x+1][wall.y].nearDoor || !grid[wall.x-1][wall.y].nearDoor) && (grid[wall.x+1][wall.y].type == 'floor' && grid[wall.x-1][wall.y].type == 'floor')){
             grid[wall.x][wall.y].style = 3;
             grid[wall.x][wall.y].type = 'door'
-            console.log('make door');
-            magicWandFill(wall.x+1,wall.y,markAsAccessToDoor);
-            magicWandFill(wall.x-1,wall.y,markAsAccessToDoor);
+            console.log('make door horiz at ' + wall.x + "," + wall.y);
+            addGridToRecord();
+            magicWandFill(wall.x+1,wall.y,markAsAccessToDoor,isNotNearDoor);
+            magicWandFill(wall.x-1,wall.y,markAsAccessToDoor,isNotNearDoor);
             addGridToRecord();
         }
-    }catch(err){}//Catch undefined errors
+    }catch(err){
+        console.error(err);
+        }//Catch undefined errors
 }
 
 //marks that this cell has access to a door in the room:
@@ -177,6 +189,9 @@ function markAsAccessToDoor(indexX,indexY){
     if(grid[indexX][indexY].type == 'wall')return;//do not change walls
     grid[indexX][indexY].style = 4;
     grid[indexX][indexY].nearDoor = true;
+}
+function isNotNearDoor(indexX,indexY){
+    return !grid[indexX][indexY].nearDoor;
 }
 //last add to record
 addGridToRecord();
@@ -194,7 +209,7 @@ makeRandomRectOutlineInBounds(boundsOfLastRect,3);*/
 ///////////////////////////////////////////////////
 function addGridToRecord(){
     record.push(jQuery.extend(true, {}, grid));
-    console.count('add record');
+    console.log('%c Add Record! ', 'background: #222; color: #bada55');
 }
 function draw(recordIndex){
     //draw record[recordIndex] based on data in array:
