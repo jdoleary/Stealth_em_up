@@ -14,7 +14,6 @@ function magicWandFill(Ax,Ay,callback,changeIfTrue){
     neighbors(Ax,Ay,type);
     while(neighbors_left.length>0){
         //console.log('neighbors_left: ' + neighbors_left.length);
-        if(neighbors_left.length > 100)debugger;
         var n = neighbors_left.shift();
         neighbors(n.x,n.y,type);
     }
@@ -435,6 +434,11 @@ function makeRectFill(startx,starty,width,height,right,down,colorIndex,outside){
     var startCorner = getStartCorner(startx,starty,width,height,right,down);
     makeRectFillWithStartCorner(startCorner,width,height,colorIndex,outside);
     
+}
+//Used for updating the user what the status of loading is:
+function printLoadingStep(text){
+    $('.info').append($('<div/>').text(text));
+    if(callWhenLoading)callWhenLoading(text);
 }
 /*
 Usage examples:

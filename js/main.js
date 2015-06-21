@@ -277,12 +277,22 @@ if(url_queryString["volume"]){
 }
 
 var mapName;
-if(url_queryString["level"]){
+generateMap(function(gen_map_json){
+    //map finished loading callback
+    map_json = gen_map_json;
+    $('#mapGenCanvas').hide();
+    windowSetup();
+},function(text){
+    //log loading text:
+    console.log(text);
+});
+
+/*if(url_queryString["level"]){
     mapName = url_queryString["level"];
     getMapInfo("maps", mapName + ".jomap");
 }else{
     alert('No level selected');
-}
+}*/
 //test:
 //windowSetup();
 
@@ -515,7 +525,7 @@ function setup_map(map){
     console.log(map);
     //grid/map
     grid = new jo_grid(map);
-    grid.setImagesForTiles();
+    //grid.setImagesForTiles();
     
     
     //whole map width and height:
@@ -550,12 +560,13 @@ function setup_map(map){
     //add the mask:
 	losShadeContainer.mask = losSprite;
     
-    
+    /*
     display_tiles_walls.addChild(tile_containers[0]);//add ParticleContaineres, black walls
     display_tiles_walls.addChild(tile_containers[2]);//add ParticleContaineres, brown furnature
     display_tiles.addChild(tile_containers[1]);//add ParticleContaineres
     display_tiles.addChild(tile_containers[3]);//add ParticleContaineres
     display_tiles.addChild(tile_containers[4]);//add ParticleContaineres
+    */
     
     
             //make sprites:
@@ -566,8 +577,8 @@ function setup_map(map){
             starburst = new debug_line();
             starburst_ray = new Ray(0,0,0,0);
 
-            hero.x = map.objects.hero[0];
-            hero.y = map.objects.hero[1];
+            hero.x = map.hero[0];
+            hero.y = map.hero[1];
 			hero.speed = hero.speed_walk;
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 
@@ -578,17 +589,17 @@ function setup_map(map){
             
             
 			guards = [];
-            for(var i = 0; i < map.objects.guards.length; i++){
+            for(var i = 0; i < map.guards.length; i++){
                 var hasRiotShield = randomIntFromInterval(0,2);
                 var guard_img = hasRiotShield ? img_guard_riot_reg : img_guard_reg;
                 var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(guard_img),hasRiotShield);
-                guard_inst.x = map.objects.guards[i][0];
-                guard_inst.y = map.objects.guards[i][1];
+                guard_inst.x = map.guards[i][0];
+                guard_inst.y = map.guards[i][1];
                 guard_inst.getRandomPatrolPath();
                 guards.push(guard_inst);
             }
 
-            guard_backup_spawn = {'x':map.objects.guard_backup_spawn[0],'y':map.objects.guard_backup_spawn[1]};
+            guard_backup_spawn = {'x':map.guard_backup_spawn[0],'y':map.guard_backup_spawn[1]};
             numOfBackupGuards = 7;
             backupCalled = false;
             
@@ -598,14 +609,14 @@ function setup_map(map){
 			    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
 			}*/
 			computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
-			computer_for_security_cameras.x = map.objects.computer[0];
-			computer_for_security_cameras.y = map.objects.computer[1];
+			computer_for_security_cameras.x = map.computer[0];
+			computer_for_security_cameras.y = map.computer[1];
             grid.makeWallSolid(computer_for_security_cameras.x,computer_for_security_cameras.y);//makes the ground under the car solid
 			
 			//security camera
 			security_cameras = [];
-            for(var i = 0; i < map.objects.security_cams.length; i++){
-                var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),map.objects.security_cams[i].pos[0],map.objects.security_cams[i].pos[1],map.objects.security_cams[i].swivel_max,map.objects.security_cams[i].swivel_min);
+            for(var i = 0; i < map.security_cams.length; i++){
+                var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),map.security_cams[i].pos[0],map.security_cams[i].pos[1],map.security_cams[i].swivel_max,map.security_cams[i].swivel_min);
                 cam_inst.setupLOS();//finds the points for the camera to consider when drawing los
                 security_cameras.push(cam_inst);
             }
@@ -614,15 +625,15 @@ function setup_map(map){
 			getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
 			getawaycar.sprite.anchor.y = 0.0;
 			getawaycar.sprite.anchor.x = 0.5;
-			getawaycar.x = map.objects.van[0];
-			getawaycar.y = map.objects.van[1];
+			getawaycar.x = map.van[0];
+			getawaycar.y = map.van[1];
             grid.makeWallSolid(getawaycar.x,getawaycar.y);//makes the ground under the car solid
             grid.makeWallSolid(getawaycar.x,getawaycar.y-64);//makes the ground under the car solid
 			getawaycar.rad = -Math.PI/2;
 			loot = [];
 			var money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = map.objects.loot[0];
-			money.y = map.objects.loot[1];
+			money.x = map.loot[0];
+			money.y = map.loot[1];
             loot.push(money);
 
             
@@ -700,7 +711,7 @@ function gameloop_guards(deltaTime){
             }else if(guard.isRaycastUnobstructedBetweenThese({x:spyglassPos.x,y:spyglassPos.y})){
                 guard.sprite.visible = true;
             }else{
-                guard.sprite.visible = false;
+                //TODO TEST:guard.sprite.visible = false;
             }
             for(var s = 0; s < security_cameras.length; s++){
                 var cam = security_cameras[s];
@@ -2894,6 +2905,7 @@ function ejectShell(source){
 }
 var kickback_speed = 5;
 var kickback_amount = 30;
+//camera kickback:
 function kickback(){
     var d = get_distance(hero.x,hero.y,mouse.x,mouse.y);
     var kickback_mod = randomFloatFromInterval(0,20);

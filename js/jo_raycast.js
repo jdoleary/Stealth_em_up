@@ -109,7 +109,7 @@ function getRaycastPoint(startx,starty,endx,endy){
         
         
         //find the closest point that touches a wall
-        for(var i = 0; i < 40; i++){
+        for(var i = 0; i < 60; i++){
             var nextPoint_v = nextPointAlongRay(rayv,i);
             
             if(grid.isWallSightBlocking_coords(nextPoint_v.x,nextPoint_v.y)){

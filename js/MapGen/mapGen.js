@@ -99,7 +99,7 @@ function p() {
 
 
 
-var canvas = document.getElementById("myCanvas");
+var canvas = document.getElementById("mapGenCanvas");
 var ctx = canvas.getContext("2d");
 var cell_size = 10;
 //c_width/height is the number of cells in the grid:
@@ -184,21 +184,35 @@ function drawImg(x,y,imgID,rad){
 
 var grid = [];
 var wallPieces = [];
-//init grid
-for(var xx = 0; xx < c_width; xx++){
-  for(var yy = 0; yy < c_height; yy++){
-    if(grid[xx] == undefined)grid[xx] = [];
-    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,numberOfNearDoors:0,type:'floor',depth:null};
-  }
-}
 var borderPointsFromLastRect = [];
 var drawDebug = [];//for drawing special points after the main draw
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//              ENTRY - call generateMap to begin
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+var callWhenFinished = null;
+var callWhenLoading = null;//called inside of printLoadingStep
+function generateMap(finishedCallback,loadingCallback){
+    callWhenFinished = finishedCallback;
+    callWhenLoading = loadingCallback;
+    //init grid
+    for(var xx = 0; xx < c_width; xx++){
+      for(var yy = 0; yy < c_height; yy++){
+        if(grid[xx] == undefined)grid[xx] = [];
+        if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,numberOfNearDoors:0,type:'floor',depth:null};
+      }
+    }
 
-///////////////////////////////////////////////////
-//generate map:
-///////////////////////////////////////////////////
-$('.info').append($('<div/>').text('Placing large rooms'));
-setTimeout(function(){
+    ///////////////////////////////////////////////////
+    //generate map:
+    ///////////////////////////////////////////////////
+    printLoadingStep('Placing large rooms');
+    setTimeout(placeRooms,100);
+}
+function placeRooms(){
     //Map Border:
     makeRectOutline(0,0,c_width,c_height,true,true,5,true);
     var numOfBuildings = randomIntFromInterval(2,3);
@@ -208,7 +222,7 @@ setTimeout(function(){
         var bounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
         var numofSubRooms = randomIntFromInterval(2,6);
         totalNumberOfSubrooms += numofSubRooms;
-        $('.info').append($('<div/>').text('--' + numofSubRooms + ' subrooms in building ' + (i+1)));
+        printLoadingStep(('--' + numofSubRooms + ' subrooms in building ' + (i+1)));
         for(var j = 0; j < numofSubRooms; j++){
             var isBigBuilding = randomIntFromInterval(0,1);
             if(isBigBuilding){
@@ -218,7 +232,7 @@ setTimeout(function(){
             }
         }
         if(i == numOfBuildings-1 && totalNumberOfSubrooms <= 8){
-            $('.info').append($('<div/>').text('--Not enough rooms, add another building'));
+            printLoadingStep(('--Not enough rooms, add another building'));
             i--;
         }
     }
@@ -246,9 +260,9 @@ setTimeout(function(){
     //shuffle wallPieces for random access when choosing door locations:
     shuffle(wallPieces);
 
-    $('.info').append($('<div/>').text('adding doors'));
+    printLoadingStep(('adding doors'));
     setTimeout(addDoors,100);
-},100);
+}
 
 //used for determining room depth later:
 var otherSidesOfDoors = [];
@@ -307,7 +321,7 @@ function addDoors(){
         }//Catch undefined errors
         
     }
-    $('.info').append($('<div/>').text('setting wall types'));
+    printLoadingStep(('setting wall types'));
     setTimeout(setWallTypes,100);
 }
 function setWallTypes(){
@@ -321,7 +335,7 @@ function setWallTypes(){
             grid[wall.x][wall.y].imageInfo = findWallType.call(grid[wall.x][wall.y],wall.x,wall.y);
         }
     }
-    $('.info').append($('<div/>').text('Thinning out double walls'));
+    printLoadingStep(('Thinning out double walls'));
     setTimeout(thinOutDoubleWalls,100);
 }
 function thinOutDoubleWalls(){
@@ -330,7 +344,7 @@ function thinOutDoubleWalls(){
     var TBlocks = gridQuery({imageInfo:"T"});
     for(var i = 0; i < TBlocks.length; i++){
     }
-    $('.info').append($('<div/>').text('Choosing Spawn Point'));
+    printLoadingStep(('Choosing Spawn Point'));
     setTimeout(chooseSpawnPoint,100);
     
 }
@@ -342,7 +356,7 @@ function chooseSpawnPoint(){
     var possibleSpawnPoints = gridQuery({outside:true,type:'floor'});
     spawnPoint = possibleSpawnPoints[Math.floor(Math.random()*possibleSpawnPoints.length)];
     spawnPoint.style = 7;
-    $('.info').append($('<div/>').text('Determining Room Depth'));
+    printLoadingStep(('Determining Room Depth'));
     setTimeout(function(){
         determineDepth(addDoorsForNonPathableRooms,'Possibly Adding Doors for NonPathable Rooms');
     },100);
@@ -364,7 +378,7 @@ function determineDepth(callback,text){
         console.log('door count: ' + doorCount);
         magicWandFill(otherSidesOfDoors[i].x,otherSidesOfDoors[i].y,setCellDepth(doorCount),isFloor);
     }
-    $('.info').append($('<div/>').text(text));
+    printLoadingStep((text));
     setTimeout(callback,100);
 }
 
@@ -433,15 +447,15 @@ function addDoorsForNonPathableRooms(){
         
     }
     if(someRoomsWereNonPathable){
-        $('.info').append($('<div/>').text('--Extra doors added'));
-        $('.info').append($('<div/>').text('!Determining Room Depth Again!'));
+        printLoadingStep(('--Extra doors added'));
+        printLoadingStep(('!Determining Room Depth Again!'));
         setTimeout(function(){
             determineDepth(addUnitsAndSuch,'Adding Units and Such');
         },100);
         
     }else{
-        $('.info').append($('<div/>').text('--No extra doors added'));
-        $('.info').append($('<div/>').text('Adding Units and Such'));
+        printLoadingStep(('--No extra doors added'));
+        printLoadingStep(('Adding Units and Such'));
         setTimeout(addUnitsAndSuch,100);
         
     }
@@ -460,7 +474,7 @@ function addUnitsAndSuch(){
         cellsByDepth[floorCells[f].depth].push(floorCells[f]);
     }
     if(!cellsByDepth[3] || cellsByDepth[3].length == 0){
-        $('.info').append($('<div/>').text('FAIL: Map missing depth 3 room.'));
+        printLoadingStep(('FAIL: Map missing depth 3 room.'));
     }else{
         //place money:
         var money = cellsByDepth[cellsByDepth.length-1][randomIntFromInterval(0,cellsByDepth[cellsByDepth.length-1].length)];
@@ -473,7 +487,7 @@ function addUnitsAndSuch(){
         
         //place guards
         var numberOfGuards = randomIntFromInterval(7,20);
-        $('.info').append($('<div/>').text('Adding ' + numberOfGuards + ' guards.'));
+        printLoadingStep(('Adding ' + numberOfGuards + ' guards.'));
         for(var g = 0; g < numberOfGuards; g++){
             //place guards in any floor other than outside
             var ran = randomIntFromInterval(1,cellsByDepth.length);
@@ -484,16 +498,61 @@ function addUnitsAndSuch(){
         }
     }
     
-    $('.info').append($('<div/>').text('Done'));
+    printLoadingStep(('Done'));
     setTimeout(finish,100);
     
 }
+var final_map = {
+    cells:[],
+    height:c_height,
+    width:c_width,
+    hero:null,
+    guards:[],
+    security_cams:[],
+    computer:null,
+    van:null,
+    loot:null,
+    guard_backup_spawn:null
+};
+var in_game_cell_size = 64;
 function finish(){
     
     //last add to record
     addGridToRecord();
     //SHOW THE LAST RECORD GRID:
     changeIndex(record.length - 1);
+    //add cells to final map:
+    for(var xx = 0; xx < grid.length; xx++){
+        for(var yy = 0; yy < grid[xx].length; yy++){
+            var cellFromGrid = grid[xx][yy];
+            var cell = {};
+            cell.blocks_vision = cellFromGrid.blocks_vision == undefined ? false : cellFromGrid.blocks_vision;
+            cell.solid = cellFromGrid.solid == undefined ? false : cellFromGrid.solid;
+            cell.door = cellFromGrid.door;
+            cell.type = cellFromGrid.type;
+            cell.imageInfo = cellFromGrid.imageInfo;
+            cell.restricted = cellFromGrid.restricted == undefined ? false : cellFromGrid.restricted;
+            cell.image_rot = cellFromGrid.rotate_sprite;
+            cell.x = cellFromGrid.x;
+            cell.y = cellFromGrid.y;
+            
+            final_map.cells.push(cell);
+        }
+    }
+    //convert unitsAndSuch and grid into a usable json for main.js:
+    for(var i = 0; i < unitsAndSuch.guards.length; i++){
+        var g = unitsAndSuch.guards[i];
+        final_map.guards.push([g.x*in_game_cell_size,g.y*in_game_cell_size]);
+    }
+    final_map.loot = [unitsAndSuch.loot.x*in_game_cell_size,unitsAndSuch.loot.y*in_game_cell_size];
+    //temp - becareful when actually placing these that they can't overlap
+    final_map.van = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
+    //temp - becareful when actually placing these that they can't overlap
+    final_map.computer = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
+    //temp - becareful when actually placing these that they can't overlap
+    final_map.guard_backup_spawn = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
+    final_map.hero = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
+    if(callWhenFinished)callWhenFinished(final_map);
 }
 //true if cell is near more or equal to numOfDoors.
 function isNearThisManyDoorsOrMore(x,y,numOfDoors){

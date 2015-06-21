@@ -105,12 +105,12 @@ var map1 = {
 
 
 //NOTE: to be batched, I think all images in spritebatch have to be the same sprite:
-var tile_container_black;
+/*var tile_container_black;
 var tile_container_white;
 var tile_container_brown;
 var tile_container_red;
 var tile_container_purple;
-var tile_containers;
+var tile_containers;*/
 
 function jo_grid(map){
     //set up sprite batches:
@@ -120,12 +120,12 @@ function jo_grid(map){
     tile_container_brown = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
     tile_container_red = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
     tile_container_purple = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!*/
-    tile_container_black = new PIXI.Container();
+    /*tile_container_black = new PIXI.Container();
     tile_container_white = new PIXI.Container();
     tile_container_brown = new PIXI.Container();
     tile_container_red = new PIXI.Container();
     tile_container_purple = new PIXI.Container();
-    tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
+    tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];*/
 
     //Debug lines for shortcut pathing
     /*
@@ -141,7 +141,7 @@ function jo_grid(map){
     this.cell_size = 64
 
     //this is the map, fill it will walls!
-    this.map_data = map.data;
+    this.map_data = map.cells;
     
     this.cells = [];
     
@@ -161,12 +161,12 @@ function jo_grid(map){
         //NOTE: I had to reverse col and row, usually the formula is width * row + col, but
         //because of the way that the 2d array works I had to reverse it.
         if(row < 0 || col < 0)return undefined;
-        if(row >= this.width || col >= this.height)return undefined;
-        return this.cells[this.width * col + row];
+        if(col >= this.width || row >= this.height)return undefined;
+        return this.cells[this.width * row + col];
     };
     
     this.get1DIndexFrom2DIndex = function(row, col){
-        return this.width * col + row;
+        return this.width * row + col;
     };
     
     this.getIndexFromCoords_2d = function(x,y){
@@ -356,7 +356,27 @@ function jo_grid(map){
     
     //create map:
     for(var i = 0; i < this.map_data.length; i++){
-        var tile_type = this.map_data[i];
+        var wall = new jo_wall();
+        wall.solid = this.map_data[i].solid;
+        wall.type = this.map_data[i].type;
+        wall.blocks_vision = this.map_data[i].blocks_vision;
+        wall.restricted = this.map_data[i].restricted;
+        wall.door = this.map_data[i].door;
+        wall.imageInfo = this.map_data[i].imageInfo;
+        wall.rotate_sprite = this.map_data[i].image_rot;
+        wall.grid_index_x = this.map_data[i].x;
+        wall.grid_index_y = this.map_data[i].y;
+        wall.vertices = this.getWallCoords('square',wall.grid_index_x,wall.grid_index_y);
+        wall.setImageFromInfo();
+        this.cells.push(wall);
+        if(wall.door){
+            if(wall.imageInfo == 'door_horiz'){
+                this.make_door(wall, true);
+            }else{
+                this.make_door(wall, false);
+            }
+        }
+        /*var tile_type = this.map_data[i];
         var info = this.getInfoFromIndex(i);
         var x_index = info.x_index;
         var y_index = info.y_index;
@@ -396,7 +416,7 @@ function jo_grid(map){
             console.log('here');
             this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
             break;
-        };
+        };*/
     }
     delete this.map_data;
     
@@ -423,122 +443,6 @@ function jo_grid(map){
     this.cells_astar = new Graph(this.cells_astar);//convert to astar graph
     
     
-    /*var optimized_path = [];
-    function confusing(pathIndex,path){
-        console.log("add path index: " + pathIndex);
-        var currentTestPointIndex = pathIndex;
-        optimized_path.push(path[currentTestPointIndex]);
-        //exit
-        if(pathIndex == path.length-1){
-            return;
-        }
-        var points_seen_from_currentTP = [];
-        for(var i = currentTestPointIndex+1; i < path.length; i++){
-                if(isLineOKForPath(path[i].x,path[i].y,path[currentTestPointIndex].x,path[currentTestPointIndex].y)){
-                    points_seen_from_currentTP.push(i);
-                    //console.log("psfctp: " + i);
-                }else break;
-        
-        }
-        console.log("points_seen_from_currentTP:" + points_seen_from_currentTP);
-        //now find out of points_seen_from_currentTP, which point can see to the next farthest:
-        var farthest_path_index;
-        var farthest_psfctp_index;
-        for(var i = 0; i < points_seen_from_currentTP.length; i++){
-            //console.log("i: " + points_seen_from_currentTP[i]);
-            //console.log("j: " + points_seen_from_currentTP[points_seen_from_currentTP.length-1]);
-            //console.log("p: " + path.length);
-            for(var j = points_seen_from_currentTP[points_seen_from_currentTP.length-1]; j < path.length; j++){
-                //console.log("path " + j + " to path " + points_seen_from_currentTP[i]);
-                    
-                if(isLineOKForPath(path[j].x,path[j].y,path[points_seen_from_currentTP[i]].x,path[points_seen_from_currentTP[i]].y)){
-                    //console.log('true');
-                    if(farthest_path_index == undefined){
-                        farthest_path_index = j;
-                        //console.log("far: " + j);
-                        farthest_psfctp_index = points_seen_from_currentTP[i];
-                    }else{
-                        if(j > farthest_path_index){
-                            farthest_path_index = j;
-                            //console.log("far: " + j);
-                            farthest_psfctp_index = points_seen_from_currentTP[i];
-                        }
-                    }
-                }else break;
-            
-            }
-        }
-        if(farthest_psfctp_index!=null)confusing(farthest_psfctp_index,path);
-        else console.log("farthest_psfctp went wrong");
-    }
-    this.getPath = function(start,end){
-        console.log("GET PATH!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + start.x + "," + start.y + ":: " + end.x + "," + end.y);
-        //start/end in format {x: #,y: #} # representing cell indices.
-        //because of how I read 2d arrays I have to treat all the y's as x's and all the x's as y's in the astar lib
-        //                      y   x
-        var start = this.cells_astar.nodes[start.y][start.x];//remember x and y are switched for the astar lib
-        var end = this.cells_astar.nodes[end.y][end.x];//remember x and y are switched for the astar lib
-        var result = astar.search(this.cells_astar.nodes, start, end);
-        var path = [];
-        for(var i = 0; i < result.length; i++){
-            path.push({x: result[i].y*this.cell_size+this.cell_size/2, y: result[i].x*this.cell_size+this.cell_size/2});//return path in obj pixel location, index*64-32 will center the pixel on the correct index cell
-            console.log("path: " + result[i].y , ',' , result[i].x);
-        }
-        //above is unoptomized path ^
-        if(path.length == 0)return [];
-        confusing(0,path);
-        //test 2
-        /*var optimized_path = [];
-        var lastPoint = null;
-        var endtt = null;
-        for(var i = 0; i < path.length; i++){
-            if(!lastPoint){
-                lastPoint = path[i];
-                console.log('new start: ' + Math.floor(path[i].x / this.cell_size) + " , " + Math.floor(path[i].y / this.cell_size));
-            }
-            else{
-                if(isLineOKForPath(path[i].x,path[i].y,lastPoint.x,lastPoint.y)){
-                    //don't use:
-                    console.log('new end: ' + Math.floor(path[i].x / this.cell_size) + " , " + Math.floor(path[i].y / this.cell_size));
-                    endtt = path[i];
-                }
-                else{
-                    console.log('push both');
-                    optimized_path.push(lastPoint);
-                    if(endtt!=null){
-                        optimized_path.push(endtt);
-                        lastPoint = endtt;
-                        console.log('new start: ' + Math.floor(lastPoint.x / this.cell_size) + " , " + Math.floor(lastPoint.y / this.cell_size));
-                        i--;
-                        endtt = null;
-                    }
-                    
-                }
-            
-            }
-            console.log(i + " " + path[i].x + "," + path[i].y);
-        }
-                    
-        if(endtt!=null){
-            console.log('push end');
-            optimized_path.push(endtt);
-        }*/
-        //test 2
-        /*
-        
-        console.log("op path");
-        for(var i = 0; i < optimized_path.length; i++){
-            var test = grid.getIndexFromCoords_2d(optimized_path[i].x,optimized_path[i].y);
-            console.log(i + " " + test.x + "," + test.y);
-        }
-        //test
-        
-        
-        //console.log('grid return path: ');
-        //console.log(path);
-        return optimized_path; //path is an array of points
-    
-    };*/
     this.reducePathWithShortcut = function(path,radius){
         //checks if there are any angled shortcuts along this path:
         var startPoint = path[0];
@@ -628,12 +532,12 @@ function jo_grid(map){
             return false;  
         }
     }
-    this.setImagesForTiles = function(){
+    /*this.setImagesForTiles = function(){
         for(var i = 0; i < this.cells.length; i++){
             //set the tile image:
             this.cells[i].changeImage(this.cells[i].image_number);
         }
-    }
+    }*/
    
         
 
