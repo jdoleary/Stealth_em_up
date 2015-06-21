@@ -18,6 +18,24 @@ $('canvas').mousemove(function(event) {
   p();
 
 })
+$('canvas').mousedown(function(event) {
+    switch (event.which) {
+        case 1:
+            $('.mouse').show();
+            //alert('Left Mouse button pressed.');
+            break;
+        case 2:
+            $('.mouse').hide();
+            //alert('Middle Mouse button pressed.');
+            break;
+        case 3:
+            //alert('Right Mouse button pressed.');
+            break;
+        default:
+            //alert('You have a strange Mouse!');
+    }
+
+})
 //Use arrow keys to step along the map gen process
 $(document).keydown(function(e) {
   var key = e.which || e.keyCode;
@@ -89,7 +107,7 @@ var c_height = canvas.height/cell_size;
 var c_width = canvas.width/cell_size;
 //            white     black     red       green     blue
 //                                          DOOR
-var style = ['#ffffff','#000000','#ff0000','#00ff00','#0000ff','#ff00ff','#0ff0ff']
+var style = ['#ffffff','#000000','#ff0000','#00ff00','#0000ff','#ff00ff','#0ff0ff','#99C794']
 function drawSquare(x,y,colorIndex){
     if(x > c_width-1 || x < 0){
     console.log('x out of bounds');
@@ -170,7 +188,7 @@ var wallPieces = [];
 for(var xx = 0; xx < c_width; xx++){
   for(var yy = 0; yy < c_height; yy++){
     if(grid[xx] == undefined)grid[xx] = [];
-    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,numberOfNearDoors:0,type:'floor'};
+    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,numberOfNearDoors:0,type:'floor',depth:null};
   }
 }
 var borderPointsFromLastRect = [];
@@ -182,7 +200,7 @@ var drawDebug = [];//for drawing special points after the main draw
 $('.info').append($('<div/>').text('Placing large rooms'));
 setTimeout(function(){
     //Map Border:
-    makeRectOutline(0,0,c_width,c_height,true,true,5);
+    makeRectOutline(0,0,c_width,c_height,true,true,5,true);
     //building 1
     var firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
     makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
@@ -222,6 +240,10 @@ setTimeout(function(){
     setTimeout(addDoors,100);
 },100);
 
+//used for determining room depth later:
+var otherSidesOfDoors = [];
+
+//add doors to grid:
 function addDoors(){
     for(var w = 0; w < wallPieces.length; w++){
         console.log('w: ' + w);
@@ -243,6 +265,10 @@ function addDoors(){
                     console.log('make door vert at ' + wall.x + "," + wall.y);
                     magicWandFill(wall.x,wall.y+1,markAsAccessToDoor,isFloor);
                     magicWandFill(wall.x,wall.y-1,markAsAccessToDoor,isFloor);
+                    
+                    //used later for room depth
+                    otherSidesOfDoors.push(grid[wall.x][wall.y+1]);
+                    otherSidesOfDoors.push(grid[wall.x][wall.y-1]);
                 }
             }
         }catch(err){
@@ -261,6 +287,10 @@ function addDoors(){
                     console.log('make door horiz at ' + wall.x + "," + wall.y);
                     magicWandFill(wall.x+1,wall.y,markAsAccessToDoor,isFloor);
                     magicWandFill(wall.x-1,wall.y,markAsAccessToDoor,isFloor);
+                    
+                    //used later for room depth
+                    otherSidesOfDoors.push(grid[wall.x+1][wall.y]);
+                    otherSidesOfDoors.push(grid[wall.x-1][wall.y]);
                 }
             }
         }catch(err){
@@ -280,19 +310,59 @@ function setWallTypes(){
             grid[wall.x][wall.y].imageInfo = findWallType.call(grid[wall.x][wall.y],wall.x,wall.y);
         }
     }
+    $('.info').append($('<div/>').text('Determining Room Depth'));
+    setTimeout(chooseSpawnPoint,100);
+}
+var spawnPoint;
+function chooseSpawnPoint(){
+    //choose spawn point:
+    var possibleSpawnPoints = gridQuery({outside:true,type:'floor'});
+    spawnPoint = possibleSpawnPoints[Math.floor(Math.random()*possibleSpawnPoints.length)];
+    spawnPoint.style = 7;
+    $('.info').append($('<div/>').text('Spawn Point Chosen'));
+    setTimeout(determineDepth,100);
+    
+}
+function determineDepth(){
+    var astar_grid = getGridForAstar();
+    var astar_graph = new Graph(astar_grid);
+    
+    //check the depth of the rooms on either side of every door:
+    for(var i = 0; i < otherSidesOfDoors.length; i++){
+        var path = astar.search(astar_graph.nodes,astar_graph.nodes[spawnPoint.x][spawnPoint.y],astar_graph.nodes[otherSidesOfDoors[i].x][otherSidesOfDoors[i].y]);
+        var doorCount = 0;
+        for(var p = 0; p< path.length; p++){
+            if(grid[path[p].x][path[p].y].door)doorCount++;
+        }
+        console.log('door count: ' + doorCount);
+        magicWandFill(otherSidesOfDoors[i].x,otherSidesOfDoors[i].y,setCellDepth(doorCount),isFloor);
+    }
     $('.info').append($('<div/>').text('Done'));
-
+    setTimeout(finish,100);
+}
+function finish(){
+    
     //last add to record
     addGridToRecord();
     //SHOW THE LAST RECORD GRID:
     changeIndex(record.length - 1);
-    $('.mouse').show();
 }
-
 //true if cell is near more or equal to numOfDoors.
 function isNearThisManyDoorsOrMore(x,y,numOfDoors){
     console.log('x: ' + x + ', y: ' + y);
     return grid[x][y].numberOfNearDoors >= numOfDoors;
+}
+
+//set the number of doors between this cell and hero spawn:
+function setCellDepth(doorCount){
+    return function(indexX,indexY){
+        //the shortest depth is the one that counts:
+        if(doorCount < grid[indexX][indexY].depth || !grid[indexX][indexY].depth){
+            grid[indexX][indexY].depth = doorCount;
+            //test: TODO:
+            grid[indexX][indexY].style = doorCount;
+        }
+    };
 }
 //marks that this cell has access to a door in the room:
 function markAsAccessToDoor(indexX,indexY){
@@ -309,10 +379,6 @@ function isNotNearDoor(indexX,indexY){
 }
 
 
-/*
-makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},0);
-makeRandomRectOutlineInBounds(boundsOfLastRect,2);
-makeRandomRectOutlineInBounds(boundsOfLastRect,3);*/
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
@@ -340,136 +406,3 @@ function draw(recordIndex){
     }
 }
 
-//UTILITY:
-function intInRange(min,max)
-{
-    //console.log('min: ' + min + ', max:' + max);
-    return Math.floor(Math.random()*(max-min)+min);
-}
-
-function change(x,y,color,cellType){
-    if(grid[x] && grid[x][y]){
-        grid[x][y].style = color;
-        grid[x][y].type = cellType;
-        return true;
-    }else{
-        //out of bounds:
-        return false;
-    }
-}
-function getStartCorner(startx,starty,width,height,right,down){
-  //right down is the direction from startx, starty
-
-    //the start corner is always the upper left hand corner
-    //because the array iterates down right
-    var startCorner = {x:0,y:0};
-    //change the direction of the rectangle from the start point:
-    if(down){
-        startCorner.y = starty;
-    }else{
-        startCorner.y = starty-height+1;
-    }
-    if(right){
-        startCorner.x = startx;
-    }else{
-        startCorner.x = startx-width+1;
-    }
-    //Keep it in bounds
-    if(startCorner.x < 0)startCorner.x = 0;
-    if(startCorner.y < 0)startCorner.y = 0;
-    if(startCorner.x + width >= c_width)startCorner.x -= startCorner.x + width - c_width;
-    if(startCorner.y + height >= c_height)startCorner.y -= startCorner.y + height - c_height;
-    
-    return startCorner;
-  
-}
-//returns the bounds of the created rectangle
-function makeRandomRectOutlineInBounds(bounds,width_min,height_min,width_max,height_max,colorIndex,chanceOfBeingNearAnEdge){
-    addGridToRecord();
-    //Chooses random values
-    var width = intInRange(width_min,width_max);
-    var height = intInRange(height_min,height_max);
-    
-    var x = intInRange(bounds.xmin,bounds.xmax);
-    var y = intInRange(bounds.ymin,bounds.ymax);
-    
-    //will choose true or false
-    var right = intInRange(0,2);
-    var down = intInRange(0,2);
-    
-    //higher chance of being near an edge, not in the middle:
-    if(intInRange(0,chanceOfBeingNearAnEdge) > 0){
-        var which = intInRange(0,4);
-        switch(which){
-            case 0:
-                x = intInRange(bounds.xmax-2,bounds.xmax);
-                right = true;
-                break;
-            case 1:
-                x = intInRange(bounds.xmin,bounds.xmin+2);
-                right = false;
-                break;
-            case 2:
-                y = intInRange(bounds.ymax-2,bounds.ymax);
-                down = true;
-                break;
-            case 3:
-                y = intInRange(bounds.ymin,bounds.ymin+2);
-                down = false;
-                break;
-        }
-    }
-    
-    return makeRectOutline(x,y,width,height,right,down,colorIndex);
-}
-function makeRectOutline(startx,starty,width,height,right,down,colorIndex){
-    //drawDebug.push({x:startx,y:starty,s:3});
-  
-    var startCorner = getStartCorner(startx,starty,width,height,right,down);
-    //drawDebug.push({x:startCorner.x,y:startCorner.y,s:2});
-    makeRectFillWithStartCorner(startCorner,width,height,1,'wall');
-    makeRectFillWithStartCorner({x:startCorner.x+1,y:startCorner.y+1},width-2,height-2,colorIndex,'floor');
-    
-    
-    bounds = {xmin:0,ymin:0,xmax:0,ymax:0};
-    bounds.xmin = startCorner.x;
-    bounds.ymin = startCorner.y;
-    bounds.xmax = startCorner.x+width-1;
-    bounds.ymax = startCorner.y+height-1;
-    return bounds;
-  
-}
-function makeRectFillWithStartCorner(startCorner,width,height,colorIndex,cellType){
-    for(var xx = 0; xx < width; xx++){
-        if(startCorner.x + xx > c_width-1)break;//oob
-        
-        for(var yy = 0; yy < height; yy++){    
-            if(startCorner.y + yy > c_height-1)break;//oob
-            change(startCorner.x + xx, startCorner.y + yy,colorIndex,cellType);
-            
-            if(xx == 0 || xx == width-1 || yy == 0 || yy == height-1){
-                //border point:
-                //console.log('x ' + (startCorner.x + xx));
-                //console.log('y ' + (startCorner.y + yy));
-                borderPointsFromLastRect.push(grid[startCorner.x + xx][startCorner.y + yy]);
-            }
-        }
-    }
-  
-}
-function makeRectFill(startx,starty,width,height,right,down,colorIndex){
-    var startCorner = getStartCorner(startx,starty,width,height,right,down);
-    makeRectFillWithStartCorner(startCorner,width,height,colorIndex);
-    
-}
-/*
-Usage examples:
-
-
-makeRectOutline(10,10,7,6,true,true,0);
-makeRectOutline(10,10,7,6,false,true,0);
-makeRectOutline(10,10,7,6,true,false,0);
-makeRectOutline(10,10,7,6,false,false,0);
-
-drawSquare(10,10,3);
-*/
