@@ -711,7 +711,7 @@ function gameloop_guards(deltaTime){
             }else if(guard.isRaycastUnobstructedBetweenThese({x:spyglassPos.x,y:spyglassPos.y})){
                 guard.sprite.visible = true;
             }else{
-                //TODO TEST:guard.sprite.visible = false;
+                guard.sprite.visible = false;
             }
             for(var s = 0; s < security_cameras.length; s++){
                 var cam = security_cameras[s];

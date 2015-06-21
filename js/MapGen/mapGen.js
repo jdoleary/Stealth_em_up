@@ -378,6 +378,7 @@ function determineDepth(callback,text){
         console.log('door count: ' + doorCount);
         magicWandFill(otherSidesOfDoors[i].x,otherSidesOfDoors[i].y,setCellDepth(doorCount),isFloor);
     }
+//TODO SET DOORS TO UNLOCKED
     printLoadingStep((text));
     setTimeout(callback,100);
 }
@@ -573,6 +574,7 @@ function setCellDepth(doorCount){
         //the shortest depth is the one that counts:
         if(doorCount < grid[indexX][indexY].depth || !grid[indexX][indexY].depth){
             grid[indexX][indexY].depth = doorCount;
+            if(doorCount>2)grid[indexX][indexY].restricted = true;
             //test: TODO:
             grid[indexX][indexY].style = doorCount;
         }

@@ -466,14 +466,12 @@ function jo_grid(map){
     }
     this.getPath = function(start,end){
         //start/end in format {x: #,y: #} # representing cell indices.
-        //because of how I read 2d arrays I have to treat all the y's as x's and all the x's as y's in the astar lib
-        //                      y   x
-        var start = this.cells_astar.nodes[start.y][start.x];//remember x and y are switched for the astar lib
-        var end = this.cells_astar.nodes[end.y][end.x];//remember x and y are switched for the astar lib
+        var start = this.cells_astar.nodes[start.x][start.y];
+        var end = this.cells_astar.nodes[end.x][end.y];
         var result = astar.search(this.cells_astar.nodes, start, end);
         var path = [];
         for(var i = 0; i < result.length; i++){
-            path.push({x: result[i].y*this.cell_size+this.cell_size/2, y: result[i].x*this.cell_size+this.cell_size/2});//return path in obj pixel location, index*64-32 will center the pixel on the correct index cell
+            path.push({x: result[i].x*this.cell_size+this.cell_size/2, y: result[i].y*this.cell_size+this.cell_size/2});//return path in obj pixel location, index*64-32 will center the pixel on the correct index cell
             //console.log(result[i].y , ',' , result[i].x);
         }
         
