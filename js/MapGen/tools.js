@@ -236,13 +236,15 @@ function isDoorInLineOfWalls(x,y,vert){
             if(y-i<0)break;//out of bounds
             var cell = grid[x][y-i];
             if(cell.door)return true;
-            if(cell.type != 'wall')break;
+            //break if the cell is not a wall or is a T block because a T block is the end of a room's wall
+            if(cell.type != 'wall' || cell.imageInfo == "T")break;
         }
         for(var i = 1; i < c_height; i++){
             if(y+i > c_height-1)break;//out of bounds
             var cell = grid[x][y+i];
             if(cell.door)return true;
-            if(cell.type != 'wall')break;
+            //break if the cell is not a wall or is a T block because a T block is the end of a room's wall
+            if(cell.type != 'wall' || cell.imageInfo == "T")break;
         }
     }else{
         for(var i = 0; i < c_width; i++){

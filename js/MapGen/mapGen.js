@@ -201,18 +201,28 @@ $('.info').append($('<div/>').text('Placing large rooms'));
 setTimeout(function(){
     //Map Border:
     makeRectOutline(0,0,c_width,c_height,true,true,5,true);
-    //building 1
-    var firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-    makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
-    makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
-    makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
-    //hall:makeRandomRectOutlineInBounds(firstbounds,3,15,3,20,4,3);
+    var numOfBuildings = randomIntFromInterval(2,3);
+    var totalNumberOfSubrooms = 0;
+    for(var i = 0; i < numOfBuildings; i++){
+        //building 1
+        var bounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
+        var numofSubRooms = randomIntFromInterval(2,6);
+        totalNumberOfSubrooms += numofSubRooms;
+        $('.info').append($('<div/>').text('--' + numofSubRooms + ' subrooms in building ' + (i+1)));
+        for(var j = 0; j < numofSubRooms; j++){
+            var isBigBuilding = randomIntFromInterval(0,1);
+            if(isBigBuilding){
+                makeRandomRectOutlineInBounds(bounds,10,10,27,27,2,3);
+            }else{
+                makeRandomRectOutlineInBounds(bounds,5,5,12,12,2,3);
+            }
+        }
+        if(i == numOfBuildings-1 && totalNumberOfSubrooms <= 8){
+            $('.info').append($('<div/>').text('--Not enough rooms, add another building'));
+            i--;
+        }
+    }
 
-
-    firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-    makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
-    makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
-    makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
 
 
     ///////////////////////////////////////////////////
@@ -338,6 +348,65 @@ function determineDepth(){
         magicWandFill(otherSidesOfDoors[i].x,otherSidesOfDoors[i].y,setCellDepth(doorCount),isFloor);
     }
     $('.info').append($('<div/>').text('Done'));
+    setTimeout(addDoorsForNonPathableRooms,100);
+}
+
+//add doors to grid for rooms that cannot be pathed to:
+function addDoorsForNonPathableRooms(){
+    for(var w = 0; w < wallPieces.length; w++){
+        console.log('w: ' + w);
+        var wall = wallPieces[w];
+        wall.nearDoor = true;
+        wall.blocks_vision = true;
+        wall.solid = true;
+        try{
+            //if top or bottom neighs don't touch a door
+            if((notPathable(wall.x,wall.y+1,2) || notPathable(wall.x,wall.y-1,2)) && (grid[wall.x][wall.y+1].type == 'floor' && grid[wall.x][wall.y-1].type == 'floor')){
+                //don't place a door on this wall cell if there is already a door touching this line of walls.
+                if(!isDoorInLineOfWalls(wall.x,wall.y,false)){
+                    //make a door
+                    grid[wall.x][wall.y].style = 3;
+                    grid[wall.x][wall.y].type = 'door'
+                    grid[wall.x][wall.y].door = true;
+                    grid[wall.x][wall.y].imageInfo = 'door_horiz';
+                    grid[wall.x][wall.y].rotate_sprite = Math.PI/2;
+                    console.log('make door vert at ' + wall.x + "," + wall.y);
+                    magicWandFill(wall.x,wall.y+1,markAsAccessToDoor,isFloor);
+                    magicWandFill(wall.x,wall.y-1,markAsAccessToDoor,isFloor);
+                    
+                    //used later for room depth
+                    otherSidesOfDoors.push(grid[wall.x][wall.y+1]);
+                    otherSidesOfDoors.push(grid[wall.x][wall.y-1]);
+                }
+            }
+        }catch(err){
+            console.error(err);
+        }//Catch undefined errors
+        try{
+            //if left or right neighs don't touch a door
+            if((notPathable(wall.x+1,wall.y,2) || notPathable(wall.x-1,wall.y,2)) && (grid[wall.x+1][wall.y].type == 'floor' && grid[wall.x-1][wall.y].type == 'floor')){
+                //don't place a door on this wall cell if there is already a door touching this line of walls.
+                if(!isDoorInLineOfWalls(wall.x,wall.y,true)){
+                    grid[wall.x][wall.y].style = 3;
+                    grid[wall.x][wall.y].type = 'door';
+                    grid[wall.x][wall.y].door = true;
+                    grid[wall.x][wall.y].imageInfo = 'door_virt';
+                    
+                    console.log('make door horiz at ' + wall.x + "," + wall.y);
+                    magicWandFill(wall.x+1,wall.y,markAsAccessToDoor,isFloor);
+                    magicWandFill(wall.x-1,wall.y,markAsAccessToDoor,isFloor);
+                    
+                    //used later for room depth
+                    otherSidesOfDoors.push(grid[wall.x+1][wall.y]);
+                    otherSidesOfDoors.push(grid[wall.x-1][wall.y]);
+                }
+            }
+        }catch(err){
+            console.error(err);
+        }//Catch undefined errors
+        
+    }
+    $('.info').append($('<div/>').text('setting wall types'));
     setTimeout(finish,100);
 }
 function finish(){
@@ -349,8 +418,15 @@ function finish(){
 }
 //true if cell is near more or equal to numOfDoors.
 function isNearThisManyDoorsOrMore(x,y,numOfDoors){
-    console.log('x: ' + x + ', y: ' + y);
     return grid[x][y].numberOfNearDoors >= numOfDoors;
+}
+
+function notPathable(x,y){
+    if(grid[x][y].outside = false && grid[x][y].depth == 0){
+        return true;
+    }else{
+        return false;
+    }
 }
 
 //set the number of doors between this cell and hero spawn:
