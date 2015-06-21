@@ -311,6 +311,8 @@ function addDoors(){
     setTimeout(setWallTypes,100);
 }
 function setWallTypes(){
+    
+    addGridToRecord();
     //set wall type for image drawing
     for(var w = 0; w < wallPieces.length; w++){
         var wall = wallPieces[w];
@@ -323,6 +325,8 @@ function setWallTypes(){
     setTimeout(thinOutDoubleWalls,100);
 }
 function thinOutDoubleWalls(){
+    
+    addGridToRecord();
     var TBlocks = gridQuery({imageInfo:"T"});
     for(var i = 0; i < TBlocks.length; i++){
     }
@@ -332,6 +336,8 @@ function thinOutDoubleWalls(){
 }
 var spawnPoint;
 function chooseSpawnPoint(){
+    
+    addGridToRecord();
     //choose spawn point:
     var possibleSpawnPoints = gridQuery({outside:true,type:'floor'});
     spawnPoint = possibleSpawnPoints[Math.floor(Math.random()*possibleSpawnPoints.length)];
@@ -343,6 +349,8 @@ function chooseSpawnPoint(){
     
 }
 function determineDepth(callback,text){
+    
+    addGridToRecord();
     var astar_grid = getGridForAstar();
     var astar_graph = new Graph(astar_grid);
     
@@ -363,6 +371,8 @@ function determineDepth(callback,text){
 //add doors to grid for rooms that cannot be pathed to:
 var someRoomsWereNonPathable = false;
 function addDoorsForNonPathableRooms(){
+    
+    addGridToRecord();
     for(var w = 0; w < wallPieces.length; w++){
         console.log('w: ' + w);
         var wall = wallPieces[w];
@@ -438,6 +448,8 @@ function addDoorsForNonPathableRooms(){
 }
 var unitsAndSuch = {guards:[],loot:null,van:null,cameras:[],computer:null};
 function addUnitsAndSuch(){
+    
+    addGridToRecord();
     var cellsByDepth = [];
     var floorCells = gridQuery({type:'floor'});
     //sort floor into arrays by depth:
@@ -527,6 +539,7 @@ function isNotNearDoor(indexX,indexY){
 ///////////////////////////////////////////////////
 function addGridToRecord(){
     record.push(jQuery.extend(true, {}, grid));
+    draw(record.length - 1);
     console.log('%c Add Record! ', 'background: #222; color: #bada55');
 }
 function draw(recordIndex){
