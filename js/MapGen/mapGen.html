@@ -10,8 +10,18 @@
   background-color:rgba(255,255,255,1);
   border: 1px solid #000;
   pointer-events:none;
+  display:none;
+}
+.info{
+  position: absolute;
+  right: 0;
+  background-color: lightblue;  
+  font-family: monospace;
+  text-transform: capitalize;
+  padding: 10px;
 }
 </style>
+<div class='info'></div>
 <div class='mouse'></div>
 <canvas id="myCanvas" width="600" height="600" style="border:1px solid #d3d3d3;">
   Your browser does not support the HTML5 canvas tag.</canvas>

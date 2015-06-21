@@ -4,29 +4,29 @@ function magicWandFill(Ax,Ay,callback,changeIfTrue){
     neighbors_left = [];
     checked = {};
     var stop = 0;
-    console.log('Fill: ' + Ax + ',' + Ay);
-    //console.log(grid.getCellFromIndex(Ax,Ay));
+    //console.log('Fill: ' + Ax + ',' + Ay);
+    ////console.log(grid.getCellFromIndex(Ax,Ay));
     //getAllOfSameTypeTouchingA
     var cell = grid[Ax][Ay];
     var type = cell.style;
-    //console.log('Overwrite cells in proximity with type: ' + cell.image_number);
-    console.time('magicwand');
+    ////console.log('Overwrite cells in proximity with type: ' + cell.image_number);
+    //console.time('magicwand');
     neighbors(Ax,Ay,type);
     while(neighbors_left.length>0){
-        console.log('neighbors_left: ' + neighbors_left.length);
+        //console.log('neighbors_left: ' + neighbors_left.length);
         if(neighbors_left.length > 100)debugger;
         var n = neighbors_left.shift();
         neighbors(n.x,n.y,type);
     }
-    console.timeEnd('magicwand');
+    //console.timeEnd('magicwand');
 
     var magicSelector = 9;
     function change(indexX,indexY){
-        //console.log('try change: ' + indexX + ',' + indexY);
+        ////console.log('try change: ' + indexX + ',' + indexY);
         var cell = grid[indexX][indexY];
         if(cell !== null){
-            console.log('change: ' + indexX + ',' + indexY);
-            console.count('change');
+            //console.log('change: ' + indexX + ',' + indexY);
+            //console.count('change');
             //cell.style = (newStyle);
             callback(indexX,indexY);
         }
@@ -35,14 +35,14 @@ function magicWandFill(Ax,Ay,callback,changeIfTrue){
         
     }
     function neighbors(x,y,type) {
-        console.log('type: ' + type);
+        //console.log('type: ' + type);
         stop++;
         if(stop>1000000){
             console.error('ERROR, neighbors timeout');
             return;
         }
         var ret = [];
-        //console.log('--------------------------------neighbors:');
+        ////console.log('--------------------------------neighbors:');
         change(x,y);
         var west = null;
         var east = null;
@@ -54,44 +54,44 @@ function magicWandFill(Ax,Ay,callback,changeIfTrue){
         if(grid[x+1])north = grid[x+1][y];
         // West
         if(west != null) {
-            console.log(west);
-            //console.log({x:x,y:y-1,data:grid[y-1][x]});
+            //console.log(west);
+            ////console.log({x:x,y:y-1,data:grid[y-1][x]});
             if(west.style === type && changeIfTrue(west.x,west.y)){
-                console.log('add to ret');
+                //console.log('add to ret');
                 ret.push({x:x,y:y-1,data:west});
             }
         }
 
         // East
         if(east != null) {
-            console.log(east);
-            //console.log({x:x,y:y+1,data:grid[y+1][x]});
+            //console.log(east);
+            ////console.log({x:x,y:y+1,data:grid[y+1][x]});
             if(east.style === type && changeIfTrue(east.x,east.y)){
-                console.log('add to ret');
+                //console.log('add to ret');
                 ret.push({x:x,y:y+1,data:east});
             }
         }
 
         // South
         if(south != null) {
-            console.log(south);
-            //console.log({x:x-1,y:y,data:grid[x-1][y]});
+            //console.log(south);
+            ////console.log({x:x-1,y:y,data:grid[x-1][y]});
             if(south.style === type && changeIfTrue(south.x,south.y)){
-                console.log('add to ret');
+                //console.log('add to ret');
                 ret.push({x:x-1,y:y,data:south});
             }
         }
 
         // North
         if(north != null) {
-            console.log(north);
-            //console.log({x:x+1,y:y,data:grid[y][x+1]});
+            //console.log(north);
+            ////console.log({x:x+1,y:y,data:grid[y][x+1]});
             if(north.style === type && changeIfTrue(north.x,north.y)){
-                console.log('add to ret');
+                //console.log('add to ret');
                 ret.push({x:x+1,y:y,data:north});
             }
         }
-        //console.log(ret);
+        ////console.log(ret);
         for(var i = 0; i < ret.length; i++){
             //if cell not already checked
             if(!checked[ret[i].x + ',' + ret[i].y]){
@@ -173,4 +173,91 @@ function findWallType(x,y){
             return "four";
             break;
     }
+}
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+//Returns straight line of touching cells of same type, stops if it meets a cell not the same type.
+function returnAllOfSameTypeInLine(x,y,vert){
+    var ret = [];
+    var type = grid[x][y].type;
+    if(vert){
+        for(var i = 0; i < c_height; i++){
+            if(y-i<0)break;//out of bounds
+            var cell = grid[x][y-i];
+            if(cell.type == type)ret.push(cell);
+            else break;
+        }
+        for(var i = 1; i < c_height; i++){
+            if(y+i > c_height-1)break;//out of bounds
+            var cell = grid[x][y+i];
+            if(cell.type == type)ret.push(cell);
+            else break;
+        }
+    }else{
+        for(var i = 0; i < c_width; i++){
+            if(x-i < 0)break;//out of bounds
+            var cell = grid[x-i][y];
+            if(cell.type == type)ret.push(cell);
+            else break;
+        }
+        for(var i = 1; i < c_width; i++){
+            if(x+i > c_width-1)break;//out of bounds
+            var cell = grid[x+i][y];
+            if(cell.type == type)ret.push(cell);
+            else break;
+        }
+        
+    }
+    return ret;
+}
+//Returns true if there is already a door in the line of walls from this start point:
+function isDoorInLineOfWalls(x,y,vert){
+    //vert is true if this alg should search vertically, false if
+    //it should search horizontally:
+    //console.log(x + '    lllllllllllllllll ' + y);
+    if(vert){
+        for(var i = 0; i < c_height; i++){
+            if(y-i<0)break;//out of bounds
+            var cell = grid[x][y-i];
+            if(cell.door)return true;
+            if(cell.type != 'wall')break;
+        }
+        for(var i = 1; i < c_height; i++){
+            if(y+i > c_height-1)break;//out of bounds
+            var cell = grid[x][y+i];
+            if(cell.door)return true;
+            if(cell.type != 'wall')break;
+        }
+    }else{
+        for(var i = 0; i < c_width; i++){
+            if(x-i < 0)break;//out of bounds
+            var cell = grid[x-i][y];
+            if(cell.door)return true;
+            if(cell.type != 'wall')break;
+        }
+        for(var i = 1; i < c_width; i++){
+            if(x+i > c_width-1)break;//out of bounds
+            var cell = grid[x+i][y];
+            if(cell.door)return true;
+            if(cell.type != 'wall')break;
+        }
+        
+    }
+    return false;
 }

@@ -165,11 +165,12 @@ function drawImg(x,y,imgID,rad){
 }
 
 var grid = [];
+var wallPieces = [];
 //init grid
 for(var xx = 0; xx < c_width; xx++){
   for(var yy = 0; yy < c_height; yy++){
     if(grid[xx] == undefined)grid[xx] = [];
-    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,type:'floor'};
+    if(grid[xx][yy] == undefined)grid[xx][yy] = {x:xx,y:yy,style:0,nearDoor:false,numberOfNearDoors:0,type:'floor'};
   }
 }
 var borderPointsFromLastRect = [];
@@ -178,107 +179,135 @@ var drawDebug = [];//for drawing special points after the main draw
 ///////////////////////////////////////////////////
 //generate map:
 ///////////////////////////////////////////////////
-var firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
-//hall:makeRandomRectOutlineInBounds(firstbounds,3,15,3,20,4,3);
+$('.info').append($('<div/>').text('Placing large rooms'));
+setTimeout(function(){
+    //Map Border:
+    makeRectOutline(0,0,c_width,c_height,true,true,5);
+    //building 1
+    var firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
+    makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
+    makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
+    makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
+    //hall:makeRandomRectOutlineInBounds(firstbounds,3,15,3,20,4,3);
 
 
-firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
-makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
+    firstbounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
+    makeRandomRectOutlineInBounds(firstbounds,10,10,27,27,2,3);
+    makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
+    makeRandomRectOutlineInBounds(firstbounds,5,5,12,12,2,3);
 
 
-///////////////////////////////////////////////////
-//Place doors:
-///////////////////////////////////////////////////
-//get list of walls (style==1)
-var wallPieces = [];
+    ///////////////////////////////////////////////////
+    //Place doors:
+    ///////////////////////////////////////////////////
+    //get list of walls (style==1)
+    wallPieces = [];
 
-for(var xx = 0; xx < c_width; xx++){
-    for(var yy = 0; yy < c_height; yy++){
-        if(grid[xx][yy].type == 'wall'){
-            wallPieces.push(grid[xx][yy]);
-            grid[xx][yy].nearDoor = true;//wall pieces do not need this property
-            console.log(grid[xx][yy]);
+    for(var xx = 0; xx < c_width; xx++){
+        for(var yy = 0; yy < c_height; yy++){
+            if(grid[xx][yy].type == 'wall'){
+                wallPieces.push(grid[xx][yy]);
+                grid[xx][yy].nearDoor = true;//wall pieces do not need this property
+                console.log(grid[xx][yy]);
+            }
         }
     }
-}
-console.log('walls: ' + wallPieces.length);
-addGridToRecord();
-for(var w = 0; w < wallPieces.length; w++){
-    console.log('w: ' + w);
-    var wall = wallPieces[w];
-    wall.nearDoor = true;
-    wall.blocks_vision = true;
-    wall.solid = true;
-    try{
-        //if top or bottom neighs don't touch a door
-        if((!grid[wall.x][wall.y+1].nearDoor || !grid[wall.x][wall.y-1].nearDoor) && (grid[wall.x][wall.y+1].type == 'floor' && grid[wall.x][wall.y-1].type == 'floor')){
-            //make a door
-            grid[wall.x][wall.y].style = 3;
-            grid[wall.x][wall.y].type = 'door'
-            grid[wall.x][wall.y].door = true;
-            grid[wall.x][wall.y].imageInfo = 'door_horiz';
-            grid[wall.x][wall.y].rotate_sprite = Math.PI/2;
-            console.log('make door vert at ' + wall.x + "," + wall.y);
-            addGridToRecord();
-            magicWandFill(wall.x,wall.y+1,markAsAccessToDoor,isNotNearDoor);
-            magicWandFill(wall.x,wall.y-1,markAsAccessToDoor,isNotNearDoor);
-            addGridToRecord();
-        }
-    }catch(err){
-        console.error(err);
-    }//Catch undefined errors
-    try{
-        //if left or right neighs don't touch a door
-        if((!grid[wall.x+1][wall.y].nearDoor || !grid[wall.x-1][wall.y].nearDoor) && (grid[wall.x+1][wall.y].type == 'floor' && grid[wall.x-1][wall.y].type == 'floor')){
-            grid[wall.x][wall.y].style = 3;
-            grid[wall.x][wall.y].type = 'door';
-            grid[wall.x][wall.y].door = true;
-            grid[wall.x][wall.y].imageInfo = 'door_virt';
-            
-            console.log('make door horiz at ' + wall.x + "," + wall.y);
-            addGridToRecord();
-            magicWandFill(wall.x+1,wall.y,markAsAccessToDoor,isNotNearDoor);
-            magicWandFill(wall.x-1,wall.y,markAsAccessToDoor,isNotNearDoor);
-            addGridToRecord();
-        }
-    }catch(err){
-        console.error(err);
-    }//Catch undefined errors
-    
-}
+    console.log('walls: ' + wallPieces.length);
+    addGridToRecord();
 
-//set wall type for image drawing
-for(var w = 0; w < wallPieces.length; w++){
-    var wall = wallPieces[w];
-    //if they don't already have image info set
-    if(!grid[wall.x][wall.y].imageInfo){
-        grid[wall.x][wall.y].imageInfo = findWallType.call(grid[wall.x][wall.y],wall.x,wall.y);
+    //shuffle wallPieces for random access when choosing door locations:
+    shuffle(wallPieces);
+
+    $('.info').append($('<div/>').text('adding doors'));
+    setTimeout(addDoors,100);
+},100);
+
+function addDoors(){
+    for(var w = 0; w < wallPieces.length; w++){
+        console.log('w: ' + w);
+        var wall = wallPieces[w];
+        wall.nearDoor = true;
+        wall.blocks_vision = true;
+        wall.solid = true;
+        try{
+            //if top or bottom neighs don't touch a door
+            if((!isNearThisManyDoorsOrMore(wall.x,wall.y+1,2) || !isNearThisManyDoorsOrMore(wall.x,wall.y-1,2)) && (grid[wall.x][wall.y+1].type == 'floor' && grid[wall.x][wall.y-1].type == 'floor')){
+                //don't place a door on this wall cell if there is already a door touching this line of walls.
+                if(!isDoorInLineOfWalls(wall.x,wall.y,false)){
+                    //make a door
+                    grid[wall.x][wall.y].style = 3;
+                    grid[wall.x][wall.y].type = 'door'
+                    grid[wall.x][wall.y].door = true;
+                    grid[wall.x][wall.y].imageInfo = 'door_horiz';
+                    grid[wall.x][wall.y].rotate_sprite = Math.PI/2;
+                    console.log('make door vert at ' + wall.x + "," + wall.y);
+                    magicWandFill(wall.x,wall.y+1,markAsAccessToDoor,isFloor);
+                    magicWandFill(wall.x,wall.y-1,markAsAccessToDoor,isFloor);
+                }
+            }
+        }catch(err){
+            console.error(err);
+        }//Catch undefined errors
+        try{
+            //if left or right neighs don't touch a door
+            if((!isNearThisManyDoorsOrMore(wall.x+1,wall.y,2) || !isNearThisManyDoorsOrMore(wall.x-1,wall.y,2)) && (grid[wall.x+1][wall.y].type == 'floor' && grid[wall.x-1][wall.y].type == 'floor')){
+                //don't place a door on this wall cell if there is already a door touching this line of walls.
+                if(!isDoorInLineOfWalls(wall.x,wall.y,true)){
+                    grid[wall.x][wall.y].style = 3;
+                    grid[wall.x][wall.y].type = 'door';
+                    grid[wall.x][wall.y].door = true;
+                    grid[wall.x][wall.y].imageInfo = 'door_virt';
+                    
+                    console.log('make door horiz at ' + wall.x + "," + wall.y);
+                    magicWandFill(wall.x+1,wall.y,markAsAccessToDoor,isFloor);
+                    magicWandFill(wall.x-1,wall.y,markAsAccessToDoor,isFloor);
+                }
+            }
+        }catch(err){
+            console.error(err);
+        }//Catch undefined errors
+        
     }
+    $('.info').append($('<div/>').text('setting wall types'));
+    setTimeout(setWallTypes,100);
+}
+function setWallTypes(){
+    //set wall type for image drawing
+    for(var w = 0; w < wallPieces.length; w++){
+        var wall = wallPieces[w];
+        //if they don't already have image info set
+        if(!grid[wall.x][wall.y].imageInfo){
+            grid[wall.x][wall.y].imageInfo = findWallType.call(grid[wall.x][wall.y],wall.x,wall.y);
+        }
+    }
+    $('.info').append($('<div/>').text('Done'));
+
+    //last add to record
+    addGridToRecord();
+    //SHOW THE LAST RECORD GRID:
+    changeIndex(record.length - 1);
+    $('.mouse').show();
 }
 
+//true if cell is near more or equal to numOfDoors.
+function isNearThisManyDoorsOrMore(x,y,numOfDoors){
+    console.log('x: ' + x + ', y: ' + y);
+    return grid[x][y].numberOfNearDoors >= numOfDoors;
+}
 //marks that this cell has access to a door in the room:
 function markAsAccessToDoor(indexX,indexY){
     //console.log('mark access ' + indexX + ' ' + indexY);
     if(grid[indexX][indexY].type == 'wall')return;//do not change walls
-    grid[indexX][indexY].style = 4;
     grid[indexX][indexY].nearDoor = true;
+    grid[indexX][indexY].numberOfNearDoors++;
+}
+function isFloor(indexX,indexY){
+    return grid[indexX][indexY].type == 'floor';
 }
 function isNotNearDoor(indexX,indexY){
     return !grid[indexX][indexY].nearDoor;
 }
 
-
-//last add to record
-addGridToRecord();
-    
-    
-//SHOW THE LAST RECORD GRID:
-changeIndex(record.length - 1);
 
 /*
 makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},0);
