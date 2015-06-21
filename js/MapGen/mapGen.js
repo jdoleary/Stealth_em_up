@@ -256,7 +256,6 @@ var otherSidesOfDoors = [];
 //add doors to grid:
 function addDoors(){
     for(var w = 0; w < wallPieces.length; w++){
-        console.log('w: ' + w);
         var wall = wallPieces[w];
         wall.nearDoor = true;
         wall.blocks_vision = true;
@@ -320,8 +319,16 @@ function setWallTypes(){
             grid[wall.x][wall.y].imageInfo = findWallType.call(grid[wall.x][wall.y],wall.x,wall.y);
         }
     }
-    $('.info').append($('<div/>').text('Determining Room Depth'));
+    $('.info').append($('<div/>').text('Thinning out double walls'));
+    setTimeout(thinOutDoubleWalls,100);
+}
+function thinOutDoubleWalls(){
+    var TBlocks = gridQuery({imageInfo:"T"});
+    for(var i = 0; i < TBlocks.length; i++){
+    }
+    $('.info').append($('<div/>').text('Choosing Spawn Point'));
     setTimeout(chooseSpawnPoint,100);
+    
 }
 var spawnPoint;
 function chooseSpawnPoint(){
@@ -329,11 +336,13 @@ function chooseSpawnPoint(){
     var possibleSpawnPoints = gridQuery({outside:true,type:'floor'});
     spawnPoint = possibleSpawnPoints[Math.floor(Math.random()*possibleSpawnPoints.length)];
     spawnPoint.style = 7;
-    $('.info').append($('<div/>').text('Spawn Point Chosen'));
-    setTimeout(determineDepth,100);
+    $('.info').append($('<div/>').text('Determining Room Depth'));
+    setTimeout(function(){
+        determineDepth(addDoorsForNonPathableRooms,'Possibly Adding Doors for NonPathable Rooms');
+    },100);
     
 }
-function determineDepth(){
+function determineDepth(callback,text){
     var astar_grid = getGridForAstar();
     var astar_graph = new Graph(astar_grid);
     
@@ -347,11 +356,12 @@ function determineDepth(){
         console.log('door count: ' + doorCount);
         magicWandFill(otherSidesOfDoors[i].x,otherSidesOfDoors[i].y,setCellDepth(doorCount),isFloor);
     }
-    $('.info').append($('<div/>').text('Done'));
-    setTimeout(addDoorsForNonPathableRooms,100);
+    $('.info').append($('<div/>').text(text));
+    setTimeout(callback,100);
 }
 
 //add doors to grid for rooms that cannot be pathed to:
+var someRoomsWereNonPathable = false;
 function addDoorsForNonPathableRooms(){
     for(var w = 0; w < wallPieces.length; w++){
         console.log('w: ' + w);
@@ -377,6 +387,9 @@ function addDoorsForNonPathableRooms(){
                     //used later for room depth
                     otherSidesOfDoors.push(grid[wall.x][wall.y+1]);
                     otherSidesOfDoors.push(grid[wall.x][wall.y-1]);
+                    
+                    //causes redepth calc
+                    someRoomsWereNonPathable = true;
                 }
             }
         }catch(err){
@@ -399,6 +412,9 @@ function addDoorsForNonPathableRooms(){
                     //used later for room depth
                     otherSidesOfDoors.push(grid[wall.x+1][wall.y]);
                     otherSidesOfDoors.push(grid[wall.x-1][wall.y]);
+                    
+                    //causes redepth calc
+                    someRoomsWereNonPathable = true;
                 }
             }
         }catch(err){
@@ -406,8 +422,59 @@ function addDoorsForNonPathableRooms(){
         }//Catch undefined errors
         
     }
-    $('.info').append($('<div/>').text('setting wall types'));
+    if(someRoomsWereNonPathable){
+        $('.info').append($('<div/>').text('--Extra doors added'));
+        $('.info').append($('<div/>').text('!Determining Room Depth Again!'));
+        setTimeout(function(){
+            determineDepth(addUnitsAndSuch,'Adding Units and Such');
+        },100);
+        
+    }else{
+        $('.info').append($('<div/>').text('--No extra doors added'));
+        $('.info').append($('<div/>').text('Adding Units and Such'));
+        setTimeout(addUnitsAndSuch,100);
+        
+    }
+}
+var unitsAndSuch = {guards:[],loot:null,van:null,cameras:[],computer:null};
+function addUnitsAndSuch(){
+    var cellsByDepth = [];
+    var floorCells = gridQuery({type:'floor'});
+    //sort floor into arrays by depth:
+    for(var f = 0; f < floorCells.length; f++){
+        if(!cellsByDepth[floorCells[f].depth]){
+            cellsByDepth[floorCells[f].depth] = [];
+        }
+        cellsByDepth[floorCells[f].depth].push(floorCells[f]);
+    }
+    if(!cellsByDepth[3] || cellsByDepth[3].length == 0){
+        $('.info').append($('<div/>').text('FAIL: Map missing depth 3 room.'));
+    }else{
+        //place money:
+        var money = cellsByDepth[cellsByDepth.length-1][randomIntFromInterval(0,cellsByDepth[cellsByDepth.length-1].length)];
+        unitsAndSuch.loot = money;
+        money.style = 7;
+        
+        //place cameras:
+        
+        //place computer:
+        
+        //place guards
+        var numberOfGuards = randomIntFromInterval(7,20);
+        $('.info').append($('<div/>').text('Adding ' + numberOfGuards + ' guards.'));
+        for(var g = 0; g < numberOfGuards; g++){
+            //place guards in any floor other than outside
+            var ran = randomIntFromInterval(1,cellsByDepth.length);
+            console.log(ran);
+            var guardCell = cellsByDepth[ran][randomIntFromInterval(0,cellsByDepth[ran].length)];
+            unitsAndSuch.guards.push(guardCell)
+            guardCell.style = 0;
+        }
+    }
+    
+    $('.info').append($('<div/>').text('Done'));
     setTimeout(finish,100);
+    
 }
 function finish(){
     
@@ -422,7 +489,7 @@ function isNearThisManyDoorsOrMore(x,y,numOfDoors){
 }
 
 function notPathable(x,y){
-    if(grid[x][y].outside = false && grid[x][y].depth == 0){
+    if((grid[x] && grid[x][y] && grid[x][y].outside == false) && grid[x][y].depth == 0){
         return true;
     }else{
         return false;
