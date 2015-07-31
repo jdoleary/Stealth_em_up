@@ -179,6 +179,15 @@ function drawImg(x,y,imgID,rad){
         case 'door_virt':
             img.src = "../../images/door_closed.png";
         break;
+        case 'guard':
+            img.src = "../../images/guard_alert_knows_face.png";
+        break;
+        case 'money':
+            img.src = "../../images/money.png";
+        break;
+        case 'hero':
+            img.src = "../../images/hero_body_1.png";
+        break;
     }
 }
 
@@ -215,12 +224,12 @@ function generateMap(finishedCallback,loadingCallback){
 function placeRooms(){
     //Map Border:
     makeRectOutline(0,0,c_width,c_height,true,true,5,true);
-    var numOfBuildings = randomIntFromInterval(2,3);
+    var numOfBuildings = randomIntFromInterval(4,7);
     var totalNumberOfSubrooms = 0;
     for(var i = 0; i < numOfBuildings; i++){
-        //building 1
-        var bounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},20,20,40,40,0,0);
-        var numofSubRooms = randomIntFromInterval(2,6);
+        //make building
+        var bounds = makeRandomRectOutlineInBounds({xmin:0,ymin:0,xmax:c_width,ymax:c_height},10,10,20,20,0,0);
+        var numofSubRooms = randomIntFromInterval(3,6);
         totalNumberOfSubrooms += numofSubRooms;
         printLoadingStep(('--' + numofSubRooms + ' subrooms in building ' + (i+1)));
         for(var j = 0; j < numofSubRooms; j++){
@@ -356,6 +365,7 @@ function chooseSpawnPoint(){
     var possibleSpawnPoints = gridQuery({outside:true,type:'floor'});
     spawnPoint = possibleSpawnPoints[Math.floor(Math.random()*possibleSpawnPoints.length)];
     spawnPoint.style = 7;
+    spawnPoint.imageInfo = 'hero';
     printLoadingStep(('Determining Room Depth'));
     setTimeout(function(){
         determineDepth(addDoorsForNonPathableRooms,'Possibly Adding Doors for NonPathable Rooms');
@@ -481,6 +491,7 @@ function addUnitsAndSuch(){
         var money = cellsByDepth[cellsByDepth.length-1][randomIntFromInterval(0,cellsByDepth[cellsByDepth.length-1].length)];
         unitsAndSuch.loot = money;
         money.style = 7;
+        money.imageInfo = "money";
         
         //place cameras:
         
@@ -496,6 +507,7 @@ function addUnitsAndSuch(){
             var guardCell = cellsByDepth[ran][randomIntFromInterval(0,cellsByDepth[ran].length)];
             unitsAndSuch.guards.push(guardCell)
             guardCell.style = 0;
+            guardCell.imageInfo = "guard";
         }
     }
     
@@ -612,7 +624,14 @@ function draw(recordIndex){
         if(cell.imageInfo){
             drawImg(cell.x,cell.y,cell.imageInfo,cell.rotate_sprite);
         }else{
-            drawSquare(cell.x,cell.y,cell.style);
+            //override style, draw red if restricted:
+            if(cell.restricted){
+                drawSquare(cell.x,cell.y,2);
+                
+            }else{
+                drawSquare(cell.x,cell.y,0);   
+            }
+            //drawSquare(cell.x,cell.y,cell.style);
         }
       }
     }
