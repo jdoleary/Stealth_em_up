@@ -251,18 +251,7 @@ function placeRooms(){
     ///////////////////////////////////////////////////
     //Place doors:
     ///////////////////////////////////////////////////
-    //get list of walls (style==1)
-    wallPieces = [];
-
-    for(var xx = 0; xx < c_width; xx++){
-        for(var yy = 0; yy < c_height; yy++){
-            if(grid[xx][yy].type == 'wall'){
-                wallPieces.push(grid[xx][yy]);
-                grid[xx][yy].nearDoor = true;//wall pieces do not need this property
-                console.log(grid[xx][yy]);
-            }
-        }
-    }
+    getListOfWalls();
     console.log('walls: ' + wallPieces.length);
     addGridToRecord();
 
@@ -271,6 +260,23 @@ function placeRooms(){
 
     printLoadingStep(('adding doors'));
     setTimeout(addDoors,100);
+}
+function getListOfWalls(){
+    
+    //get list of walls (style==1)
+    wallPieces = [];
+
+    for(var xx = 0; xx < c_width; xx++){
+        for(var yy = 0; yy < c_height; yy++){
+            if(grid[xx][yy].type == 'wall'){
+                wallPieces.push(grid[xx][yy]);
+                grid[xx][yy].nearDoor = true;//wall pieces do not need this property
+                grid[xx][yy].solid = true;
+                grid[xx][yy].blocks_vision = true;
+                console.log(grid[xx][yy]);
+            }
+        }
+    }
 }
 
 //used for determining room depth later:
@@ -557,14 +563,14 @@ function finish(){
         var g = unitsAndSuch.guards[i];
         final_map.guards.push([g.x*in_game_cell_size,g.y*in_game_cell_size]);
     }
-    final_map.loot = [unitsAndSuch.loot.x*in_game_cell_size,unitsAndSuch.loot.y*in_game_cell_size];
+    if(unitsAndSuch.loot)final_map.loot = [unitsAndSuch.loot.x*in_game_cell_size,unitsAndSuch.loot.y*in_game_cell_size];
     //temp - becareful when actually placing these that they can't overlap
-    final_map.van = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
+    if(spawnPoint)final_map.van = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
     //temp - becareful when actually placing these that they can't overlap
-    final_map.computer = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
+    if(spawnPoint)final_map.computer = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
     //temp - becareful when actually placing these that they can't overlap
-    final_map.guard_backup_spawn = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
-    final_map.hero = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
+    if(spawnPoint)final_map.guard_backup_spawn = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
+    if(spawnPoint)final_map.hero = [spawnPoint.x*in_game_cell_size,spawnPoint.y*in_game_cell_size];
     if(callWhenFinished)callWhenFinished(final_map);
 }
 //true if cell is near more or equal to numOfDoors.

@@ -349,8 +349,8 @@ function getStartCorner(startx,starty,width,height,right,down){
     //Keep it in bounds
     if(startCorner.x < 0)startCorner.x = 0;
     if(startCorner.y < 0)startCorner.y = 0;
-    if(startCorner.x + width >= c_width)startCorner.x -= startCorner.x + width - c_width;
-    if(startCorner.y + height >= c_height)startCorner.y -= startCorner.y + height - c_height;
+    if(startCorner.x + (width-1) >= c_width)startCorner.x -= startCorner.x + (width-1) - c_width;
+    if(startCorner.y + (height-1) >= c_height)startCorner.y -= startCorner.y + (height-1) - c_height;
     
     return startCorner;
   
