@@ -36,3 +36,117 @@ function placeRooms2(){
     printLoadingStep(('adding doors'));
     setTimeout(setWallTypes,100);
 }
+/*
+  Each cell should have the follwing info:
+  {
+    x:0,
+    y:0,
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall"
+    outside:false
+  }
+*/
+var testRoom1 = [
+[
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall",
+    outside:false
+  },
+  
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall",
+    outside:false
+  },
+  
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall",
+    outside:false
+  }],
+[
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall",
+    outside:false
+  },
+  
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall",
+    outside:false
+  },
+  
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall",
+    outside:false
+  }],
+[
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"floor",
+    outside:false
+  },
+  
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall",
+    outside:false
+  },
+  
+  {
+    blocks_vision:true,
+    imageInfo: "corner",
+    solid:true,
+    type:"wall",
+    outside:false
+  }],
+]
+// Overwrite cell info:
+function changeGridWithInfo(x,y,info){
+  grid[x][y] = info;
+  grid[x][y].x = x;
+  grid[x][y].y = y;
+}
+function pasteCellInfo(cells,startX,startY){
+  for(var x = 0; x < cells.length; x++){
+    for(var y = 0; y < cells[x].length; y++){
+      changeGridWithInfo(x+startX,y+startY,cells[x][y]);
+    }
+  }
+    printLoadingStep(('paste'));
+    setTimeout(setWallTypes2,100);
+  
+}
+function setWallTypes2(){
+    //set wall type for image drawing
+    for(var w = 0; w < wallPieces.length; w++){
+        var wall = wallPieces[w];
+        //if they don't already have image info set
+        if(!grid[wall.x][wall.y].imageInfo){
+            grid[wall.x][wall.y].imageInfo = findWallType.call(grid[wall.x][wall.y],wall.x,wall.y);
+        }
+    }
+    addGridToRecord();
+  
+}
