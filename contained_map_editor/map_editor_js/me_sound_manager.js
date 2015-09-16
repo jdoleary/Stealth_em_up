@@ -13,13 +13,13 @@ var sound_dry_fire = new Audio("sound/dryfiregun.wav");
 var sound_gun_shot = new Audio("sound/gun_shot.mp3");
 
 var sound_gun_shots = {"index": 0,"array":[]};
+/* sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3"));
 sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3"));
 sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3"));
 sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3"));
 sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3"));
 sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3"));
-sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3"));
-sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3"));
+sound_gun_shots["array"].push(new Audio("sound/gun_shot.mp3")); */
 
 var sound_gun_shot_silenced = new Audio("sound/gun_shot_silenced.mp3");
 var sound_guard_choke = new Audio("sound/guard_choke.wav");
@@ -29,9 +29,9 @@ var sound_explosion = new Audio("sound/explosion.wav");
 var music_hero_dead;
 var music_masked;
 var music_unmasked;
-force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});
+/* force_buffer_sound("sound/Hidden_Agenda.mp3", 1.0, function(audio){music_unmasked = audio;});
 force_buffer_sound("sound/Volatile_Reaction.mp3", 0.0, function(audio){music_masked = audio;});
-force_buffer_sound("sound/Vanes.mp3", 0.0, function(audio){music_hero_dead = audio;});
+force_buffer_sound("sound/Vanes.mp3", 0.0, function(audio){music_hero_dead = audio;}); */
 
 readjustVolumes();//call once automatically:
 

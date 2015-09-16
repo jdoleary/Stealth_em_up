@@ -1,0 +1,4 @@
+for( var b in a){
+    var stringOut=""
+    "var " + a[b].name + "= new PIXI.Texture(wabbitTexture.baseTexture, new PIXI.math.Rectangle(" + a[b].x +","+ a[b].y+a[b].height + "," + a[b].x+a[b].width + "," + a[b].y + "));"
+}

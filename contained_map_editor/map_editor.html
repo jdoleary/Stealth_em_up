@@ -1,52 +1,3 @@
-<?php
-/**
- * Sample PHP code to use reCAPTCHA V2.
- *
- * @copyright Copyright (c) 2014, Google Inc.
- * @link      http://www.google.com/recaptcha
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
- 
-try {
-	require_once "recaptchalib.php";
-	// Register API keys at https://www.google.com/recaptcha/admin
-	$siteKey = "6LdYuwITAAAAAMiYItyy2FZxM9RkKopkt_edj647";
-	$secret = "6LdYuwITAAAAAFJC0pMbDFr4ulPkt4VSRxpV49S8";
-	// reCAPTCHA supported 40+ languages listed here: https://developers.google.com/recaptcha/docs/language
-	$lang = "en";
-	// The response from reCAPTCHA
-	$resp = null;
-	// The error code from reCAPTCHA, if any
-	$error = null;
-	$reCaptcha = new ReCaptcha($secret);
-	// Was there a reCAPTCHA response?
-	if ($_POST["g-recaptcha-response"]) {
-	    $resp = $reCaptcha->verifyResponse(
-	        $_SERVER["REMOTE_ADDR"],
-	        $_POST["g-recaptcha-response"]
-	    );
-	}
-} catch (Exception $e) {
-    echo 'Caught exception: ',  $e->getMessage(), "\n";
-}
-?>
 <html>
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
@@ -74,22 +25,7 @@ try {
           border:5px solid black;
           border-radius: 5px;
         }
-        #map_size_controls{
-            position: absolute;
-            width:100%;
-            height:100%;
-        }
-        #map_size_controls > div{
-          width: 300px;
-          height: 100px;
-          padding: 20px;
 
-          position: absolute;
-          top: 50%;
-          left: 50%;
-
-          margin: -70px 0 0 -170px;
-        }
 	</style>
 
     <link rel="stylesheet" type="text/css" href="buttons.css">
@@ -98,42 +34,7 @@ try {
 </head>
     <body>
     
-    <?php
-
-
-
-    function super_sanitize($data) {
-      $data = trim($data);
-      $data = stripslashes($data);
-      $data = htmlspecialchars($data,ENT_NOQUOTES);
-      return $data;
-    }
-
-    if ($resp != null && $resp->success) {
-        echo "You got it!";
-
-        $myfile = fopen("maps/".$_POST['filename'].".jomap", "w") or die("Unable to open file!");
-        $map_data = super_sanitize($_POST['map_data']);
-        echo "MAP DATA: " . $map_data;
-        fwrite($myfile, $map_data);
-        
-        fclose($myfile);
-        
-        echo json_encode($_POST);
-        
-    }else{
-        echo "Fail to send to server";
-    }
-    ?>
-    <div id="map_size_controls">
-        <div>
-            Choose Map Size:
-            <br>
-            <span id="map_width_slider_text">40 blocks wide.</span><input type="range" id="map_width_slider" value="40" min="20" max="120" onchange="updateSliders();">
-            <br>
-            <span id="map_heigh_slider_text">40 blocks high.</span><input type="range" id="map_height_slider" value="40" min="20" max="120" onchange="updateSliders();">
-        </div>
-    </div>
+    
     
     <div id="buttons"  style="display:none;position:absolute;top:20px;right:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
         <button id="button_single_block" class="pure-button pure-button-active" onclick="change_tool('single');" style="width:100%">Single Block Tool</button>
@@ -185,19 +86,6 @@ try {
         <br>
         <button id="button_publish" class="pure-button" onclick="publish();" style="width:100%">Publish</button>
         <br><br>
-        <button id="button_captcha" class="captcha">
-            <h2>Please verify that you are not a robot in order to publish your map to the server.</h2>
-            <form method="post">
-                <input id="input_filename" name="filename">
-                <input id="input_map_data" name="map_data">
-              <div class="g-recaptcha" data-sitekey="<?php echo $siteKey;?>"></div>
-              <script type="text/javascript"
-                  src="https://www.google.com/recaptcha/api.js?hl=<?php echo $lang;?>">
-              </script>
-              <br/>
-              <input type="submit" value="submit" />
-            </form>
-        </button>
         
     
     </div>
@@ -336,34 +224,9 @@ try {
                 map_data_to_save["objects"]["van"] = [Math.round(getawaycar.x),Math.round(getawaycar.y)];
                 map_data_to_save["objects"]["loot"] = [Math.round(loot[0].x),Math.round(loot[0].y)];
                 var string_map_data = JSON.stringify(map_data_to_save);
-                //push data to server
-                //map name is uniquified with date time later
-                var map_name = prompt("Enter the name of your level");
-                //Show the captcha:
-                $('#button_captcha').show();
-                var date = new Date();
-                $('#input_filename').val(map_name + "_" + date.getTime());
-                $('#input_map_data').val(string_map_data);
-                //OLD
-                /*if(map_name != null){
-                    $.ajax({
-                      type: "POST",
-                      dataType: "json",
-                      url: "maps/map_editor.php", //Relative or absolute path to response.php file
-                      data: {"filename":map_name + "_" + Date().getTime(),"map_data":string_map_data},
-                      success: function(data) {
-                        test = data;
-                        console.log(data);//prints the echo from r2015.php
-                        console.log("Push data to server worked.");
 
-                      },
-                      fail: function(){
-                        console.log("Push data to server failed.");
-                      }
-                    });
-                }else{
-                    alert("Map not published, please try again.");
-                }*/
+                $('body').prepend($('<textarea/>').html(string_map_data));
+
             }
         
         }

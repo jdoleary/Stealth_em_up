@@ -41,7 +41,7 @@ function windowSetup(){
 
 
     startMenu();//init menu
-    requestAnimationFrame(animate);//start main loop
+    requestAnimFrame(animate);//start main loop
     
 }
 function fullscreen() {
@@ -445,11 +445,11 @@ function setup_map(map){
     console.log(map);
     //grid/map
     grid = new jo_grid(map);
-    display_tiles_walls.addChild(tile_containers[0]);//add ParticleContaineres, black walls
-    display_tiles_walls.addChild(tile_containers[2]);//add ParticleContaineres, brown furnature
-    display_tiles.addChild(tile_containers[1]);//add ParticleContaineres
-    display_tiles.addChild(tile_containers[3]);//add ParticleContaineres
-    display_tiles.addChild(tile_containers[4]);//add ParticleContaineres
+    display_tiles_walls.addChild(tile_containers[0]);//add SpriteBatches, black walls
+    display_tiles_walls.addChild(tile_containers[2]);//add SpriteBatches, brown furnature
+    display_tiles.addChild(tile_containers[1]);//add SpriteBatches
+    display_tiles.addChild(tile_containers[3]);//add SpriteBatches
+    display_tiles.addChild(tile_containers[4]);//add SpriteBatches
     
             //hero feet:
             feet_clip = new jo_sprite(jo_movie_clip("movie_clips/","feet_",8,".png"),display_actors);
@@ -550,7 +550,7 @@ function animate(time) {
     // render the stage
     renderer.render(stage);
     //request another animate call
-    requestAnimationFrame(animate);	
+    requestAnimFrame(animate);	
 
     
 }
