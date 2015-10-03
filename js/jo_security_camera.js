@@ -151,7 +151,10 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                         number_of_blocks_vision++;
                         //determines which block is blocking vision, only applicable if there is only one blocking block
                         //mark the corner if it isn't a door:
-                        if(!corner_cells[i].door)corner = i;
+                        if(!corner_cells[i].door){
+                          corner = i;
+                          break;
+                        }
                     }
                     if(corner_cells[i].door){
                         touching_door = true;
