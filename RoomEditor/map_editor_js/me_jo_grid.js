@@ -1,4 +1,3 @@
-
 var map_diamond_store = {
     "data":[
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -38,9 +37,31 @@ var map_diamond_store = {
         "loot":[12.5*64,7.5*64]
     }
 };
-var test_map = {"data":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,4,4,4,4,4,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,4,4,4,4,4,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,4,4,4,4,4,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,4,4,4,4,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,4,4,4,4,4,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,1,1,1,1,1,1,1,2,2,2,2,2,2,1,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,1,1,1,2,2,1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,1,1,2,2,2,1,1,2,2,2,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,4,4,1,1,2,2,1,1,1,2,2,2,1,4,4,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,4,4,4,1,1,1,1,1,1,1,2,2,2,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,4,4,4,1,1,2,2,1,1,1,2,2,2,1,1,1,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,4,4,4,1,1,2,2,2,1,1,2,2,2,2,2,2,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,4,4,4,1,1,1,2,2,1,1,2,2,2,2,2,2,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,1,1,1,1,1,2,2,2,2,2,2,1,4,4,4,4,4,4,1,1,1,4,4,1,1,1,4,4,4,4,4,4,4,4,1,4,4,4,1,1,1,2,2,1,1,2,2,2,2,2,2,1,4,4,4,4,4,4,1,4,4,4,4,4,4,1,4,4,1,1,4,1,1,1,1,1,1,1,1,1,2,2,2,1,1,2,2,2,2,2,2,1,4,4,4,4,4,4,1,4,3,3,3,3,4,1,4,4,1,4,4,4,4,4,4,4,4,4,1,1,2,2,1,1,1,2,2,2,2,2,2,1,4,4,4,4,4,4,4,4,3,2,2,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,1,1,1,1,1,1,1,2,2,2,2,2,2,1,4,4,4,4,4,4,1,4,3,2,2,3,4,1,4,4,1,4,4,4,4,4,4,4,4,4,1,1,2,2,1,1,1,2,2,2,1,1,1,1,1,1,1,1,6,1,1,1,1,2,2,1,1,1,1,1,1,4,4,4,4,4,4,4,4,4,1,1,2,2,2,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,4,4,4,4,4,1,1,1,2,2,1,1,2,2,2,1,2,2,1,1,2,2,2,2,1,1,1,2,2,2,2,1,1,2,2,1,4,4,4,4,4,4,4,4,4,1,1,1,1,1,1,1,2,2,2,1,2,2,1,1,2,2,2,2,1,1,1,2,2,2,2,1,1,2,2,1,4,4,4,4,4,4,4,4,4,1,1,1,2,2,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,1,4,1,1,1,1,1,2,2,2,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,4,1,4,4,4,4,1,1,2,2,1,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,1,1,1,1,1,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,1,1,1,1,1,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,4,4,4,4,1,2,2,2,1,1,1,2,2,2,1,2,2,2,2,3,2,2,3,2,2,2,2,2,2,3,2,2,3,2,2,2,2,3,2,1,4,4,4,4,1,2,2,2,1,1,1,2,2,2,1,2,2,3,3,3,2,2,3,3,3,2,2,3,3,3,2,2,3,3,3,2,2,3,2,1,1,1,1,1,1,2,2,2,2,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1,1,2,2,2,1,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"height":40,"width":40,"objects":{"hero":[1184,1824],"guards":[[2048,1728],[704,1728],[1472,1152],[1920,128],[960,448],[2240,2240]],"guard_backup_spawn":[1184,1568],"security_cams":[{"swivel_max":6.283185307179586,"swivel_min":1.5707963267948966,"pos":[448,512]},{"swivel_max":6.283185307179586,"swivel_min":1.5707963267948966,"pos":[896,1088]}],"computer":[2144,1888],"van":[2304,2368],"loot":[1856,128]}};
-    
-    
+var map_blank = {
+    "data":[
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0],
+    "height":11,
+    "width":11,
+    "objects":{
+        "hero":[64*5,64*5],
+        "guards":[],
+        "guard_backup_spawn":[],
+        "security_cams":[],
+        "computer":[],
+        "van":[],//this is the butt end of the car, the ground under it will automatically be solid
+        "loot":[]
+    }
+};   
 var map_bank_1 = {
     "data":[
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -114,17 +135,11 @@ var tile_containers;
 
 function jo_grid(map){
     //set up sprite batches:
-    /*
-    tile_container_black = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
-    tile_container_white = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
-    tile_container_brown = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
-    tile_container_red = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!
-    tile_container_purple = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);//for efficiency!*/
-    tile_container_black = new PIXI.Container();
-    tile_container_white = new PIXI.Container();
-    tile_container_brown = new PIXI.Container();
-    tile_container_red = new PIXI.Container();
-    tile_container_purple = new PIXI.Container();
+    tile_container_black = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_white = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_brown = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_red = new PIXI.SpriteBatch();//for efficiency!
+    tile_container_purple = new PIXI.SpriteBatch();//for efficiency!
     tile_containers = [tile_container_black,tile_container_white,tile_container_brown,tile_container_red,tile_container_purple];
 
     //Debug lines for shortcut pathing
@@ -160,9 +175,8 @@ function jo_grid(map){
         //gets 1d index from 2d index
         //NOTE: I had to reverse col and row, usually the formula is width * row + col, but
         //because of the way that the 2d array works I had to reverse it.
-        if(row < 0 || col < 0)return undefined;
-        if(row >= this.width || col >= this.height)return undefined;
-        return this.cells[this.width * col + row];
+        if(row < this.width && row >= 0 && col < this.height && col >= 0)return this.cells[this.width * col + row];
+        else return null;
     };
     
     this.get1DIndexFrom2DIndex = function(row, col){
@@ -186,7 +200,7 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.blocks_vision){
-            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;
@@ -202,43 +216,11 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.solid && !cell.door){
-            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;
     
-    }
-    this.isWallDoor_coords = function(x,y){
-        //returns true if the wall that the (x,y) coords are within is solid BUT the cell is not a door:
-        
-        //return if coords are outside of map bounds:
-        if(x < 0 || y < 0)return false;//do not accept negative values;
-        if(x > this.cell_size*this.width || y > this.cell_size*this.height)return false;//coord out of bounds
-        var grid_index = this.getIndexFromCoords_2d(x,y);
-        var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
-        
-        if(cell && cell.door){
-            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
-            return true;
-        }
-        else return false;
-        
-    }
-    this.isWallSolidAndNotDoor_coords = function(x,y){
-        //returns true if the wall that the (x,y) coords are within is solid BUT the cell is not a door:
-        
-        //return if coords are outside of map bounds:
-        if(x < 0 || y < 0)return false;//do not accept negative values;
-        if(x > this.cell_size*this.width || y > this.cell_size*this.height)return false;//coord out of bounds
-        var grid_index = this.getIndexFromCoords_2d(x,y);
-        var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
-        
-        if(cell && cell.solid && !cell.door){
-            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
-            return true;
-        }
-        else return false;
-        
     }
     this.isWallSolid_coords = function(x,y){
         //returns true if the wall that the (x,y) coords are within is solid:
@@ -250,7 +232,7 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.solid){
-            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;
@@ -290,7 +272,7 @@ function jo_grid(map){
         var cell = this.getCellFromIndex(grid_index.x,grid_index.y);
         
         if(cell && cell.restricted){
-            //cell.image_sprite.texture = (img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
+            //cell.image_sprite.setTexture(img_tile_brown);Turns cell green for debug so I can see which cell the coords are in.
             return true;
         }
         else return false;
@@ -355,7 +337,6 @@ function jo_grid(map){
     };
     
     //create map:
-    debugger;
     for(var i = 0; i < this.map_data.length; i++){
         var tile_type = this.map_data[i];
         var info = this.getInfoFromIndex(i);
@@ -364,23 +345,23 @@ function jo_grid(map){
         switch(tile_type) {
         case 1:
             //black
-            this.cells.push(new jo_wall(0,true,true,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
+            this.cells.push(new jo_wall(0,true,true,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 2:
             //white
-            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
+            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 3:
             //brown
-            this.cells.push(new jo_wall(2,true,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
+            this.cells.push(new jo_wall(2,true,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         case 4:
             //red
-            this.cells.push(new jo_wall(3,false,false,true,this.getWallCoords('square',x_index,y_index),x_index,y_index));
+            this.cells.push(new jo_wall(3,false,false,true,this.getWallCoords('square',x_index,y_index)));
             break;
         case 5:
             //purple (door vertical)
-            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index),x_index,y_index);
+            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index));
             door.door = true;
             this.cells.push(door);
             this.make_door(door, false);
@@ -388,14 +369,13 @@ function jo_grid(map){
         
         case 6:
             //purple (door horizontal)
-            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index),x_index,y_index);
+            var door = new jo_wall(4,true,true,true,this.getWallCoords('square',x_index,y_index));
             door.door = true;
             this.cells.push(door);
             this.make_door(door, true);
             break;
         default:
-            console.log('here');
-            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
+            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index)));
             break;
         };
     }
@@ -627,12 +607,6 @@ function jo_grid(map){
             this.debug3.draw_obj(endPoint.x+difX,endPoint.y+difY,newPoint.x,newPoint.y);
             this.debug4.draw_obj(endPoint.x+difX2,endPoint.y+difY2,newPoint2.x,newPoint2.y);*/
             return false;  
-        }
-    }
-    this.setImagesForTiles = function(){
-        for(var i = 0; i < this.cells.length; i++){
-            //set the tile image:
-            this.cells[i].changeImage(this.cells[i].image_number);
         }
     }
    

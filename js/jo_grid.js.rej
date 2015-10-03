@@ -1,0 +1,10 @@
+diff a/js/jo_grid.js b/js/jo_grid.js	(rejected hunks)
+@@ -141,7 +141,7 @@
+     this.cell_size = 64
+ 
+     //this is the map, fill it will walls!
+-    this.map_data = map.data;
++    this.map_data = map.cells;
+     
+     this.cells = [];
+     
