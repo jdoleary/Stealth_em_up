@@ -581,7 +581,7 @@ function setup_map(map){
             
 			guards = [];
             for(var i = 0; i < map.objects.guards.length; i++){
-                var hasRiotShield = randomIntFromInterval(0,2);
+                var hasRiotShield = false;//randomIntFromInterval(0,2);
                 var guard_img = hasRiotShield ? img_guard_riot_reg : img_guard_reg;
                 var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(guard_img),hasRiotShield);
                 guard_inst.x = map.objects.guards[i][0];
@@ -2484,7 +2484,7 @@ function spawn_backup(){
     }
 }
 function spawn_individual_backup(){
-    var hasRiotShield = randomIntFromInterval(0,2);
+    var hasRiotShield = false;//randomIntFromInterval(0,2);
     var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert),hasRiotShield);
     newGuard.x = guard_backup_spawn.x;
     newGuard.y = guard_backup_spawn.y;

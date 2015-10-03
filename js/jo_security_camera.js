@@ -10,6 +10,7 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
         this.y = y;
         //bumb cameras away from wall:
         var corner = findCorner(this).corner;
+        if(corner < 0)console.error('corner : ' + corner);
         var offset = findOffset(corner);
         //The camera must pretend to be pushed away from the wall in order for the los Points to calculate correctly:
         this.losx = this.x + 40*offset.x;
@@ -128,7 +129,6 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
             return offset;
         }
         function findCorner(object){
-                
             var index = grid.getIndexFromCoords_2d(object.x-1,object.y-1);
             var northwest = grid.getCellFromIndex(index.x,index.y);
             

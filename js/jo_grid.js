@@ -111,6 +111,7 @@ var tile_container_brown;
 var tile_container_red;
 var tile_container_purple;
 var tile_containers;
+var cell_size = 64;
 
 function jo_grid(map){
     //set up sprite batches:
@@ -138,7 +139,7 @@ function jo_grid(map){
     //2d array:
     this.width = map.width;
     this.height = map.height;
-    this.cell_size = 64
+    this.cell_size = cell_size;
 
     //this is the map, fill it will walls!
     this.map_data = map.data;
@@ -355,7 +356,6 @@ function jo_grid(map){
     };
     
     //create map:
-    debugger;
     for(var i = 0; i < this.map_data.length; i++){
         var tile_type = this.map_data[i];
         var info = this.getInfoFromIndex(i);
