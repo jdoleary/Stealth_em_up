@@ -431,7 +431,9 @@ function startGame(){
     
     //store string references to maps here so that query string can choose maps:
     //mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
-    //test temp todo
+    
+    // Generate map:
+    map_json = makeMapWithRooms();
     setup_map(map_json);
     /*if(mapName){
         setup_map(mapData[mapName]);
