@@ -2799,7 +2799,8 @@ var shard_limit = 2000;
 var shardType = 0;
 //Shart images inited at images_from_sheet.js
 function shardParticleSplatter(angle,target){
-    var shardAmount = randomIntFromInterval(6,30);
+    var shardAmount = randomIntFromInterval(45,200);
+    console.log('shard amount: ' + shardAmount);
         angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.
     for(var i = 0; i < shardAmount; i++){
         //make new bunnies
@@ -2811,11 +2812,11 @@ function shardParticleSplatter(angle,target){
         shard.anchor.y = 0.5;
         shard.position.x = target.x;
         shard.position.y = target.y;
-        var randScale = randomFloatFromInterval(0.3,1);
+        var randScale = randomFloatFromInterval(0.2,0.5);
         shard.scale.x = randScale;
         shard.scale.y = randScale;
         var randSpeed = randomFloatWithBias(0.1,shell_speed*2);
-        var randRotationOffset = randomFloatFromInterval(-Math.PI/6,Math.PI/6);
+        var randRotationOffset = randomFloatFromInterval(-Math.PI/3,Math.PI/3);
         shard.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
         shard.dx = randSpeed*Math.sin(angle+randRotationOffset);
         shard.dy = randSpeed*Math.cos(angle+randRotationOffset);

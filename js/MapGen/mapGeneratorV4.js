@@ -20,7 +20,8 @@ function makeMapWithRooms(){
   var roomSizeMinusOne = 10;
   for(var w = 0; w < Math.floor(width/roomSizeMinusOne); w++){
     for(var h = 0; h < Math.floor(height/roomSizeMinusOne); h++){
-      paste(mapData,fourWayRoom1,w*roomSizeMinusOne,h*roomSizeMinusOne);
+      var randomRoom = getRandomRoom();
+      paste(mapData,randomRoom,w*roomSizeMinusOne,h*roomSizeMinusOne);
     }
   }
   
@@ -80,19 +81,23 @@ function paste(orig,copy,startX,startY){
     ob[1] = copy.objects.guard_backup_spawn[1] + startPixelY;
     orig.objects.guard_backup_spawn = ob;
   }
-  for(var i = 0; i < copy.objects.guards.length; i++){
-    var ob = [];
-    ob[0] = copy.objects.guards[i][0] + startPixelX;
-    ob[1] = copy.objects.guards[i][0] + startPixelY;
-    orig.objects.guards.push(ob);
+  if(copy.objects.guards){
+    for(var i = 0; i < copy.objects.guards.length; i++){
+      var ob = [];
+      ob[0] = copy.objects.guards[i][0] + startPixelX;
+      ob[1] = copy.objects.guards[i][0] + startPixelY;
+      orig.objects.guards.push(ob);
+    }
   }
-  for(var i = 0; i < copy.objects.security_cams.length; i++){
-    var ob = {pos:[]};
-    ob.swivel_max = copy.objects.security_cams[i].swivel_max;
-    ob.swivel_min = copy.objects.security_cams[i].swivel_min;
-    ob.pos[0] = copy.objects.security_cams[i].pos[0] + startPixelX;
-    ob.pos[1] = copy.objects.security_cams[i].pos[1] + startPixelY;
-    orig.objects.security_cams.push(ob);
+  if(copy.objects.security_cams){
+    for(var i = 0; i < copy.objects.security_cams.length; i++){
+      var ob = {pos:[]};
+      ob.swivel_max = copy.objects.security_cams[i].swivel_max;
+      ob.swivel_min = copy.objects.security_cams[i].swivel_min;
+      ob.pos[0] = copy.objects.security_cams[i].pos[0] + startPixelX;
+      ob.pos[1] = copy.objects.security_cams[i].pos[1] + startPixelY;
+      orig.objects.security_cams.push(ob);
+    }
   }
   return orig
 }
