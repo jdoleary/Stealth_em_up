@@ -112,7 +112,7 @@ function getRaycastPoint(startx,starty,endx,endy){
                 ray_closest = ray_v_closest;
             }
         }else if(!ray_v_closest && !ray_h_closest){
-            console.log('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
+            //console.log('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
             //returns endx,endy so as to not cause errors in all the places that use this function if the ray is null
             //it returns the end point of the linesegment passed in, having detected no walls.
             
@@ -180,7 +180,7 @@ function isLineOKForPath(startx,starty,endx,endy){
                 ray_closest = ray_v_closest;
             }
         }else if(!ray_v_closest && !ray_h_closest){
-            console.log('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
+            //console.log('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
             //returns endx,endy so as to not cause errors in all the places that use this function if the ray is null
             //it returns the end point of the linesegment passed in, having detected no walls.
             

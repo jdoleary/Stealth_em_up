@@ -24,7 +24,23 @@ function makeMapWithRooms(){
       paste(mapData,randomRoom,w*roomSizeMinusOne,h*roomSizeMinusOne);
     }
   }
-  
+  // Make borders walls:
+  for(var i = 0; i < width; i++){
+    var origIndexOverride = width*(0)+(i);
+    mapData.data[origIndexOverride] = 1;
+  }
+  for(var i = 0; i < width; i++){
+    var origIndexOverride = width*(height-1)+(i);
+    mapData.data[origIndexOverride] = 1;
+  }
+  for(var i = 0; i < height; i++){
+    var origIndexOverride = width*(i)+(0);
+    mapData.data[origIndexOverride] = 1;
+  }
+  for(var i = 0; i < height; i++){
+    var origIndexOverride = width*(i)+(width-1);
+    mapData.data[origIndexOverride] = 1;
+  }
   //print(mapData);
   return mapData;
 }
@@ -44,7 +60,10 @@ function paste(orig,copy,startX,startY){
       //out of bounds
       continue;
     }else{
-      orig.data[origIndexOverride] = copy.data[i];
+      // Do not paste over doors unless with floor:
+      if(copy.data[i] == 2 || (orig.data[origIndexOverride] != 5 && orig.data[origIndexOverride] != 6)){
+        orig.data[origIndexOverride] = copy.data[i];
+      }
     }
   }
   

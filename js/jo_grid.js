@@ -352,6 +352,7 @@ function jo_grid(map){
             door_sprite.x += door.x;
             door_sprite.y += door.y;
             this.door_sprites.push(door_sprite);
+            return door_sprite;
     
     };
     
@@ -394,8 +395,19 @@ function jo_grid(map){
             this.make_door(door, true);
             break;
         default:
-            console.log('here');
-            this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
+            if(typeof(tile_type) == "object"){
+              var restricted = !tile_type.unlocked;
+              var imageNumber = restricted ? 4 : 1;
+              var door = new jo_wall(imageNumber,true,true,restricted,this.getWallCoords('square',x_index,y_index),x_index,y_index);
+              door.door = true;
+              this.cells.push(door);
+              var door_sprite = this.make_door(door, tile_type.horizontal);
+              door_sprite.unlocked = tile_type.unlocked;
+              door_sprite.sprite.texture = img_door_open;
+              
+            }else{
+              this.cells.push(new jo_wall(1,false,false,false,this.getWallCoords('square',x_index,y_index),x_index,y_index));
+            }
             break;
         };
     }
