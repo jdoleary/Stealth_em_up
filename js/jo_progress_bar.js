@@ -7,7 +7,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
     this.graphics = new PIXI.Graphics();
     
     //add to scene:
-    display_actors.addChild(this.graphics);
+    stage_child.addChild(this.graphics);
     
     this.x = posx;
     this.y = posy;

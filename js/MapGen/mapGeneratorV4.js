@@ -41,6 +41,45 @@ function makeMapWithRooms(){
     var origIndexOverride = width*(i)+(width-1);
     mapData.data[origIndexOverride] = 1;
   }
+  /**
+   * Door checks:
+   * ensure that all doors touching restricted areas are locked:
+   */
+    // Any door touching restricted area becomes locked:
+    var doors = [];
+    for(var i = 0; i < mapData.data.length; i++){
+      if(mapData.data[i].type == 'door'){
+        doors.push({index:i,door:mapData.data[i]});
+      }
+    }
+    for(var i = 0; i < doors.length; i++){
+      var doorCoords = get2DCoordsFromIndex(mapData.width,doors[i].index);
+      var door = doors[i].door;
+      if(door.horizontal){
+        var above = mapData.data[get1DIndex(mapData.width,doorCoords.x,doorCoords.y-1)];
+        var below = mapData.data[get1DIndex(mapData.width,doorCoords.x,doorCoords.y+1)];
+        // 4 is the restricted id:
+        if(above == 4){
+          door.unlocked = false;
+        }
+        if(below == 4){
+          door.unlocked = false;
+        }
+        
+      }else{
+        var left = mapData.data[get1DIndex(mapData.width,doorCoords.x-1,doorCoords.y)];
+        var right = mapData.data[get1DIndex(mapData.width,doorCoords.x+1,doorCoords.y)];
+        // 4 is the restricted id:
+        if(left == 4){
+          door.unlocked = false;
+        }
+        if(right == 4){
+          door.unlocked = false;
+        }
+        
+      }
+    }
+  // Door checks end ////////////////////////////////////
   //print(mapData);
   return mapData;
 }
@@ -60,9 +99,14 @@ function paste(orig,copy,startX,startY){
       //out of bounds
       continue;
     }else{
-      // Do not paste over doors unless with floor:
-      if(copy.data[i] == 2 || (orig.data[origIndexOverride] != 5 && orig.data[origIndexOverride] != 6)){
-        orig.data[origIndexOverride] = copy.data[i];
+      // Do not paste over doors unless with a locked door or floor:
+      // if(copy.data[i] == 2 || (orig.data[origIndexOverride].type != 'door') || (copy.data[i].type == 'door' && !copy.data[i].unlocked)){
+      // Do not paste over doors unless with a locked door:
+      if((orig.data[origIndexOverride].type != 'door') || (copy.data[i].type == 'door' && !copy.data[i].unlocked)){
+        // do not allow floor to overwrite:
+        if(copy.data[i]!=2){
+          orig.data[origIndexOverride] = copy.data[i];
+        }
       }
     }
   }
@@ -119,6 +163,12 @@ function paste(orig,copy,startX,startY){
     }
   }
   return orig
+}
+function get1DIndex(width,x,y){
+  return width*(y)+(x)
+}
+function get2DCoordsFromIndex(width,index){
+  return {x:index%width,y:Math.floor(index/width)};
 }
 function print(a){
   var printer = a.data.slice(0);

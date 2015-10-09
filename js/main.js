@@ -1023,17 +1023,15 @@ function gameloop_bullets(deltaTime){
         
         if(bullet.move_to_target()){
             //if true, bullet hits wall
-            
+            bullet.x = bullet.target.x;
+            bullet.y = bullet.target.y;
             //TODO old, replace with particles:
             //play gun spark against wall where gun shot hits:
             //bullet.target.x.y
             var splatter_angle = grid.angleBetweenPoints(bullet.x,bullet.y,bullet.target.x,bullet.target.y)
             shardParticleSplatter(-splatter_angle,bullet.target);
             
-            //destroy bullet
-            display_actors.removeChild(bullet.sprite);
-            bullets.splice(b,1);
-            continue bulletLoop;
+            bullet.flagForRemoval = true;
         }
         bullet.rotate_to_instant(bullet.target.x,bullet.target.y);
         
@@ -1129,6 +1127,12 @@ function gameloop_bullets(deltaTime){
                 security_cameras[i].kill();
             }
         
+        }
+        if(bullet.flagForRemoval){
+            //destroy bullet
+            display_actors.removeChild(bullet.sprite);
+            bullets.splice(b,1);
+            continue bulletLoop;
         }
     }
     

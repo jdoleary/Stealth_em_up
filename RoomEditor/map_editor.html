@@ -195,11 +195,11 @@
                 }
                 if(newNum == 5){
                   // door vert
-                  newNum = {unlocked:doorIsUnlocked,horizontal:false};
+                  newNum = {type:'door',unlocked:doorIsUnlocked,horizontal:false};
                 }
                 if(newNum == 6){
                   // door horiz
-                  newNum = {unlocked:doorIsUnlocked,horizontal:true};
+                  newNum = {type:'door',unlocked:doorIsUnlocked,horizontal:true};
                 }
                 map_data_to_save["data"].push(newNum);
             }
