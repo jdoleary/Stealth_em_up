@@ -372,13 +372,16 @@ function startGame(){
     //3: not much
     look_sensitivity = 2.5;
     
-    giganticBackground = new PIXI.Sprite(skyscraper_backgrounds[0].img);
+    var giganticBackgroundIndex = 4;
+    giganticBackground = new PIXI.Sprite(skyscraper_backgrounds[giganticBackgroundIndex].img);
     giganticBackground.start = {};
-    giganticBackground.start.x = -3190;
-    giganticBackground.start.y = -1155;
-    giganticBackground.scale.x = 4.84;
-    giganticBackground.scale.y = 4.84;
-    giganticBackground.parallaxMultiplier = skyscraper_backgrounds[0].parallaxMultiplier;
+    giganticBackground.start.x = 0;//906*skyscraper_backgrounds[giganticBackgroundIndex].scale;//-3190;
+    giganticBackground.start.y = 0;//514*skyscraper_backgrounds[giganticBackgroundIndex].scale;//-1155;
+    giganticBackground.anchor.x = 0.5;
+    giganticBackground.anchor.y = 0.5;
+    giganticBackground.scale.x = skyscraper_backgrounds[giganticBackgroundIndex].scale;
+    giganticBackground.scale.y = skyscraper_backgrounds[giganticBackgroundIndex].scale;
+    giganticBackground.parallaxMultiplier = skyscraper_backgrounds[giganticBackgroundIndex].parallaxMultiplier;
     
     stage_child.addChild(giganticBackground);
     //display object containers that hold the layers of everything.
@@ -532,6 +535,10 @@ function setup_map(map){
     //whole map width and height:
     grid_width = grid.width*grid.cell_size;
     grid_height = grid.height*grid.cell_size;
+    
+    // place background image in center:
+    giganticBackground.start.x = grid_width/2;
+    giganticBackground.start.y = grid_height/2;
     
     /*
     New LOS Graphics:
@@ -1877,8 +1884,8 @@ function gameloop(deltaTime){
     
     // Parallax background:
     
-    giganticBackground.position.x = giganticBackground.start.x + hero.x*giganticBackground.parallaxMultiplier;
-    giganticBackground.position.y = giganticBackground.start.y + hero.y*giganticBackground.parallaxMultiplier;
+    giganticBackground.position.x = giganticBackground.start.x + (hero.x-giganticBackground.start.x)*giganticBackground.parallaxMultiplier;
+    giganticBackground.position.y = giganticBackground.start.y + (hero.y-giganticBackground.start.y)*giganticBackground.parallaxMultiplier/2;
     
     //make_starburst_without_limit(hero);
     //SPYGLASS:

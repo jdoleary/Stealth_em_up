@@ -76,31 +76,38 @@ function onAssetsLoaded(){
     skyscraper_backgrounds = [
       {
         img:img_skyscraper_view_1,
-        parallaxMultiplier:0
+        parallaxMultiplier:0,
+        scale:4.84
       },
       {
         img:img_skyscraper_view_2,
-        parallaxMultiplier:0.2
+        parallaxMultiplier:0.2,
+        scale:5
       },
       {
         img:img_skyscraper_view_3,
-        parallaxMultiplier:0.3
+        parallaxMultiplier:0.3,
+        scale:6
       },
       {
         img:img_skyscraper_view_4,
-        parallaxMultiplier:0.4
+        parallaxMultiplier:0.4,
+        scale:7
       },
       {
         img:img_skyscraper_view_5,
-        parallaxMultiplier:0.5
+        parallaxMultiplier:0.7,
+        scale:8
       },
       {
         img:img_skyscraper_view_6,
-        parallaxMultiplier:0.6
+        parallaxMultiplier:0.9,
+        scale:9
       },
       {
         img:img_skyscraper_view_7,
-        parallaxMultiplier:1
+        parallaxMultiplier:1,
+        scale:10
       }
     ]
     ////////////////

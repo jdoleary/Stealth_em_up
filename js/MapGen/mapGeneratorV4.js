@@ -105,9 +105,9 @@ function paste(orig,copy,startX,startY){
       continue;
     }else{
       // Do not paste over doors unless with a locked door or floor:
-      // if(copy.data[i] == 2 || (orig.data[origIndexOverride].type != 'door') || (copy.data[i].type == 'door' && !copy.data[i].unlocked)){
+      if(copy.data[i] == 2 || (orig.data[origIndexOverride].type != 'door') || (copy.data[i].type == 'door' && !copy.data[i].unlocked)){
       // Do not paste over doors unless with a locked door:
-      if((orig.data[origIndexOverride].type != 'door') || (copy.data[i].type == 'door' && !copy.data[i].unlocked)){
+      //if((orig.data[origIndexOverride].type != 'door') || (copy.data[i].type == 'door' && !copy.data[i].unlocked)){
         // do not allow floor to overwrite:
         if(copy.data[i]!=2){
           if(typeof copy.data[i] == 'object'){
