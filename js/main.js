@@ -372,7 +372,15 @@ function startGame(){
     //3: not much
     look_sensitivity = 2.5;
     
+    giganticBackground = new PIXI.Sprite(skyscraper_backgrounds[0].img);
+    giganticBackground.start = {};
+    giganticBackground.start.x = -3190;
+    giganticBackground.start.y = -1155;
+    giganticBackground.scale.x = 4.84;
+    giganticBackground.scale.y = 4.84;
+    giganticBackground.parallaxMultiplier = skyscraper_backgrounds[0].parallaxMultiplier;
     
+    stage_child.addChild(giganticBackground);
     //display object containers that hold the layers of everything.
     display_tiles = new PIXI.Container();
     display_blood = new PIXI.Container();
@@ -385,7 +393,6 @@ function startGame(){
     stage_child.addChild(particle_container);
     stage_child.addChild(display_effects);
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
-
     stage_child.addChild(display_actors);
     
     
@@ -511,6 +518,8 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             currentTexture = shellTextures[shellType];
             currentTexture = img_shell;
             
+    cursor_lock_on = new jo_sprite(new PIXI.Sprite(img_cursor_red));
+            
 }
 function setup_map(map){
     console.log('map:');
@@ -534,7 +543,7 @@ function setup_map(map){
     losShade = new PIXI.Graphics();
     //draw the shade:
     losShade.clear();
-    losShade.alpha = 0.7;
+    losShade.alpha = 0.4;
     losShade.beginFill(0);
     losShade.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
     
@@ -560,18 +569,6 @@ function setup_map(map){
     display_tiles.addChild(tile_containers[4]);//add ParticleContaineres
     
     
-            //make sprites:
-			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_hero_body),4,8);
-            hero.losPath = [];
-            hero.losPoints = [];
-			//hero_end_aim_coord;
-            starburst = new debug_line();
-            starburst_ray = new Ray(0,0,0,0);
-
-            hero.x = map.objects.hero[0];
-            hero.y = map.objects.hero[1];
-			hero.speed = hero.speed_walk;
-            hero_drag_target = null; // a special var reserved for when the hero is dragging something.
 
             
             
@@ -593,6 +590,20 @@ function setup_map(map){
             guard_backup_spawn = {'x':map.objects.guard_backup_spawn[0],'y':map.objects.guard_backup_spawn[1]};
             numOfBackupGuards = 7;
             backupCalled = false;
+            
+            
+            //make sprites:
+			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_hero_body),4,8);
+            hero.losPath = [];
+            hero.losPoints = [];
+			//hero_end_aim_coord;
+            starburst = new debug_line();
+            starburst_ray = new Ray(0,0,0,0);
+
+            hero.x = map.objects.hero[0];
+            hero.y = map.objects.hero[1];
+			hero.speed = hero.speed_walk;
+            hero_drag_target = null; // a special var reserved for when the hero is dragging something.
             
 			civs = [];
             /*
@@ -688,7 +699,7 @@ function gameloop_guards(deltaTime){
     //////////////////////
     //update Guards
     //////////////////////
-    
+    var closestToAutoAim = {guard:null,dist:-1};
     
     for(var i = 0; i < guards.length; i++){
         var guard = guards[i];
@@ -710,7 +721,19 @@ function gameloop_guards(deltaTime){
             }
             
             guard.currentlySeesHero = guard.doesSpriteSeeSprite(hero);
-        
+            
+            // Test if canidate for autoAim:
+            if(guard.sprite.visible){
+              var distFromAim = get_distance(guard.x,guard.y,mouse.x,mouse.y);
+              if(closestToAutoAim.dist == -1 || distFromAim < closestToAutoAim.dist){
+                if(distFromAim < 100){
+                  closestToAutoAim = {guard:guard,dist:distFromAim};
+                  cursor_lock_on.x = guard.x;
+                  cursor_lock_on.y = guard.y;
+                  cursor_lock_on.sprite.visible = true;
+                }
+              }
+            }
                 //shooting
             //guards aim can be off by up to guard.accuracy pixels:
             var aim_x_offset = Math.floor(Math.random() * guard.accuracy);
@@ -872,6 +895,8 @@ function gameloop_guards(deltaTime){
             }
         }
     }
+    if(closestToAutoAim.dist == -1)cursor_lock_on.sprite.visible = false;
+    cursor_lock_on.rad += 0.1;
 }
 function gameloop_civs(deltaTime){
     //////////////////////
@@ -1299,10 +1324,10 @@ function gameloop_zoom_and_camera(deltaTime){
     //loose camera
     camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
     camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
-    //don't let camera show out of bounds:
     var cam_width = window_properties.width*(1/stage_child.scale.x);
     var cam_height = window_properties.height*(1/stage_child.scale.y);
-    var cam_adjust_x = camera.x;
+    //don't let camera show out of bounds:
+    /*var cam_adjust_x = camera.x;
     var cam_adjust_y = camera.y;
     
     
@@ -1331,13 +1356,13 @@ function gameloop_zoom_and_camera(deltaTime){
     }
     
     camera.x = cam_adjust_x;
-    camera.y = cam_adjust_y;
+    camera.y = cam_adjust_y; 
     
     
     if(camera.shaking){
         camera.posBeforeShakex = cam_adjust_x;
         camera.posBeforeShakey = cam_adjust_y;    
-    }
+    }*/
     camera.shake();
     
     
@@ -1432,9 +1457,10 @@ function gameloop_getawaycar_and_loot(deltaTime){
         if(get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y) <= getawaycar.radius*5){
             //deposite money in car:
             newMessage("The money is safe!");
-            //add button for win condition
-            addButton("Back to Hub",window.innerWidth/2,window.innerHeight/2,function(){location.href='/stealth/menu.html';});
             
+            //Start new game:
+            startMenu();
+            startGame();
             
             //add to stats:
             jo_store_inc("wins");
@@ -1778,6 +1804,7 @@ function gameloop(deltaTime){
         hero.target.x = hero.x - 100;
     }else hero.target.x = hero.x;
     
+    
     //Shoot if LMB is held down:
     if(hero.gunOut && keys['LMB'] && hero.gun.automatic){
         //you can only shoot if hero is masked
@@ -1829,17 +1856,29 @@ function gameloop(deltaTime){
         grid.door_sprites[i].prepare_for_draw();
     }
     
+    // red cursor for auto aim
+    cursor_lock_on.prepare_for_draw();
+    
     //////////////////////
     //update Hero
     //////////////////////
     
     hero.move_to_target();
     if(hero.alive && hero.gunOut){
-        hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
+        if(cursor_lock_on.sprite.visible){
+          // Auto aim:
+          hero.aim.set(hero.x,hero.y,cursor_lock_on.x,cursor_lock_on.y);
+        }else{
+          hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
+        }
         //laser sight
         hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     }
     
+    // Parallax background:
+    
+    giganticBackground.position.x = giganticBackground.start.x + hero.x*giganticBackground.parallaxMultiplier;
+    giganticBackground.position.y = giganticBackground.start.y + hero.y*giganticBackground.parallaxMultiplier;
     
     //make_starburst_without_limit(hero);
     //SPYGLASS:
@@ -2434,7 +2473,7 @@ function mouseWheelHandler(e){
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
     
     //limit amount that cam can zoom out
-    if(delta < 0 && zoom > 0.1){
+    if(delta < 0 && zoom > 0.25){
         zoom += delta * 0.05;
     }else if (delta >0){
         zoom += delta * 0.05;

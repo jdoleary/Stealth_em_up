@@ -385,6 +385,7 @@ function jo_grid(map){
             door.door = true;
             this.cells.push(door);
             this.make_door(door, false);
+            debugger;
             break;
         
         case 6:
@@ -393,10 +394,12 @@ function jo_grid(map){
             door.door = true;
             this.cells.push(door);
             this.make_door(door, true);
+            debugger;
             break;
         default:
             if(typeof(tile_type) == "object"){
               var restricted = !tile_type.unlocked;
+              if(restricted)console.count('locked');
               var imageNumber = restricted ? 4 : 1;
               var door = new jo_wall(imageNumber,true,true,restricted,this.getWallCoords('square',x_index,y_index),x_index,y_index);
               door.door = true;
@@ -411,7 +414,7 @@ function jo_grid(map){
             break;
         };
     }
-    delete this.map_data;
+    //delete this.map_data;
     
     /////////////////////////////
     ////////////A STAR///////////

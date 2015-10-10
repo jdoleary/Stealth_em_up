@@ -49,12 +49,16 @@ function makeMapWithRooms(){
     var doors = [];
     for(var i = 0; i < mapData.data.length; i++){
       if(mapData.data[i].type == 'door'){
-        doors.push({index:i,door:mapData.data[i]});
+        var door = mapData.data[i];
+        door.id = i;
+        doors.push({index:i,door:door});
       }
     }
     for(var i = 0; i < doors.length; i++){
       var doorCoords = get2DCoordsFromIndex(mapData.width,doors[i].index);
       var door = doors[i].door;
+      door.unlocked = true;// default unlocked
+      
       if(door.horizontal){
         var above = mapData.data[get1DIndex(mapData.width,doorCoords.x,doorCoords.y-1)];
         var below = mapData.data[get1DIndex(mapData.width,doorCoords.x,doorCoords.y+1)];
@@ -78,6 +82,7 @@ function makeMapWithRooms(){
         }
         
       }
+      
     }
   // Door checks end ////////////////////////////////////
   //print(mapData);
@@ -105,7 +110,12 @@ function paste(orig,copy,startX,startY){
       if((orig.data[origIndexOverride].type != 'door') || (copy.data[i].type == 'door' && !copy.data[i].unlocked)){
         // do not allow floor to overwrite:
         if(copy.data[i]!=2){
-          orig.data[origIndexOverride] = copy.data[i];
+          if(typeof copy.data[i] == 'object'){
+            orig.data[origIndexOverride] = jQuery.extend(true, {}, copy.data[i]);
+          }else{
+            orig.data[origIndexOverride] = copy.data[i];
+            
+          }
         }
       }
     }
