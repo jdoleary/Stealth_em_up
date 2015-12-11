@@ -64,54 +64,6 @@ function onAssetsLoaded(){
     img_hero_head_masked = PIXI.Texture.fromFrame(("head_masked.png"));
     img_spyglass = PIXI.Texture.fromFrame(("spyglass.png"));
     
-    ////////////////// TO BE CONVERTED ONTO SPRITE SHEET:
-    img_cursor_red = PIXI.Texture.fromImage("images/cursor_red.png");
-    img_skyscraper_view_1 = PIXI.Texture.fromImage("images/sky_views/1.png");
-    img_skyscraper_view_2 = PIXI.Texture.fromImage("images/sky_views/2.png");
-    img_skyscraper_view_3 = PIXI.Texture.fromImage("images/sky_views/3.png");
-    img_skyscraper_view_4 = PIXI.Texture.fromImage("images/sky_views/4.png");
-    img_skyscraper_view_5 = PIXI.Texture.fromImage("images/sky_views/5.png");
-    img_skyscraper_view_6 = PIXI.Texture.fromImage("images/sky_views/6.png");
-    img_skyscraper_view_7 = PIXI.Texture.fromImage("images/sky_views/7.png");
-    skyscraper_backgrounds = [
-      {
-        img:img_skyscraper_view_1,
-        parallaxMultiplier:0,
-        scale:4.84
-      },
-      {
-        img:img_skyscraper_view_2,
-        parallaxMultiplier:0.2,
-        scale:5
-      },
-      {
-        img:img_skyscraper_view_3,
-        parallaxMultiplier:0.3,
-        scale:6
-      },
-      {
-        img:img_skyscraper_view_4,
-        parallaxMultiplier:0.4,
-        scale:7
-      },
-      {
-        img:img_skyscraper_view_5,
-        parallaxMultiplier:0.7,
-        scale:8
-      },
-      {
-        img:img_skyscraper_view_6,
-        parallaxMultiplier:0.9,
-        scale:9
-      },
-      {
-        img:img_skyscraper_view_7,
-        parallaxMultiplier:1,
-        scale:10
-      }
-    ]
-    ////////////////
-    
         //Image based initialization
     shardImages = [img_shard_1,img_shard_2,img_shard_3];
     currentShard = shardImages[shardType];

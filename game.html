@@ -40,11 +40,6 @@
     <body>
     <div id="debug_info"></div>
     <div id="canvas_holder"></div>
-    <!--Map generator rooms and script-->
-    <script src="RoomEditor/rooms/fourWayRoom.js"></script>
-    <script src="js/MapGen/mapGeneratorV4.js"></script>
-    
-    <!--Map generator rooms and script-->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="js/jo_local_storage.js"></script>
     <script src="js/get_upgrades_from_storage.js"></script>
@@ -72,6 +67,11 @@
     <script src="js/jo_movie_clip.js"></script>
     <script src="js/sound_manager.js"></script>
     <script src="js/jo_progress_bar.js"></script>
+    <!--Map generation scripts-->
+    <canvas id="mapGenCanvas" width="600" height="600" style="border:1px solid #d3d3d3;">
+    <script src="js/MapGen/tools.js"></script>
+    <script src="js/MapGen/mapGen.js"></script>
+    
     <script src="js/main.js"></script>
 
     

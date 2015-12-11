@@ -50,10 +50,8 @@ function jo_gun(name,clip_size, silenced, automatic, bullets_per_shot, spread){
             bullet.target = getRaycastPoint(unit.x,unit.y,endPoint.x,endPoint.y);
             bullet.rotate_to_instant(bullet.target.x,bullet.target.y);
             if(this.automatic == true)bullet.speed = randomIntFromInterval(30,80);
-            else bullet.speed = 130;//75;
+            else bullet.speed = 75;
             //bullet.speed = 10;//slow motion bullets!
-            
-            // stop_distance must be bullet speed so that it won't go through walls
             bullet.stop_distance = bullet.speed;
             bullets.push(bullet);
             

@@ -25,16 +25,38 @@
           border:5px solid black;
           border-radius: 5px;
         }
+        #map_size_controls{
+            position: absolute;
+            width:100%;
+            height:100%;
+        }
+        #map_size_controls > div{
+          width: 300px;
+          height: 100px;
+          padding: 20px;
 
+          position: absolute;
+          top: 50%;
+          left: 50%;
+
+          margin: -70px 0 0 -170px;
+        }
 	</style>
 
     <link rel="stylesheet" type="text/css" href="buttons.css">
-	<script src="bin/pixi.dev.js"></script>
+	<script src="/bin/pixi.js"></script>
 	
 </head>
     <body>
-    
-    
+    <div id="map_size_controls">
+        <div>
+            Choose Map Size:
+            <br>
+            <span id="map_width_slider_text">40 blocks wide.</span><input type="range" id="map_width_slider" value="40" min="20" max="120" onchange="updateSliders();">
+            <br>
+            <span id="map_heigh_slider_text">40 blocks high.</span><input type="range" id="map_height_slider" value="40" min="20" max="120" onchange="updateSliders();">
+        </div>
+    </div>
     
     <div id="buttons"  style="display:none;position:absolute;top:20px;right:20px;" onmouseover="disableGridClick();" onmouseout="enableGridClick()">
         <button id="button_single_block" class="pure-button pure-button-active" onclick="change_tool('single');" style="width:100%">Single Block Tool</button>
@@ -52,8 +74,6 @@
         <button id="button5"  class="pure-button" onclick="changePaletteNum(5);"  style="width:100%">Door (Vert)</button>
         <br>    
         <button id="button6"  class="pure-button" onclick="changePaletteNum(6);"  style="width:100%">Door (Horiz)</button>
-        <br>    
-        <button id="button_unlocked"  class="pure-button" onclick="doorUnlocked();"  style="width:100%">Unlocked todo</button>
         <br>    
         <button id="button7"  class="pure-button" onclick="changePaletteNum(7);" style="width:100%">Money</button>
         <br>  
@@ -88,6 +108,19 @@
         <br>
         <button id="button_publish" class="pure-button" onclick="publish();" style="width:100%">Publish</button>
         <br><br>
+        <button id="button_captcha" class="captcha">
+            <h2>Please verify that you are not a robot in order to publish your map to the server.</h2>
+            <form method="post">
+                <input id="input_filename" name="filename">
+                <input id="input_map_data" name="map_data">
+              <div class="g-recaptcha" data-sitekey="<?php echo $siteKey;?>"></div>
+              <script type="text/javascript"
+                  src="https://www.google.com/recaptcha/api.js?hl=<?php echo $lang;?>">
+              </script>
+              <br/>
+              <input type="submit" value="submit" />
+            </form>
+        </button>
         
     
     </div>
@@ -126,6 +159,9 @@
         $('#input_map_data').hide();
         $('#button_captcha').hide();
         
+        // For now, hide map size controls:
+        $('#map_size_controls').hide();
+        
         function updateSliders(){
             $('#map_width_slider_text').text($('#map_width_slider').val() + " blocks wide");
             $('#map_height_slider_text').text($('#map_height_slider').val() + " blocks high");
@@ -144,14 +180,7 @@
                 
             }
         }
-        var doorIsUnlocked = false;
-        function doorUnlocked(){
-          $('#button_unlocked').toggleClass('pure-button-toggle-active').blur();
-          doorIsUnlocked = !doorIsUnlocked;
-          console.log("unlocked: " + doorIsUnlocked);
-          
-          
-        }
+        
         //the number type of tile to place when clicking
         var palette_number = 0;
         function changePaletteNum(num){
@@ -177,64 +206,91 @@
         var map_data_to_save;
         //save, submit, publish
         function publish(){
-            map_data_to_save = {};
-            map_data_to_save["data"] = [];
-            //fill data:
-            for(var i = 0; i < grid.cells.length; i++){
-                var origNum = grid.cells[i].image_number;
-                //note: because of the silly way that I made the grid logic, I have to change these numbers:
-                var newNum = origNum;
-                switch(origNum){
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                        newNum = origNum+1;
-                        break;
-                        
+            //if anything is in this list give error
+            var fail_list = [];
+            /*if(computer_for_security_cameras.x == 0 || computer_for_security_cameras.y == 0){
+                fail_list.push("Computer");
+            }
+            if(loot[0].x == 0 || loot[0].y == 0){
+                fail_list.push("Money");
+            }
+            if(getawaycar.x == 0 || getawaycar.y == 0){
+                fail_list.push("Escape Car");
+            }
+            if(hero_spawn_icon.x == 0 || hero_spawn_icon.y == 0){
+                fail_list.push("Player Spawn");
+            }
+            if(guard_spawn_icon.x == 0 || guard_spawn_icon.y == 0){
+                fail_list.push("Guard Backup Spawn");
+            }
+            console.log('fail: ' + fail_list.length);*/
+            if(fail_list.length != 0){
+                fail_to_publish(fail_list);
+            }else{
+                map_data_to_save = {};
+                map_data_to_save["data"] = [];
+                //fill data:
+                for(var i = 0; i < grid.cells.length; i++){
+                    var origNum = grid.cells[i].image_number;
+                    //note: because of the silly way that I made the grid logic, I have to change these numbers:
+                    var newNum = origNum;
+                    switch(origNum){
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                            newNum = origNum+1;
+                            break;
+                            
+                    }
+                    map_data_to_save["data"].push(newNum);
                 }
-                if(newNum == 5){
-                  // door vert
-                  newNum = {type:'door',unlocked:doorIsUnlocked,horizontal:false};
+                map_data_to_save["height"] = grid.height;
+                map_data_to_save["width"] = grid.width;
+                map_data_to_save["objects"] ={};
+                map_data_to_save["objects"]["hero"] = [Math.round(hero_spawn_icon.x),Math.round(hero_spawn_icon.y)];
+                map_data_to_save["objects"]["guards"] = [];
+                for(var g = 0; g < guards.length; g++){
+                    map_data_to_save["objects"]["guards"].push([Math.round(guards[g].x),Math.round(guards[g].y)]);
                 }
-                if(newNum == 6){
-                  // door horiz
-                  newNum = {type:'door',unlocked:doorIsUnlocked,horizontal:true};
+                map_data_to_save["objects"]["guard_backup_spawn"] = [Math.round(guard_spawn_icon.x),Math.round(guard_spawn_icon.y)];
+                map_data_to_save["objects"]["security_cams"] = [];
+                for(var s = 0; s < security_cameras.length; s++){
+                    map_data_to_save["objects"]["security_cams"].push({"swivel_max":security_cameras[s].max,"swivel_min":security_cameras[s].min,"pos":[Math.round(security_cameras[s].x),Math.round(security_cameras[s].y)]});
                 }
-                map_data_to_save["data"].push(newNum);
-            }
-            map_data_to_save["height"] = grid.height;
-            map_data_to_save["width"] = grid.width;
-            map_data_to_save["objects"] ={};
-            map_data_to_save["objects"]["guards"] = [];
-            for(var g = 0; g < guards.length; g++){
-                map_data_to_save["objects"]["guards"].push([Math.round(guards[g].x),Math.round(guards[g].y)]);
-            }
-            map_data_to_save["objects"]["security_cams"] = [];
-            for(var s = 0; s < security_cameras.length; s++){
-                map_data_to_save["objects"]["security_cams"].push({"swivel_max":security_cameras[s].max,"swivel_min":security_cameras[s].min,"pos":[Math.round(security_cameras[s].x),Math.round(security_cameras[s].y)]});
-            }
-            
-            if(computer_for_security_cameras.x && computer_for_security_cameras.y){
-              map_data_to_save["objects"]["computer"] = [Math.round(computer_for_security_cameras.x),Math.round(computer_for_security_cameras.y)];
-            }
-            if(loot[0].x && loot[0].y){
-              map_data_to_save["objects"]["loot"] = [Math.round(loot[0].x),Math.round(loot[0].y)];
-            }
-            if(getawaycar.x && getawaycar.y ){
-              map_data_to_save["objects"]["van"] = [Math.round(getawaycar.x),Math.round(getawaycar.y)];
-            }
-            if(hero_spawn_icon.x != 0 && hero_spawn_icon.y != 0){
-              map_data_to_save["objects"]["hero"] = [Math.round(hero_spawn_icon.x),Math.round(hero_spawn_icon.y)];
-            }
-            if(guard_spawn_icon.x != 0 && guard_spawn_icon.y != 0){
-              map_data_to_save["objects"]["guard_backup_spawn"] = [Math.round(guard_spawn_icon.x),Math.round(guard_spawn_icon.y)];
-            }
-            var string_map_data = JSON.stringify(map_data_to_save);
+                map_data_to_save["objects"]["computer"] = [Math.round(computer_for_security_cameras.x),Math.round(computer_for_security_cameras.y)];
+                map_data_to_save["objects"]["van"] = [Math.round(getawaycar.x),Math.round(getawaycar.y)];
+                map_data_to_save["objects"]["loot"] = [Math.round(loot[0].x),Math.round(loot[0].y)];
+                var string_map_data = JSON.stringify(map_data_to_save);
+                //push data to server
+                //map name is uniquified with date time later
+                var map_name = prompt("Enter the name of your level");
+                //Show the captcha:
+                $('#button_captcha').show();
+                var date = new Date();
+                $('#input_filename').val(map_name + "_" + date.getTime());
+                $('#input_map_data').val(string_map_data);
+                //OLD
+                /*if(map_name != null){
+                    $.ajax({
+                      type: "POST",
+                      dataType: "json",
+                      url: "maps/map_editor.php", //Relative or absolute path to response.php file
+                      data: {"filename":map_name + "_" + Date().getTime(),"map_data":string_map_data},
+                      success: function(data) {
+                        test = data;
+                        console.log(data);//prints the echo from r2015.php
+                        console.log("Push data to server worked.");
 
-            $('body').prepend($('<textarea/>').html(string_map_data));
-
-            
+                      },
+                      fail: function(){
+                        console.log("Push data to server failed.");
+                      }
+                    });
+                }else{
+                    alert("Map not published, please try again.");
+                }*/
+            }
         
         }
         function fail_to_publish(list){

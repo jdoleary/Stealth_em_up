@@ -47,6 +47,7 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices,grid_index
     this.grid_index_y = grid_index_y;
     this.offsetX = 0;
     this.offsetY = 0;
+    /*
     
     this.v8 = vertices[0];
     this.v2 = vertices[1];
@@ -60,7 +61,57 @@ function jo_wall(image_number,solid,blocks_vision,restricted,vertices,grid_index
     //for drawing image
     this.x = this.v8.x;
     this.y = this.v8.y;
+    */
     
+    this.setImageFromInfo = function(){
+        console.log(this); 
+        console.log(this.imageInfo);
+        if(this.type == 'wall'){
+            var imgPath = walls.black[this.imageInfo];
+            
+        }else if(this.type == 'desk'){
+            var imgPath = img_tile_brown;
+        }else{
+            if(this.restricted){
+                var imgPath = img_tile_red;
+            }else{
+                var imgPath = img_tile_white;
+            }
+        }
+        var sprite = new PIXI.Sprite.fromImage(imgPath);
+        
+        if(this.rotate_sprite){
+            sprite.rotation = this.rotate_sprite;
+            if(this.rotate_sprite == Math.PI/2)this.offsetX = 64;
+            if(this.rotate_sprite == -Math.PI/2)this.offsetY = 64;
+            if(this.rotate_sprite == Math.PI){
+                this.offsetX = 64;
+                this.offsetY = 64;
+            }
+        }
+        
+        this.image_sprite = sprite;
+        
+        if(this.type == 'wall' || this.type == 'desk'){
+            display_tiles_walls.addChild(sprite);
+        }else{
+            display_tiles.addChild(sprite);
+        }
+        
+            
+        this.v8 = this.vertices[0];
+        this.v2 = this.vertices[1];
+        this.v4 = this.vertices[2];
+        this.v6 = this.vertices[3];
+        if(this.v2.x < 0 || this.v2.y < 0) throw new Error("Walls cannot be placed in negative space!");
+        if(this.v4.x < 0 || this.v4.y < 0) throw new Error("Walls cannot be placed in negative space!");
+        if(this.v6.x < 0 || this.v6.y < 0) throw new Error("Walls cannot be placed in negative space!");
+        if(this.v8.x < 0 || this.v8.y < 0) throw new Error("Walls cannot be placed in negative space!");
+        
+        //for drawing image
+        this.x = this.v8.x;
+        this.y = this.v8.y;
+    }
     this.changeImage = function(image_number_p){
         
         //remove previous sprite

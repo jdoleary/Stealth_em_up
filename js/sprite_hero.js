@@ -93,7 +93,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
                 this.sin += 0.1;
                 this.sin_body -= 0.12;
                 this.sprite_head.position.x = 2*Math.sin(this.sin);
-                //this.sprite_body.rotation = Math.sin(this.sin_body)/4;
+                this.sprite_body.rotation = Math.sin(this.sin_body)/4;
                 this.sprite_spyglass.rotation = Math.sin(this.sin_body)/4;
   
                 

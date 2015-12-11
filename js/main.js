@@ -277,12 +277,22 @@ if(url_queryString["volume"]){
 }
 
 var mapName;
-if(url_queryString["level"]){
+generateMap(function(gen_map_json){
+    //map finished loading callback
+    map_json = gen_map_json;
+    $('#mapGenCanvas').hide();
+    windowSetup();
+},function(text){
+    //log loading text:
+    console.log(text);
+});
+
+/*if(url_queryString["level"]){
     mapName = url_queryString["level"];
     getMapInfo("maps", mapName + ".jomap");
 }else{
     alert('No level selected');
-}
+}*/
 //test:
 //windowSetup();
 
@@ -372,18 +382,7 @@ function startGame(){
     //3: not much
     look_sensitivity = 2.5;
     
-    var giganticBackgroundIndex = 4;
-    giganticBackground = new PIXI.Sprite(skyscraper_backgrounds[giganticBackgroundIndex].img);
-    giganticBackground.start = {};
-    giganticBackground.start.x = 0;//906*skyscraper_backgrounds[giganticBackgroundIndex].scale;//-3190;
-    giganticBackground.start.y = 0;//514*skyscraper_backgrounds[giganticBackgroundIndex].scale;//-1155;
-    giganticBackground.anchor.x = 0.5;
-    giganticBackground.anchor.y = 0.5;
-    giganticBackground.scale.x = skyscraper_backgrounds[giganticBackgroundIndex].scale;
-    giganticBackground.scale.y = skyscraper_backgrounds[giganticBackgroundIndex].scale;
-    giganticBackground.parallaxMultiplier = skyscraper_backgrounds[giganticBackgroundIndex].parallaxMultiplier;
     
-    stage_child.addChild(giganticBackground);
     //display object containers that hold the layers of everything.
     display_tiles = new PIXI.Container();
     display_blood = new PIXI.Container();
@@ -396,6 +395,7 @@ function startGame(){
     stage_child.addChild(particle_container);
     stage_child.addChild(display_effects);
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
+
     stage_child.addChild(display_actors);
     
     
@@ -441,9 +441,7 @@ function startGame(){
     
     //store string references to maps here so that query string can choose maps:
     //mapData = {"diamondStore":map_diamond_store,"bank1":map_bank_1};
-    
-    // Generate map:
-    map_json = makeMapWithRooms();
+    //test temp todo
     setup_map(map_json);
     /*if(mapName){
         setup_map(mapData[mapName]);
@@ -521,24 +519,18 @@ alarmingObjects = [];//guards will sound alarm if they see an alarming object (d
             currentTexture = shellTextures[shellType];
             currentTexture = img_shell;
             
-    cursor_lock_on = new jo_sprite(new PIXI.Sprite(img_cursor_red));
-            
 }
 function setup_map(map){
     console.log('map:');
     console.log(map);
     //grid/map
     grid = new jo_grid(map);
-    grid.setImagesForTiles();
+    //grid.setImagesForTiles();
     
     
     //whole map width and height:
     grid_width = grid.width*grid.cell_size;
     grid_height = grid.height*grid.cell_size;
-    
-    // place background image in center:
-    giganticBackground.start.x = grid_width/2;
-    giganticBackground.start.y = grid_height/2;
     
     /*
     New LOS Graphics:
@@ -550,7 +542,7 @@ function setup_map(map){
     losShade = new PIXI.Graphics();
     //draw the shade:
     losShade.clear();
-    losShade.alpha = 0.4;
+    losShade.alpha = 0.7;
     losShade.beginFill(0);
     losShade.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
     
@@ -568,37 +560,15 @@ function setup_map(map){
     //add the mask:
 	losShadeContainer.mask = losSprite;
     
-    
+    /*
     display_tiles_walls.addChild(tile_containers[0]);//add ParticleContaineres, black walls
     display_tiles_walls.addChild(tile_containers[2]);//add ParticleContaineres, brown furnature
     display_tiles.addChild(tile_containers[1]);//add ParticleContaineres
     display_tiles.addChild(tile_containers[3]);//add ParticleContaineres
     display_tiles.addChild(tile_containers[4]);//add ParticleContaineres
+    */
     
     
-
-            
-            
-			hero_last_seen = new jo_sprite(new PIXI.Sprite(img_lastSeen));
-            hero_last_seen.sprite.visible = false;
-            
-            
-			guards = [];
-            for(var i = 0; i < map.objects.guards.length; i++){
-                var hasRiotShield = false;//randomIntFromInterval(0,2);
-                var guard_img = hasRiotShield ? img_guard_riot_reg : img_guard_reg;
-                var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(guard_img),hasRiotShield);
-                guard_inst.x = map.objects.guards[i][0];
-                guard_inst.y = map.objects.guards[i][1];
-                guard_inst.getRandomPatrolPath();
-                guards.push(guard_inst);
-            }
-
-            guard_backup_spawn = {'x':map.objects.guard_backup_spawn[0],'y':map.objects.guard_backup_spawn[1]};
-            numOfBackupGuards = 7;
-            backupCalled = false;
-            
-            
             //make sprites:
 			hero = new sprite_hero_wrapper(new PIXI.Sprite(img_hero_body),4,8);
             hero.losPath = [];
@@ -607,10 +577,31 @@ function setup_map(map){
             starburst = new debug_line();
             starburst_ray = new Ray(0,0,0,0);
 
-            hero.x = map.objects.hero[0];
-            hero.y = map.objects.hero[1];
+            hero.x = map.hero[0];
+            hero.y = map.hero[1];
 			hero.speed = hero.speed_walk;
             hero_drag_target = null; // a special var reserved for when the hero is dragging something.
+
+            
+            
+			hero_last_seen = new jo_sprite(new PIXI.Sprite(img_lastSeen));
+            hero_last_seen.sprite.visible = false;
+            
+            
+			guards = [];
+            for(var i = 0; i < map.guards.length; i++){
+                var hasRiotShield = randomIntFromInterval(0,2);
+                var guard_img = hasRiotShield ? img_guard_riot_reg : img_guard_reg;
+                var guard_inst = new sprite_guard_wrapper(new PIXI.Sprite(guard_img),hasRiotShield);
+                guard_inst.x = map.guards[i][0];
+                guard_inst.y = map.guards[i][1];
+                guard_inst.getRandomPatrolPath();
+                guards.push(guard_inst);
+            }
+
+            guard_backup_spawn = {'x':map.guard_backup_spawn[0],'y':map.guard_backup_spawn[1]};
+            numOfBackupGuards = 7;
+            backupCalled = false;
             
 			civs = [];
             /*
@@ -618,14 +609,14 @@ function setup_map(map){
 			    civs.push(new sprite_civ_wrapper(new PIXI.Sprite(img_civilian)));
 			}*/
 			computer_for_security_cameras = new jo_sprite(new PIXI.Sprite(img_computer));
-			computer_for_security_cameras.x = map.objects.computer[0];
-			computer_for_security_cameras.y = map.objects.computer[1];
+			computer_for_security_cameras.x = map.computer[0];
+			computer_for_security_cameras.y = map.computer[1];
             grid.makeWallSolid(computer_for_security_cameras.x,computer_for_security_cameras.y);//makes the ground under the car solid
 			
 			//security camera
 			security_cameras = [];
-            for(var i = 0; i < map.objects.security_cams.length; i++){
-                var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),map.objects.security_cams[i].pos[0],map.objects.security_cams[i].pos[1],map.objects.security_cams[i].swivel_max,map.objects.security_cams[i].swivel_min);
+            for(var i = 0; i < map.security_cams.length; i++){
+                var cam_inst = new security_camera_wrapper(new PIXI.Sprite(img_security_camera),map.security_cams[i].pos[0],map.security_cams[i].pos[1],map.security_cams[i].swivel_max,map.security_cams[i].swivel_min);
                 cam_inst.setupLOS();//finds the points for the camera to consider when drawing los
                 security_cameras.push(cam_inst);
             }
@@ -634,15 +625,15 @@ function setup_map(map){
 			getawaycar = new jo_sprite(new PIXI.Sprite(img_getawaycar));
 			getawaycar.sprite.anchor.y = 0.0;
 			getawaycar.sprite.anchor.x = 0.5;
-			getawaycar.x = map.objects.van[0];
-			getawaycar.y = map.objects.van[1];
+			getawaycar.x = map.van[0];
+			getawaycar.y = map.van[1];
             grid.makeWallSolid(getawaycar.x,getawaycar.y);//makes the ground under the car solid
             grid.makeWallSolid(getawaycar.x,getawaycar.y-64);//makes the ground under the car solid
 			getawaycar.rad = -Math.PI/2;
 			loot = [];
 			var money = new jo_sprite(new PIXI.Sprite(img_money));
-			money.x = map.objects.loot[0];
-			money.y = map.objects.loot[1];
+			money.x = map.loot[0];
+			money.y = map.loot[1];
             loot.push(money);
 
             
@@ -706,7 +697,7 @@ function gameloop_guards(deltaTime){
     //////////////////////
     //update Guards
     //////////////////////
-    var closestToAutoAim = {guard:null,dist:-1};
+    
     
     for(var i = 0; i < guards.length; i++){
         var guard = guards[i];
@@ -728,19 +719,7 @@ function gameloop_guards(deltaTime){
             }
             
             guard.currentlySeesHero = guard.doesSpriteSeeSprite(hero);
-            
-            // Test if canidate for autoAim:
-            if(guard.sprite.visible){
-              var distFromAim = get_distance(guard.x,guard.y,mouse.x,mouse.y);
-              if(closestToAutoAim.dist == -1 || distFromAim < closestToAutoAim.dist){
-                if(distFromAim < 100){
-                  closestToAutoAim = {guard:guard,dist:distFromAim};
-                  cursor_lock_on.x = guard.x;
-                  cursor_lock_on.y = guard.y;
-                  cursor_lock_on.sprite.visible = true;
-                }
-              }
-            }
+        
                 //shooting
             //guards aim can be off by up to guard.accuracy pixels:
             var aim_x_offset = Math.floor(Math.random() * guard.accuracy);
@@ -902,8 +881,6 @@ function gameloop_guards(deltaTime){
             }
         }
     }
-    if(closestToAutoAim.dist == -1)cursor_lock_on.sprite.visible = false;
-    cursor_lock_on.rad += 0.1;
 }
 function gameloop_civs(deltaTime){
     //////////////////////
@@ -1055,15 +1032,17 @@ function gameloop_bullets(deltaTime){
         
         if(bullet.move_to_target()){
             //if true, bullet hits wall
-            bullet.x = bullet.target.x;
-            bullet.y = bullet.target.y;
+            
             //TODO old, replace with particles:
             //play gun spark against wall where gun shot hits:
             //bullet.target.x.y
             var splatter_angle = grid.angleBetweenPoints(bullet.x,bullet.y,bullet.target.x,bullet.target.y)
             shardParticleSplatter(-splatter_angle,bullet.target);
             
-            bullet.flagForRemoval = true;
+            //destroy bullet
+            display_actors.removeChild(bullet.sprite);
+            bullets.splice(b,1);
+            continue bulletLoop;
         }
         bullet.rotate_to_instant(bullet.target.x,bullet.target.y);
         
@@ -1159,12 +1138,6 @@ function gameloop_bullets(deltaTime){
                 security_cameras[i].kill();
             }
         
-        }
-        if(bullet.flagForRemoval){
-            //destroy bullet
-            display_actors.removeChild(bullet.sprite);
-            bullets.splice(b,1);
-            continue bulletLoop;
         }
     }
     
@@ -1331,10 +1304,10 @@ function gameloop_zoom_and_camera(deltaTime){
     //loose camera
     camera.x = hero.x + (mouse.x - hero.x)/look_sensitivity;
     camera.y = hero.y + (mouse.y - hero.y)/look_sensitivity;
+    //don't let camera show out of bounds:
     var cam_width = window_properties.width*(1/stage_child.scale.x);
     var cam_height = window_properties.height*(1/stage_child.scale.y);
-    //don't let camera show out of bounds:
-    /*var cam_adjust_x = camera.x;
+    var cam_adjust_x = camera.x;
     var cam_adjust_y = camera.y;
     
     
@@ -1363,13 +1336,13 @@ function gameloop_zoom_and_camera(deltaTime){
     }
     
     camera.x = cam_adjust_x;
-    camera.y = cam_adjust_y; 
+    camera.y = cam_adjust_y;
     
     
     if(camera.shaking){
         camera.posBeforeShakex = cam_adjust_x;
         camera.posBeforeShakey = cam_adjust_y;    
-    }*/
+    }
     camera.shake();
     
     
@@ -1464,10 +1437,9 @@ function gameloop_getawaycar_and_loot(deltaTime){
         if(get_distance(hero.x,hero.y,getawaycar.x,getawaycar.y) <= getawaycar.radius*5){
             //deposite money in car:
             newMessage("The money is safe!");
+            //add button for win condition
+            addButton("Back to Hub",window.innerWidth/2,window.innerHeight/2,function(){location.href='/stealth/menu.html';});
             
-            //Start new game:
-            startMenu();
-            startGame();
             
             //add to stats:
             jo_store_inc("wins");
@@ -1811,7 +1783,6 @@ function gameloop(deltaTime){
         hero.target.x = hero.x - 100;
     }else hero.target.x = hero.x;
     
-    
     //Shoot if LMB is held down:
     if(hero.gunOut && keys['LMB'] && hero.gun.automatic){
         //you can only shoot if hero is masked
@@ -1863,29 +1834,17 @@ function gameloop(deltaTime){
         grid.door_sprites[i].prepare_for_draw();
     }
     
-    // red cursor for auto aim
-    cursor_lock_on.prepare_for_draw();
-    
     //////////////////////
     //update Hero
     //////////////////////
     
     hero.move_to_target();
     if(hero.alive && hero.gunOut){
-        if(cursor_lock_on.sprite.visible){
-          // Auto aim:
-          hero.aim.set(hero.x,hero.y,cursor_lock_on.x,cursor_lock_on.y);
-        }else{
-          hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
-        }
+        hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
         //laser sight
         hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     }
     
-    // Parallax background:
-    
-    giganticBackground.position.x = giganticBackground.start.x + (hero.x-giganticBackground.start.x)*giganticBackground.parallaxMultiplier;
-    giganticBackground.position.y = giganticBackground.start.y + (hero.y-giganticBackground.start.y)*giganticBackground.parallaxMultiplier/2;
     
     //make_starburst_without_limit(hero);
     //SPYGLASS:
@@ -2480,7 +2439,7 @@ function mouseWheelHandler(e){
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
     
     //limit amount that cam can zoom out
-    if(delta < 0 && zoom > 0.25){
+    if(delta < 0 && zoom > 0.1){
         zoom += delta * 0.05;
     }else if (delta >0){
         zoom += delta * 0.05;
@@ -2534,7 +2493,7 @@ function spawn_backup(){
     }
 }
 function spawn_individual_backup(){
-    var hasRiotShield = false;//randomIntFromInterval(0,2);
+    var hasRiotShield = randomIntFromInterval(0,2);
     var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert),hasRiotShield);
     newGuard.x = guard_backup_spawn.x;
     newGuard.y = guard_backup_spawn.y;
@@ -2849,8 +2808,7 @@ var shard_limit = 2000;
 var shardType = 0;
 //Shart images inited at images_from_sheet.js
 function shardParticleSplatter(angle,target){
-    var shardAmount = randomIntFromInterval(45,200);
-    console.log('shard amount: ' + shardAmount);
+    var shardAmount = randomIntFromInterval(6,30);
         angle += Math.PI/2;//I don't know why it's off by Pi/2 but it is.
     for(var i = 0; i < shardAmount; i++){
         //make new bunnies
@@ -2862,11 +2820,11 @@ function shardParticleSplatter(angle,target){
         shard.anchor.y = 0.5;
         shard.position.x = target.x;
         shard.position.y = target.y;
-        var randScale = randomFloatFromInterval(0.2,0.5);
+        var randScale = randomFloatFromInterval(0.3,1);
         shard.scale.x = randScale;
         shard.scale.y = randScale;
         var randSpeed = randomFloatWithBias(0.1,shell_speed*2);
-        var randRotationOffset = randomFloatFromInterval(-Math.PI/3,Math.PI/3);
+        var randRotationOffset = randomFloatFromInterval(-Math.PI/6,Math.PI/6);
         shard.dr = randomFloatFromInterval(-0.3,0.3);//change in rotation
         shard.dx = randSpeed*Math.sin(angle+randRotationOffset);
         shard.dy = randSpeed*Math.cos(angle+randRotationOffset);
@@ -2947,6 +2905,7 @@ function ejectShell(source){
 }
 var kickback_speed = 5;
 var kickback_amount = 30;
+//camera kickback:
 function kickback(){
     var d = get_distance(hero.x,hero.y,mouse.x,mouse.y);
     var kickback_mod = randomFloatFromInterval(0,20);

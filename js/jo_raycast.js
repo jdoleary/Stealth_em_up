@@ -109,7 +109,7 @@ function getRaycastPoint(startx,starty,endx,endy){
         
         
         //find the closest point that touches a wall
-        for(var i = 0; i < 40; i++){
+        for(var i = 0; i < 60; i++){
             var nextPoint_v = nextPointAlongRay(rayv,i);
             
             if(grid.isWallSightBlocking_coords(nextPoint_v.x,nextPoint_v.y)){
@@ -138,7 +138,7 @@ function getRaycastPoint(startx,starty,endx,endy){
                 ray_closest = ray_v_closest;
             }
         }else if(!ray_v_closest && !ray_h_closest){
-            console.trace('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
+            console.log('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
             //returns endx,endy so as to not cause errors in all the places that use this function if the ray is null
             //it returns the end point of the linesegment passed in, having detected no walls.
             
@@ -203,7 +203,7 @@ function getRaycastPointIgnoreDoor(startx,starty,endx,endy){
                 ray_closest = ray_v_closest;
             }
         }else if(!ray_v_closest && !ray_h_closest){
-            console.trace('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
+            console.log('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
             //returns endx,endy so as to not cause errors in all the places that use this function if the ray is null
             //it returns the end point of the linesegment passed in, having detected no walls.
             
@@ -271,7 +271,7 @@ function isLineOKForPath(startx,starty,endx,endy){
                 ray_closest = ray_v_closest;
             }
         }else if(!ray_v_closest && !ray_h_closest){
-            console.trace('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
+            console.log('ray out of range, try increasing the value of i if you wish to raycast further.'  + " ," +  startx  + " ," +  starty  + " ," +  endx  + " ," +  endy);
             //returns endx,endy so as to not cause errors in all the places that use this function if the ray is null
             //it returns the end point of the linesegment passed in, having detected no walls.
             
