@@ -328,11 +328,13 @@ function clearStage(){
 
 function startMenu(){
 /////MENU/////
+
+    $('#instructions-container').show();
         console.log("start menu");
         clearStage();
         state = states["StartMenu"];
-        addButton("Play",200,200,startGame);
-        addButton("Fullscreen",200,400,fullscreen);
+        //addButton("Play",200,200,startGame);
+        //addButton("Fullscreen",200,400,fullscreen);
         //set music to "unmasked"
         if(music_masked && music_unmasked){
             changeVolume(music_masked,0.0);
@@ -343,6 +345,7 @@ function startMenu(){
         
 }
 function startGame(){
+    $('#instructions-container').hide();
     //the the menu or any other previous children
     console.log("start game");
     clearStage();

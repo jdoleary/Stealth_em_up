@@ -199,7 +199,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             bloodParticleSplatter(splatter_angle,hero);
             
             
-            addButton("menu.png","menu2.png",startMenu);
+            //addButton("menu.png","menu2.png",startMenu);
         }
 
         if(this.draw_los_circles){

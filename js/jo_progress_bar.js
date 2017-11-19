@@ -28,6 +28,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
     this.distanceCancelTarget;//if player moves away from this target while the prog bar is incrementing, it self cancels
     this.callback;
     this.increment = function(deltaTime){
+        console.trace('increment prog bar');
         //abort progressbar if hero moves too far away from distanceCancelTarget
         if(this.distanceCancelTarget && get_distance(hero.x,hero.y,this.distanceCancelTarget.x,this.distanceCancelTarget.y) > hero.radius*dragDistance*(3/2)){
             console.log("cancel: " + get_distance(hero.x,hero.y,this.distanceCancelTarget.x,this.distanceCancelTarget.y) + " " + hero.radius*dragDistance);
@@ -54,6 +55,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
         }
     };
     this.stop = function(){
+      console.trace('stop prog');
         this.graphics.clear();
         this.visible = false;
         this.timePassedSinceStart = 0;
@@ -84,6 +86,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
         
     }
     this.reset = function(posx,posy,timeToFinish,callback){
+      console.log('reset prog');
         //clear distanceCancelTarget
         this.distanceCancelTarget = null;
         //clear follow
@@ -103,6 +106,7 @@ function circularProgressBar(posx,posy,size,lineWidth){
     
     };
     this.draw = function(){
+      console.log('draw prog');
         this.graphics.clear();
         if(this.visible){
             //draw base circle:

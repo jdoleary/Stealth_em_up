@@ -32,6 +32,32 @@
             /*background-color:rgba(255,255,255,0.8);*/
         
         }
+        #instructions-container{    
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          margin: 100px auto;
+          max-width: 400px;
+          height: 100%;
+          color: white;
+        }
+        #start-btn{
+          padding:8px;
+          text-align:center;
+          margin:0 auto;
+          background-color:#ddd;
+          color:black;
+          border-radius:10px;
+          max-width:160px;
+          cursor:pointer;
+        }
+        #start-btn:hover{
+          background-color:#ccc;
+        
+        }
+        
 	</style>
 
 	<script src="bin/pixi.js"></script>
@@ -68,6 +94,45 @@
     <script src="js/sound_manager.js"></script>
     <script src="js/jo_progress_bar.js"></script>
     <script src="js/main.js"></script>
+    <div id="instructions-container">
+      <div>I created this game many years ago while I was first learning how to program.  It's not polished, and coded rather poorly, but it was a lot of fun to make and I learned a lot.  Enjoy!</div>
+      <br>
+      <div>
+      <b>Controls:</b>
+<table>
+  <tr>
+    <td>Movement</td>
+    <td>W,A,S,D</td>
+  </tr>
+  <tr>
+    <td>Sprint</td>
+    <td>Shift</td>
+  </tr>
+  <tr>
+    <td>Draw Gun</td>
+    <td>G</td>
+  </tr>
+  <tr>
+    <td>Shoot (when gun is drawn)</td>
+    <td>Left Mouse Button</td>
+  </tr>
+  <tr>
+    <td>Reload Gun</td>
+    <td>R</td>
+  </tr>
+  <tr>
+    <td>Put on Mask</td>
+    <td>V</td>
+  </tr>
+  <tr>
+    <td>Interact</td>
+    <td>Space</td>
+  </tr>
+</table></div>
+     <br>
+      <div id="start-btn" onclick="fullscreen();">Start Game</div>
+      
+    </div>
 
     
 	</body>
