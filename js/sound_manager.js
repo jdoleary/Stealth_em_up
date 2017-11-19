@@ -6,7 +6,7 @@ me at jdoleary@gmail.com
 
 //NOTE: When you add a new sound, be sure to use changeVolume under readjustVolumes
 
-var volume_master = 0.0;
+var volume_master = 1.0;
 console.log("Master Volume: " + volume_master);
 
 var sound_dry_fire = new Audio("sound/dryfiregun.wav");

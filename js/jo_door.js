@@ -29,7 +29,9 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
             if(this.broken)return;
             if(!this.opened){
                 this.opened = true;
-                play_sound(sound_door_open);
+                if(get_distance(hero.x,hero.y,this.x,this.y) < 120){
+                  play_sound(sound_door_open);
+                }
                 this.rad = this.rotOpen;
                 this.relatedDoorWall.openDoor();//for changing "solidness" and line of sight
                 
@@ -41,7 +43,9 @@ function sprite_door_wrapper(pixiSprite,horizontal,doorwall,parent){
         this.close = function(){
             if(this.broken)return;
             if(this.opened){
-                play_sound(sound_door_close);
+                if(get_distance(hero.x,hero.y,this.x,this.y) < 120){
+                  play_sound(sound_door_close);
+                }
                 this.opened = false;
                 this.rad = this.rotClosed;
                 this.relatedDoorWall.closeDoor();//for changing "solidness" and line of sight

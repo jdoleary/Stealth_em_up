@@ -281,7 +281,7 @@ if(url_queryString["level"]){
     mapName = url_queryString["level"];
     getMapInfo("maps", mapName + ".jomap");
 }else{
-    alert('No level selected');
+    getMapInfo("maps", "bank_1.jomap");
 }
 //test:
 //windowSetup();
@@ -2245,7 +2245,7 @@ function addKeyHandlers(){
                                 }else{
                                     //hero is choking out a live guard who is not already alarmed:
                                     newMessage('You are choking out a guard!');
-                                    play_sound(sound_guard_choke);
+                                    //play_sound(sound_guard_choke);
                                             
                                             
                                     //add to stats:
