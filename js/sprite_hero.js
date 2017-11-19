@@ -90,8 +90,14 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             this.sprite.position.y = this.y;
             this.sprite.rotation = this.rad;
             if(this.sprite_animate){
+                if(this.gunOut){
+                  // Shoulders don't sway when you have a gun out
+                  this.sin_body = 0;
+                }else{
+                  this.sin_body -= 0.12;
+                  
+                }
                 this.sin += 0.1;
-                this.sin_body -= 0.12;
                 this.sprite_head.position.x = 2*Math.sin(this.sin);
                 this.sprite_body.rotation = Math.sin(this.sin_body)/4;
                 this.sprite_spyglass.rotation = Math.sin(this.sin_body)/4;
