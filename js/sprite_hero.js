@@ -20,15 +20,15 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
         this.spyglass_equipped = false;
         
         
-        this.guns = [
+        /*this.guns = [
             gun_pistol.make_copy(),
             gun_pistol_silenced.make_copy(),
             gun_shotgun.make_copy(),
             gun_shotgun_sawed_off.make_copy(),
             gun_machine.make_copy()
-        ];
+        ];*/
         this.gun_index = 0;
-        this.gun = this.guns[this.gun_index];
+        this.gun = gun_pistol_silenced.make_copy(),//this.guns[this.gun_index];
         this.health = upgrades["hero_health"];
         this.ability_kick_doors = upgrades["kick_doors"];
         this.ability_auto_pickup_ammo = upgrades["auto_pickup_ammo"];

@@ -11,7 +11,7 @@ var upgrades = {
     "Reload_speed":2000,//jo_store_get("Reload_speed"),//implemented
     "Toggle_mask":1500,//jo_store_get("Toggle_mask"),//implemented
     "Choke_speed":4000,//jo_store_get("Choke_speed"),//implemented
-    "Drag_body_speed":3,//jo_store_get("Drag_body_speed"),//implemented
+    "Drag_body_speed":4,//jo_store_get("Drag_body_speed"),//implemented
     "Timed_bomb":false,//jo_store_get("Timed_bomb"),
     "Remote_bomb":jo_store_get("Remote_bomb"),
     "Body_armor":jo_store_get("Body_armor"),

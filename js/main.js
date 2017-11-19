@@ -1467,7 +1467,9 @@ function gameloop_alert_animation(deltaTime){
     }
 }
 function pickUpGunDrop(gunDrop){
-
+    // pick up
+    hero.gun = gunDrop.gun;
+    setHeroImage(); 
     newFloatingMessage("You picked up: " + gunDrop.gun.name + "!",{x:hero.x,y:hero.y},"#FFaa00");
     //remove gun drop
     gunDrop.remove_from_parent();//remove from parent
@@ -1986,6 +1988,7 @@ function gameloop(deltaTime){
         if(get_distance(hero.x,hero.y,gun_drop.x,gun_drop.y) <= hero.radius*dragDistance){
             if(hero.ability_auto_pickup_ammo){
                 pickUpGunDrop(gun_drop);
+                break;
             }
                 
             //show tooltip
@@ -2103,12 +2106,14 @@ function addKeyHandlers(){
         var code = e.keyCode ? e.keyCode : e.which;
         //keyinfo[code] = String.fromCharCode(code);
         if(hero.alive){
+            /*
             if(code == 49){hero.changeGun(0);}//key 1
             if(code == 50){hero.changeGun(1);}//key 2
             if(code == 51){hero.changeGun(2);}//key 3
             if(code == 52){hero.changeGun(3);}//key 4
             if(code == 53){hero.changeGun(4);}//key 5
             if(code == 54){hero.changeGun(5);}//key 6
+            */
             if(code == 87){keys['w'] = true;}
             if(code == 65){keys['a'] = true;}
             if(code == 83){keys['s'] = true;}
@@ -2399,13 +2404,19 @@ function addKeyHandlers(){
         }else if(clickEvent.which === 3){
             //RMB
             keys['RMB'] = true;
+            var oldgun = hero.gun;
             for(var i = 0; i < gun_drops.length; i++){
                 var gun_drop = gun_drops[i];
                 //if close to gun_drop, pick it up:
                 if(get_distance(hero.x,hero.y,gun_drop.x,gun_drop.y) <= hero.radius*dragDistance){
                     pickUpGunDrop(gun_drop);
-                    
+                    break;
                 }
+            }
+            if(oldgun != hero.gun){
+              // if hero picked up a gun:
+              drop_gun(oldgun,hero.x,hero.y);
+              setHeroImage(); 
             }
         }
 
