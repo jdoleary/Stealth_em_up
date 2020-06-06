@@ -152,6 +152,6 @@ function sprite_guard_wrapper(pixiSprite, hasRiotShield){
     }
     var spriteContainer = new PIXI.Container();
     
-    sprite_guard.prototype = new jo_sprite(spriteContainer);
+    sprite_guard.prototype = new jo_sprite(spriteContainer, display_guards);
     return new sprite_guard(hasRiotShield);
 }

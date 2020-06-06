@@ -184,7 +184,6 @@ function jo_sprite(pixiSprite, parent){
         if(this.target.x == null || this.target.y == null )return;//no target
         var a,b;
         var c = this.speed;
-        console.log("this.get_dragged -> this.speed", this.speed, this.target)
         var A = this.target.x-this.x;
         var B = this.target.y-this.y;
         var C = Math.sqrt(A*A+B*B);

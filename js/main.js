@@ -144,6 +144,7 @@ var display_tiles;
 var display_blood;
 var display_effects;
 var display_actors;
+var display_guards;
 var display_tiles_walls;
 
 
@@ -318,6 +319,7 @@ function clearStage(){
     removeAllChildren(display_blood);
     removeAllChildren(display_effects);
     removeAllChildren(display_actors);
+    removeAllChildren(display_guards);
     removeAllChildren(display_tiles_walls);
     removeAllChildren(stage_child);
     removeAllChildren(stage);
@@ -383,12 +385,14 @@ function startGame(){
     display_tiles_walls = new PIXI.Container();
     particle_container = new PIXI.ParticleContainer(200000, [false, true, false, false, false]);
     display_actors = new PIXI.Container();
+    display_guards = new PIXI.Container();
     stage_child.addChild(display_tiles);
     stage_child.addChild(display_blood);    
     stage_child.addChild(particle_container);
     stage_child.addChild(display_effects);
     stage_child.addChild(display_tiles_walls);//wall tiles are higher than effects and blood
-
+    // Make sure guards render below hero
+    stage_child.addChild(display_guards);
     stage_child.addChild(display_actors);
     
     
@@ -632,7 +636,9 @@ function setup_map(map){
             
             
             // Finds the points for the camera to consider when drawing los
-            hero.setupLOS();
+            if(enableLOS){
+                hero.setupLOS();
+            }
 
 }
 ////////////////////////////////////////////////////////////
@@ -685,11 +691,6 @@ function reactionTimeout(){
     this.reacting = false;
 }
 function gameloop_guards(deltaTime){
-    //////////////////////
-    //update Guards
-    //////////////////////
-    
-    
     for(var i = 0; i < guards.length; i++){
         var guard = guards[i];
         if(guard.alive){
@@ -727,8 +728,6 @@ function gameloop_guards(deltaTime){
                 var guard_aim_to_wall = getRaycastPoint(guard.x,guard.y,hero.x+aim_x_offset,hero.y+aim_y_offset);
                 guard.aim.set(guard.x,guard.y,guard_aim_to_wall.x,guard_aim_to_wall.y);
             }
-            //draw the guards gun shot
-            guard.draw_gun_shot(guard.aim);
             
             
             //if guard are not already alarmed
@@ -784,7 +783,7 @@ function gameloop_guards(deltaTime){
                             
                             doGunShotEffects(guard, false);//plays sound
                             
-                            guard.shoot();//toggles on the visiblity of .draw_gun_shot's line
+                            guard.shoot();
                             ejectShell(guard);
                             
                             //increase guard's accuracy every time they shoot, for gameplay reasons
@@ -1800,7 +1799,6 @@ function gameloop(deltaTime){
             //kickback camera
             kickback();
             ejectShell(hero);
-            //toggles on the visiblity of .draw_gun_shot's line
             hero.shoot();
             if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
             mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
@@ -1847,8 +1845,6 @@ function gameloop(deltaTime){
     hero.move_to_target();
     if(hero.alive && hero.gunOut){
         hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
-        //laser sight
-        // hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     }
     
     
@@ -2403,7 +2399,6 @@ function addKeyHandlers(){
                         kickback();
                         ejectShell(hero);
                         
-                        //toggles on the visiblity of .draw_gun_shot's line
                         hero.shoot();
                         if(!hero.gun.silenced)unsilenced_gun();//make noise (not real sound, but noise for guards) which draws guards
                         mouse_click_obj = camera.objectivePoint_ignore_shake(clickEvent);  //uses clickEvent's .x and .y to find objective click
