@@ -188,7 +188,7 @@ var bullets;
             var hero_last_seen;
             var hero_end_aim_coord;
             var starburst;
-            var draw_starburst = false;//DEBUG FOR LOS
+            var draw_starburst = true;//DEBUG FOR LOS
             var starburst_ray;
             var starburst_angles;
             
@@ -283,8 +283,6 @@ if(url_queryString["level"]){
 }else{
     getMapInfo("maps", "bank_1.jomap");
 }
-//test:
-//windowSetup();
 
         
 function removeAllChildren(obj){
@@ -630,9 +628,7 @@ function setup_map(map){
 
             
             
-            //TODO: debug
-            //finds the points for the camera to consider when drawing los
-            //showCornersForVisionMasking(); changed to setupLOS
+            // Finds the points for the camera to consider when drawing los
             hero.setupLOS();
 
 }
@@ -655,12 +651,12 @@ function animate(time) {
         //console.log('delta: ' + deltaTime);
         //console.log('time: ' + time);
         
+        
         stats.begin();//Mr Doob's Stats.js
-        
         if(!pause)gameloop(deltaTime);
-        
-        
         stats.end();//Mr Doob's Stats.js
+        
+        
     }
     
     // render the stage

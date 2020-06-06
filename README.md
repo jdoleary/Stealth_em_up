@@ -14,3 +14,9 @@ Stealth_em_up
 
 * Drag code is updated in CodePractice repo.
 * You can use different gameLoops for different game states.
+
+## Terms:
+- `LOS` Line of Sight (fog of war)
+    - The starburst is what is used to calculate the LOS shade
+    - `draw_starburst` debug lines for LOS
+- `True Point` is the point that the ray is sent to, but the end of the raycast may go beyond it
