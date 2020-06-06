@@ -174,7 +174,7 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             hero_is_dead();
             
             //clear laser sight
-            this.gun_shot_line.graphics.clear();
+            // this.gun_shot_line.graphics.clear();
         
             //display_actors.removeChild(this.sprite_head);
             this.alive = false;
