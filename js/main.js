@@ -15,6 +15,7 @@ var stage;
 var window_properties;
 var renderer;
 var mouse_relative = {x:0,y:0};
+const enableLOS = false
 
 var wabbitTexture = new PIXI.Texture.fromImage("../images/shell.png")
 var	particle_container;	
@@ -93,7 +94,8 @@ function fullscreen() {
             || el.mozRequestFullScreen
             || el.msRequestFullscreen
     ;
-    rfs.call(el);
+    // Temporarily disable full screen
+    // rfs.call(el);
     startGame();
 }
 
@@ -188,7 +190,7 @@ var bullets;
             var hero_last_seen;
             var hero_end_aim_coord;
             var starburst;
-            var draw_starburst = true;//DEBUG FOR LOS
+            var debug_LOS_starburst = false; 
             var starburst_ray;
             var starburst_angles;
             
@@ -539,10 +541,11 @@ function setup_map(map){
     
     losShadeContainer = new PIXI.Container();
     
-    losPathGraphics = new PIXI.Graphics();
-    losPathGraphicsContainer = new PIXI.Container();
-    //stage_child.addChild(losPathGraphics);//test TODO REMOVE
-    losPathGraphicsContainer.addChild(losPathGraphics);
+    if(enableLOS){
+        losPathGraphics = new PIXI.Graphics();
+        losPathGraphicsContainer = new PIXI.Container();
+        losPathGraphicsContainer.addChild(losPathGraphics);
+    }
     
     //new for V3
     losShadeContainer.addChild(losShade);
@@ -690,20 +693,25 @@ function gameloop_guards(deltaTime){
     for(var i = 0; i < guards.length; i++){
         var guard = guards[i];
         if(guard.alive){
-            //Only show the gaurds if they are within vision of the hero or a hacked camera:
-            //if(guard.isRaycastUnobstructedBetweenTheseIgnoreDoor(hero){
-            //if the spyglass is in a door, the raycast should ignore the door
-            if(hero.spyglass_equipped && spyglassPos.inDoor && guard.isRaycastUnobstructedBetweenTheseIgnoreDoor({x:spyglassPos.x,y:spyglassPos.y})){
-                guard.sprite.visible = true;
-            //else it should not ignore doors:
-            }else if(guard.isRaycastUnobstructedBetweenThese({x:spyglassPos.x,y:spyglassPos.y})){
-                guard.sprite.visible = true;
-            }else{
-                guard.sprite.visible = false;
-            }
-            for(var s = 0; s < security_cameras.length; s++){
-                var cam = security_cameras[s];
-                if(cam.hacked && cam.alive && cam.doesSpriteSeeSprite(guard))guard.sprite.visible = true;
+            if(enableLOS){
+                // Only limit showing guards when LOS / fog of war is on
+                // --
+                //Only show the gaurds if they are within vision of the hero or a hacked camera:
+                //if(guard.isRaycastUnobstructedBetweenTheseIgnoreDoor(hero){
+                //if the spyglass is in a door, the raycast should ignore the door
+                if(hero.spyglass_equipped && spyglassPos.inDoor && guard.isRaycastUnobstructedBetweenTheseIgnoreDoor({x:spyglassPos.x,y:spyglassPos.y})){
+                    guard.sprite.visible = true;
+                //else it should not ignore doors:
+                }else if(guard.isRaycastUnobstructedBetweenThese({x:spyglassPos.x,y:spyglassPos.y})){
+                    guard.sprite.visible = true;
+                }else{
+                    guard.sprite.visible = false;
+                }
+                for(var s = 0; s < security_cameras.length; s++){
+                    var cam = security_cameras[s];
+                    if(cam.hacked && cam.alive && cam.doesSpriteSeeSprite(guard))guard.sprite.visible = true;
+                }
+
             }
             
             guard.currentlySeesHero = guard.doesSpriteSeeSprite(hero);
@@ -1202,7 +1210,8 @@ function gameloop_dragtarget(deltaTime){
         if(!hero.masked){
             tooltip.visible = true;
             tooltipshown = true;
-            tooltip.text = ("Hold [v] to put on your mask");
+            // tooltip.text = ("Hold [v] to put on your mask");
+            tooltip.text = (Math.round(mouse.x) + ',' + Math.round(mouse.y));
             tooltip.objX = hero.x;
             tooltip.objY = hero.y + grid.cell_size;
             
@@ -1479,6 +1488,9 @@ function pickUpGunDrop(gunDrop){
 //called every loop to recheck LOS
 //limit angle limits the view range of the los by limitAngle from the units rotation
 function make_starburst(unit,limitAngle){
+    if(!enableLOS){
+        return
+    }
     starburst.clear();
     var raycast;
     var first = {};
@@ -1552,7 +1564,7 @@ function make_starburst(unit,limitAngle){
             //NOTE: at steep angles, the second part of this if statement may not evaluate to true.  Just change 100 to a greater number if this happens.
             relevantCorner = true;
         }
-        if(draw_starburst){
+        if(debug_LOS_starburst){
             starburst_ray.set(unit.x,unit.y,raycast.x,raycast.y);
             if(relevantCorner){
                 if(!noray){
@@ -1666,6 +1678,9 @@ function make_starburst_with_modified_view(unit,newX,newY){
 }
 //360 degrees of view:
 function make_starburst_without_limit(unit){
+    if(!enableLOS){
+        return
+    }
     starburst.clear();
     var raycast;
     var first = {};
@@ -1699,7 +1714,7 @@ function make_starburst_without_limit(unit){
         if(ray_to_true < ray_to_unit || (Math.abs(ray_to_unit - ray_to_true) < 10)){
             relevantCorner = true;
         }
-        if(draw_starburst){
+        if(debug_LOS_starburst){
             starburst_ray.set(unit.x,unit.y,raycast.x,raycast.y);
             if(relevantCorner){
                 if(!noray){
@@ -2006,26 +2021,28 @@ function gameloop(deltaTime){
     if(debug_on)updateDebugInfo();
     
     
-    //Update LOS:    
-    losPathGraphics.clear();
-    
-    losPathGraphics.beginFill(0xffffff);
-    losPathGraphics.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
-    losPathGraphics.beginFill(0);
-    losPathGraphics.drawPolygon(hero.losPath);
-    
-    //clear out the LOS paths:
-    hero.losPath = [];
-    for(var i = 0; i < security_cameras.length; i++){
-        var sec_camera = security_cameras[i];
+    if(enableLOS){
+        //Update LOS:    
+        losPathGraphics.clear();
+        
+        losPathGraphics.beginFill(0xffffff);
+        losPathGraphics.drawPolygon([0,0,grid_width,0,grid_width,grid_height,0,grid_height,0,0]);
         losPathGraphics.beginFill(0);
-        losPathGraphics.drawPolygon(sec_camera.losPath);
-        sec_camera.losPath = [];
-    }
+        losPathGraphics.drawPolygon(hero.losPath);
+        
+        //clear out the LOS paths:
+        hero.losPath = [];
+        for(var i = 0; i < security_cameras.length; i++){
+            var sec_camera = security_cameras[i];
+            losPathGraphics.beginFill(0);
+            losPathGraphics.drawPolygon(sec_camera.losPath);
+            sec_camera.losPath = [];
+        }
 
-    
-    //reset the losSprite texture
-    losTexture.render(losPathGraphicsContainer, null, false);
+        
+        //reset the losSprite texture
+        losTexture.render(losPathGraphicsContainer, null, false);
+    }
 
 }
 var debug_info = $('#debug_info');
