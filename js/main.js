@@ -1051,8 +1051,9 @@ function gameloop_bullets(deltaTime){
                     var guardDies = true;
                     var splatter_angle = grid.angleBetweenPoints(hero.x,hero.y,guard.x,guard.y);
                     
-                    if(guard.hasRiotShield){
-                        //check to see if riot shield blocks bullet:
+                    if(guard.hasRiotShield && guard.alarmed){
+                        // check to see if riot shield blocks bullet:
+                        // Riot shield is only active when the guard is alarmed
                         console.log('splatter angle: ' + Math.PI+splatter_angle);
                         console.log('angle: ' + guard.rad);
                         var angleInArc = angleInArcRad(guard.rad,Math.PI/2,Math.PI+splatter_angle)
