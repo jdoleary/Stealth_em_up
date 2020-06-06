@@ -124,7 +124,6 @@ function sprite_guard_wrapper(pixiSprite, hasRiotShield){
         };
         
         this.becomeAlarmed = function(){
-            console.log('become alarmed')
             if(this.alive){
                 //when a guard is told of an alarming event.
                 if(this.knowsHerosFace)this.sprite_body.texture = this.hasRiotShield ? img_guard_riot_knows_face : (img_guard_knows_hero_face);//show that this guard knows your face:
@@ -146,7 +145,6 @@ function sprite_guard_wrapper(pixiSprite, hasRiotShield){
         
         }
         this.stop_dragging = function(){
-            console.log('stop dragging' + this.alive);
             if(!this.alive)this.sprite_body.texture = (img_guard_dead);
         }
         

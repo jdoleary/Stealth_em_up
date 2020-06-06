@@ -183,7 +183,6 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
             this.path = [];
             this.target = {x: null, y:null};
             
-            console.log('||||||||||||||||||||||||change hero texture to dead hero');
             this.sprite_body.texture = (img_hero_dead);
             this.sprite.removeChild(this.sprite_head);
             
@@ -301,7 +300,6 @@ function sprite_hero_wrapper(pixiSprite,speed_walk,speed_sprint){
                     */
                 }
             }
-            console.log("True corners for vision masking: " + true_corners);
         };
         this.getSpyglassPos = function(){
             //when hero is using the spyglass, the position of the spyglass is

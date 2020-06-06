@@ -57,7 +57,6 @@ function biasTest(min,max,bias){
         if(r > highest)highest = r;
 
     }
-    console.log(highest);
     return sum/1000;
 }
 //higher bias yields lower numbers more often

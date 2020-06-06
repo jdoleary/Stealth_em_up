@@ -2093,7 +2093,6 @@ Key Handlers
 ////////////////////////////////////////////////////////////
 
 function addKeyHandlers(){
-    console.log('add key handlers');
     //override right click:
     if (document.addEventListener) {
         document.addEventListener('contextmenu', function(e){
@@ -2267,7 +2266,6 @@ function addKeyHandlers(){
                                             this.kill();
                                             //if space isn't still being held release body:
                                             if(!keys['space']){
-                                                console.log('space is no longer held, stop dragging');
                                                 //drag is a toggle action so release current drag target.
                                                 hero_drag_target.stop_dragging();
                                                 hero_drag_target = null;
@@ -2449,7 +2447,6 @@ function mouseWheelHandler(e){
     }
 }
 function removeHandlers(excludeKeyHandlers){
-    console.log('remove key handlers');
     keys = {w: false, a: false, s: false, d: false, r: false, f: false, v: false, g:false, space:false, shift:false, LMB:false};
     
     //if excludeKeyDown is true, don't remove the onkeydown and onkeyup listeners

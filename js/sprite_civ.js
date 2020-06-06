@@ -65,7 +65,6 @@ function sprite_civ_wrapper(pixiSprite){
         
     }
     pixiSprite.tint = Math.random() * 0x00FFFF;
-    console.log(pixiSprite.tint);
     sprite_civ.prototype = new jo_sprite(pixiSprite);
     return new sprite_civ();
 }
