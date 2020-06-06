@@ -83,7 +83,7 @@ function security_camera_wrapper(pixiSprite,x,y,maxswivel,minswivel){
                     
         };
 
-        this.becomeAlarmed = function(objectOfAlarm){
+        this.seeAlarmingObject = function(objectOfAlarm){
             //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
             if(!this.alarmed){
                     this.alarmed = true;

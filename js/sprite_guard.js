@@ -6,6 +6,8 @@ me at jdoleary@gmail.com
 function sprite_guard_wrapper(pixiSprite, hasRiotShield){
     function sprite_guard(hasRiotShield){
         this.path = [];//path applies to AI following a path;
+        // The pre-state when a guard is about to get alarmed
+        this.alarmedPre = false;
         this.alarmed = false;
         this.being_choked_out = false;
         this.blood_trail;
@@ -22,6 +24,7 @@ function sprite_guard_wrapper(pixiSprite, hasRiotShield){
         this.currentlySeesHero = false;//updated every loop;
         this.gun_shot_line.graphics.visible = false;
         this.hasRiotShield = hasRiotShield;
+        this.reactionTimeMillis = 500;
         
         //Add all sprites to sprite container
         this.feet_clip = jo_movie_clip("movie_clips/","feet_",8,".png")
@@ -96,29 +99,32 @@ function sprite_guard_wrapper(pixiSprite, hasRiotShield){
         
         };
         
-        this.becomeAlarmed = function(objectOfAlarm){
-            if(!this.alarmed){
-                this.alarmed = true;
-                //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:
-                if(this.knowsHerosFace)this.sprite_body.texture = this.hasRiotShield ? img_guard_riot_knows_face : (img_guard_knows_hero_face);//show that this guard knows your face:
-                else this.sprite_body.texture = this.hasRiotShield ? img_guard_riot_alert : (img_guard_alert);
-                
-                this.path = [];//empty path
-                this.moving = false;//this sprite stop in their tracks when they see otherSprite.
-                
-                //in 3 seconds, if this guard is still alive, alert the others.
-                setTimeout(function(){
-                    if(this.alive && !this.being_choked_out){
-                        newMessage('All the other guards are on alert!');
-                        alert_all_guards();
-                    };
-                }.bind(this), 2000);
+        this.seeAlarmingObject = function(objectOfAlarm){
+            if(!this.alarmedPre && !this.alarmed){
+                // Guards don't react instantly, they need a second to comprehend what they saw
+                // This prevents shield guards from pulling out their shield the moment they see you
+                this.alarmedPre = true;
+                setTimeout(() => {
+                    this.becomeAlarmed()
+                    
+                    this.path = [];//empty path
+                    this.moving = false;//this sprite stop in their tracks when they see otherSprite.
+                    
+                    //in 3 seconds, if this guard is still alive, alert the others.
+                    setTimeout(function(){
+                        if(this.alive && !this.being_choked_out){
+                            newMessage('All the other guards are on alert!');
+                            alert_all_guards();
+                        };
+                    }.bind(this), 2000);
+                }, this.reactionTimeMillis)
             }
 
             
         };
         
-        this.hearAlarm = function(){
+        this.becomeAlarmed = function(){
+            console.log('become alarmed')
             if(this.alive){
                 //when a guard is told of an alarming event.
                 if(this.knowsHerosFace)this.sprite_body.texture = this.hasRiotShield ? img_guard_riot_knows_face : (img_guard_knows_hero_face);//show that this guard knows your face:

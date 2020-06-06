@@ -40,7 +40,7 @@ function sprite_civ_wrapper(pixiSprite){
         
         };
         
-        this.becomeAlarmed = function(objectOfAlarm){
+        this.seeAlarmingObject = function(objectOfAlarm){
             if(!this.alarmed){
                 this.alarmed = true;
                 //when a sprite first sees something alarming, they become alarmed but will not spread the alarm for several seconds:

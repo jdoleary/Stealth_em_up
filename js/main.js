@@ -733,7 +733,7 @@ function gameloop_guards(deltaTime){
                 for(var j = 0; j < alarmingObjects.length; j++){
                     if(guard.doesSpriteSeeSprite(alarmingObjects[j])){
                         newMessage('A guard has seen something alarming!');
-                        guard.becomeAlarmed(alarmingObjects[j]);
+                        guard.seeAlarmingObject(alarmingObjects[j]);
                     }
                 }
                 //check if guard sees hero:
@@ -745,7 +745,7 @@ function gameloop_guards(deltaTime){
                         }
                         newMessage('A guard has seen you being suspicious!');
                         //alarm if hero is seen masked
-                        guard.becomeAlarmed(hero);
+                        guard.seeAlarmingObject(hero);
                         
                         //show alert icon for this guard:
                         set_latestAlert(guard);
@@ -886,7 +886,7 @@ function gameloop_civs(deltaTime){
                 for(var j = 0; j < alarmingObjects.length; j++){
                     if(civs[i].doesSpriteSeeSprite(alarmingObjects[j])){
                         newMessage('A civs has seen something alarming!');
-                        civs[i].becomeAlarmed(alarmingObjects[j]);
+                        civs[i].seeAlarmingObject(alarmingObjects[j]);
                     }
                 }
                 //check if civs sees hero:
@@ -894,7 +894,7 @@ function gameloop_civs(deltaTime){
                     if(hero.wilLCauseAlert()){
                         newMessage('A civs has seen you suspicious!');
                         //alarm if hero is seen masked
-                        civs[i].becomeAlarmed(hero);
+                        civs[i].seeAlarmingObject(hero);
                     }
                     //civs are not alarmed by seeing hero in a restricted area
                     
@@ -944,7 +944,7 @@ function gameloop_security_cams(deltaTime){
                 for(var j = 0; j < alarmingObjects.length; j++){
                     if(cam.doesSpriteSeeSprite(alarmingObjects[j])){
                         newMessage('A security camera has seen something alarming!');
-                        cam.becomeAlarmed(alarmingObjects[j]);
+                        cam.seeAlarmingObject(alarmingObjects[j]);
                     }
                 }
                 //check if security_camera sees hero:
@@ -952,7 +952,7 @@ function gameloop_security_cams(deltaTime){
                     //alarm if hero is seen masked
                     if(hero.willCauseAlert()){
                         newMessage('A security camera has seen you being suspicious!');
-                        cam.becomeAlarmed(hero);
+                        cam.seeAlarmingObject(hero);
                         
                         //THIS DOESN"T WORK YET:
                         //rotate cam to face hero:
@@ -1836,7 +1836,7 @@ function gameloop(deltaTime){
     if(hero.alive && hero.gunOut){
         hero.aim.set(hero.x,hero.y,hero_end_aim_coord.x,hero_end_aim_coord.y);
         //laser sight
-        hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
+        // hero.draw_gun_shot(hero.aim);//only draw aim line when hero gun is out.
     }
     
     
@@ -2500,14 +2500,14 @@ function spawn_individual_backup(){
     var newGuard = new sprite_guard_wrapper(new PIXI.Sprite(img_guard_alert),hasRiotShield);
     newGuard.x = guard_backup_spawn.x;
     newGuard.y = guard_backup_spawn.y;
-    //if(newGuard.alive)newGuard.hearAlarm();
+    //if(newGuard.alive)newGuard.becomeAlarmed();
     guards.push(newGuard);
 
 }
 function alert_all_guards(){
     for(var z = 0; z < guards.length; z++){
         //alert the other living guards that are 500 distance away
-        if(guards[z].alive && get_distance(hero.x,hero.y,guards[z].x,guards[z].y)<500)guards[z].hearAlarm();
+        if(guards[z].alive && get_distance(hero.x,hero.y,guards[z].x,guards[z].y)<500)guards[z].becomeAlarmed();
     }
     if(!backupCalled){
         //this part cannot repeat in the same game
@@ -2591,7 +2591,7 @@ function useMask(toggle){
                     
                     newMessage('A guard has seen you taking off your mask!');
                     //alarm if hero is seen masked
-                    guard.becomeAlarmed(hero);
+                    guard.seeAlarmingObject(hero);
                     
                     //show alert icon for this guard:
                     set_latestAlert(guard);
