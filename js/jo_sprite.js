@@ -64,15 +64,6 @@ function jo_sprite(pixiSprite, parent){
     this.shoot = function(){
         this.gun.shoot(this);
         this.can_shoot = false; //so the guards don't shoot way too fast
-
-        //toggle gun_shot_line visibility.
-        /*setTimeout(function(){
-            this.gun_shot_line.graphics.clear();
-            this.gun_shot_line.graphics.visible = false;//turn off gunshot after .5 seconds
-        }.bind(this),50);*/
-    }
-    this.draw_gun_shot = function(ray){
-        this.gun_shot_line.draw_Ray(ray);
     }
 
     this.move_to_target = function(){
@@ -193,6 +184,7 @@ function jo_sprite(pixiSprite, parent){
         if(this.target.x == null || this.target.y == null )return;//no target
         var a,b;
         var c = this.speed;
+        console.log("this.get_dragged -> this.speed", this.speed, this.target)
         var A = this.target.x-this.x;
         var B = this.target.y-this.y;
         var C = Math.sqrt(A*A+B*B);
@@ -201,11 +193,8 @@ function jo_sprite(pixiSprite, parent){
         }
         a = c*A/C;
         b = c*B/C;
-        if(this.moving){
-            //only move the sprite if they are set to moving, for example when guards see hero they will stop in their tracks
-            this.x += a;
-            this.y += b;
-        }
+        this.x += a;
+        this.y += b;
         //rotate to face direction of movement
         var newRad = Math.atan2(b,a) + Math.PI;
         if(newRad < Math.PI)newRad += Math.PI*2; //keep it between -PI and PI
